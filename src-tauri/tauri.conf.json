@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "社畜牛马工资实时计算器",
+  "version": "0.1.0",
+  "identifier": "com.moyu.salaryticker",
+  "build": {
+    "beforeDevCommand": "npm.cmd run dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "npm.cmd run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "社畜牛马工资实时计算器",
+        "width": 420,
+        "height": 560,
+        "minWidth": 360,
+        "minHeight": 480,
+        "center": true,
+        "decorations": false,
+        "transparent": true,
+        "shadow": true,
+        "resizable": true,
+        "theme": "Light",
+        "alwaysOnTop": false,
+        "windowEffects": {
+          "effects": ["micaLight"],
+          "state": "active"
+        }
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all"
+  }
+}
