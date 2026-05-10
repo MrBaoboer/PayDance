@@ -79,7 +79,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   gap: 0.16em;
   color: var(--text);
-  font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
   transform-origin: center bottom;

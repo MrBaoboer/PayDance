@@ -1,4 +1,17 @@
+@import "@fontsource/noto-sans-sc/chinese-simplified-400.css";
+@import "@fontsource/noto-sans-sc/chinese-simplified-500.css";
+@import "@fontsource/noto-sans-sc/chinese-simplified-600.css";
+@import "@fontsource/noto-sans-sc/chinese-simplified-700.css";
+@import "@fontsource/roboto-mono/latin-400.css";
+@import "@fontsource/roboto-mono/latin-500.css";
+@import "@fontsource/roboto-mono/latin-600.css";
+@import "@fontsource/roboto-mono/latin-700.css";
 @import "tailwindcss";
+
+:root {
+  --font-sans: "Noto Sans SC", "Source Han Sans SC", "思源黑体", "Microsoft YaHei UI", "Segoe UI Variable", system-ui, sans-serif;
+  --font-mono: "Roboto Mono", "Cascadia Mono", Consolas, monospace;
+}
 
 html,
 body,
@@ -8,11 +21,7 @@ body,
   margin: 0;
   overflow: hidden;
   background: transparent;
-  font-family:
-    "Segoe UI Variable",
-    "Segoe UI",
-    system-ui,
-    sans-serif;
+  font-family: var(--font-sans);
 }
 
 * {

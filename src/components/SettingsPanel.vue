@@ -137,7 +137,7 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
   background: rgb(245 158 11 / 0.12);
   padding: 9px 11px;
   color: var(--text);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   text-align: left;
 }
@@ -164,7 +164,7 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
 
 .group-title strong {
   color: var(--text);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
 }
 
@@ -181,7 +181,7 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
 
 .field span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
 }
 
@@ -191,6 +191,8 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--panel);
+  font-family: var(--font-mono);
+  font-size: 14px;
   padding: 0 10px;
   color: var(--text);
   outline: none;
@@ -220,7 +222,7 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
   align-items: center;
   gap: 7px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
 }
 

@@ -19,7 +19,10 @@ const progressText = computed(() => `${Math.round(clampedProgress.value * 100)}%
       </div>
       <span class="progress-dot" :style="{ left: progressPercent }" />
     </div>
-    <span class="progress-label">今日进度 {{ progressText }}</span>
+    <span class="progress-label">
+      <span>今日进度</span>
+      <strong>{{ progressText }}</strong>
+    </span>
   </div>
 </template>
 
@@ -82,12 +85,20 @@ const progressText = computed(() => `${Math.round(clampedProgress.value * 100)}%
 }
 
 .progress-label {
+  display: inline-flex;
+  justify-content: center;
+  gap: 6px;
   color: var(--muted);
-  font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 650;
   line-height: 1;
   text-align: center;
+}
+
+.progress-label strong {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 

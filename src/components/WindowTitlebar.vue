@@ -87,7 +87,7 @@ defineEmits<{
   gap: 8px;
   padding: 0 4px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
 }
 

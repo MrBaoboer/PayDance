@@ -1,21 +1,31 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   dailyTotal: string;
   remainingEarn: string;
   workedTime: string;
   remainingTime: string;
 }>();
+
+const amountWidthStyle = (value: string) => ({
+  "--amount-ch": String(value.length),
+});
 </script>
 
 <template>
   <div class="stats-panel" aria-label="今日工资统计">
     <article class="stat-item">
       <span>今日预计入账</span>
-      <strong>¥{{ dailyTotal }}</strong>
+      <strong class="stat-money" :style="amountWidthStyle(props.dailyTotal)">
+        <i>¥</i>
+        <b>{{ dailyTotal }}</b>
+      </strong>
     </article>
     <article class="stat-item">
       <span>还可入账</span>
-      <strong>¥{{ remainingEarn }}</strong>
+      <strong class="stat-money" :style="amountWidthStyle(props.remainingEarn)">
+        <i>¥</i>
+        <b>{{ remainingEarn }}</b>
+      </strong>
     </article>
     <article class="stat-item">
       <span>已工作</span>
@@ -52,7 +62,7 @@ defineProps<{
 .stat-item span {
   overflow: hidden;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -61,11 +71,29 @@ defineProps<{
 .stat-item strong {
   overflow: hidden;
   color: var(--text);
-  font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
-  font-size: 13px;
+  font-family: var(--font-mono);
+  font-size: 14px;
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.stat-money {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.stat-money i {
+  position: absolute;
+  right: calc(50% + var(--amount-ch) * 0.31em + 0.38em);
+  color: var(--muted);
+  font-style: normal;
+}
+
+.stat-money b {
+  font-weight: inherit;
 }
 </style>

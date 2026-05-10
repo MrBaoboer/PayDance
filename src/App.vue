@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { LazyStore } from "@tauri-apps/plugin-store";
 import { LogicalSize } from "@tauri-apps/api/dpi";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { Banknote, Clock3, Coffee, X } from "lucide-vue-next";
+import { HandCoins, TimerReset, X, Zap } from "lucide-vue-next";
 import {
   calculateSalarySnapshot,
   defaultSalaryConfig,
@@ -39,7 +39,7 @@ const miniResizeEdgeSize = 12;
 const config = ref<SalaryConfig>({ ...defaultSalaryConfig });
 const alwaysOnTop = ref(false);
 const isMiniMode = ref(false);
-const showSettings = ref(true);
+const showSettings = ref(false);
 const themeMode = ref<ThemeMode>("light");
 const miniSize = ref<WindowSize>({ ...miniDefaultSize });
 const isReady = ref(false);
@@ -249,8 +249,6 @@ const startTicker = () => {
 onMounted(async () => {
   const savedConfig = await store.get<SalaryConfig>("config");
   const savedTop = await store.get<boolean>("alwaysOnTop");
-  const savedMini = await store.get<boolean>("isMiniMode");
-  const savedSettings = await store.get<boolean>("showSettings");
   const savedTheme = await store.get<ThemeMode>("themeMode");
   const savedMiniSize = await store.get<WindowSize>("miniSize");
   const savedSettingsVersion = await store.get<number>("settingsVersion");
@@ -267,13 +265,8 @@ onMounted(async () => {
     alwaysOnTop.value = savedTop;
   }
 
-  if (typeof savedMini === "boolean") {
-    isMiniMode.value = savedMini;
-  }
-
-  if (typeof savedSettings === "boolean") {
-    showSettings.value = savedSettings;
-  }
+  isMiniMode.value = false;
+  showSettings.value = false;
 
   if (savedTheme === "dark" || savedTheme === "light") {
     themeMode.value = savedTheme;
@@ -379,17 +372,17 @@ onBeforeUnmount(() => {
 
         <div class="rate-grid">
           <article class="rate-card">
-            <Banknote :size="16" />
+            <HandCoins :size="23" />
             <span>时薪</span>
             <strong>¥{{ snapshot.hourlyRate.toFixed(2) }}</strong>
           </article>
           <article class="rate-card">
-            <Clock3 :size="16" />
+            <TimerReset :size="23" />
             <span>分薪</span>
             <strong>¥{{ snapshot.minuteRate.toFixed(2) }}</strong>
           </article>
           <article class="rate-card">
-            <Coffee :size="16" />
+            <Zap :size="23" />
             <span>秒薪</span>
             <strong>¥{{ snapshot.secondRate.toFixed(4) }}</strong>
           </article>
@@ -485,8 +478,8 @@ onBeforeUnmount(() => {
 
 .hero-meta p {
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   width: 100%;
 }
 
@@ -525,14 +518,15 @@ onBeforeUnmount(() => {
 }
 
 .rate-card span {
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .rate-card strong {
   overflow: hidden;
   color: var(--text);
-  font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
-  font-size: 15px;
+  font-family: var(--font-mono);
+  font-size: 16px;
   font-weight: 650;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -581,13 +575,13 @@ onBeforeUnmount(() => {
 
 .settings-sheet__header strong {
   color: var(--text);
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 750;
 }
 
 .settings-sheet__header span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
 }
 
