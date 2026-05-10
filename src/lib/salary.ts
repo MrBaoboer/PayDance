@@ -20,6 +20,11 @@ export type SalarySnapshot = {
   elapsedWorkMs: number;
 };
 
+export type SalaryConfigIssue = {
+  field: keyof SalaryConfig | "workTime";
+  message: string;
+};
+
 export const defaultSalaryConfig: SalaryConfig = {
   monthlySalary: 20000,
   workDaysPerMonth: 21.75,
@@ -59,6 +64,58 @@ const parseTimeToMinutes = (time: string) => {
   return hour * 60 + minute;
 };
 
+export function validateSalaryConfig(config: SalaryConfig): SalaryConfigIssue[] {
+  const issues: SalaryConfigIssue[] = [];
+  const start = parseTimeToMinutes(config.startTime);
+  const end = parseTimeToMinutes(config.endTime);
+
+  if (!Number.isFinite(config.monthlySalary) || config.monthlySalary <= 0) {
+    issues.push({ field: "monthlySalary", message: "月薪需要大于 0" });
+  }
+
+  if (!Number.isFinite(config.workDaysPerMonth) || config.workDaysPerMonth <= 0) {
+    issues.push({ field: "workDaysPerMonth", message: "每月工作天数需要大于 0" });
+  }
+
+  if (!Number.isFinite(start)) {
+    issues.push({ field: "startTime", message: "上班时间格式不正确" });
+  }
+
+  if (!Number.isFinite(end)) {
+    issues.push({ field: "endTime", message: "下班时间格式不正确" });
+  }
+
+  if (Number.isFinite(start) && Number.isFinite(end) && start >= end) {
+    issues.push({ field: "workTime", message: "下班时间需要晚于上班时间" });
+  }
+
+  if (config.enableLunchBreak) {
+    const lunchStart = parseTimeToMinutes(config.lunchStart);
+    const lunchEnd = parseTimeToMinutes(config.lunchEnd);
+
+    if (!Number.isFinite(lunchStart)) {
+      issues.push({ field: "lunchStart", message: "午休开始时间格式不正确" });
+    }
+
+    if (!Number.isFinite(lunchEnd)) {
+      issues.push({ field: "lunchEnd", message: "午休结束时间格式不正确" });
+    }
+
+    if (
+      Number.isFinite(start) &&
+      Number.isFinite(end) &&
+      start < end &&
+      Number.isFinite(lunchStart) &&
+      Number.isFinite(lunchEnd) &&
+      !(start < lunchStart && lunchStart < lunchEnd && lunchEnd < end)
+    ) {
+      issues.push({ field: "workTime", message: "午休时间需要完整落在工作时间内" });
+    }
+  }
+
+  return issues;
+}
+
 const dateAtMinutes = (base: Date, minutes: number) => {
   const date = new Date(base);
   date.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
@@ -68,23 +125,31 @@ const dateAtMinutes = (base: Date, minutes: number) => {
 export function createWorkSpans(date: Date, config: SalaryConfig) {
   const start = parseTimeToMinutes(config.startTime);
   const end = parseTimeToMinutes(config.endTime);
-  const lunchStart = parseTimeToMinutes(config.lunchStart);
-  const lunchEnd = parseTimeToMinutes(config.lunchEnd);
 
-  if (![start, end, lunchStart, lunchEnd].every(Number.isFinite) || start >= end) {
+  if (![start, end].every(Number.isFinite) || start >= end) {
     return [];
   }
 
-  if (
-    config.enableLunchBreak &&
-    start < lunchStart &&
-    lunchStart < lunchEnd &&
-    lunchEnd < end
-  ) {
-    return [
-      [dateAtMinutes(date, start), dateAtMinutes(date, lunchStart)],
-      [dateAtMinutes(date, lunchEnd), dateAtMinutes(date, end)],
-    ] as const;
+  if (config.enableLunchBreak) {
+    const lunchStart = parseTimeToMinutes(config.lunchStart);
+    const lunchEnd = parseTimeToMinutes(config.lunchEnd);
+
+    if (![lunchStart, lunchEnd].every(Number.isFinite)) {
+      return [];
+    }
+
+    if (
+      start < lunchStart &&
+      lunchStart < lunchEnd &&
+      lunchEnd < end
+    ) {
+      return [
+        [dateAtMinutes(date, start), dateAtMinutes(date, lunchStart)],
+        [dateAtMinutes(date, lunchEnd), dateAtMinutes(date, end)],
+      ] as const;
+    }
+
+    return [];
   }
 
   return [[dateAtMinutes(date, start), dateAtMinutes(date, end)]] as const;

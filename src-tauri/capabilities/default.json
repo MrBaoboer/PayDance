@@ -12,6 +12,8 @@
     "core:window:allow-set-focus",
     "core:window:allow-start-dragging",
     "core:window:allow-set-always-on-top",
+    "core:window:allow-set-min-size",
+    "core:window:allow-set-resizable",
     "core:window:allow-set-size",
     "core:window:allow-set-theme",
     "core:window:allow-show",
