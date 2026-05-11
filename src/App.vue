@@ -1,17 +1,21 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { LazyStore } from "@tauri-apps/plugin-store";
-import { LogicalSize } from "@tauri-apps/api/dpi";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { HandCoins, TimerReset, X, Zap } from "lucide-vue-next";
+import { Banknote, CircleDollarSign, Clock3, TimerReset, X } from "lucide-vue-next";
 import {
-  calculateSalarySnapshot,
-  defaultSalaryConfig,
   validateSalaryConfig,
   type SalaryConfigIssue,
-  type SalaryConfig,
-  type SalarySnapshot,
 } from "./lib/salary";
+import {
+  miniDefaultSize,
+  miniResizeEdgeSize,
+  normalizeMiniSize,
+  type WindowSize,
+} from "./lib/window-mode";
+import { appName } from "./lib/app-meta";
+import { useSalarySettings } from "./composables/useSalarySettings";
+import { useSalaryTicker } from "./composables/useSalaryTicker";
+import { useWindowMode } from "./composables/useWindowMode";
 import MiniWindow from "./components/MiniWindow.vue";
 import IncomeProgress from "./components/IncomeProgress.vue";
 import RollingAmount from "./components/RollingAmount.vue";
@@ -19,33 +23,27 @@ import SettingsPanel from "./components/SettingsPanel.vue";
 import StatsPanel from "./components/StatsPanel.vue";
 import WindowTitlebar from "./components/WindowTitlebar.vue";
 
-type ThemeMode = "light" | "dark";
-type WindowSize = {
-  width: number;
-  height: number;
-};
-
-const store = new LazyStore("salary-settings.json");
 const appWindow = getCurrentWindow();
-const settingsSchemaVersion = 1;
-const fullWindowWidth = 468;
-const fullWindowMinWidth = 420;
-const compactWindowHeight = 432;
-const compactWindowMinHeight = 390;
-const miniDefaultSize: WindowSize = { width: 238, height: 86 };
-const miniMinSize: WindowSize = { width: 168, height: 58 };
-const miniResizeEdgeSize = 12;
+const {
+  amountMode,
+  alwaysOnTop,
+  config,
+  isSettingsReady,
+  loadSettings,
+  saveSettings,
+  themeMode,
+} = useSalarySettings();
 
-const config = ref<SalaryConfig>({ ...defaultSalaryConfig });
-const alwaysOnTop = ref(false);
 const isMiniMode = ref(false);
 const showSettings = ref(false);
-const themeMode = ref<ThemeMode>("light");
+const showSalaryInfo = ref(false);
 const miniSize = ref<WindowSize>({ ...miniDefaultSize });
-const isReady = ref(false);
-
-const snapshot = ref<SalarySnapshot>(
-  calculateSalarySnapshot(new Date(), config.value),
+const { snapshot, startTicker, stopTicker } = useSalaryTicker(config);
+const { applyWindowMode, setAlwaysOnTop } = useWindowMode(
+  appWindow,
+  isMiniMode,
+  miniSize,
+  alwaysOnTop,
 );
 
 const yuanFormatter = new Intl.NumberFormat("zh-CN", {
@@ -54,7 +52,6 @@ const yuanFormatter = new Intl.NumberFormat("zh-CN", {
 });
 
 const earnedText = computed(() => yuanFormatter.format(snapshot.value.earnedToday));
-const dailyTotalText = computed(() => yuanFormatter.format(snapshot.value.dailySalary));
 const remainingEarnText = computed(() =>
   yuanFormatter.format(Math.max(0, snapshot.value.dailySalary - snapshot.value.earnedToday)),
 );
@@ -88,46 +85,11 @@ const shellClass = computed(() =>
 );
 
 const saveState = async () => {
-  if (!isReady.value) return;
-
-  await store.set("config", config.value);
-  await store.set("alwaysOnTop", alwaysOnTop.value);
-  await store.set("isMiniMode", isMiniMode.value);
-  await store.set("showSettings", showSettings.value);
-  await store.set("themeMode", themeMode.value);
-  await store.set("miniSize", miniSize.value);
-  await store.set("settingsVersion", settingsSchemaVersion);
-  await store.save();
-};
-
-const normalizeMiniSize = (size: Partial<WindowSize> | null | undefined): WindowSize => ({
-  width: Math.max(miniMinSize.width, Math.round(size?.width ?? miniDefaultSize.width)),
-  height: Math.max(miniMinSize.height, Math.round(size?.height ?? miniDefaultSize.height)),
-});
-
-const applyWindowMode = async () => {
-  await appWindow.setResizable(true);
-
-  if (isMiniMode.value) {
-    const size = normalizeMiniSize(miniSize.value);
-    miniSize.value = size;
-    await appWindow.setMinSize(new LogicalSize(miniMinSize.width, miniMinSize.height));
-    await appWindow.setSize(new LogicalSize(size.width, size.height));
-    await appWindow.setAlwaysOnTop(true);
-    alwaysOnTop.value = true;
-    return;
-  }
-
-  await appWindow.setMinSize(
-    new LogicalSize(
-      fullWindowMinWidth,
-      compactWindowMinHeight,
-    ),
-  );
-  await appWindow.setSize(
-    new LogicalSize(fullWindowWidth, compactWindowHeight),
-  );
-  await appWindow.setAlwaysOnTop(alwaysOnTop.value);
+  await saveSettings({
+    isMiniMode: isMiniMode.value,
+    miniSize: miniSize.value,
+    showSettings: showSettings.value,
+  });
 };
 
 const setMiniMode = async (value: boolean) => {
@@ -148,13 +110,13 @@ const toggleTheme = async () => {
 };
 
 const toggleAlwaysOnTop = async () => {
-  alwaysOnTop.value = !alwaysOnTop.value;
-  await appWindow.setAlwaysOnTop(alwaysOnTop.value);
+  await setAlwaysOnTop(!alwaysOnTop.value);
   await saveState();
 };
 
 const openSettings = async () => {
   showSettings.value = true;
+  showSalaryInfo.value = false;
   if (isMiniMode.value) {
     isMiniMode.value = false;
     await applyWindowMode();
@@ -225,54 +187,18 @@ const startMiniDrag = (event: PointerEvent) => {
 
 watch(config, saveState, { deep: true });
 watch(showSettings, async () => {
-  if (!isReady.value || isMiniMode.value) return;
+  if (!isSettingsReady.value || isMiniMode.value) return;
   await saveState();
 });
 
-let rafId = 0;
 let saveMiniSizeTimer = 0;
 const unlisteners: Array<() => void> = [];
 
-const startTicker = () => {
-  const baseWallTime = Date.now();
-  const basePerfTime = performance.now();
-
-  const tick = (perfTime: number) => {
-    const now = new Date(baseWallTime + perfTime - basePerfTime);
-    snapshot.value = calculateSalarySnapshot(now, config.value);
-    rafId = requestAnimationFrame(tick);
-  };
-
-  rafId = requestAnimationFrame(tick);
-};
-
 onMounted(async () => {
-  const savedConfig = await store.get<SalaryConfig>("config");
-  const savedTop = await store.get<boolean>("alwaysOnTop");
-  const savedTheme = await store.get<ThemeMode>("themeMode");
-  const savedMiniSize = await store.get<WindowSize>("miniSize");
-  const savedSettingsVersion = await store.get<number>("settingsVersion");
-
-  if (savedConfig) {
-    config.value = { ...defaultSalaryConfig, ...savedConfig };
-  }
-
-  if (savedSettingsVersion !== settingsSchemaVersion) {
-    miniSize.value = normalizeMiniSize(savedMiniSize);
-  }
-
-  if (typeof savedTop === "boolean") {
-    alwaysOnTop.value = savedTop;
-  }
-
-  isMiniMode.value = false;
+  const windowPreferences = await loadSettings();
+  isMiniMode.value = windowPreferences.isMiniMode;
+  miniSize.value = windowPreferences.miniSize;
   showSettings.value = false;
-
-  if (savedTheme === "dark" || savedTheme === "light") {
-    themeMode.value = savedTheme;
-  }
-
-  miniSize.value = normalizeMiniSize(savedMiniSize);
 
   await appWindow.setTheme(themeMode.value);
   await applyWindowMode();
@@ -297,8 +223,14 @@ onMounted(async () => {
   );
 
   unlisteners.push(
+    await appWindow.listen("tray-toggle-mini-mode", () => {
+      void toggleMiniMode();
+    }),
+  );
+
+  unlisteners.push(
     await appWindow.onResized(() => {
-      if (!isReady.value || !isMiniMode.value) return;
+      if (!isSettingsReady.value || !isMiniMode.value) return;
 
       window.clearTimeout(saveMiniSizeTimer);
       saveMiniSizeTimer = window.setTimeout(() => {
@@ -311,12 +243,11 @@ onMounted(async () => {
     }),
   );
 
-  isReady.value = true;
   startTicker();
 });
 
 onBeforeUnmount(() => {
-  cancelAnimationFrame(rafId);
+  stopTicker();
   window.clearTimeout(saveMiniSizeTimer);
   clearMiniDrag();
   for (const unlisten of unlisteners) {
@@ -333,11 +264,12 @@ onBeforeUnmount(() => {
     <MiniWindow
       v-if="isMiniMode"
       :amount="earnedText"
+      :amount-mode="amountMode"
       @drag-start="startMiniDrag"
       @restore="setMiniMode(false)"
     />
 
-    <div v-else class="app-window">
+    <div v-else class="app-window" :aria-label="appName">
       <WindowTitlebar
         :always-on-top="alwaysOnTop"
         :has-config-issues="hasConfigIssues"
@@ -354,48 +286,34 @@ onBeforeUnmount(() => {
 
       <section class="hero-panel">
         <div class="hero-meta">
-          <p>今天我已经挣了</p>
+          <p>今日入账</p>
         </div>
 
         <button class="amount-display" title="双击进入迷你悬浮模式" @dblclick="setMiniMode(true)">
-          <RollingAmount :value="earnedText" />
+          <RollingAmount :mode="amountMode" :value="earnedText" />
         </button>
 
-        <StatsPanel
-          :daily-total="dailyTotalText"
-          :remaining-earn="remainingEarnText"
-          :remaining-time="remainingTimeText"
-          :worked-time="workedTimeText"
-        />
+        <div class="hero-controls">
+          <StatsPanel
+            :remaining-earn="remainingEarnText"
+            :remaining-time="remainingTimeText"
+            :worked-time="workedTimeText"
+          />
 
-        <IncomeProgress :is-working="snapshot.isWorking" :progress="snapshot.progress" />
+          <IncomeProgress :is-working="snapshot.isWorking" :progress="snapshot.progress" />
 
-        <div class="rate-grid">
-          <article class="rate-card">
-            <HandCoins :size="23" />
-            <span>时薪</span>
-            <strong>¥{{ snapshot.hourlyRate.toFixed(2) }}</strong>
-          </article>
-          <article class="rate-card">
-            <TimerReset :size="23" />
-            <span>分薪</span>
-            <strong>¥{{ snapshot.minuteRate.toFixed(2) }}</strong>
-          </article>
-          <article class="rate-card">
-            <Zap :size="23" />
-            <span>秒薪</span>
-            <strong>¥{{ snapshot.secondRate.toFixed(4) }}</strong>
-          </article>
+          <button class="salary-info-button" @click="showSalaryInfo = true">
+            薪资说明
+          </button>
         </div>
       </section>
 
       <Transition name="settings-sheet">
-        <div v-if="showSettings" class="settings-overlay" @click.self="showSettings = false">
-          <section class="settings-sheet" aria-label="设置中心">
+        <div v-if="showSettings" class="settings-overlay settings-overlay--top" @click.self="showSettings = false">
+          <section class="settings-sheet settings-sheet--top" aria-label="设置中心">
             <header class="settings-sheet__header">
               <div>
                 <strong>设置</strong>
-                <span>薪资和工作时间</span>
               </div>
               <button class="sheet-close-button" title="关闭设置" @click="showSettings = false">
                 <X :size="16" />
@@ -403,10 +321,49 @@ onBeforeUnmount(() => {
             </header>
             <div class="settings-sheet__body">
               <SettingsPanel
+                v-model:amount-mode="amountMode"
                 v-model:config="config"
                 :first-issue="firstConfigIssue"
                 :has-issue="hasIssue"
               />
+            </div>
+          </section>
+        </div>
+      </Transition>
+
+      <Transition name="settings-sheet">
+        <div v-if="showSalaryInfo" class="settings-overlay" @click.self="showSalaryInfo = false">
+          <section class="settings-sheet" aria-label="薪资说明">
+            <header class="settings-sheet__header">
+              <div>
+                <strong>薪资说明</strong>
+                <span>按当前配置换算</span>
+              </div>
+              <button class="sheet-close-button" title="关闭薪资说明" @click="showSalaryInfo = false">
+                <X :size="16" />
+              </button>
+            </header>
+            <div class="salary-info-grid">
+              <article class="salary-info-card">
+                <CircleDollarSign :size="24" />
+                <span>日薪</span>
+                <strong>¥{{ snapshot.dailySalary.toFixed(2) }}</strong>
+              </article>
+              <article class="salary-info-card">
+                <Banknote :size="24" />
+                <span>时薪</span>
+                <strong>¥{{ snapshot.hourlyRate.toFixed(2) }}</strong>
+              </article>
+              <article class="salary-info-card">
+                <Clock3 :size="24" />
+                <span>分薪</span>
+                <strong>¥{{ snapshot.minuteRate.toFixed(2) }}</strong>
+              </article>
+              <article class="salary-info-card">
+                <TimerReset :size="24" />
+                <span>秒薪</span>
+                <strong>¥{{ snapshot.secondRate.toFixed(4) }}</strong>
+              </article>
             </div>
           </section>
         </div>
@@ -425,7 +382,13 @@ onBeforeUnmount(() => {
   --muted: rgb(113 113 122);
   --subtle: rgb(244 244 245 / 0.94);
   --accent: rgb(24 24 27);
+  --income-accent: rgb(217 119 6);
+  --income-accent-bright: rgb(245 158 11);
+  --income-accent-glow: rgb(217 119 6 / 0.16);
+  --income-accent-ring: rgb(217 119 6 / 0.22);
+  --income-accent-shadow: rgb(217 119 6 / 0.26);
   --danger: rgb(239 68 68);
+  --mini-panel: rgb(255 255 255 / 0.72);
   --shadow: 0 24px 70px rgb(15 23 42 / 0.18);
 }
 
@@ -438,7 +401,13 @@ onBeforeUnmount(() => {
   --muted: rgb(161 161 170);
   --subtle: rgb(63 63 70 / 0.78);
   --accent: rgb(250 250 250);
+  --income-accent: rgb(245 158 11);
+  --income-accent-bright: rgb(251 191 36);
+  --income-accent-glow: rgb(245 158 11 / 0.2);
+  --income-accent-ring: rgb(245 158 11 / 0.18);
+  --income-accent-shadow: rgb(245 158 11 / 0.24);
   --danger: rgb(248 113 113);
+  --mini-panel: rgb(24 24 27 / 0.7);
   --shadow: 0 26px 80px rgb(0 0 0 / 0.38);
 }
 
@@ -456,14 +425,18 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(28px);
 }
 
+.is-mini {
+  padding: 4px;
+}
+
 .hero-panel {
   display: flex;
   min-height: 334px;
   flex: 1;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 26px 32px 28px;
+  justify-content: flex-start;
+  padding: 34px 32px 22px;
   text-align: center;
 }
 
@@ -485,10 +458,18 @@ onBeforeUnmount(() => {
 
 .amount-display {
   display: grid;
-  max-width: 100%;
+  width: min(100% - 64px, 390px);
   place-items: center;
   margin-top: 26px;
   color: var(--text);
+}
+
+.hero-controls {
+  display: grid;
+  width: 100%;
+  gap: 18px;
+  justify-items: stretch;
+  margin-top: auto;
 }
 
 .rate-grid {
@@ -512,6 +493,31 @@ onBeforeUnmount(() => {
   text-align: center;
 }
 
+.salary-info-button {
+  height: 34px;
+  justify-self: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-soft);
+  padding: 0 14px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 650;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.salary-info-button:hover {
+  background: var(--subtle);
+  color: var(--text);
+}
+
+.salary-info-button:active {
+  transform: scale(0.98);
+}
+
 .rate-card svg,
 .rate-card span {
   color: var(--muted);
@@ -533,6 +539,47 @@ onBeforeUnmount(() => {
   font-variant-numeric: tabular-nums;
 }
 
+.salary-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 16px 18px 18px;
+}
+
+.salary-info-card {
+  display: grid;
+  min-width: 0;
+  place-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel-soft);
+  padding: 16px 12px;
+  text-align: center;
+}
+
+.salary-info-card svg,
+.salary-info-card span {
+  color: var(--muted);
+}
+
+.salary-info-card span {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.salary-info-card strong {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
 .settings-overlay {
   position: absolute;
   inset: 0;
@@ -542,6 +589,10 @@ onBeforeUnmount(() => {
   background: rgb(0 0 0 / 0.16);
   backdrop-filter: blur(6px);
   z-index: 10;
+}
+
+.settings-overlay--top {
+  align-items: flex-start;
 }
 
 .settings-sheet {
@@ -556,6 +607,13 @@ onBeforeUnmount(() => {
   box-shadow: 0 -18px 48px rgb(15 23 42 / 0.18);
 }
 
+.settings-sheet--top {
+  border-top: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 20px 20px 18px 18px;
+  box-shadow: 0 18px 48px rgb(15 23 42 / 0.18);
+}
+
 .settings-sheet__header {
   display: flex;
   flex: 0 0 auto;
@@ -563,12 +621,11 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   gap: 16px;
   border-bottom: 1px solid var(--line);
-  padding: 14px 16px 12px 18px;
+  padding: 16px 16px 14px 18px;
 }
 
 .settings-sheet__header div {
   display: grid;
-  gap: 3px;
   min-width: 0;
   text-align: left;
 }
@@ -651,6 +708,11 @@ onBeforeUnmount(() => {
 .settings-sheet-leave-to .settings-sheet {
   opacity: 0;
   transform: translateY(22px);
+}
+
+.settings-sheet-enter-from .settings-sheet--top,
+.settings-sheet-leave-to .settings-sheet--top {
+  transform: translateY(-22px);
 }
 
 </style>

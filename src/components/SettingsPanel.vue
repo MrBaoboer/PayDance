@@ -2,12 +2,14 @@
 import type { SalaryConfig, SalaryConfigIssue } from "../lib/salary";
 
 const props = defineProps<{
+  amountMode: "rolling" | "plain";
   config: SalaryConfig;
   firstIssue: string;
   hasIssue: (field: SalaryConfigIssue["field"]) => boolean;
 }>();
 
 const emit = defineEmits<{
+  "update:amountMode": [mode: "rolling" | "plain"];
   "update:config": [config: SalaryConfig];
 }>();
 
@@ -116,6 +118,28 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
             @input="updateConfig('lunchEnd', readText($event))"
           />
         </label>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="group-title">
+        <strong>金额变换</strong>
+      </div>
+      <div class="segmented-control" aria-label="金额数字变化方式">
+        <button
+          :class="{ 'is-active': amountMode === 'rolling' }"
+          type="button"
+          @click="emit('update:amountMode', 'rolling')"
+        >
+          滚动变换
+        </button>
+        <button
+          :class="{ 'is-active': amountMode === 'plain' }"
+          type="button"
+          @click="emit('update:amountMode', 'plain')"
+        >
+          直接变换
+        </button>
       </div>
     </div>
   </section>
@@ -230,5 +254,33 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
   width: 16px;
   height: 16px;
   accent-color: var(--accent);
+}
+
+.segmented-control {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--subtle);
+  padding: 4px;
+}
+
+.segmented-control button {
+  height: 34px;
+  border-radius: 7px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 650;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.segmented-control button.is-active {
+  background: var(--panel);
+  box-shadow: 0 5px 14px rgb(15 23 42 / 0.08);
+  color: var(--text);
 }
 </style>

@@ -1,20 +1,21 @@
 {
   "name": "salary-ticker",
   "private": true,
-  "version": "0.3.4",
+  "version": "0.4.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "test": "vitest run",
     "preview": "vite preview",
+    "release:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ensure-release-unlocked.ps1",
+    "prebuild:exe": "npm.cmd run release:check",
     "build:exe": "tauri build --no-bundle",
+    "prebuild:installer": "npm.cmd run release:check",
     "build:installer": "tauri build",
     "tauri": "tauri"
   },
   "dependencies": {
-    "@fontsource/noto-sans-sc": "^5.2.9",
-    "@fontsource/roboto-mono": "^5.2.9",
     "@tailwindcss/vite": "^4.0.0",
     "@tauri-apps/api": "^2.0.0",
     "@tauri-apps/plugin-store": "^2.0.0",

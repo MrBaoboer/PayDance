@@ -30,8 +30,8 @@ const progressText = computed(() => `${Math.round(clampedProgress.value * 100)}%
 .income-progress {
   display: grid;
   width: 100%;
-  gap: 6px;
-  margin-top: 20px;
+  gap: 10px;
+  margin-top: 0;
 }
 
 .progress-track {
@@ -51,7 +51,7 @@ const progressText = computed(() => `${Math.round(clampedProgress.value * 100)}%
   min-width: 8px;
   overflow: hidden;
   border-radius: inherit;
-  background: linear-gradient(90deg, rgb(16 185 129), rgb(45 212 191));
+  background: linear-gradient(90deg, var(--income-accent), var(--income-accent-bright));
   transition: width 260ms ease-out;
 }
 
@@ -78,8 +78,8 @@ const progressText = computed(() => `${Math.round(clampedProgress.value * 100)}%
   height: 13px;
   border: 2px solid var(--panel);
   border-radius: 999px;
-  background: rgb(16 185 129);
-  box-shadow: 0 0 0 1px rgb(16 185 129 / 0.22), 0 6px 16px rgb(16 185 129 / 0.28);
+  background: var(--income-accent);
+  box-shadow: 0 0 0 1px var(--income-accent-ring), 0 6px 16px var(--income-accent-shadow);
   transform: translate(-50%, -50%);
   transition: left 260ms ease-out, opacity 160ms ease;
 }

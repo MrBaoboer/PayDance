@@ -1,39 +1,24 @@
 <script setup lang="ts">
-const props = defineProps<{
-  dailyTotal: string;
+defineProps<{
   remainingEarn: string;
   workedTime: string;
   remainingTime: string;
 }>();
-
-const amountWidthStyle = (value: string) => ({
-  "--amount-ch": String(value.length),
-});
 </script>
 
 <template>
   <div class="stats-panel" aria-label="今日工资统计">
     <article class="stat-item">
-      <span>今日预计入账</span>
-      <strong class="stat-money" :style="amountWidthStyle(props.dailyTotal)">
-        <i>¥</i>
-        <b>{{ dailyTotal }}</b>
-      </strong>
-    </article>
-    <article class="stat-item">
-      <span>还可入账</span>
-      <strong class="stat-money" :style="amountWidthStyle(props.remainingEarn)">
-        <i>¥</i>
-        <b>{{ remainingEarn }}</b>
-      </strong>
-    </article>
-    <article class="stat-item">
       <span>已工作</span>
       <strong>{{ workedTime }}</strong>
     </article>
     <article class="stat-item">
-      <span>剩余时间</span>
+      <span>距离下班</span>
       <strong>{{ remainingTime }}</strong>
+    </article>
+    <article class="stat-item">
+      <span>还可入账</span>
+      <strong>¥{{ remainingEarn }}</strong>
     </article>
   </div>
 </template>
@@ -42,9 +27,9 @@ const amountWidthStyle = (value: string) => ({
 .stats-panel {
   display: grid;
   width: 100%;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 24px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 0;
 }
 
 .stat-item {
@@ -55,7 +40,7 @@ const amountWidthStyle = (value: string) => ({
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--panel-soft);
-  padding: 10px 9px;
+  padding: 11px 10px;
   text-align: center;
 }
 
@@ -79,21 +64,4 @@ const amountWidthStyle = (value: string) => ({
   font-variant-numeric: tabular-nums;
 }
 
-.stat-money {
-  position: relative;
-  display: block;
-  width: 100%;
-  text-align: center;
-}
-
-.stat-money i {
-  position: absolute;
-  right: calc(50% + var(--amount-ch) * 0.31em + 0.38em);
-  color: var(--muted);
-  font-style: normal;
-}
-
-.stat-money b {
-  font-weight: inherit;
-}
 </style>

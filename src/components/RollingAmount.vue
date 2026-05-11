@@ -4,9 +4,11 @@ import { computed, onBeforeUnmount, ref, watch } from "vue";
 const props = withDefaults(
   defineProps<{
     value: string;
+    mode?: "rolling" | "plain";
     variant?: "hero" | "mini";
   }>(),
   {
+    mode: "rolling",
     variant: "hero",
   },
 );
@@ -56,10 +58,10 @@ onBeforeUnmount(() => {
         v-for="item in chars"
         :key="item.id"
         class="rolling-amount__char"
-        :class="{ 'is-digit': item.digit !== null }"
+        :class="{ 'is-digit': item.digit !== null, 'is-plain': mode === 'plain' }"
       >
         <span
-          v-if="item.digit !== null"
+          v-if="item.digit !== null && mode === 'rolling'"
           class="rolling-amount__digit-strip"
           :style="{ transform: `translate3d(0, -${item.digit}em, 0)` }"
         >
@@ -75,9 +77,9 @@ onBeforeUnmount(() => {
 .rolling-amount {
   display: inline-flex;
   max-width: 100%;
-  align-items: flex-end;
+  align-items: baseline;
   justify-content: center;
-  gap: 0.16em;
+  gap: 0.18em;
   color: var(--text);
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
@@ -90,10 +92,11 @@ onBeforeUnmount(() => {
 
 .rolling-amount__currency {
   flex: 0 0 auto;
-  color: var(--muted);
-  font-weight: 650;
+  color: var(--text);
+  font-size: 1em;
+  font-weight: inherit;
+  line-height: 1;
   transition: color 220ms ease;
-  transform: translateX(-0.36em);
 }
 
 .rolling-amount__value {
@@ -101,7 +104,6 @@ onBeforeUnmount(() => {
   max-width: 100%;
   overflow: hidden;
   align-items: center;
-  transform: translateX(-0.28em);
   line-height: 1;
   white-space: nowrap;
 }
@@ -117,6 +119,10 @@ onBeforeUnmount(() => {
 
 .rolling-amount__char.is-digit {
   width: 0.62em;
+}
+
+.rolling-amount__char.is-plain {
+  width: auto;
 }
 
 .rolling-amount__digit-strip {
@@ -136,30 +142,23 @@ onBeforeUnmount(() => {
 }
 
 .rolling-amount--hero .rolling-amount__currency {
-  padding-bottom: 8px;
-  font-size: 34px;
-  transform: translateX(-0.42em);
-}
-
-.rolling-amount--hero .rolling-amount__value {
-  transform: translateX(-0.28em);
+  color: var(--muted);
 }
 
 .rolling-amount--mini {
-  font-size: clamp(24px, min(13vw, 46vh), 46px);
+  font-size: clamp(19px, min(15vw, 60vh), 30px);
   font-weight: 750;
 }
 
 .rolling-amount--mini .rolling-amount__currency {
-  font-size: 0.78em;
+  color: var(--text);
 }
 
 .rolling-amount--hero.is-ticking {
-  filter: drop-shadow(0 12px 24px rgb(34 197 94 / 0.12));
-  transform: translateY(-1px) scale(1.006);
+  filter: drop-shadow(0 12px 24px var(--income-accent-glow));
 }
 
 .rolling-amount--hero.is-ticking .rolling-amount__currency {
-  color: rgb(34 197 94);
+  color: var(--income-accent);
 }
 </style>
