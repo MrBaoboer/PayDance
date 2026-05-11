@@ -26,9 +26,9 @@ pub fn run() {
                 .cloned()
                 .expect("window icon should be available");
 
-            TrayIconBuilder::with_id("salary-ticker-tray")
+            TrayIconBuilder::with_id("pay-dance-tray")
                 .icon(icon)
-                .tooltip("高级牛马工资实时计算器")
+                .tooltip("薪跳 · 桌面实时薪资仪表盘")
                 .menu(&menu)
                 .show_menu_on_left_click(true)
                 .on_menu_event(|app, event| {

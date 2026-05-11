@@ -1,19 +1,27 @@
-# 高级牛马工资实时计算器
+# 薪跳 PayDance
 
-一个 Windows 11 风格的轻量桌面端工资实时计算器。输入月薪、每月工作天数、上下班时间和午休时间后，应用会用 `requestAnimationFrame` 平滑计算并展示今天已经赚到的钱，让桌面角落也能看到收入实时跳动。
+薪跳是一款 Windows 11 风格的桌面实时薪资仪表盘，也是一款属于打工人的桌面实时工资看板。输入薪资、工作日、上下班时间和午休时间后，应用会用 `requestAnimationFrame` 平滑刷新今天已经挣到的钱，让你在屏幕角落看见每一秒的收入跳动。
 
-仓库地址：https://github.com/MasterBao66/Labor-Wage-Live-Calc
+仓库地址：https://github.com/MasterBao66/PayDance
+
+英文名：PayDance
+
+## 产品定位
+
+- 桌面实时薪资仪表盘：把“今天挣了多少钱”变成持续可见的桌面状态。
+- 打工人的实时工资看板：适合放在屏幕角落，安静常驻，不打断工作。
+- 本地优先的小工具：薪资与作息数据只保存在本机，不需要账号或云同步。
 
 ## 设计方向
 
 - 极简、冷静、高级感，界面以实时金额数字为视觉中心。
 - Light/Dark 双主题，使用圆角、柔和阴影、透明背景与 Windows 11 Mica 风格。
-- 收益强调色采用金橙色。
+- 收益强调色采用金橙色，避免传统金融语境中绿色带来的“下跌”联想。
 
 ## 核心功能
 
-- 实时展示今日已赚金额，精确到小数点后 2 位。
-- 自动计算日薪、时薪、分薪和秒薪。
+- 实时展示今日已挣金额，精确到小数点后 2 位。
+- 自动换算日薪、时薪、分薪和秒薪。
 - 支持月薪、日薪、时薪三种输入模式。
 - 支持设置每月工作天数、每周工作日、每日上下班时间。
 - 支持剔除午休时间。
@@ -23,7 +31,6 @@
 - 统计面板展示已工作、距离下班、今日预计收入。
 - 薪资说明面板展示当前配置下的换算结果。
 - 本地保存薪资配置、主题、置顶状态、金额变换模式、首次配置状态和迷你窗尺寸。
-- 薪资与作息数据仅保存在本机 Tauri Store 中，不需要账号或云同步。
 
 ## 桌面体验
 
@@ -37,23 +44,30 @@
 
 ## 跨平台能力
 
-项目采用 Vue 3 + TypeScript + Tauri 2 架构，核心计算逻辑、状态模型和大部分前端界面天然具备复用价值。Tauri 2 官方支持使用同一套前端与 Rust 应用逻辑面向 Windows、macOS、Linux、Android 和 iOS 构建应用，因此本项目具备继续扩展到 macOS、Linux、Android 与 iOS 的工程基础。
+项目采用 Vue 3 + TypeScript + Tauri 2 架构，核心薪资逻辑、状态模型和大部分前端界面天然具备复用价值。Tauri 2 官方支持使用同一套前端与 Rust 应用逻辑面向 Windows、macOS、Linux、Android 和 iOS 构建应用，因此本项目具备继续扩展到 macOS、Linux、Android 与 iOS 的工程基础。
 
 当前版本已经完成并验证的是 Windows 11 桌面体验。迁移到其它平台时需要按平台重做或降级部分桌面专属能力：
 
 - macOS/Linux：主体 Vue/Tauri 代码可复用，但托盘、窗口透明、置顶、无边框拖拽、窗口阴影和系统材质效果需要逐平台验证。
-- Android/iOS：计算逻辑和设置流程可复用，但系统托盘、桌面置顶、迷你悬浮窗和 Mica 材质不属于移动端常规交互，需要改造成移动端首页、小组件或通知类体验。
-- 微信小程序：不能直接运行 Tauri 壳。可将薪资计算逻辑和 Vue 交互设计抽离后，用原生小程序、Taro/uni-app，或 H5 + `web-view` 方案重做；桌面窗口、托盘和置顶能力需要替换为小程序内交互。
+- Android/iOS：薪资逻辑和设置流程可复用，但系统托盘、桌面置顶、迷你悬浮窗和 Mica 材质不属于移动端常规交互，需要改造成移动端首页、小组件或通知类体验。
+- 微信小程序：不能直接运行 Tauri 壳。可将薪资逻辑和 Vue 交互设计抽离后，用原生小程序、Taro/uni-app，或 H5 + `web-view` 方案重做；桌面窗口、托盘和置顶能力需要替换为小程序内交互。
 
 因此，本项目的优势是“核心逻辑与 Web UI 可迁移、桌面壳能力可按平台替换”，而不是当前 Windows exe 能直接变成 Android、iOS、macOS 或微信小程序安装包。
 
 ## 版本记录
 
+### v0.5.5
+
+- 英文名正式调整为 PayDance，中文名保持“薪跳”。
+- 产品定位统一为“桌面实时薪资仪表盘”和“打工人的桌面实时工资看板”。
+- 清理旧英文品牌、历史项目名和旧营销表述，统一应用标题、托盘提示、仓库地址、发行产物和 README 表述。
+- GitHub 仓库同步更名为 `PayDance`。
+
 ### v0.5.3
 
 - 回退首次启动向导第一步数字输入框的居中对齐，恢复为更自然的左侧输入。
 - 将首次启动向导中的薪资与工作天数计量单位同步到主界面设置中心，月薪、日薪、时薪显示“元”，每月工作天数显示“天”。
-- 将 v0.5.3 作为当前最新正式版发布，并移除原 v0.5.2 GitHub Release。
+- 将 v0.5.3 作为当时最新正式版发布，并移除原 v0.5.2 GitHub Release。
 
 ### v0.5.2
 
@@ -81,8 +95,7 @@
 
 ### v0.4.1
 
-- 软件正式更名为“高级牛马工资实时计算器”。
-- 删除旧产品名中的相关历史文案。
+- 完成产品命名与说明文案整理。
 - 主界面 `¥ + 金额数字` 组合整体水平居中，并优化符号与数字间距。
 - 主界面标题和金额区域下移，统计面板、进度条、薪资说明按钮整体下移并增大模块间距，增强呼吸感。
 - 金额变换设置同步作用于主界面与迷你悬浮模式。
@@ -121,7 +134,7 @@
 
 ### v0.2.0
 
-- 补充核心计算测试。
+- 补充核心薪资逻辑测试。
 - 优化迷你模式拖拽与窗口尺寸。
 
 ## 开发
@@ -152,7 +165,7 @@ npm.cmd run build:exe
 npm.cmd run build:installer
 ```
 
-`build:exe` 和 `build:installer` 会先检查 `src-tauri\target\release\salary-ticker.exe` 是否仍在运行。如果应用还停留在系统托盘里，请先从托盘菜单退出后再构建。
+`build:exe` 和 `build:installer` 会先检查 `src-tauri\target\release\pay-dance.exe` 是否仍在运行。如果应用还停留在系统托盘里，请先从托盘菜单退出后再构建。
 
 Windows 完整安装包构建需要安装 Visual Studio Build Tools，并包含 MSVC 与 Windows SDK 组件。MSI 打包还需要 WiX 工具链，Tauri 会在构建时自动下载。
 
@@ -174,7 +187,7 @@ git tag -a vX.Y.Z -m "Release vX.Y.Z"
 git push origin vX.Y.Z
 ```
 
-推送 `v*` 标签后，`.github/workflows/release.yml` 会在 GitHub Actions 中自动运行测试、构建 Windows `salary-ticker.exe`、上传构建产物并创建 GitHub Release。发布后可用 GitHub CLI 核验：
+推送 `v*` 标签后，`.github/workflows/release.yml` 会在 GitHub Actions 中自动运行测试、构建 Windows `pay-dance.exe`、上传构建产物并创建 GitHub Release。发布后可用 GitHub CLI 核验：
 
 ```powershell
 gh run list --workflow Release --limit 3
