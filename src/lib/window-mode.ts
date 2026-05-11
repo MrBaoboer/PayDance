@@ -34,10 +34,12 @@ export function resolveWindowPreferences({
   isMiniMode: boolean;
   miniSize: WindowSize;
 } {
-  const isCurrentSchema = savedSettingsVersion === currentSettingsSchemaVersion;
+  const isCompatibleSchema =
+    typeof savedSettingsVersion === "number" &&
+    savedSettingsVersion >= currentSettingsSchemaVersion;
 
   return {
     isMiniMode: savedIsMiniMode === true,
-    miniSize: isCurrentSchema ? normalizeMiniSize(savedMiniSize) : miniDefaultSize,
+    miniSize: isCompatibleSchema ? normalizeMiniSize(savedMiniSize) : miniDefaultSize,
   };
 }

@@ -1,6 +1,6 @@
 [package]
 name = "salary-ticker"
-version = "0.4.1"
+version = "0.5.3"
 description = "高级牛马工资实时计算器"
 authors = ["Codex"]
 license = ""

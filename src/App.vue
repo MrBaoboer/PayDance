@@ -18,16 +18,28 @@ import { useSalaryTicker } from "./composables/useSalaryTicker";
 import { useWindowMode } from "./composables/useWindowMode";
 import MiniWindow from "./components/MiniWindow.vue";
 import IncomeProgress from "./components/IncomeProgress.vue";
+import OnboardingPanel from "./components/OnboardingPanel.vue";
 import RollingAmount from "./components/RollingAmount.vue";
 import SettingsPanel from "./components/SettingsPanel.vue";
 import StatsPanel from "./components/StatsPanel.vue";
 import WindowTitlebar from "./components/WindowTitlebar.vue";
 
 const appWindow = getCurrentWindow();
+type ResizeDirection =
+  | "East"
+  | "North"
+  | "NorthEast"
+  | "NorthWest"
+  | "South"
+  | "SouthEast"
+  | "SouthWest"
+  | "West";
+
 const {
   amountMode,
   alwaysOnTop,
   config,
+  hasCompletedOnboarding,
   isSettingsReady,
   loadSettings,
   saveSettings,
@@ -52,15 +64,31 @@ const yuanFormatter = new Intl.NumberFormat("zh-CN", {
 });
 
 const earnedText = computed(() => yuanFormatter.format(snapshot.value.earnedToday));
-const remainingEarnText = computed(() =>
-  yuanFormatter.format(Math.max(0, snapshot.value.dailySalary - snapshot.value.earnedToday)),
-);
+const dailyEarnText = computed(() => yuanFormatter.format(snapshot.value.dailySalary));
+const salaryModeLabel = computed(() => {
+  if (config.value.salaryType === "daily") return "日薪模式";
+  if (config.value.salaryType === "hourly") return "时薪模式";
+  return "月薪模式";
+});
 const configIssues = computed(() => validateSalaryConfig(config.value));
 const firstConfigIssue = computed(() => configIssues.value[0]?.message ?? "");
 const hasConfigIssues = computed(() => configIssues.value.length > 0);
+const shouldShowOnboarding = computed(() =>
+  isSettingsReady.value && !hasCompletedOnboarding.value && !isMiniMode.value,
+);
 const statusText = computed(() => {
   if (hasConfigIssues.value) return "配置待修正";
-  return snapshot.value.isWorking ? "正在上班" : "休息时间";
+
+  const statusMap = {
+    "after-work": "已下班",
+    "before-work": "未到上班",
+    "invalid-config": "配置待修正",
+    "lunch-break": "午休中",
+    "rest-day": "今日休息",
+    working: "正在上班",
+  } satisfies Record<typeof snapshot.value.status, string>;
+
+  return statusMap[snapshot.value.status];
 });
 
 const formatDuration = (ms: number) => {
@@ -109,6 +137,12 @@ const toggleTheme = async () => {
   await saveState();
 };
 
+const setThemeMode = async (mode: "light" | "dark") => {
+  themeMode.value = mode;
+  await appWindow.setTheme(mode);
+  await saveState();
+};
+
 const toggleAlwaysOnTop = async () => {
   await setAlwaysOnTop(!alwaysOnTop.value);
   await saveState();
@@ -126,11 +160,28 @@ const openSettings = async () => {
   await saveState();
 };
 
+const completeOnboarding = async (preferences: { startInMiniMode: boolean }) => {
+  hasCompletedOnboarding.value = true;
+  await appWindow.setTheme(themeMode.value);
+  await setAlwaysOnTop(alwaysOnTop.value);
+
+  if (preferences.startInMiniMode) {
+    await setMiniMode(true);
+    return;
+  }
+
+  await saveState();
+};
+
 const startDrag = async (event: MouseEvent) => {
   const target = event.target as HTMLElement;
   if (target.closest("button, input, label")) return;
 
   await appWindow.startDragging();
+};
+
+const startResize = async (direction: ResizeDirection) => {
+  await appWindow.startResizeDragging(direction);
 };
 
 const hasIssue = (field: SalaryConfigIssue["field"]) =>
@@ -295,7 +346,7 @@ onBeforeUnmount(() => {
 
         <div class="hero-controls">
           <StatsPanel
-            :remaining-earn="remainingEarnText"
+            :expected-earn="dailyEarnText"
             :remaining-time="remainingTimeText"
             :worked-time="workedTimeText"
           />
@@ -337,7 +388,7 @@ onBeforeUnmount(() => {
             <header class="settings-sheet__header">
               <div>
                 <strong>薪资说明</strong>
-                <span>按当前配置换算</span>
+                <span>{{ salaryModeLabel }}换算</span>
               </div>
               <button class="sheet-close-button" title="关闭薪资说明" @click="showSalaryInfo = false">
                 <X :size="16" />
@@ -368,6 +419,17 @@ onBeforeUnmount(() => {
           </section>
         </div>
       </Transition>
+
+      <OnboardingPanel
+        v-if="shouldShowOnboarding"
+        v-model:always-on-top="alwaysOnTop"
+        v-model:config="config"
+        :theme-mode="themeMode"
+        @complete="completeOnboarding"
+        @drag-start="startDrag"
+        @resize-start="startResize"
+        @update:theme-mode="setThemeMode"
+      />
     </div>
   </main>
 </template>
@@ -389,6 +451,9 @@ onBeforeUnmount(() => {
   --income-accent-shadow: rgb(217 119 6 / 0.26);
   --danger: rgb(239 68 68);
   --mini-panel: rgb(255 255 255 / 0.72);
+  --onboarding-overlay: rgb(0 0 0 / 0.2);
+  --onboarding-panel: rgb(255 255 255 / 0.94);
+  --onboarding-border: rgb(255 255 255 / 0.9);
   --shadow: 0 24px 70px rgb(15 23 42 / 0.18);
 }
 
@@ -408,6 +473,9 @@ onBeforeUnmount(() => {
   --income-accent-shadow: rgb(245 158 11 / 0.24);
   --danger: rgb(248 113 113);
   --mini-panel: rgb(24 24 27 / 0.7);
+  --onboarding-overlay: rgb(0 0 0 / 0.34);
+  --onboarding-panel: rgb(24 24 27 / 0.92);
+  --onboarding-border: rgb(255 255 255 / 0.16);
   --shadow: 0 26px 80px rgb(0 0 0 / 0.38);
 }
 
@@ -422,7 +490,23 @@ onBeforeUnmount(() => {
   background: var(--panel);
   box-shadow: var(--shadow);
   color: var(--text);
+  container-type: size;
   backdrop-filter: blur(28px);
+  --ui-font-xs: clamp(12px, calc(10.4px + 0.42cqw), 14px);
+  --ui-font-sm: clamp(13px, calc(10.8px + 0.52cqw), 15px);
+  --ui-font-md: clamp(14px, calc(11px + 0.7cqw), 17px);
+  --ui-font-lg: clamp(17px, calc(12px + 1.18cqw), 21px);
+  --ui-radius-sm: clamp(8px, 2.1cqw, 10px);
+  --ui-radius-md: clamp(10px, 2.7cqw, 13px);
+  --ui-gap-xs: clamp(5px, 1.35cqw, 8px);
+  --ui-gap-sm: clamp(8px, 2.1cqw, 12px);
+  --ui-gap-md: clamp(12px, 3.2cqw, 18px);
+  --ui-pad-sm: clamp(10px, 2.6cqw, 14px);
+  --ui-pad-md: clamp(16px, 4.3cqw, 22px);
+  --hero-top-pad: clamp(26px, 8.3cqh, 46px);
+  --hero-side-pad: clamp(24px, 7.2cqw, 38px);
+  --hero-bottom-pad: clamp(18px, 5.4cqh, 30px);
+  --hero-amount-gap: clamp(18px, 6.3cqh, 34px);
 }
 
 .is-mini {
@@ -431,12 +515,12 @@ onBeforeUnmount(() => {
 
 .hero-panel {
   display: flex;
-  min-height: 334px;
+  min-height: 0;
   flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 34px 32px 22px;
+  padding: var(--hero-top-pad) var(--hero-side-pad) var(--hero-bottom-pad);
   text-align: center;
 }
 
@@ -451,23 +535,23 @@ onBeforeUnmount(() => {
 
 .hero-meta p {
   margin: 0;
-  font-size: 20px;
+  font-size: var(--ui-font-lg);
   font-weight: 700;
   width: 100%;
 }
 
 .amount-display {
   display: grid;
-  width: min(100% - 64px, 390px);
+  width: min(100% - clamp(24px, 7cqw, 64px), 390px);
   place-items: center;
-  margin-top: 26px;
+  margin-top: var(--hero-amount-gap);
   color: var(--text);
 }
 
 .hero-controls {
   display: grid;
   width: 100%;
-  gap: 18px;
+  gap: var(--ui-gap-md);
   justify-items: stretch;
   margin-top: auto;
 }
@@ -476,32 +560,32 @@ onBeforeUnmount(() => {
   display: grid;
   width: 100%;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 26px;
+  gap: var(--ui-gap-sm);
+  margin-top: var(--hero-amount-gap);
 }
 
 .rate-card {
   display: grid;
   min-width: 0;
-  gap: 5px;
+  gap: var(--ui-gap-xs);
   place-items: center;
-  padding: 13px;
+  padding: var(--ui-pad-sm);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--ui-radius-md);
   background: var(--panel-soft);
   box-shadow: 0 8px 24px rgb(15 23 42 / 0.05);
   text-align: center;
 }
 
 .salary-info-button {
-  height: 34px;
+  height: clamp(32px, 7.8cqh, 38px);
   justify-self: center;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--ui-radius-sm);
   background: var(--panel-soft);
-  padding: 0 14px;
+  padding: 0 var(--ui-pad-sm);
   color: var(--muted);
-  font-size: 14px;
+  font-size: var(--ui-font-sm);
   font-weight: 650;
   transition:
     background-color 160ms ease,
@@ -524,7 +608,7 @@ onBeforeUnmount(() => {
 }
 
 .rate-card span {
-  font-size: 14px;
+  font-size: var(--ui-font-sm);
   font-weight: 600;
 }
 
@@ -532,7 +616,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   color: var(--text);
   font-family: var(--font-mono);
-  font-size: 16px;
+  font-size: var(--ui-font-md);
   font-weight: 650;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -542,19 +626,19 @@ onBeforeUnmount(() => {
 .salary-info-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  padding: 16px 18px 18px;
+  gap: var(--ui-gap-sm);
+  padding: var(--ui-pad-md);
 }
 
 .salary-info-card {
   display: grid;
   min-width: 0;
   place-items: center;
-  gap: 8px;
+  gap: var(--ui-gap-xs);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--ui-radius-md);
   background: var(--panel-soft);
-  padding: 16px 12px;
+  padding: var(--ui-pad-md) var(--ui-pad-sm);
   text-align: center;
 }
 
@@ -564,7 +648,7 @@ onBeforeUnmount(() => {
 }
 
 .salary-info-card span {
-  font-size: 14px;
+  font-size: var(--ui-font-sm);
   font-weight: 650;
 }
 
@@ -573,7 +657,7 @@ onBeforeUnmount(() => {
   max-width: 100%;
   color: var(--text);
   font-family: var(--font-mono);
-  font-size: 16px;
+  font-size: var(--ui-font-md);
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -598,7 +682,7 @@ onBeforeUnmount(() => {
 .settings-sheet {
   display: flex;
   width: 100%;
-  max-height: calc(100% - 34px);
+  max-height: calc(100% - clamp(28px, 7cqh, 38px));
   flex-direction: column;
   overflow: hidden;
   border-top: 1px solid var(--border);
@@ -619,9 +703,9 @@ onBeforeUnmount(() => {
   flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--ui-gap-md);
   border-bottom: 1px solid var(--line);
-  padding: 16px 16px 14px 18px;
+  padding: var(--ui-pad-md);
 }
 
 .settings-sheet__header div {
@@ -632,23 +716,23 @@ onBeforeUnmount(() => {
 
 .settings-sheet__header strong {
   color: var(--text);
-  font-size: 17px;
+  font-size: var(--ui-font-lg);
   font-weight: 750;
 }
 
 .settings-sheet__header span {
   color: var(--muted);
-  font-size: 14px;
+  font-size: var(--ui-font-sm);
   font-weight: 500;
 }
 
 .sheet-close-button {
   display: grid;
-  width: 32px;
-  height: 32px;
+  width: clamp(30px, 7.2cqw, 36px);
+  height: clamp(30px, 7.2cqw, 36px);
   flex: 0 0 auto;
   place-items: center;
-  border-radius: 9px;
+  border-radius: var(--ui-radius-sm);
   color: var(--muted);
   transition:
     background-color 160ms ease,

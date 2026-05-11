@@ -3,7 +3,6 @@ import {
   Minus,
   Moon,
   Pin,
-  PinOff,
   Settings2,
   Shrink,
   Sun,
@@ -58,8 +57,7 @@ defineEmits<{
         :title="alwaysOnTop ? '取消置顶' : '窗口置顶'"
         @click="$emit('toggleAlwaysOnTop')"
       >
-        <PinOff v-if="alwaysOnTop" :size="16" />
-        <Pin v-else :size="16" />
+        <Pin :class="{ 'pin-icon--filled': alwaysOnTop }" :size="16" />
       </button>
       <button class="icon-button" title="最小化" @click="$emit('minimize')">
         <Minus :size="16" />
@@ -74,26 +72,26 @@ defineEmits<{
 <style scoped>
 .titlebar {
   display: flex;
-  height: 48px;
+  height: clamp(44px, 10.4cqh, 56px);
   flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
+  padding: 0 clamp(10px, 2.8cqw, 16px);
 }
 
 .status-chip {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 4px;
+  gap: var(--ui-gap-xs, 8px);
+  padding: 0 clamp(3px, 1cqw, 6px);
   color: var(--muted);
-  font-size: 16px;
+  font-size: var(--ui-font-md, 16px);
   font-weight: 500;
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
+  width: clamp(7px, 1.7cqw, 9px);
+  height: clamp(7px, 1.7cqw, 9px);
   border-radius: 999px;
 }
 
@@ -110,15 +108,15 @@ defineEmits<{
 .window-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: clamp(3px, 0.9cqw, 5px);
 }
 
 .icon-button {
   display: grid;
-  width: 32px;
-  height: 32px;
+  width: clamp(30px, 7.2cqw, 36px);
+  height: clamp(30px, 7.2cqw, 36px);
   place-items: center;
-  border-radius: 9px;
+  border-radius: var(--ui-radius-sm, 9px);
   color: var(--muted);
   transition:
     background-color 160ms ease,
@@ -138,5 +136,9 @@ defineEmits<{
 .icon-button.danger:hover {
   background: rgb(239 68 68 / 0.12);
   color: var(--danger);
+}
+
+.pin-icon--filled {
+  fill: currentColor;
 }
 </style>
