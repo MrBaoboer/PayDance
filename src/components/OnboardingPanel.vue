@@ -568,18 +568,19 @@ const goBack = () => {
   font-family: var(--font-mono);
   font-size: var(--ui-font-sm, 14px);
   outline: none;
-  padding: 0 clamp(4px, 1.2cqw, 8px) 0 clamp(26px, 6cqw, 34px);
-  text-align: center;
+  padding: 0 clamp(9px, 2.2cqw, 13px);
+  text-align: left;
 }
 
 .field input[type="number"] {
-  padding-left: clamp(48px, 12cqw, 64px);
+  padding-left: clamp(10px, 2.4cqw, 14px);
   padding-right: clamp(4px, 1cqw, 7px);
 }
 
 .field input[type="time"] {
   padding-left: clamp(28px, 6.4cqw, 38px);
   padding-right: clamp(5px, 1.2cqw, 8px);
+  text-align: center;
 }
 
 .field input[type="time"]::-webkit-calendar-picker-indicator {

@@ -94,13 +94,16 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
           :class="{ 'is-invalid': hasIssue('monthlySalary') }"
         >
           <span>{{ salaryAmountLabel }}</span>
-          <input
-            :value="config.monthlySalary"
-            min="0"
-            step="100"
-            type="number"
-            @input="updateConfig('monthlySalary', readNumber($event))"
-          />
+          <span class="field-input-wrap">
+            <input
+              :value="config.monthlySalary"
+              min="0"
+              step="100"
+              type="number"
+              @input="updateConfig('monthlySalary', readNumber($event))"
+            />
+            <span class="field-unit">元</span>
+          </span>
         </label>
         <label
           v-if="config.salaryType === 'daily'"
@@ -108,13 +111,16 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
           :class="{ 'is-invalid': hasIssue('dailySalary') }"
         >
           <span>{{ salaryAmountLabel }}</span>
-          <input
-            :value="config.dailySalary"
-            min="0"
-            step="50"
-            type="number"
-            @input="updateConfig('dailySalary', readNumber($event))"
-          />
+          <span class="field-input-wrap">
+            <input
+              :value="config.dailySalary"
+              min="0"
+              step="50"
+              type="number"
+              @input="updateConfig('dailySalary', readNumber($event))"
+            />
+            <span class="field-unit">元</span>
+          </span>
         </label>
         <label
           v-if="config.salaryType === 'hourly'"
@@ -122,13 +128,16 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
           :class="{ 'is-invalid': hasIssue('hourlyRate') }"
         >
           <span>{{ salaryAmountLabel }}</span>
-          <input
-            :value="config.hourlyRate"
-            min="0"
-            step="5"
-            type="number"
-            @input="updateConfig('hourlyRate', readNumber($event))"
-          />
+          <span class="field-input-wrap">
+            <input
+              :value="config.hourlyRate"
+              min="0"
+              step="5"
+              type="number"
+              @input="updateConfig('hourlyRate', readNumber($event))"
+            />
+            <span class="field-unit">元</span>
+          </span>
         </label>
         <label
           v-if="config.salaryType === 'monthly'"
@@ -136,13 +145,16 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
           :class="{ 'is-invalid': hasIssue('workDaysPerMonth') }"
         >
           <span>每月工作天数</span>
-          <input
-            :value="config.workDaysPerMonth"
-            min="1"
-            step="0.5"
-            type="number"
-            @input="updateConfig('workDaysPerMonth', readNumber($event))"
-          />
+          <span class="field-input-wrap">
+            <input
+              :value="config.workDaysPerMonth"
+              min="1"
+              step="0.5"
+              type="number"
+              @input="updateConfig('workDaysPerMonth', readNumber($event))"
+            />
+            <span class="field-unit">天</span>
+          </span>
         </label>
       </div>
     </div>
@@ -171,19 +183,23 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
       <div class="field-grid">
         <label class="field" :class="{ 'is-invalid': hasIssue('startTime') || hasIssue('workTime') }">
           <span>上班</span>
-          <input
-            :value="config.startTime"
-            type="time"
-            @input="updateConfig('startTime', readText($event))"
-          />
+          <span class="field-input-wrap field-input-wrap--time">
+            <input
+              :value="config.startTime"
+              type="time"
+              @input="updateConfig('startTime', readText($event))"
+            />
+          </span>
         </label>
         <label class="field" :class="{ 'is-invalid': hasIssue('endTime') || hasIssue('workTime') }">
           <span>下班</span>
-          <input
-            :value="config.endTime"
-            type="time"
-            @input="updateConfig('endTime', readText($event))"
-          />
+          <span class="field-input-wrap field-input-wrap--time">
+            <input
+              :value="config.endTime"
+              type="time"
+              @input="updateConfig('endTime', readText($event))"
+            />
+          </span>
         </label>
       </div>
     </div>
@@ -203,21 +219,25 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
       <div class="field-grid">
         <label class="field" :class="{ 'is-invalid': hasIssue('lunchStart') || hasIssue('workTime') }">
           <span>开始</span>
-          <input
-            :disabled="!config.enableLunchBreak"
-            :value="config.lunchStart"
-            type="time"
-            @input="updateConfig('lunchStart', readText($event))"
-          />
+          <span class="field-input-wrap field-input-wrap--time">
+            <input
+              :disabled="!config.enableLunchBreak"
+              :value="config.lunchStart"
+              type="time"
+              @input="updateConfig('lunchStart', readText($event))"
+            />
+          </span>
         </label>
         <label class="field" :class="{ 'is-invalid': hasIssue('lunchEnd') || hasIssue('workTime') }">
           <span>结束</span>
-          <input
-            :disabled="!config.enableLunchBreak"
-            :value="config.lunchEnd"
-            type="time"
-            @input="updateConfig('lunchEnd', readText($event))"
-          />
+          <span class="field-input-wrap field-input-wrap--time">
+            <input
+              :disabled="!config.enableLunchBreak"
+              :value="config.lunchEnd"
+              type="time"
+              @input="updateConfig('lunchEnd', readText($event))"
+            />
+          </span>
         </label>
       </div>
     </div>
@@ -304,41 +324,88 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
   gap: var(--ui-gap-xs, 6px);
 }
 
-.field span {
+.field > span {
   color: var(--muted);
   font-size: var(--ui-font-sm, 14px);
   font-weight: 500;
 }
 
-.field input {
+.field-input-wrap {
+  display: grid;
   height: clamp(34px, 8.2cqh, 40px);
   min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   border: 1px solid var(--line);
   border-radius: var(--ui-radius-sm, 10px);
   background: var(--panel);
-  font-family: var(--font-mono);
-  font-size: var(--ui-font-sm, 14px);
-  padding: 0 var(--ui-pad-sm, 10px);
-  color: var(--text);
-  outline: none;
+  overflow: hidden;
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease,
     background-color 160ms ease;
 }
 
-.field input:focus {
+.field-input-wrap--time {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.field input {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--ui-font-sm, 14px);
+  padding: 0 clamp(9px, 2.2cqw, 13px);
+  color: var(--text);
+  outline: none;
+}
+
+.field input[type="number"] {
+  padding-left: clamp(10px, 2.4cqw, 14px);
+  padding-right: clamp(4px, 1cqw, 7px);
+}
+
+.field input[type="time"] {
+  padding-left: clamp(28px, 6.4cqw, 38px);
+  padding-right: clamp(5px, 1.2cqw, 8px);
+  text-align: center;
+}
+
+.field input[type="time"]::-webkit-calendar-picker-indicator {
+  margin-right: -2px;
+}
+
+.field-unit {
+  display: inline-flex;
+  min-width: clamp(34px, 7.5cqw, 44px);
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: var(--ui-font-xs, 13px);
+  font-weight: 650;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.field-input-wrap:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgb(127 127 127 / 0.14);
 }
 
-.field.is-invalid input {
+.field.is-invalid .field-input-wrap {
   border-color: rgb(245 158 11 / 0.68);
   box-shadow: 0 0 0 3px rgb(245 158 11 / 0.12);
 }
 
-.field input:disabled {
+.field-input-wrap:has(input:disabled) {
   background: var(--subtle);
+}
+
+.field input:disabled {
   color: var(--muted);
 }
 
