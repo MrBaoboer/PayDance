@@ -1,2 +1,4 @@
-export const appName = "高级牛马工资实时计算器";
-export const repositoryUrl = "https://github.com/MasterBao66/Labor-Wage-Live-Calc";
+export const appName = "薪跳";
+export const appEnglishName = "PayPulse";
+export const appTagline = "桌面实时薪资仪表盘";
+export const repositoryUrl = "https://github.com/MasterBao66/PayPulse";
