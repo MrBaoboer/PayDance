@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+:root {
+  --font-sans: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+}
+
 html,
 body,
 #app {
@@ -8,11 +13,7 @@ body,
   margin: 0;
   overflow: hidden;
   background: transparent;
-  font-family:
-    "Segoe UI Variable",
-    "Segoe UI",
-    system-ui,
-    sans-serif;
+  font-family: var(--font-sans);
 }
 
 * {

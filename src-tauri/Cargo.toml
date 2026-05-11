@@ -1,10 +1,10 @@
 [package]
 name = "salary-ticker"
-version = "0.2.0"
-description = "社畜牛马工资实时计算器"
+version = "0.4.1"
+description = "高级牛马工资实时计算器"
 authors = ["Codex"]
 license = ""
-repository = ""
+repository = "https://github.com/MasterBao66/Labor-Wage-Live-Calc"
 edition = "2021"
 
 [lib]

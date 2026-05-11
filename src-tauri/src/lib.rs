@@ -15,6 +15,7 @@ pub fn run() {
             let menu = MenuBuilder::new(app)
                 .text("show", "打开窗口")
                 .text("settings", "打开设置")
+                .text("toggle_mini", "切换迷你模式")
                 .separator()
                 .text("toggle_top", "切换置顶")
                 .text("quit", "退出")
@@ -27,7 +28,7 @@ pub fn run() {
 
             TrayIconBuilder::with_id("salary-ticker-tray")
                 .icon(icon)
-                .tooltip("社畜牛马工资实时计算器")
+                .tooltip("高级牛马工资实时计算器")
                 .menu(&menu)
                 .show_menu_on_left_click(true)
                 .on_menu_event(|app, event| {
@@ -40,6 +41,10 @@ pub fn run() {
                         "settings" => {
                             show_window(&window);
                             let _ = window.emit("tray-open-settings", ());
+                        }
+                        "toggle_mini" => {
+                            show_window(&window);
+                            let _ = window.emit("tray-toggle-mini-mode", ());
                         }
                         "toggle_top" => {
                             show_window(&window);
