@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  remainingEarn: string;
+  expectedEarn: string;
   workedTime: string;
   remainingTime: string;
 }>();
@@ -17,8 +17,8 @@ defineProps<{
       <strong>{{ remainingTime }}</strong>
     </article>
     <article class="stat-item">
-      <span>还可入账</span>
-      <strong>¥{{ remainingEarn }}</strong>
+      <span>今日预计</span>
+      <strong>¥{{ expectedEarn }}</strong>
     </article>
   </div>
 </template>
@@ -28,26 +28,26 @@ defineProps<{
   display: grid;
   width: 100%;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: var(--ui-gap-sm, 10px);
   margin-top: 0;
 }
 
 .stat-item {
   display: grid;
   min-width: 0;
-  gap: 5px;
+  gap: var(--ui-gap-xs, 5px);
   place-items: center;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--ui-radius-sm, 10px);
   background: var(--panel-soft);
-  padding: 11px 10px;
+  padding: clamp(9px, 2.5cqh, 13px) var(--ui-pad-sm, 10px);
   text-align: center;
 }
 
 .stat-item span {
   overflow: hidden;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--ui-font-xs, 13px);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -57,7 +57,7 @@ defineProps<{
   overflow: hidden;
   color: var(--text);
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: var(--ui-font-sm, 14px);
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;

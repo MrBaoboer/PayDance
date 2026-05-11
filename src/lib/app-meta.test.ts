@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { appName, repositoryUrl } from "./app-meta";
 
 describe("app metadata", () => {
-  it("uses the v0.4.1 product name without legacy wording", () => {
+  it("uses the current product name without legacy wording", () => {
     expect(appName).toBe("高级牛马工资实时计算器");
     expect(appName).not.toContain("社畜");
   });

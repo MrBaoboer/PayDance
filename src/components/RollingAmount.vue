@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
 }
 
 .rolling-amount--hero {
-  font-size: 58px;
+  font-size: clamp(46px, min(13.8cqw, 17cqh), 72px);
   font-weight: 700;
 }
 
