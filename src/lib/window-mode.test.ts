@@ -45,4 +45,17 @@ describe("window mode preferences", () => {
       miniSize: { width: 220, height: 64 },
     });
   });
+
+  it("preserves saved mini sizes from newer app settings schema versions", () => {
+    expect(
+      resolveWindowPreferences({
+        savedIsMiniMode: true,
+        savedMiniSize: { width: 210, height: 58 },
+        savedSettingsVersion: currentSettingsSchemaVersion + 1,
+      }),
+    ).toEqual({
+      isMiniMode: true,
+      miniSize: { width: 210, height: 58 },
+    });
+  });
 });

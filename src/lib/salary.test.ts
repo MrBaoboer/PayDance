@@ -7,12 +7,16 @@ import {
   type SalaryConfig,
 } from "./salary";
 
-const at = (time: string) => new Date(`2026-05-10T${time}:00`);
+const at = (time: string) => new Date(`2026-05-11T${time}:00`);
 
 const config: SalaryConfig = {
   ...defaultSalaryConfig,
+  salaryType: "monthly",
   monthlySalary: 21750,
+  dailySalary: 1000,
+  hourlyRate: 125,
   workDaysPerMonth: 21.75,
+  workdays: [1, 2, 3, 4, 5],
   startTime: "09:00",
   endTime: "18:00",
   lunchStart: "12:00",
@@ -29,6 +33,41 @@ describe("calculateSalarySnapshot", () => {
     expect(snapshot.hourlyRate).toBe(125);
     expect(snapshot.minuteRate).toBeCloseTo(125 / 60);
     expect(snapshot.secondRate).toBeCloseTo(125 / 3600);
+    expect(snapshot.status).toBe("working");
+  });
+
+  it("calculates rates from daily salary mode", () => {
+    const snapshot = calculateSalarySnapshot(at("10:00"), {
+      ...config,
+      salaryType: "daily",
+      monthlySalary: 1,
+      dailySalary: 800,
+    });
+
+    expect(snapshot.dailySalary).toBe(800);
+    expect(snapshot.hourlyRate).toBe(100);
+    expect(snapshot.earnedToday).toBeCloseTo(100);
+  });
+
+  it("calculates rates from hourly salary mode", () => {
+    const snapshot = calculateSalarySnapshot(at("10:00"), {
+      ...config,
+      salaryType: "hourly",
+      monthlySalary: 1,
+      hourlyRate: 90,
+    });
+
+    expect(snapshot.dailySalary).toBe(720);
+    expect(snapshot.hourlyRate).toBe(90);
+    expect(snapshot.earnedToday).toBeCloseTo(90);
+  });
+
+  it("returns rest day status and zero earnings outside configured workdays", () => {
+    const snapshot = calculateSalarySnapshot(new Date("2026-05-10T10:00:00"), config);
+
+    expect(snapshot.status).toBe("rest-day");
+    expect(snapshot.earnedToday).toBe(0);
+    expect(snapshot.workMsToday).toBe(0);
   });
 
   it("keeps earned amount at zero before work starts", () => {
@@ -37,6 +76,7 @@ describe("calculateSalarySnapshot", () => {
     expect(snapshot.earnedToday).toBe(0);
     expect(snapshot.progress).toBe(0);
     expect(snapshot.isWorking).toBe(false);
+    expect(snapshot.status).toBe("before-work");
   });
 
   it("holds progress during lunch break", () => {
@@ -46,6 +86,7 @@ describe("calculateSalarySnapshot", () => {
     expect(beforeLunch.elapsedWorkMs).toBe(3 * 3_600_000);
     expect(duringLunch.elapsedWorkMs).toBe(beforeLunch.elapsedWorkMs);
     expect(duringLunch.isWorking).toBe(false);
+    expect(duringLunch.status).toBe("lunch-break");
   });
 
   it("returns full daily salary after work ends", () => {
@@ -54,6 +95,7 @@ describe("calculateSalarySnapshot", () => {
     expect(snapshot.earnedToday).toBe(1000);
     expect(snapshot.progress).toBe(1);
     expect(snapshot.isWorking).toBe(false);
+    expect(snapshot.status).toBe("after-work");
   });
 
   it("ignores invalid lunch fields when lunch break is disabled", () => {
@@ -66,6 +108,17 @@ describe("calculateSalarySnapshot", () => {
 
     expect(snapshot.workMsToday).toBe(9 * 3_600_000);
     expect(snapshot.earnedToday).toBeCloseTo(500);
+  });
+
+  it("returns invalid config status for invalid active salary amount", () => {
+    const snapshot = calculateSalarySnapshot(at("10:00"), {
+      ...config,
+      salaryType: "daily",
+      dailySalary: 0,
+    });
+
+    expect(snapshot.status).toBe("invalid-config");
+    expect(snapshot.earnedToday).toBe(0);
   });
 });
 
@@ -93,13 +146,25 @@ describe("createWorkSpans", () => {
 });
 
 describe("validateSalaryConfig", () => {
+  it("uses the v0.5 first-launch defaults", () => {
+    expect(defaultSalaryConfig).toMatchObject({
+      salaryType: "monthly",
+      monthlySalary: 8000,
+      dailySalary: 360,
+      hourlyRate: 45,
+      workDaysPerMonth: 22,
+      enableLunchBreak: false,
+    });
+  });
+
   it("accepts the default configuration", () => {
     expect(validateSalaryConfig(defaultSalaryConfig)).toHaveLength(0);
   });
 
-  it("reports invalid salary, work days, and work time", () => {
+  it("reports invalid monthly salary, work days, and work time", () => {
     const issues = validateSalaryConfig({
       ...config,
+      salaryType: "monthly",
       monthlySalary: 0,
       workDaysPerMonth: 0,
       startTime: "19:00",
@@ -111,6 +176,53 @@ describe("validateSalaryConfig", () => {
       "workDaysPerMonth",
       "workTime",
     ]);
+  });
+
+  it("reports invalid daily salary only in daily mode", () => {
+    expect(
+      validateSalaryConfig({
+        ...config,
+        salaryType: "daily",
+        dailySalary: 0,
+        monthlySalary: 1000,
+      }),
+    ).toContainEqual({
+      field: "dailySalary",
+      message: "日薪需要大于 0",
+    });
+
+    expect(
+      validateSalaryConfig({
+        ...config,
+        salaryType: "monthly",
+        dailySalary: 0,
+        monthlySalary: 1000,
+      }),
+    ).not.toContainEqual({
+      field: "dailySalary",
+      message: "日薪需要大于 0",
+    });
+  });
+
+  it("reports invalid hourly salary only in hourly mode", () => {
+    expect(
+      validateSalaryConfig({
+        ...config,
+        salaryType: "hourly",
+        hourlyRate: 0,
+        monthlySalary: 1000,
+      }),
+    ).toContainEqual({
+      field: "hourlyRate",
+      message: "时薪需要大于 0",
+    });
+  });
+
+  it("reports missing workdays", () => {
+    expect(validateSalaryConfig({ ...config, workdays: [] })).toContainEqual({
+      field: "workdays",
+      message: "至少需要选择 1 个工作日",
+    });
   });
 
   it("reports lunch break outside work time only when enabled", () => {

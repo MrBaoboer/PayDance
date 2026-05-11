@@ -30,7 +30,6 @@ export function useWindowMode(
       await appWindow.setMinSize(new LogicalSize(miniMinSize.width, miniMinSize.height));
       await appWindow.setSize(new LogicalSize(size.width, size.height));
       await appWindow.setAlwaysOnTop(true);
-      alwaysOnTop.value = true;
       return;
     }
 
@@ -42,8 +41,8 @@ export function useWindowMode(
   };
 
   const setAlwaysOnTop = async (value: boolean) => {
-    alwaysOnTop.value = isMiniMode.value ? true : value;
-    await appWindow.setAlwaysOnTop(alwaysOnTop.value);
+    alwaysOnTop.value = value;
+    await appWindow.setAlwaysOnTop(isMiniMode.value ? true : alwaysOnTop.value);
   };
 
   return {

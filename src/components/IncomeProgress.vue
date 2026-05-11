@@ -30,13 +30,13 @@ const progressText = computed(() => `${Math.round(clampedProgress.value * 100)}%
 .income-progress {
   display: grid;
   width: 100%;
-  gap: 10px;
+  gap: var(--ui-gap-sm, 10px);
   margin-top: 0;
 }
 
 .progress-track {
   position: relative;
-  height: 9px;
+  height: clamp(8px, 2.1cqh, 11px);
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -48,7 +48,7 @@ const progressText = computed(() => `${Math.round(clampedProgress.value * 100)}%
 .progress-fill {
   position: relative;
   height: 100%;
-  min-width: 8px;
+  min-width: clamp(7px, 1.7cqw, 10px);
   overflow: hidden;
   border-radius: inherit;
   background: linear-gradient(90deg, var(--income-accent), var(--income-accent-bright));
@@ -74,8 +74,8 @@ const progressText = computed(() => `${Math.round(clampedProgress.value * 100)}%
 .progress-dot {
   position: absolute;
   top: 50%;
-  width: 13px;
-  height: 13px;
+  width: clamp(11px, 2.9cqw, 15px);
+  height: clamp(11px, 2.9cqw, 15px);
   border: 2px solid var(--panel);
   border-radius: 999px;
   background: var(--income-accent);
@@ -87,9 +87,9 @@ const progressText = computed(() => `${Math.round(clampedProgress.value * 100)}%
 .progress-label {
   display: inline-flex;
   justify-content: center;
-  gap: 6px;
+  gap: var(--ui-gap-xs, 6px);
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--ui-font-xs, 13px);
   font-weight: 650;
   line-height: 1;
   text-align: center;
@@ -97,7 +97,7 @@ const progressText = computed(() => `${Math.round(clampedProgress.value * 100)}%
 
 .progress-label strong {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--ui-font-xs, 13px);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
