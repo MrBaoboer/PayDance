@@ -149,3 +149,30 @@ npm.cmd run build:installer
 `build:exe` 和 `build:installer` 会先检查 `src-tauri\target\release\salary-ticker.exe` 是否仍在运行。如果应用还停留在系统托盘里，请先从托盘菜单退出后再构建。
 
 Windows 完整安装包构建需要安装 Visual Studio Build Tools，并包含 MSVC 与 Windows SDK 组件。MSI 打包还需要 WiX 工具链，Tauri 会在构建时自动下载。
+
+## 发布流程
+
+当前协作流程以 `main` 为唯一长期分支。除非明确需要 Pull Request 评审或并行实验，日常修改直接在 `main` 上完成、验证、提交并推送，不保留临时远端开发分支。
+
+正式发布优先走 GitHub Actions 自动链路：
+
+```powershell
+git status --short --branch
+npm.cmd test
+npm.cmd run build
+Push-Location src-tauri
+cargo check
+Pop-Location
+git push origin main
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
+git push origin vX.Y.Z
+```
+
+推送 `v*` 标签后，`.github/workflows/release.yml` 会在 GitHub Actions 中自动运行测试、构建 Windows `salary-ticker.exe`、上传构建产物并创建 GitHub Release。发布后可用 GitHub CLI 核验：
+
+```powershell
+gh run list --workflow Release --limit 3
+gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targetCommitish
+```
+
+仅当需要补救 Release notes 或覆盖附件时，才使用 `gh release edit` 或 `gh release upload --clobber` 手动处理。若重新本地执行 `npm.cmd run build:exe` 并希望 Release 附件与本地 exe 哈希一致，需要同步重新上传该 exe。
