@@ -1,6 +1,6 @@
 [package]
 name = "pay-dance"
-version = "0.5.6"
+version = "0.5.7"
 description = "薪跳 · 桌面实时薪资仪表盘"
 authors = ["Codex"]
 license = ""
@@ -16,6 +16,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-opener = "2.5.4"
 tauri-plugin-store = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

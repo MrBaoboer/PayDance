@@ -18,6 +18,7 @@
     "core:window:allow-set-theme",
     "core:window:allow-show",
     "core:window:allow-start-resize-dragging",
+    "opener:default",
     "store:default"
   ]
 }

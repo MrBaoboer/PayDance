@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { appEnglishName, appName, appTagline, repositoryUrl } from "./app-meta";
+import {
+  appAuthor,
+  appCopyright,
+  appEnglishName,
+  appName,
+  appTagline,
+  repositoryUrl,
+} from "./app-meta";
 
 describe("app metadata", () => {
   it("uses the PayDance brand without legacy wording", () => {
@@ -10,5 +17,10 @@ describe("app metadata", () => {
 
   it("records the project repository", () => {
     expect(repositoryUrl).toBe("https://github.com/MasterBao66/PayDance");
+  });
+
+  it("records the product author attribution", () => {
+    expect(appAuthor).toBe("Mr.Baober");
+    expect(appCopyright).toBe("© 2026 Mr.Baober");
   });
 });

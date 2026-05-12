@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { Github } from "lucide-vue-next";
+import {
+  appAuthor,
+  appCopyright,
+  appEnglishName,
+  appName,
+  repositoryUrl,
+} from "../lib/app-meta";
 import type { SalaryConfig, SalaryConfigIssue, SalaryType } from "../lib/salary";
 
 const props = defineProps<{
@@ -58,6 +67,10 @@ const readNumber = (event: Event) => {
 
 const readText = (event: Event) => (event.target as HTMLInputElement).value;
 const readChecked = (event: Event) => (event.target as HTMLInputElement).checked;
+
+const openRepository = async () => {
+  await openUrl(repositoryUrl);
+};
 </script>
 
 <template>
@@ -263,6 +276,23 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
         </button>
       </div>
     </div>
+
+    <footer class="about-footer" aria-label="软件归属">
+      <div class="about-footer__identity">
+        <strong>{{ appName }} {{ appEnglishName }}</strong>
+        <span>作者：{{ appAuthor }}</span>
+        <span>{{ appCopyright }}</span>
+      </div>
+      <button
+        class="repository-button"
+        :title="`打开 GitHub 仓库：${repositoryUrl}`"
+        type="button"
+        @click="openRepository"
+      >
+        <Github :size="16" />
+        <span>GitHub</span>
+      </button>
+    </footer>
   </section>
 </template>
 
@@ -489,5 +519,72 @@ const readChecked = (event: Event) => (event.target as HTMLInputElement).checked
 
 .weekday-control.is-invalid button {
   border-color: rgb(245 158 11 / 0.42);
+}
+
+.about-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-gap-sm, 12px);
+  border: 1px solid var(--line);
+  border-radius: var(--ui-radius-md, 12px);
+  background: color-mix(in srgb, var(--panel) 72%, transparent);
+  padding: var(--ui-pad-sm, 12px);
+}
+
+.about-footer__identity {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+  text-align: left;
+}
+
+.about-footer__identity strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: var(--ui-font-sm, 14px);
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.about-footer__identity span {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: var(--ui-font-xs, 12px);
+  font-weight: 550;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repository-button {
+  display: inline-flex;
+  height: clamp(32px, 7.6cqh, 38px);
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-gap-xs, 7px);
+  border: 1px solid var(--line);
+  border-radius: var(--ui-radius-sm, 10px);
+  background: var(--panel);
+  padding: 0 var(--ui-pad-sm, 12px);
+  color: var(--muted);
+  font-size: var(--ui-font-sm, 14px);
+  font-weight: 700;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.repository-button:hover {
+  border-color: var(--income-accent-ring);
+  background: var(--income-accent-glow);
+  color: var(--text);
+}
+
+.repository-button:active {
+  transform: scale(0.97);
 }
 </style>
