@@ -36,15 +36,27 @@ jobs:
       - name: Build portable EXE
         run: npm run build:exe
 
+      - name: Generate checksum
+        shell: pwsh
+        run: |
+          $exePath = "src-tauri/target/release/pay-dance.exe"
+          $hash = (Get-FileHash $exePath -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  pay-dance.exe" | Out-File -Encoding ascii "$exePath.sha256"
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
           name: pay-dance-windows-exe
-          path: src-tauri/target/release/pay-dance.exe
+          path: |
+            src-tauri/target/release/pay-dance.exe
+            src-tauri/target/release/pay-dance.exe.sha256
+          if-no-files-found: error
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v3
         with:
-          files: src-tauri/target/release/pay-dance.exe
+          files: |
+            src-tauri/target/release/pay-dance.exe
+            src-tauri/target/release/pay-dance.exe.sha256
           generate_release_notes: true
