@@ -9,6 +9,8 @@ import {
 import {
   miniDefaultSize,
   miniResizeEdgeSize,
+  fullWindowSize,
+  normalizeFullSize,
   normalizeMiniSize,
   type WindowSize,
 } from "./lib/window-mode";
@@ -49,12 +51,14 @@ const {
 const isMiniMode = ref(false);
 const showSettings = ref(false);
 const showSalaryInfo = ref(false);
+const fullSize = ref<WindowSize>({ ...fullWindowSize });
 const miniSize = ref<WindowSize>({ ...miniDefaultSize });
 const { snapshot, startTicker, stopTicker } = useSalaryTicker(config);
 const { applyWindowMode, setAlwaysOnTop } = useWindowMode(
   appWindow,
   isMiniMode,
   miniSize,
+  fullSize,
   alwaysOnTop,
 );
 
@@ -113,20 +117,50 @@ const shellClass = computed(() =>
 );
 
 const saveState = async () => {
-  await saveSettings({
-    isMiniMode: isMiniMode.value,
-    miniSize: miniSize.value,
-    showSettings: showSettings.value,
-  });
+  try {
+    await saveSettings({
+      fullSize: fullSize.value,
+      isMiniMode: isMiniMode.value,
+      miniSize: miniSize.value,
+      showSettings: showSettings.value,
+    });
+  } catch (error) {
+    console.error("Failed to save settings", error);
+  }
 };
 
+let saveStateTimer = 0;
+const scheduleSaveState = () => {
+  if (!isSettingsReady.value) return;
+
+  window.clearTimeout(saveStateTimer);
+  saveStateTimer = window.setTimeout(() => {
+    void saveState();
+  }, 220);
+};
+
+const saveStateNow = async () => {
+  window.clearTimeout(saveStateTimer);
+  await saveState();
+};
+
+const getCurrentWindowSize = () =>
+  normalizeFullSize({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
 const setMiniMode = async (value: boolean) => {
+  if (value && !isMiniMode.value) {
+    fullSize.value = getCurrentWindowSize();
+  }
+
   isMiniMode.value = value;
   if (value) {
     showSettings.value = false;
   }
   await applyWindowMode();
-  await saveState();
+  await saveStateNow();
 };
 
 const toggleMiniMode = () => setMiniMode(!isMiniMode.value);
@@ -134,18 +168,18 @@ const toggleMiniMode = () => setMiniMode(!isMiniMode.value);
 const toggleTheme = async () => {
   themeMode.value = themeMode.value === "dark" ? "light" : "dark";
   await appWindow.setTheme(themeMode.value);
-  await saveState();
+  await saveStateNow();
 };
 
 const setThemeMode = async (mode: "light" | "dark") => {
   themeMode.value = mode;
   await appWindow.setTheme(mode);
-  await saveState();
+  await saveStateNow();
 };
 
 const toggleAlwaysOnTop = async () => {
   await setAlwaysOnTop(!alwaysOnTop.value);
-  await saveState();
+  await saveStateNow();
 };
 
 const openSettings = async () => {
@@ -157,7 +191,7 @@ const openSettings = async () => {
   }
   await appWindow.show();
   await appWindow.setFocus();
-  await saveState();
+  await saveStateNow();
 };
 
 const completeOnboarding = async (preferences: { startInMiniMode: boolean }) => {
@@ -170,7 +204,7 @@ const completeOnboarding = async (preferences: { startInMiniMode: boolean }) => 
     return;
   }
 
-  await saveState();
+  await saveStateNow();
 };
 
 const startDrag = async (event: MouseEvent) => {
@@ -236,18 +270,19 @@ const startMiniDrag = (event: PointerEvent) => {
   };
 };
 
-watch(config, saveState, { deep: true });
+watch(config, scheduleSaveState, { deep: true });
 watch(showSettings, async () => {
   if (!isSettingsReady.value || isMiniMode.value) return;
-  await saveState();
+  await saveStateNow();
 });
 
-let saveMiniSizeTimer = 0;
+let saveWindowSizeTimer = 0;
 const unlisteners: Array<() => void> = [];
 
 onMounted(async () => {
   const windowPreferences = await loadSettings();
   isMiniMode.value = windowPreferences.isMiniMode;
+  fullSize.value = windowPreferences.fullSize;
   miniSize.value = windowPreferences.miniSize;
   showSettings.value = false;
 
@@ -281,15 +316,21 @@ onMounted(async () => {
 
   unlisteners.push(
     await appWindow.onResized(() => {
-      if (!isSettingsReady.value || !isMiniMode.value) return;
+      if (!isSettingsReady.value) return;
 
-      window.clearTimeout(saveMiniSizeTimer);
-      saveMiniSizeTimer = window.setTimeout(() => {
-        miniSize.value = normalizeMiniSize({
+      window.clearTimeout(saveWindowSizeTimer);
+      saveWindowSizeTimer = window.setTimeout(() => {
+        const size = {
           width: window.innerWidth,
           height: window.innerHeight,
-        });
-        void saveState();
+        };
+
+        if (isMiniMode.value) {
+          miniSize.value = normalizeMiniSize(size);
+        } else {
+          fullSize.value = normalizeFullSize(size);
+        }
+        void saveStateNow();
       }, 180);
     }),
   );
@@ -299,7 +340,8 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   stopTicker();
-  window.clearTimeout(saveMiniSizeTimer);
+  window.clearTimeout(saveStateTimer);
+  window.clearTimeout(saveWindowSizeTimer);
   clearMiniDrag();
   for (const unlisten of unlisteners) {
     unlisten();

@@ -2,8 +2,8 @@ import { LogicalSize } from "@tauri-apps/api/dpi";
 import type { Ref } from "vue";
 import {
   fullWindowMinSize,
-  fullWindowSize,
   miniMinSize,
+  normalizeFullSize,
   normalizeMiniSize,
   type WindowSize,
 } from "../lib/window-mode";
@@ -19,6 +19,7 @@ export function useWindowMode(
   appWindow: ManagedWindow,
   isMiniMode: Ref<boolean>,
   miniSize: Ref<WindowSize>,
+  fullSize: Ref<WindowSize>,
   alwaysOnTop: Ref<boolean>,
 ) {
   const applyWindowMode = async () => {
@@ -33,10 +34,10 @@ export function useWindowMode(
       return;
     }
 
-    await appWindow.setMinSize(
-      new LogicalSize(fullWindowMinSize.width, fullWindowMinSize.height),
-    );
-    await appWindow.setSize(new LogicalSize(fullWindowSize.width, fullWindowSize.height));
+    const size = normalizeFullSize(fullSize.value);
+    fullSize.value = size;
+    await appWindow.setMinSize(new LogicalSize(fullWindowMinSize.width, fullWindowMinSize.height));
+    await appWindow.setSize(new LogicalSize(size.width, size.height));
     await appWindow.setAlwaysOnTop(alwaysOnTop.value);
   };
 

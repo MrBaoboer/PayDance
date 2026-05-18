@@ -1,0 +1,24 @@
+name: 功能建议
+description: 提出薪跳 PayDance 的功能、交互或平台适配建议
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 需求场景
+      description: 你希望这个功能解决什么问题？
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 期望方案
+      description: 你期待它如何工作？
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 可接受的替代方案
+      description: 如果有更轻量的做法，也可以写在这里。

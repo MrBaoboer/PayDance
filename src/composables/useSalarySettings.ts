@@ -16,6 +16,7 @@ export type AmountMode = "rolling" | "plain";
 
 export type PersistedWindowState = {
   isMiniMode: boolean;
+  fullSize: WindowSize;
   miniSize: WindowSize;
   showSettings: boolean;
 };
@@ -36,6 +37,7 @@ export function useSalarySettings() {
     const savedTheme = await store.get<ThemeMode>("themeMode");
     const savedAmountMode = await store.get<AmountMode>("amountMode");
     const savedIsMiniMode = await store.get<boolean>("isMiniMode");
+    const savedFullSize = await store.get<WindowSize>("fullSize");
     const savedMiniSize = await store.get<WindowSize>("miniSize");
     const savedSettingsVersion = await store.get<number>("settingsVersion");
     const savedHasCompletedOnboarding = await store.get<boolean>(
@@ -62,6 +64,7 @@ export function useSalarySettings() {
 
     const windowPreferences = resolveWindowPreferences({
       savedIsMiniMode,
+      savedFullSize,
       savedMiniSize,
       savedSettingsVersion,
     });
@@ -72,6 +75,7 @@ export function useSalarySettings() {
 
   const saveSettings = async ({
     isMiniMode,
+    fullSize,
     miniSize,
     showSettings,
   }: PersistedWindowState) => {
@@ -79,6 +83,7 @@ export function useSalarySettings() {
 
     await store.set("config", config.value);
     await store.set("alwaysOnTop", alwaysOnTop.value);
+    await store.set("fullSize", fullSize);
     await store.set("isMiniMode", isMiniMode);
     await store.set("showSettings", showSettings);
     await store.set("themeMode", themeMode.value);

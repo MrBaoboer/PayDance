@@ -98,6 +98,15 @@ describe("calculateSalarySnapshot", () => {
     expect(snapshot.status).toBe("after-work");
   });
 
+  it("returns after-work exactly at the configured end time", () => {
+    const snapshot = calculateSalarySnapshot(at("18:00"), config);
+
+    expect(snapshot.earnedToday).toBe(1000);
+    expect(snapshot.progress).toBe(1);
+    expect(snapshot.isWorking).toBe(false);
+    expect(snapshot.status).toBe("after-work");
+  });
+
   it("ignores invalid lunch fields when lunch break is disabled", () => {
     const snapshot = calculateSalarySnapshot(at("13:30"), {
       ...config,
