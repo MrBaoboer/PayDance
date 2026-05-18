@@ -1,36 +1,42 @@
 import { ref } from "vue";
 import { describe, expect, it } from "vitest";
-import { miniDefaultSize } from "../lib/window-mode";
+import { fullWindowSize, miniDefaultSize } from "../lib/window-mode";
 import { useWindowMode } from "./useWindowMode";
 
 const createManagedWindow = () => {
   const alwaysOnTopCalls: boolean[] = [];
+  const sizeCalls: Array<{ width: number; height: number }> = [];
 
   return {
     alwaysOnTopCalls,
+    sizeCalls,
     window: {
       setAlwaysOnTop: async (value: boolean) => {
         alwaysOnTopCalls.push(value);
       },
       setMinSize: async () => {},
       setResizable: async () => {},
-      setSize: async () => {},
+      setSize: async (size: { width: number; height: number }) => {
+        sizeCalls.push({ width: size.width, height: size.height });
+      },
     },
   };
 };
 
-const lastCall = (calls: boolean[]) => calls[calls.length - 1];
+const lastCall = <Value>(calls: Value[]) => calls[calls.length - 1];
 
 describe("useWindowMode", () => {
   it("keeps the full-window topmost preference when mini mode applies topmost", async () => {
     const managedWindow = createManagedWindow();
     const isMiniMode = ref(false);
     const miniSize = ref({ ...miniDefaultSize });
+    const fullSize = ref({ ...fullWindowSize });
     const alwaysOnTop = ref(false);
     const { applyWindowMode } = useWindowMode(
       managedWindow.window,
       isMiniMode,
       miniSize,
+      fullSize,
       alwaysOnTop,
     );
 
@@ -50,11 +56,13 @@ describe("useWindowMode", () => {
     const managedWindow = createManagedWindow();
     const isMiniMode = ref(true);
     const miniSize = ref({ ...miniDefaultSize });
+    const fullSize = ref({ ...fullWindowSize });
     const alwaysOnTop = ref(true);
     const { setAlwaysOnTop } = useWindowMode(
       managedWindow.window,
       isMiniMode,
       miniSize,
+      fullSize,
       alwaysOnTop,
     );
 
@@ -62,5 +70,24 @@ describe("useWindowMode", () => {
 
     expect(alwaysOnTop.value).toBe(false);
     expect(lastCall(managedWindow.alwaysOnTopCalls)).toBe(true);
+  });
+
+  it("restores the saved full-window size when leaving mini mode", async () => {
+    const managedWindow = createManagedWindow();
+    const isMiniMode = ref(false);
+    const miniSize = ref({ ...miniDefaultSize });
+    const fullSize = ref({ width: 720, height: 540 });
+    const alwaysOnTop = ref(true);
+    const { applyWindowMode } = useWindowMode(
+      managedWindow.window,
+      isMiniMode,
+      miniSize,
+      fullSize,
+      alwaysOnTop,
+    );
+
+    await applyWindowMode();
+
+    expect(lastCall(managedWindow.sizeCalls)).toEqual({ width: 720, height: 540 });
   });
 });

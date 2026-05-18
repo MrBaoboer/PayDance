@@ -38,15 +38,17 @@ defineEmits<{
     </div>
 
     <div class="window-actions">
-      <button class="icon-button" title="设置" @click="$emit('toggleSettings')">
+      <button class="icon-button" aria-label="打开设置" title="设置" type="button" @click="$emit('toggleSettings')">
         <Settings2 :size="16" />
       </button>
-      <button class="icon-button" title="迷你悬浮模式" @click="$emit('toggleMiniMode')">
+      <button class="icon-button" aria-label="切换迷你悬浮模式" title="迷你悬浮模式" type="button" @click="$emit('toggleMiniMode')">
         <Shrink :size="16" />
       </button>
       <button
         class="icon-button"
+        :aria-label="themeMode === 'dark' ? '切换到浅色模式' : '切换到深色模式'"
         :title="themeMode === 'dark' ? '浅色模式' : '深色模式'"
+        type="button"
         @click="$emit('toggleTheme')"
       >
         <Sun v-if="themeMode === 'dark'" :size="16" />
@@ -54,15 +56,17 @@ defineEmits<{
       </button>
       <button
         class="icon-button"
+        :aria-label="alwaysOnTop ? '取消窗口置顶' : '窗口置顶'"
         :title="alwaysOnTop ? '取消置顶' : '窗口置顶'"
+        type="button"
         @click="$emit('toggleAlwaysOnTop')"
       >
         <Pin :class="{ 'pin-icon--filled': alwaysOnTop }" :size="16" />
       </button>
-      <button class="icon-button" title="最小化" @click="$emit('minimize')">
+      <button class="icon-button" aria-label="最小化窗口" title="最小化" type="button" @click="$emit('minimize')">
         <Minus :size="16" />
       </button>
-      <button class="icon-button danger" title="关闭到托盘" @click="$emit('close')">
+      <button class="icon-button danger" aria-label="关闭到托盘" title="关闭到托盘" type="button" @click="$emit('close')">
         <X :size="16" />
       </button>
     </div>

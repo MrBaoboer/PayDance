@@ -32,11 +32,11 @@ describe("settings migration", () => {
     expect(config.hourlyRate).toBeGreaterThan(0);
   });
 
-  it("preserves v3 salary type and workdays when they are valid", () => {
+  it("preserves v3 salary type and normalizes workdays when they are valid", () => {
     const config = migrateSalaryConfig({
       salaryType: "hourly",
       hourlyRate: 88,
-      workdays: [0, 2, 4, 6],
+      workdays: [6, 2, 2, 0, 4],
     });
 
     expect(config.salaryType).toBe("hourly");

@@ -340,7 +340,7 @@ function Draw-PosterOne {
   Draw-MiniWindow $g 1010 906 320 104 "888.88" "dark"
 
   Draw-TextBlock $g "github.com/MasterBao66/PayDance" 100 1062 760 48 (New-PosterFont -Family "Cascadia Mono" -Size 24 -Style Bold) (New-PosterColor "F8FAFC") Near Center -NoWrap
-  Draw-TextBlock $g "v0.5.5 · Windows x64" 104 1110 360 34 (New-PosterFont -Size 22 -Style Bold) (New-PosterColor "A1A1AA") Near Center -NoWrap
+  Draw-TextBlock $g "Windows 11 · Tauri 2" 104 1110 360 34 (New-PosterFont -Size 22 -Style Bold) (New-PosterColor "A1A1AA") Near Center -NoWrap
 
   $path = Join-Path $outDir "poster-01-income-ticker.png"
   $bitmap.Save($path, [System.Drawing.Imaging.ImageFormat]::Png)

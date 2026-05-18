@@ -7,6 +7,7 @@ import {
   type SalaryConfigIssue,
   type SalaryType,
 } from "../lib/salary";
+import { getOnboardingStepIssues } from "../lib/onboarding-validation";
 
 const props = defineProps<{
   alwaysOnTop: boolean;
@@ -54,9 +55,12 @@ const weekdayOptions = [
 
 const stepTitles = ["薪资模式", "工作时间", "外观风格"];
 const issues = computed(() => validateSalaryConfig(props.config));
-const firstIssue = computed(() => issues.value[0]?.message ?? "");
+const currentStepIssues = computed(() =>
+  getOnboardingStepIssues(step.value, props.config, issues.value),
+);
+const firstIssue = computed(() => currentStepIssues.value[0]?.message ?? "");
 const isLastStep = computed(() => step.value === stepTitles.length - 1);
-const canContinue = computed(() => !isLastStep.value || issues.value.length === 0);
+const canContinue = computed(() => currentStepIssues.value.length === 0);
 
 const hasIssue = (field: SalaryConfigIssue["field"]) =>
   issues.value.some((issue) => issue.field === field);
@@ -345,7 +349,7 @@ const goBack = () => {
         </section>
       </div>
 
-      <div v-if="firstIssue && isLastStep" class="onboarding-alert">
+      <div v-if="firstIssue" class="onboarding-alert">
         {{ firstIssue }}
       </div>
 

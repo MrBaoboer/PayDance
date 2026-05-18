@@ -1,0 +1,40 @@
+name: Bug 反馈
+description: 反馈薪跳 PayDance 的异常、崩溃或体验问题
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: 问题描述
+      description: 请简要说明发生了什么。
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 请列出稳定复现问题的步骤。
+      placeholder: |
+        1. 打开应用
+        2. 进入设置中心
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 应用版本
+      placeholder: v0.5.8
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: 系统环境
+      placeholder: Windows 11 23H2
+  - type: textarea
+    id: extra
+    attributes:
+      label: 补充信息
+      description: 可以附截图、录屏、日志或你观察到的其它细节。

@@ -8,6 +8,8 @@
 
 薪跳 PayDance 是一款桌面实时薪资仪表盘，也是一款属于打工人的桌面实时工资看板。输入薪资、工作日、上下班时间和午休设置后，它会在桌面上实时显示今天已经挣到的钱，让每一秒的收入跳动都看得见。
 
+![薪跳 PayDance 主视觉](marketing-posters/poster-01-income-ticker.png)
+
 ## 快速下载
 
 | 平台 | 推荐下载 | 说明 |
@@ -16,7 +18,12 @@
 | GitHub Release | [最新正式版](https://github.com/MasterBao66/PayDance/releases/latest) | 查看更新说明、附件和校验文件 |
 | 源码 | [MasterBao66/PayDance](https://github.com/MasterBao66/PayDance) | Vue 3 + TypeScript + Tauri 2 |
 
-首次运行 Windows 可能提示未知发布者，这是未签名个人开源软件的常见提示。请优先从本仓库 Release 页面下载，并可使用同版本的 SHA256 文件核对附件完整性。
+首次运行 Windows 可能提示未知发布者，这是未签名个人发布软件的常见提示。请优先从本仓库 Release 页面下载，并可使用同版本的 SHA256 文件核对附件完整性。
+
+```powershell
+Get-FileHash .\pay-dance.exe -Algorithm SHA256
+Get-Content .\pay-dance.exe.sha256
+```
 
 ## 一句话定位
 
@@ -58,6 +65,16 @@
 
 当前版本不包含遥测、远程同步或在线账户体系。删除本机应用数据目录中的配置文件后，应用会重新进入首次配置流程。
 
+Windows 上可按需删除以下配置文件来重新体验首次启动向导：
+
+```powershell
+Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAction SilentlyContinue
+```
+
+## 作者与许可
+
+薪跳 PayDance 由 Mr.Baober 设计与开发。当前仓库暂未设置开源许可证，作者保留相关权利；未经作者许可，请勿二次发布、商用分发或移除作者归属信息。
+
 ## 跨平台能力
 
 项目采用 Vue 3 + TypeScript + Tauri 2 架构，核心薪资逻辑、状态模型和大部分前端界面具备复用价值。Tauri 2 支持使用同一套前端与 Rust 应用逻辑面向 Windows、macOS、Linux、Android 和 iOS 构建应用，因此本项目具备继续扩展到其它平台的工程基础。
@@ -88,11 +105,20 @@ npm.cmd install --cache .npm-cache
 npm.cmd run tauri -- dev
 ```
 
+如果本机 `rg` 命令来自 Codex 的 WindowsApps 目录且提示 `Access is denied`，可运行项目内修复脚本安装本地 ripgrep：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/bootstrap-ripgrep.ps1 -PersistUserPath
+$env:PATH = (Resolve-Path ".tools\ripgrep").Path + ";" + $env:PATH
+rg --version
+```
+
 ## 测试
 
 ```powershell
 npm.cmd test
 npm.cmd run build
+npm.cmd run version:check
 Push-Location src-tauri
 cargo check
 Pop-Location
@@ -144,6 +170,18 @@ gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targe
 仅当需要补救 Release notes 或覆盖附件时，才使用 `gh release edit` 或 `gh release upload --clobber` 手动处理。
 
 ## 版本记录
+
+### v0.5.8
+
+- README 产品页增加主视觉海报、SHA256 校验示例、首次配置重置命令和 `rg` 环境修复说明。
+- 营销海报更新为无版本号设计，避免海报随小版本发布频繁失效。
+- 主窗口尺寸现在会随用户调整持久化，退出迷你悬浮模式后恢复用户自己的主窗口大小。
+- 首次启动向导改为按步骤校验，薪资配置和工作时间问题会在对应步骤即时拦截。
+- 设置保存改为防抖写入并捕获保存失败，减少输入过程中的本地存储写入压力。
+- GitHub 仓库入口增加打开失败反馈，标题栏按钮和金额展示补充无障碍信息，并支持系统“减少动态效果”偏好。
+- GitHub Actions 增加版本一致性检查、生产依赖审计、并发控制和基于 README 的 Release notes 生成。
+- 收紧 Tauri opener 权限，仅保留默认 URL 打开能力；工作日迁移顺序更稳定，下班整点状态显示为“已下班”。
+- 项目包元数据同步作者 `Mr.Baober`，并补充 GitHub Issue / PR 模板。
 
 ### v0.5.7
 

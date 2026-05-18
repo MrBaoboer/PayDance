@@ -8,6 +8,13 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     name: Test and build
@@ -29,6 +36,9 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Check version consistency
+        run: npm run version:check
+
       - name: Run unit tests
         run: npm test
 
@@ -38,3 +48,6 @@ jobs:
       - name: Check Tauri backend
         run: cargo check
         working-directory: src-tauri
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev

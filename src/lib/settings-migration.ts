@@ -28,7 +28,7 @@ const normalizeWorkdays = (workdays: unknown) => {
     return [...defaultWorkdays];
   }
 
-  return uniqueWorkdays;
+  return uniqueWorkdays.sort((a, b) => a - b);
 };
 
 export function migrateSalaryConfig(

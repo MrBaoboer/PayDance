@@ -51,9 +51,10 @@ onBeforeUnmount(() => {
   <span
     class="rolling-amount"
     :class="[`rolling-amount--${variant}`, { 'is-ticking': isTicking }]"
+    :aria-label="`¥${value}`"
   >
-    <span class="rolling-amount__currency">¥</span>
-    <span class="rolling-amount__value" aria-live="off">
+    <span class="rolling-amount__currency" aria-hidden="true">¥</span>
+    <span class="rolling-amount__value" aria-hidden="true">
       <span
         v-for="item in chars"
         :key="item.id"
@@ -160,5 +161,17 @@ onBeforeUnmount(() => {
 
 .rolling-amount--hero.is-ticking .rolling-amount__currency {
   color: var(--income-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rolling-amount,
+  .rolling-amount__currency,
+  .rolling-amount__digit-strip {
+    transition: none;
+  }
+
+  .rolling-amount--hero.is-ticking {
+    filter: none;
+  }
 }
 </style>

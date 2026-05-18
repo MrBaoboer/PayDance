@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Github } from "lucide-vue-next";
 import {
@@ -67,9 +67,23 @@ const readNumber = (event: Event) => {
 
 const readText = (event: Event) => (event.target as HTMLInputElement).value;
 const readChecked = (event: Event) => (event.target as HTMLInputElement).checked;
+const isOpeningRepository = ref(false);
+const repositoryError = ref("");
 
 const openRepository = async () => {
-  await openUrl(repositoryUrl);
+  if (isOpeningRepository.value) return;
+
+  isOpeningRepository.value = true;
+  repositoryError.value = "";
+
+  try {
+    await openUrl(repositoryUrl);
+  } catch (error) {
+    console.error("Failed to open repository", error);
+    repositoryError.value = "无法打开 GitHub 仓库，请稍后重试。";
+  } finally {
+    isOpeningRepository.value = false;
+  }
 };
 </script>
 
@@ -285,6 +299,8 @@ const openRepository = async () => {
       </div>
       <button
         class="repository-button"
+        aria-label="打开 GitHub 仓库"
+        :disabled="isOpeningRepository"
         :title="`打开 GitHub 仓库：${repositoryUrl}`"
         type="button"
         @click="openRepository"
@@ -292,6 +308,9 @@ const openRepository = async () => {
         <Github :size="16" />
         <span>GitHub</span>
       </button>
+      <p v-if="repositoryError" class="about-footer__error">
+        {{ repositoryError }}
+      </p>
     </footer>
   </section>
 </template>
@@ -523,6 +542,7 @@ const openRepository = async () => {
 
 .about-footer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--ui-gap-sm, 12px);
@@ -586,5 +606,20 @@ const openRepository = async () => {
 
 .repository-button:active {
   transform: scale(0.97);
+}
+
+.repository-button:disabled {
+  cursor: default;
+  opacity: 0.58;
+  transform: none;
+}
+
+.about-footer__error {
+  flex: 1 0 100%;
+  margin: 0;
+  color: var(--danger);
+  font-size: var(--ui-font-xs, 12px);
+  font-weight: 600;
+  text-align: left;
 }
 </style>

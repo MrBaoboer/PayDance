@@ -5,7 +5,8 @@ export type WindowSize = {
   height: number;
 };
 
-export const currentSettingsSchemaVersion = 2;
+export const windowSettingsSchemaVersion = 2;
+export const currentSettingsSchemaVersion = windowSettingsSchemaVersion;
 
 export const fullWindowSize: WindowSize = { width: 480, height: 460 };
 export const fullWindowMinSize: WindowSize = { width: 430, height: 410 };
@@ -20,26 +21,37 @@ export const normalizeMiniSize = (
   height: Math.max(miniMinSize.height, Math.round(size?.height ?? miniDefaultSize.height)),
 });
 
+export const normalizeFullSize = (
+  size: Partial<WindowSize> | null | undefined,
+): WindowSize => ({
+  width: Math.max(fullWindowMinSize.width, Math.round(size?.width ?? fullWindowSize.width)),
+  height: Math.max(fullWindowMinSize.height, Math.round(size?.height ?? fullWindowSize.height)),
+});
+
 export type StoredWindowPreferences = {
   savedIsMiniMode?: boolean;
   savedMiniSize?: Partial<WindowSize> | null;
+  savedFullSize?: Partial<WindowSize> | null;
   savedSettingsVersion?: number;
 };
 
 export function resolveWindowPreferences({
   savedIsMiniMode,
   savedMiniSize,
+  savedFullSize,
   savedSettingsVersion,
 }: StoredWindowPreferences): {
   isMiniMode: boolean;
   miniSize: WindowSize;
+  fullSize: WindowSize;
 } {
   const isCompatibleSchema =
     typeof savedSettingsVersion === "number" &&
-    savedSettingsVersion >= currentSettingsSchemaVersion;
+    savedSettingsVersion >= windowSettingsSchemaVersion;
 
   return {
     isMiniMode: savedIsMiniMode === true,
     miniSize: isCompatibleSchema ? normalizeMiniSize(savedMiniSize) : miniDefaultSize,
+    fullSize: isCompatibleSchema ? normalizeFullSize(savedFullSize) : fullWindowSize,
   };
 }

@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   currentSettingsSchemaVersion,
+  fullWindowMinSize,
   miniDefaultSize,
   miniMinSize,
+  normalizeFullSize,
   normalizeMiniSize,
   resolveWindowPreferences,
 } from "./window-mode";
@@ -20,6 +22,10 @@ describe("window mode preferences", () => {
     });
   });
 
+  it("clamps full window size to the supported minimum", () => {
+    expect(normalizeFullSize({ width: 80, height: 20 })).toEqual(fullWindowMinSize);
+  });
+
   it("migrates old saved mini sizes to the new compact default", () => {
     expect(
       resolveWindowPreferences({
@@ -30,6 +36,7 @@ describe("window mode preferences", () => {
     ).toEqual({
       isMiniMode: true,
       miniSize: miniDefaultSize,
+      fullSize: { width: 480, height: 460 },
     });
   });
 
@@ -43,6 +50,7 @@ describe("window mode preferences", () => {
     ).toEqual({
       isMiniMode: true,
       miniSize: { width: 220, height: 64 },
+      fullSize: { width: 480, height: 460 },
     });
   });
 
@@ -56,6 +64,22 @@ describe("window mode preferences", () => {
     ).toEqual({
       isMiniMode: true,
       miniSize: { width: 210, height: 58 },
+      fullSize: { width: 480, height: 460 },
+    });
+  });
+
+  it("preserves saved full window size from the current schema", () => {
+    expect(
+      resolveWindowPreferences({
+        savedIsMiniMode: false,
+        savedMiniSize: { width: 210, height: 58 },
+        savedFullSize: { width: 720, height: 540 },
+        savedSettingsVersion: currentSettingsSchemaVersion,
+      }),
+    ).toEqual({
+      isMiniMode: false,
+      miniSize: { width: 210, height: 58 },
+      fullSize: { width: 720, height: 540 },
     });
   });
 });

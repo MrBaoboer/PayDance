@@ -236,7 +236,7 @@ function getSnapshotStatus(
   elapsedWorkMs: number,
   totalWorkMs: number,
 ): SalaryStatus {
-  if (spans.some(([start, end]) => now >= start && now <= end)) {
+  if (spans.some(([start, end]) => now >= start && now < end)) {
     return "working";
   }
 

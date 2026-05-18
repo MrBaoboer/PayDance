@@ -4,4 +4,5 @@ src-tauri/target
 src-tauri/gen
 .npm-cache
 release-assets
+.tools
 *.log
