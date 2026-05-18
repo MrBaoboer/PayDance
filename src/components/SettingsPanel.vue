@@ -7,6 +7,7 @@ import {
   appCopyright,
   appEnglishName,
   appName,
+  appVersion,
   repositoryUrl,
 } from "../lib/app-meta";
 import { parseNumberInput } from "../lib/number-input";
@@ -299,6 +300,7 @@ const openRepository = async () => {
     <footer class="about-footer" aria-label="软件归属">
       <div class="about-footer__identity">
         <strong>{{ appName }} {{ appEnglishName }}</strong>
+        <span>版本：v{{ appVersion }}</span>
         <span>作者：{{ appAuthor }}</span>
         <span>{{ appCopyright }}</span>
       </div>
