@@ -8,7 +8,15 @@
 
 薪跳 PayDance 是一款桌面实时薪资仪表盘，也是一款属于打工人的桌面实时工资看板。输入薪资、工作日、上下班时间和午休设置后，它会在桌面上实时显示今天已经挣到的钱，让每一秒的收入跳动都看得见。
 
-![薪跳 PayDance 主视觉](marketing-posters/poster-01-income-ticker.png)
+<p align="center">
+  <img src="marketing-posters/poster-01-income-ticker.png" alt="薪跳 PayDance 主视觉" width="100%">
+</p>
+
+## 界面预览
+
+| 实时收入看板 | 收入粒度换算 | 迷你悬浮模式 |
+| --- | --- | --- |
+| ![薪跳 PayDance 实时收入看板](marketing-posters/poster-01-income-ticker.png) | ![薪跳 PayDance 收入粒度换算](marketing-posters/poster-02-salary-granularity.png) | ![薪跳 PayDance 迷你悬浮模式](marketing-posters/poster-03-desktop-corner.png) |
 
 ## 快速下载
 
@@ -95,7 +103,7 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAct
 | 前端 | Vue 3, TypeScript, Vite |
 | UI | Windows 11 风格、CSS Container Queries、lucide-vue-next |
 | 本地存储 | `@tauri-apps/plugin-store` |
-| 测试 | Vitest, vue-tsc, cargo check |
+| 测试 | Vitest, vue-tsc, cargo fmt, cargo clippy, cargo check |
 | 自动发布 | GitHub Actions, softprops/action-gh-release |
 
 ## 本地开发
@@ -120,6 +128,8 @@ npm.cmd test
 npm.cmd run build
 npm.cmd run version:check
 Push-Location src-tauri
+cargo fmt --all -- --check
+cargo clippy --all-targets -- -D warnings
 cargo check
 Pop-Location
 ```
@@ -153,6 +163,8 @@ git status --short --branch
 npm.cmd test
 npm.cmd run build
 Push-Location src-tauri
+cargo fmt --all -- --check
+cargo clippy --all-targets -- -D warnings
 cargo check
 Pop-Location
 git push origin main
@@ -160,7 +172,7 @@ git tag -a vX.Y.Z -m "Release vX.Y.Z"
 git push origin vX.Y.Z
 ```
 
-推送 `v*` 标签后，`.github/workflows/release.yml` 会自动运行测试、构建 Windows `pay-dance.exe`、生成 SHA256 校验文件、上传构建产物并创建 GitHub Release。发布后可用 GitHub CLI 核验：
+推送 `v*` 标签后，`.github/workflows/release.yml` 会自动运行测试、Rust 格式化检查、Clippy 检查、构建 Windows `pay-dance.exe`、生成 SHA256 校验文件、上传构建产物并创建 GitHub Release。发布后可用 GitHub CLI 核验：
 
 ```powershell
 gh run list --workflow Release --limit 3
@@ -170,6 +182,16 @@ gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targe
 仅当需要补救 Release notes 或覆盖附件时，才使用 `gh release edit` 或 `gh release upload --clobber` 手动处理。
 
 ## 版本记录
+
+### v0.5.9
+
+- README 产品页新增界面预览区，展示实时收入看板、收入粒度换算和迷你悬浮模式。
+- 数字输入解析改为共用逻辑，清空薪资或工作天数输入框时不再把配置误写成 `0`。
+- 设置中心展开状态不再写入本地配置，只保留为当前窗口 UI 状态，减少无效持久化字段。
+- 发布说明生成脚本改为 UTF-8 无 BOM 写入，避免 GitHub Release 正文开头出现不可见字符。
+- Tauri 增加 CSP，并将窗口、事件、Store 权限收紧到当前实际使用范围。
+- GitHub Actions 固定 Windows runner，并把 Rust 格式化检查和 Clippy 纳入 CI / Release 质量门禁。
+- GitHub Issue 表单增加配置入口，优先引导用户下载最新正式版或查看项目主页。
 
 ### v0.5.8
 

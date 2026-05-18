@@ -9,6 +9,7 @@ import {
   appName,
   repositoryUrl,
 } from "../lib/app-meta";
+import { parseNumberInput } from "../lib/number-input";
 import type { SalaryConfig, SalaryConfigIssue, SalaryType } from "../lib/salary";
 
 const props = defineProps<{
@@ -60,9 +61,13 @@ const toggleWorkday = (day: number) => {
   updateConfig("workdays", [...workdays].sort((a, b) => a - b));
 };
 
-const readNumber = (event: Event) => {
-  const value = Number((event.target as HTMLInputElement).value);
-  return Number.isFinite(value) ? value : 0;
+const updateNumberConfig = <Key extends keyof SalaryConfig>(
+  key: Key,
+  event: Event,
+) => {
+  const value = parseNumberInput((event.target as HTMLInputElement).value);
+  if (value === null) return;
+  updateConfig(key, value as SalaryConfig[Key]);
 };
 
 const readText = (event: Event) => (event.target as HTMLInputElement).value;
@@ -127,7 +132,7 @@ const openRepository = async () => {
               min="0"
               step="100"
               type="number"
-              @input="updateConfig('monthlySalary', readNumber($event))"
+              @input="updateNumberConfig('monthlySalary', $event)"
             />
             <span class="field-unit">元</span>
           </span>
@@ -144,7 +149,7 @@ const openRepository = async () => {
               min="0"
               step="50"
               type="number"
-              @input="updateConfig('dailySalary', readNumber($event))"
+              @input="updateNumberConfig('dailySalary', $event)"
             />
             <span class="field-unit">元</span>
           </span>
@@ -161,7 +166,7 @@ const openRepository = async () => {
               min="0"
               step="5"
               type="number"
-              @input="updateConfig('hourlyRate', readNumber($event))"
+              @input="updateNumberConfig('hourlyRate', $event)"
             />
             <span class="field-unit">元</span>
           </span>
@@ -178,7 +183,7 @@ const openRepository = async () => {
               min="1"
               step="0.5"
               type="number"
-              @input="updateConfig('workDaysPerMonth', readNumber($event))"
+              @input="updateNumberConfig('workDaysPerMonth', $event)"
             />
             <span class="field-unit">天</span>
           </span>

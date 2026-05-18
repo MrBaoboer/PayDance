@@ -4,8 +4,8 @@
   "description": "Default capability for the main salary ticker window",
   "windows": ["main"],
   "permissions": [
-    "core:default",
-    "core:window:default",
+    "core:event:allow-listen",
+    "core:event:allow-unlisten",
     "core:window:allow-close",
     "core:window:allow-hide",
     "core:window:allow-minimize",
@@ -18,7 +18,15 @@
     "core:window:allow-set-theme",
     "core:window:allow-show",
     "core:window:allow-start-resize-dragging",
-    "opener:allow-default-urls",
-    "store:default"
+    "opener:allow-open-url",
+    {
+      "identifier": "opener:allow-default-urls",
+      "allow": [{ "url": "https://github.com/MasterBao66/PayDance" }]
+    },
+    "store:allow-get",
+    "store:allow-get-store",
+    "store:allow-load",
+    "store:allow-save",
+    "store:allow-set"
   ]
 }
