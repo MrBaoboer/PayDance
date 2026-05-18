@@ -25,7 +25,7 @@ body:
     id: version
     attributes:
       label: 应用版本
-      placeholder: v0.5.9
+      placeholder: v0.5.10
     validations:
       required: true
   - type: input

@@ -18,9 +18,8 @@
     "core:window:allow-set-theme",
     "core:window:allow-show",
     "core:window:allow-start-resize-dragging",
-    "opener:allow-open-url",
     {
-      "identifier": "opener:allow-default-urls",
+      "identifier": "opener:allow-open-url",
       "allow": [{ "url": "https://github.com/MasterBao66/PayDance" }]
     },
     "store:allow-get",

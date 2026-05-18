@@ -14,9 +14,9 @@
 
 ## 界面预览
 
-| 实时收入看板 | 收入粒度换算 | 迷你悬浮模式 |
+| 实时收入看板 | 首次配置 | 一天收入轨迹 |
 | --- | --- | --- |
-| ![薪跳 PayDance 实时收入看板](marketing-posters/poster-01-income-ticker.png) | ![薪跳 PayDance 收入粒度换算](marketing-posters/poster-02-salary-granularity.png) | ![薪跳 PayDance 迷你悬浮模式](marketing-posters/poster-03-desktop-corner.png) |
+| ![薪跳 PayDance 实时收入看板](marketing-posters/poster-01-income-ticker.png) | ![薪跳 PayDance 首次配置](marketing-posters/poster-02-first-run-setup.png) | ![薪跳 PayDance 一天收入轨迹](marketing-posters/poster-03-workday-income-timeline.png) |
 
 ## 快速下载
 
@@ -127,6 +127,7 @@ rg --version
 npm.cmd test
 npm.cmd run build
 npm.cmd run version:check
+npm.cmd audit --omit=dev
 Push-Location src-tauri
 cargo fmt --all -- --check
 cargo clippy --all-targets -- -D warnings
@@ -162,6 +163,8 @@ Windows 完整安装包构建需要安装 Visual Studio Build Tools，并包含 
 git status --short --branch
 npm.cmd test
 npm.cmd run build
+npm.cmd run version:check
+npm.cmd audit --omit=dev
 Push-Location src-tauri
 cargo fmt --all -- --check
 cargo clippy --all-targets -- -D warnings
@@ -172,7 +175,7 @@ git tag -a vX.Y.Z -m "Release vX.Y.Z"
 git push origin vX.Y.Z
 ```
 
-推送 `v*` 标签后，`.github/workflows/release.yml` 会自动运行测试、Rust 格式化检查、Clippy 检查、构建 Windows `pay-dance.exe`、生成 SHA256 校验文件、上传构建产物并创建 GitHub Release。发布后可用 GitHub CLI 核验：
+推送 `v*` 标签后，`.github/workflows/release.yml` 会自动运行测试、Rust 格式化检查、Clippy 检查、构建 Windows `pay-dance.exe`、生成 SHA256 校验文件、上传构建产物并创建 GitHub Release。也可以在 GitHub Actions 页面手动触发 Release workflow，并填写要发布的 `vX.Y.Z` 标签。发布后可用 GitHub CLI 核验：
 
 ```powershell
 gh run list --workflow Release --limit 3
@@ -181,7 +184,24 @@ gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targe
 
 仅当需要补救 Release notes 或覆盖附件时，才使用 `gh release edit` 或 `gh release upload --clobber` 手动处理。
 
+## 营销海报
+
+仓库中的海报统一放在 `marketing-posters/`。`poster-01-income-ticker.png` 是人工主视觉，不由脚本覆盖；第二、第三张海报可用脚本重新生成：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generate-promo-posters.ps1
+```
+
 ## 版本记录
+
+### v0.5.10
+
+- 将第一张营销主视觉替换为新的 PayDance 产品海报。
+- 第二、第三张营销海报重做为“首次配置三步上手”和“一天收入轨迹”两个新主题，并更新 README 预览区。
+- 设置中心底部作者归属区新增当前版本号展示。
+- 营销海报生成脚本改为只生成第二、第三张海报，避免覆盖人工主视觉。
+- Release workflow 支持手动填写标签触发正式发布，并同步 PR 模板、Issue fallback 模板和 Git 文本/二进制属性。
+- 更新低风险开发依赖补丁版本。
 
 ### v0.5.9
 
