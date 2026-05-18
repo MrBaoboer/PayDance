@@ -1,6 +1,4 @@
-use tauri::{
-    menu::MenuBuilder, tray::TrayIconBuilder, Emitter, Manager, WebviewWindow,
-};
+use tauri::{menu::MenuBuilder, tray::TrayIconBuilder, Emitter, Manager, WebviewWindow};
 
 fn show_window(window: &WebviewWindow) {
     let _ = window.show();

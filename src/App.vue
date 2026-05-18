@@ -122,7 +122,6 @@ const saveState = async () => {
       fullSize: fullSize.value,
       isMiniMode: isMiniMode.value,
       miniSize: miniSize.value,
-      showSettings: showSettings.value,
     });
   } catch (error) {
     console.error("Failed to save settings", error);
@@ -271,11 +270,6 @@ const startMiniDrag = (event: PointerEvent) => {
 };
 
 watch(config, scheduleSaveState, { deep: true });
-watch(showSettings, async () => {
-  if (!isSettingsReady.value || isMiniMode.value) return;
-  await saveStateNow();
-});
-
 let saveWindowSizeTimer = 0;
 const unlisteners: Array<() => void> = [];
 

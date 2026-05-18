@@ -16,7 +16,7 @@ concurrency:
 jobs:
   windows-release:
     name: Build Windows release
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
       - name: Checkout
@@ -39,6 +39,14 @@ jobs:
 
       - name: Run unit tests
         run: npm test
+
+      - name: Check Rust formatting
+        run: cargo fmt --all -- --check
+        working-directory: src-tauri
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets -- -D warnings
+        working-directory: src-tauri
 
       - name: Build portable EXE
         run: npm run build:exe

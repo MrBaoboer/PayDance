@@ -18,7 +18,6 @@ export type PersistedWindowState = {
   isMiniMode: boolean;
   fullSize: WindowSize;
   miniSize: WindowSize;
-  showSettings: boolean;
 };
 
 const store = new LazyStore("salary-settings.json");
@@ -77,7 +76,6 @@ export function useSalarySettings() {
     isMiniMode,
     fullSize,
     miniSize,
-    showSettings,
   }: PersistedWindowState) => {
     if (!isSettingsReady.value) return;
 
@@ -85,7 +83,6 @@ export function useSalarySettings() {
     await store.set("alwaysOnTop", alwaysOnTop.value);
     await store.set("fullSize", fullSize);
     await store.set("isMiniMode", isMiniMode);
-    await store.set("showSettings", showSettings);
     await store.set("themeMode", themeMode.value);
     await store.set("amountMode", amountMode.value);
     await store.set("miniSize", miniSize);

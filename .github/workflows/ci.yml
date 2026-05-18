@@ -18,7 +18,7 @@ concurrency:
 jobs:
   verify:
     name: Test and build
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
       - name: Checkout
@@ -45,8 +45,16 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+      - name: Check Rust formatting
+        run: cargo fmt --all -- --check
+        working-directory: src-tauri
+
       - name: Check Tauri backend
         run: cargo check
+        working-directory: src-tauri
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets -- -D warnings
         working-directory: src-tauri
 
       - name: Audit production dependencies
