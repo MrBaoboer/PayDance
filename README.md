@@ -8,15 +8,25 @@
 
 薪跳 PayDance 是一款桌面实时薪资仪表盘，也是一款属于打工人的桌面实时工资看板。输入薪资、工作日、上下班时间和午休设置后，它会在桌面上实时显示今天已经挣到的钱，让每一秒的收入跳动都看得见。
 
+## 产品预览
+
 <p align="center">
-  <img src="marketing-posters/poster-01-income-ticker.png" alt="薪跳 PayDance 主视觉" width="100%">
+  <img src="marketing-posters/poster-01-income-ticker.png" alt="薪跳 PayDance 实时收入看板" width="100%">
 </p>
 
-## 界面预览
+<p align="center">
+  <strong>实时收入看板</strong><br>
+  把今天已经挣到的钱、工作进度、剩余时间和预计收入放在桌面上实时滚动。
+</p>
 
-| 实时收入看板 | 首次配置 | 一天收入轨迹 |
-| --- | --- | --- |
-| ![薪跳 PayDance 实时收入看板](marketing-posters/poster-01-income-ticker.png) | ![薪跳 PayDance 首次配置](marketing-posters/poster-02-first-run-setup.png) | ![薪跳 PayDance 一天收入轨迹](marketing-posters/poster-03-workday-income-timeline.png) |
+<p align="center">
+  <img src="marketing-posters/poster-02-first-run-setup.png" alt="薪跳 PayDance 首次配置三步上手" width="100%">
+</p>
+
+<p align="center">
+  <strong>首次配置，三步上手</strong><br>
+  依次设置薪资模式、工作时间和外观风格，从第一天开始看见每一秒收入。
+</p>
 
 ## 快速下载
 
@@ -186,20 +196,20 @@ gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targe
 
 ## 营销海报
 
-仓库中的海报统一放在 `marketing-posters/`。`poster-01-income-ticker.png` 是人工主视觉，不由脚本覆盖；第二、第三张海报可用脚本重新生成：
+仓库中的营销海报统一放在 `marketing-posters/`，当前只保留两张无版本号定稿素材：
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generate-promo-posters.ps1
-```
+- `poster-01-income-ticker.png`：实时收入看板主视觉，强调“每一秒都在入账”的核心爽感。
+- `poster-02-first-run-setup.png`：首次配置三步上手，展示薪资模式、工作时间和外观风格三段流程。
+
+两张海报均作为人工定稿素材维护，不再由脚本批量生成或覆盖。后续更换海报时，直接替换同名文件，并同步更新 README 中的预览和说明。
 
 ## 版本记录
 
 ### v0.5.10
 
-- 将第一张营销主视觉替换为新的 PayDance 产品海报。
-- 第二、第三张营销海报重做为“首次配置三步上手”和“一天收入轨迹”两个新主题，并更新 README 预览区。
+- 将营销主视觉替换为新的 PayDance 产品海报。
+- README 产品预览区聚焦“实时收入看板”和“首次配置三步上手”两张无版本号海报。
 - 设置中心底部作者归属区新增当前版本号展示。
-- 营销海报生成脚本改为只生成第二、第三张海报，避免覆盖人工主视觉。
 - Release workflow 支持手动填写标签触发正式发布，并同步 PR 模板、Issue fallback 模板和 Git 文本/二进制属性。
 - 更新低风险开发依赖补丁版本。
 
