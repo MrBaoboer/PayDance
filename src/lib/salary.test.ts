@@ -163,6 +163,22 @@ describe("calculateSalarySnapshot", () => {
     expect(snapshot.earnedToday).toBe(800);
     expect(snapshot.progress).toBe(1);
   });
+
+  it("prefers the completed previous overnight shift before the next overnight shift starts", () => {
+    const snapshot = calculateSalarySnapshot(new Date("2026-05-12T06:01:00"), {
+      ...config,
+      salaryType: "daily",
+      dailySalary: 800,
+      workdays: [1, 2, 3, 4, 5],
+      startTime: "22:00",
+      endTime: "06:00",
+      enableLunchBreak: false,
+    });
+
+    expect(snapshot.status).toBe("after-work");
+    expect(snapshot.earnedToday).toBe(800);
+    expect(snapshot.progress).toBe(1);
+  });
 });
 
 describe("createWorkSpans", () => {

@@ -7,7 +7,7 @@ import {
   Shrink,
   Sun,
   X,
-} from "lucide-vue-next";
+} from "@lucide/vue";
 
 defineProps<{
   alwaysOnTop: boolean;

@@ -68,4 +68,11 @@ describe("settings panel", () => {
       settingsPanelSource.indexOf("about-footer__copyright"),
     );
   });
+
+  it("keeps the attribution footer balanced in narrow settings sheets", () => {
+    expect(settingsPanelSource).toContain("flex: 1 1 clamp(180px, 50%, 260px)");
+    expect(settingsPanelSource).toContain("min-width: clamp(112px, 28cqw, 140px)");
+    expect(settingsPanelSource).toContain("width: min(100%, 140px)");
+    expect(settingsPanelSource).toContain(".about-footer__identity {\n    text-align: center;");
+  });
 });

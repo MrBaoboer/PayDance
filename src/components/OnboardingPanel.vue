@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { Check, ChevronLeft, ChevronRight } from "lucide-vue-next";
+import { Check, ChevronLeft, ChevronRight } from "@lucide/vue";
 import {
   validateSalaryConfig,
   type SalaryConfig,

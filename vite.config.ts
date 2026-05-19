@@ -5,6 +5,13 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
   clearScreen: false,
+  build: {
+    rolldownOptions: {
+      checks: {
+        pluginTimings: false,
+      },
+    },
+  },
   server: {
     strictPort: true,
     port: 1420,

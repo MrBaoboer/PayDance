@@ -49,6 +49,9 @@ jobs:
       - name: Run unit tests
         run: npm test
 
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
+
       - name: Check Rust formatting
         run: cargo fmt --all -- --check
         working-directory: src-tauri

@@ -295,6 +295,11 @@ const didSpanEndToday = (
   );
 };
 
+const hasNotReachedFirstSpan = (
+  now: Date,
+  spans: readonly (readonly [Date, Date])[],
+) => spans.length > 0 && now < spans[0][0];
+
 const resolveWorkSpans = (now: Date, config: SalaryConfig) => {
   const previousSpans = createWorkSpans(previousDate(now), config);
 
@@ -303,12 +308,15 @@ const resolveWorkSpans = (now: Date, config: SalaryConfig) => {
   }
 
   const currentSpans = createWorkSpans(now, config);
-  if (currentSpans.length > 0) {
-    return currentSpans;
+  if (
+    didSpanEndToday(now, previousSpans) &&
+    (currentSpans.length <= 0 || hasNotReachedFirstSpan(now, currentSpans))
+  ) {
+    return previousSpans;
   }
 
-  if (didSpanEndToday(now, previousSpans)) {
-    return previousSpans;
+  if (currentSpans.length > 0) {
+    return currentSpans;
   }
 
   return currentSpans;
