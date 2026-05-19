@@ -111,7 +111,7 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAct
 | --- | --- |
 | 桌面壳 | Tauri 2, Rust |
 | 前端 | Vue 3, TypeScript, Vite |
-| UI | Windows 11 风格、CSS Container Queries、lucide-vue-next |
+| UI | Windows 11 风格、CSS Container Queries、@lucide/vue |
 | 本地存储 | `@tauri-apps/plugin-store` |
 | 测试 | Vitest, vue-tsc, cargo fmt, cargo clippy, cargo check |
 | 自动发布 | GitHub Actions, softprops/action-gh-release |
@@ -185,7 +185,7 @@ git tag -a vX.Y.Z -m "Release vX.Y.Z"
 git push origin vX.Y.Z
 ```
 
-推送 `v*` 标签后，`.github/workflows/release.yml` 会自动运行测试、Rust 格式化检查、Clippy 检查、构建 Windows `pay-dance.exe`、生成 SHA256 校验文件、上传构建产物并创建 GitHub Release。也可以在 GitHub Actions 页面手动触发 Release workflow，并填写要发布的 `vX.Y.Z` 标签。发布后可用 GitHub CLI 核验：
+推送 `v*` 标签后，`.github/workflows/release.yml` 会自动运行测试、生产依赖审计、Rust 格式化检查、Clippy 检查、构建 Windows `pay-dance.exe`、生成 SHA256 校验文件、上传构建产物并创建 GitHub Release。也可以在 GitHub Actions 页面手动触发 Release workflow，并填写要发布的 `vX.Y.Z` 标签。发布后可用 GitHub CLI 核验：
 
 ```powershell
 gh run list --workflow Release --limit 3
@@ -205,37 +205,20 @@ gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targe
 
 ## 版本记录
 
+### v0.5.15
+
+- 修复连续工作日夜班 `22:00 - 06:00` 在次日下班后、下一班尚未开始时误判为“未到上班”的边界问题，凌晨下班后的收入会继续归属到刚完成的上一班次。
+- 设置中心继续保持 v0.5.10 的独立小卡片结构，仅微调卡片间距、底部作者信息和 GitHub 仓库入口在窄窗口下的换行与居中表现。
+- 依赖升级到当前可用版本，迁移图标库到新版 `@lucide/vue`，并将 Vite / Tailwind 相关构建工具整理到开发依赖。
+- Release workflow 增加生产依赖审计步骤，并关闭 Vite 8 的插件耗时提示，让构建日志更聚焦。
+- 清理已废弃小版本发布痕迹，README 版本记录只保留当前仍可追溯的正式发布节点。
+
 ### v0.5.14
 
 - 设置中心整体回退到 v0.5.10 的独立小卡片效果，恢复“薪资模式 / 薪资 / 每周工作日 / 工作时间 / 午休 / 金额变换”的轻量布局。
 - 保留夜班跨零点支持，并修复跨零点班次在次日下班后过早显示“今日休息”的边界问题。
 - 保留新版归属信息区：版本号、作者 Mr.Baober、GitHub 仓库入口和居中版权信息继续显示，但移除“关于”标题文案。
 - README 同步恢复午休剔除和小卡片设置中心的产品说明。
-- 删除 v0.5.12 和 v0.5.13 GitHub Release，由 v0.5.14 作为新的正式版本承接。
-
-### v0.5.13
-
-- 设置中心视觉回归 v0.5.10 的独立小卡片节奏，减少“四大分组”造成的拥挤感。
-- 薪资输入部分完全恢复 v0.5.10 的交互和观感：薪资模式与薪资输入分为两张卡片，日薪/时薪不再强行占满整行。
-- 保留 v0.5.12 后的成熟逻辑：跨零点夜班、主题切换、金额动效、作者归属和 GitHub 仓库入口不回退。
-- 作息设置拆成“每周工作日”“工作时间”“休息扣除”三张小卡片，让每张卡片只承担一个配置任务。
-- “休息扣除”改为稳定卡片布局，关闭时保留置灰时间输入框，避免开关导致设置中心高度大幅跳动。
-
-### v0.5.12
-
-- 薪资设置改为按当前模式动态展示字段：月薪模式仅显示月薪和每月工作天数，日薪模式仅显示日薪，时薪模式仅显示时薪。
-- 作息设置移除“上下班时间”二级标题，将“午休剔除”调整为更通用的“休息扣除”，并只在开启后展开休息开始/结束时间。
-- 设置中心弱化嵌套卡片、边框和控件高度，降低视觉拥挤感，让四个分组更轻、更清楚。
-- 关于区域优化 GitHub 入口和版权排版，`©️2026 Mr.Baober` 现在与 GitHub 图标组件居中对齐。
-- 已删除 v0.5.11 GitHub Release，由 v0.5.12 作为新的正式版本承接。
-
-### v0.5.11
-
-- 设置中心重构为“薪资 / 作息 / 显示 / 关于”四个清晰分组，降低配置复杂感。
-- 工作时间支持跨零点夜班，例如 `22:00 - 06:00`，凌晨收入会正确归属到前一工作日班次。
-- 午休剔除支持落在夜班区间内的跨日校验，避免夜班配置被误判为无效。
-- 显示分组新增主题切换入口，并保留金额动效设置；本版不改动迷你悬浮模式。
-- 关于区优化作者、版本号和 GitHub 仓库入口排版，版权信息显示在 GitHub 图标下方。
 
 ### v0.5.10
 

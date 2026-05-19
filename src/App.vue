@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { Banknote, CircleDollarSign, Clock3, TimerReset, X } from "lucide-vue-next";
+import { Banknote, CircleDollarSign, Clock3, TimerReset, X } from "@lucide/vue";
 import {
   validateSalaryConfig,
   type SalaryConfigIssue,

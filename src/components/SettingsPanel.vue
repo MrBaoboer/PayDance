@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { Github } from "lucide-vue-next";
 import {
   appAuthor,
   appCopyright,
@@ -316,7 +315,17 @@ const openRepository = async () => {
           type="button"
           @click="openRepository"
         >
-          <Github :size="18" stroke-width="2.2" />
+          <svg
+            class="github-mark"
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M12 2C6.48 2 2 6.59 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.89-.01-1.75-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.38 9.38 0 0 1 12 6.98c.85 0 1.7.12 2.5.35 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.59.69.49A10.24 10.24 0 0 0 22 12.25C22 6.59 17.52 2 12 2Z"
+            />
+          </svg>
           <span>GitHub</span>
         </button>
         <span class="about-footer__copyright about-footer__copyright--centered">{{ appCopyright }}</span>
@@ -332,10 +341,10 @@ const openRepository = async () => {
 .settings-panel {
   display: grid;
   flex: 0 0 auto;
-  gap: var(--ui-gap-sm, 10px);
+  gap: clamp(9px, 2.2cqh, 12px);
   border-top: 1px solid var(--line);
   background: var(--panel-soft);
-  padding: var(--ui-pad-md, 16px);
+  padding: clamp(14px, 3.4cqw, 18px);
 }
 
 .settings-alert {
@@ -351,11 +360,11 @@ const openRepository = async () => {
 
 .settings-group {
   display: grid;
-  gap: var(--ui-gap-sm, 10px);
+  gap: clamp(9px, 2.1cqh, 12px);
   border: 1px solid var(--line);
   border-radius: var(--ui-radius-md, 12px);
   background: var(--panel);
-  padding: var(--ui-pad-sm, 12px);
+  padding: clamp(11px, 2.8cqw, 14px);
 }
 
 .group-title {
@@ -563,7 +572,7 @@ const openRepository = async () => {
 .about-footer {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
   gap: var(--ui-gap-sm, 12px);
   border: 1px solid var(--line);
@@ -574,8 +583,10 @@ const openRepository = async () => {
 
 .about-footer__identity {
   display: grid;
+  flex: 1 1 clamp(180px, 50%, 260px);
   min-width: 0;
   gap: 4px;
+  align-content: center;
   text-align: left;
 }
 
@@ -605,12 +616,16 @@ const openRepository = async () => {
 
 .about-footer__repo-card {
   display: grid;
+  flex: 0 0 auto;
+  min-width: clamp(112px, 28cqw, 140px);
+  align-content: center;
   justify-items: center;
   gap: 5px;
 }
 
 .repository-button {
   display: inline-flex;
+  width: min(100%, 140px);
   height: clamp(32px, 7.6cqh, 38px);
   flex: 0 0 auto;
   align-items: center;
@@ -646,6 +661,12 @@ const openRepository = async () => {
   transform: none;
 }
 
+.github-mark {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
 .about-footer__error {
   flex: 1 0 100%;
   margin: 0;
@@ -664,7 +685,12 @@ const openRepository = async () => {
     justify-content: center;
   }
 
+  .about-footer__identity {
+    text-align: center;
+  }
+
   .about-footer__repo-card {
+    width: 100%;
     justify-items: center;
   }
 }
