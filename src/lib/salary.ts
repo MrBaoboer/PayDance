@@ -84,6 +84,22 @@ const parseTimeToMinutes = (time: string) => {
   return hour * 60 + minute;
 };
 
+const normalizeWorkEnd = (start: number, end: number) =>
+  end < start ? end + 24 * 60 : end;
+
+const normalizeTimeInsideWorkWindow = (value: number, workStart: number) =>
+  value < workStart ? value + 24 * 60 : value;
+
+const normalizeBreakEnd = (breakStart: number, breakEnd: number) => {
+  let normalizedEnd = breakEnd;
+
+  while (normalizedEnd <= breakStart) {
+    normalizedEnd += 24 * 60;
+  }
+
+  return normalizedEnd;
+};
+
 const hasPositiveNumber = (value: number) =>
   Number.isFinite(value) && value > 0;
 
@@ -134,8 +150,8 @@ export function validateSalaryConfig(config: SalaryConfig): SalaryConfigIssue[] 
     issues.push({ field: "endTime", message: "下班时间格式不正确" });
   }
 
-  if (Number.isFinite(start) && Number.isFinite(end) && start >= end) {
-    issues.push({ field: "workTime", message: "下班时间需要晚于上班时间" });
+  if (Number.isFinite(start) && Number.isFinite(end) && start === end) {
+    issues.push({ field: "workTime", message: "下班时间不能与上班时间相同" });
   }
 
   if (config.enableLunchBreak) {
@@ -153,12 +169,29 @@ export function validateSalaryConfig(config: SalaryConfig): SalaryConfigIssue[] 
     if (
       Number.isFinite(start) &&
       Number.isFinite(end) &&
-      start < end &&
+      start !== end &&
       Number.isFinite(lunchStart) &&
-      Number.isFinite(lunchEnd) &&
-      !(start < lunchStart && lunchStart < lunchEnd && lunchEnd < end)
+      Number.isFinite(lunchEnd)
     ) {
-      issues.push({ field: "workTime", message: "午休时间需要完整落在工作时间内" });
+      const workEnd = normalizeWorkEnd(start, end);
+      const normalizedLunchStart = normalizeTimeInsideWorkWindow(
+        lunchStart,
+        start,
+      );
+      const normalizedLunchEnd = normalizeBreakEnd(
+        normalizedLunchStart,
+        lunchEnd,
+      );
+
+      if (
+        !(
+          start < normalizedLunchStart &&
+          normalizedLunchStart < normalizedLunchEnd &&
+          normalizedLunchEnd < workEnd
+        )
+      ) {
+        issues.push({ field: "workTime", message: "午休时间需要完整落在工作时间内" });
+      }
     }
   }
 
@@ -187,9 +220,11 @@ export function createWorkSpans(date: Date, config: SalaryConfig) {
   const start = parseTimeToMinutes(config.startTime);
   const end = parseTimeToMinutes(config.endTime);
 
-  if (![start, end].every(Number.isFinite) || start >= end) {
+  if (![start, end].every(Number.isFinite) || start === end) {
     return [];
   }
+
+  const workEnd = normalizeWorkEnd(start, end);
 
   if (config.enableLunchBreak) {
     const lunchStart = parseTimeToMinutes(config.lunchStart);
@@ -199,22 +234,85 @@ export function createWorkSpans(date: Date, config: SalaryConfig) {
       return [];
     }
 
+    const normalizedLunchStart = normalizeTimeInsideWorkWindow(
+      lunchStart,
+      start,
+    );
+    const normalizedLunchEnd = normalizeBreakEnd(
+      normalizedLunchStart,
+      lunchEnd,
+    );
+
     if (
-      start < lunchStart &&
-      lunchStart < lunchEnd &&
-      lunchEnd < end
+      start < normalizedLunchStart &&
+      normalizedLunchStart < normalizedLunchEnd &&
+      normalizedLunchEnd < workEnd
     ) {
       return [
-        [dateAtMinutes(date, start), dateAtMinutes(date, lunchStart)],
-        [dateAtMinutes(date, lunchEnd), dateAtMinutes(date, end)],
+        [dateAtMinutes(date, start), dateAtMinutes(date, normalizedLunchStart)],
+        [dateAtMinutes(date, normalizedLunchEnd), dateAtMinutes(date, workEnd)],
       ] as const;
     }
 
     return [];
   }
 
-  return [[dateAtMinutes(date, start), dateAtMinutes(date, end)]] as const;
+  return [[dateAtMinutes(date, start), dateAtMinutes(date, workEnd)]] as const;
 }
+
+const previousDate = (date: Date) => {
+  const previous = new Date(date);
+  previous.setDate(previous.getDate() - 1);
+  return previous;
+};
+
+const isWithinSpanBounds = (
+  now: Date,
+  spans: readonly (readonly [Date, Date])[],
+) => {
+  if (spans.length <= 0) return false;
+
+  const firstStart = spans[0][0].getTime();
+  const lastEnd = spans[spans.length - 1][1].getTime();
+  const nowMs = now.getTime();
+
+  return nowMs >= firstStart && nowMs <= lastEnd;
+};
+
+const didSpanEndToday = (
+  now: Date,
+  spans: readonly (readonly [Date, Date])[],
+) => {
+  if (spans.length <= 0) return false;
+
+  const lastEnd = spans[spans.length - 1][1];
+
+  return (
+    now > lastEnd &&
+    now.getFullYear() === lastEnd.getFullYear() &&
+    now.getMonth() === lastEnd.getMonth() &&
+    now.getDate() === lastEnd.getDate()
+  );
+};
+
+const resolveWorkSpans = (now: Date, config: SalaryConfig) => {
+  const previousSpans = createWorkSpans(previousDate(now), config);
+
+  if (isWithinSpanBounds(now, previousSpans)) {
+    return previousSpans;
+  }
+
+  const currentSpans = createWorkSpans(now, config);
+  if (currentSpans.length > 0) {
+    return currentSpans;
+  }
+
+  if (didSpanEndToday(now, previousSpans)) {
+    return previousSpans;
+  }
+
+  return currentSpans;
+};
 
 function getDailySalary(config: SalaryConfig, totalWorkMs: number) {
   const workHours = totalWorkMs / 3_600_000;
@@ -260,11 +358,11 @@ export function calculateSalarySnapshot(
     return { ...emptySnapshot, status: "invalid-config" };
   }
 
-  if (!isConfiguredWorkday(now, config)) {
+  const spans = resolveWorkSpans(now, config);
+  if (spans.length <= 0) {
     return { ...emptySnapshot, status: "rest-day" };
   }
 
-  const spans = createWorkSpans(now, config);
   const totalWorkMs = spans.reduce(
     (sum, [start, end]) => sum + Math.max(0, end.getTime() - start.getTime()),
     0,

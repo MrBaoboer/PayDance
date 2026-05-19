@@ -99,11 +99,15 @@ const openRepository = async () => {
       {{ firstIssue }}
     </div>
 
-    <div class="settings-group">
+    <section class="settings-group">
       <div class="group-title">
         <strong>薪资模式</strong>
       </div>
-      <div class="segmented-control segmented-control--three" aria-label="薪资输入方式">
+      <div
+        class="segmented-control segmented-control--three"
+        :class="{ 'is-invalid': hasIssue('salaryType') }"
+        aria-label="薪资输入方式"
+      >
         <button
           v-for="option in salaryTypeOptions"
           :key="option.value"
@@ -114,9 +118,9 @@ const openRepository = async () => {
           {{ option.label }}
         </button>
       </div>
-    </div>
+    </section>
 
-    <div class="settings-group">
+    <section class="settings-group">
       <div class="group-title">
         <strong>薪资</strong>
       </div>
@@ -190,9 +194,9 @@ const openRepository = async () => {
           </span>
         </label>
       </div>
-    </div>
+    </section>
 
-    <div class="settings-group">
+    <section class="settings-group">
       <div class="group-title">
         <strong>每周工作日</strong>
       </div>
@@ -207,9 +211,9 @@ const openRepository = async () => {
           {{ day.label }}
         </button>
       </div>
-    </div>
+    </section>
 
-    <div class="settings-group">
+    <section class="settings-group">
       <div class="group-title">
         <strong>工作时间</strong>
       </div>
@@ -235,9 +239,9 @@ const openRepository = async () => {
           </span>
         </label>
       </div>
-    </div>
+    </section>
 
-    <div class="settings-group">
+    <section class="settings-group">
       <div class="group-title group-title--split">
         <strong>午休</strong>
         <label class="switch-row">
@@ -273,9 +277,9 @@ const openRepository = async () => {
           </span>
         </label>
       </div>
-    </div>
+    </section>
 
-    <div class="settings-group">
+    <section class="settings-group">
       <div class="group-title">
         <strong>金额变换</strong>
       </div>
@@ -295,26 +299,28 @@ const openRepository = async () => {
           直接变换
         </button>
       </div>
-    </div>
+    </section>
 
     <footer class="about-footer" aria-label="软件归属">
       <div class="about-footer__identity">
         <strong>{{ appName }} {{ appEnglishName }}</strong>
-        <span>版本：v{{ appVersion }}</span>
+        <span>版本：{{ appVersion }}</span>
         <span>作者：{{ appAuthor }}</span>
-        <span>{{ appCopyright }}</span>
       </div>
-      <button
-        class="repository-button"
-        aria-label="打开 GitHub 仓库"
-        :disabled="isOpeningRepository"
-        :title="`打开 GitHub 仓库：${repositoryUrl}`"
-        type="button"
-        @click="openRepository"
-      >
-        <Github :size="16" />
-        <span>GitHub</span>
-      </button>
+      <div class="about-footer__repo-card">
+        <button
+          class="repository-button"
+          aria-label="打开 GitHub 仓库"
+          :disabled="isOpeningRepository"
+          :title="`打开 GitHub 仓库：${repositoryUrl}`"
+          type="button"
+          @click="openRepository"
+        >
+          <Github :size="18" stroke-width="2.2" />
+          <span>GitHub</span>
+        </button>
+        <span class="about-footer__copyright about-footer__copyright--centered">{{ appCopyright }}</span>
+      </div>
       <p v-if="repositoryError" class="about-footer__error">
         {{ repositoryError }}
       </p>
@@ -380,7 +386,8 @@ const openRepository = async () => {
   gap: var(--ui-gap-xs, 6px);
 }
 
-.field > span {
+.field > span,
+.control-label {
   color: var(--muted);
   font-size: var(--ui-font-sm, 14px);
   font-weight: 500;
@@ -452,7 +459,8 @@ const openRepository = async () => {
   box-shadow: 0 0 0 3px rgb(127 127 127 / 0.14);
 }
 
-.field.is-invalid .field-input-wrap {
+.field.is-invalid .field-input-wrap,
+.segmented-control.is-invalid {
   border-color: rgb(245 158 11 / 0.68);
   box-shadow: 0 0 0 3px rgb(245 158 11 / 0.12);
 }
@@ -478,6 +486,11 @@ const openRepository = async () => {
   width: 16px;
   height: clamp(15px, 3.4cqw, 18px);
   accent-color: var(--accent);
+}
+
+.control-stack {
+  display: grid;
+  gap: var(--ui-gap-xs, 6px);
 }
 
 .segmented-control {
@@ -562,7 +575,7 @@ const openRepository = async () => {
 .about-footer__identity {
   display: grid;
   min-width: 0;
-  gap: 3px;
+  gap: 4px;
   text-align: left;
 }
 
@@ -575,13 +588,25 @@ const openRepository = async () => {
   white-space: nowrap;
 }
 
-.about-footer__identity span {
+.about-footer__identity span,
+.about-footer__copyright {
   overflow: hidden;
   color: var(--muted);
   font-size: var(--ui-font-xs, 12px);
   font-weight: 550;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.about-footer__copyright--centered {
+  width: 100%;
+  text-align: center;
+}
+
+.about-footer__repo-card {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
 }
 
 .repository-button {
@@ -628,5 +653,19 @@ const openRepository = async () => {
   font-size: var(--ui-font-xs, 12px);
   font-weight: 600;
   text-align: left;
+}
+
+@media (max-width: 460px) {
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-footer {
+    justify-content: center;
+  }
+
+  .about-footer__repo-card {
+    justify-items: center;
+  }
 }
 </style>

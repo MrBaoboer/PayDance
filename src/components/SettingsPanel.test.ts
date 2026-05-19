@@ -1,0 +1,71 @@
+import { describe, expect, it } from "vitest";
+import settingsPanelSource from "./SettingsPanel.vue?raw";
+
+describe("settings panel", () => {
+  it("shows the about version as a plain number", () => {
+    const versionLine = settingsPanelSource
+      .split("\n")
+      .find((line) => line.includes("{{ appVersion }}"));
+    const prefixedVersionTemplate = ["v", "{{ appVersion }}"].join("");
+
+    expect(versionLine).toBeDefined();
+    expect(versionLine).toContain("{{ appVersion }}");
+    expect(versionLine).not.toContain(prefixedVersionTemplate);
+  });
+
+  it("returns settings cards to the v0.5.10 structure", () => {
+    [
+      "薪资模式",
+      "薪资",
+      "每周工作日",
+      "工作时间",
+      "午休",
+      "金额变换",
+    ].forEach((title) => {
+      expect(settingsPanelSource).toContain(`<strong>${title}</strong>`);
+    });
+
+    expect(settingsPanelSource).not.toContain("data-settings-card");
+    expect(settingsPanelSource).not.toContain("<strong>显示</strong>");
+    expect(settingsPanelSource).not.toContain("<strong>休息扣除</strong>");
+    expect(settingsPanelSource).not.toContain("themeMode");
+    expect(settingsPanelSource).not.toContain("update:themeMode");
+  });
+
+  it("keeps salary inputs exactly on the v0.5.10 card behavior", () => {
+    expect(settingsPanelSource).toContain("const salaryAmountLabel = computed");
+    expect(settingsPanelSource).toContain("<span>{{ salaryAmountLabel }}</span>");
+    expect(settingsPanelSource).toContain(
+      'v-if="config.salaryType === \'monthly\'"',
+    );
+    expect(settingsPanelSource).toContain(
+      'v-if="config.salaryType === \'daily\'"',
+    );
+    expect(settingsPanelSource).toContain(
+      'v-if="config.salaryType === \'hourly\'"',
+    );
+    expect(settingsPanelSource).not.toContain("field-grid--salary");
+    expect(settingsPanelSource).not.toContain("field-grid--single");
+  });
+
+  it("keeps the v0.5.10 lunch card interaction", () => {
+    expect(settingsPanelSource).toContain("<strong>午休</strong>");
+    expect(settingsPanelSource).toContain("<span>剔除</span>");
+    expect(settingsPanelSource).toContain(
+      ':disabled="!config.enableLunchBreak"',
+    );
+    expect(settingsPanelSource).not.toContain("休息扣除");
+    expect(settingsPanelSource).not.toContain("从工作时长中扣除固定休息段");
+  });
+
+  it("keeps modified attribution footer but removes the about heading copy", () => {
+    expect(settingsPanelSource).toContain("about-footer__repo-card");
+    expect(settingsPanelSource).toContain("about-footer__copyright");
+    expect(settingsPanelSource).toContain("about-footer__copyright--centered");
+    expect(settingsPanelSource).not.toContain("<strong>关于</strong>");
+    expect(settingsPanelSource).not.toContain('data-settings-card="关于"');
+    expect(settingsPanelSource.indexOf("repository-button")).toBeLessThan(
+      settingsPanelSource.indexOf("about-footer__copyright"),
+    );
+  });
+});

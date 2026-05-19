@@ -129,6 +129,40 @@ describe("calculateSalarySnapshot", () => {
     expect(snapshot.status).toBe("invalid-config");
     expect(snapshot.earnedToday).toBe(0);
   });
+
+  it("calculates earnings for overnight shifts after midnight", () => {
+    const snapshot = calculateSalarySnapshot(new Date("2026-05-12T02:00:00"), {
+      ...config,
+      salaryType: "daily",
+      dailySalary: 800,
+      workdays: [1],
+      startTime: "22:00",
+      endTime: "06:00",
+      enableLunchBreak: false,
+    });
+
+    expect(snapshot.status).toBe("working");
+    expect(snapshot.workMsToday).toBe(8 * 3_600_000);
+    expect(snapshot.elapsedWorkMs).toBe(4 * 3_600_000);
+    expect(snapshot.earnedToday).toBe(400);
+    expect(snapshot.progress).toBe(0.5);
+  });
+
+  it("keeps overnight shifts in after-work status after the next-day end time", () => {
+    const snapshot = calculateSalarySnapshot(new Date("2026-05-12T06:01:00"), {
+      ...config,
+      salaryType: "daily",
+      dailySalary: 800,
+      workdays: [1],
+      startTime: "22:00",
+      endTime: "06:00",
+      enableLunchBreak: false,
+    });
+
+    expect(snapshot.status).toBe("after-work");
+    expect(snapshot.earnedToday).toBe(800);
+    expect(snapshot.progress).toBe(1);
+  });
 });
 
 describe("createWorkSpans", () => {
@@ -151,6 +185,22 @@ describe("createWorkSpans", () => {
     });
 
     expect(spans).toHaveLength(0);
+  });
+
+  it("returns an overnight span that ends the next day", () => {
+    const spans = createWorkSpans(new Date("2026-05-11T23:00:00"), {
+      ...config,
+      workdays: [1],
+      startTime: "22:00",
+      endTime: "06:00",
+      enableLunchBreak: false,
+    });
+
+    expect(spans).toHaveLength(1);
+    expect(spans[0][0].getDate()).toBe(11);
+    expect(spans[0][0].getHours()).toBe(22);
+    expect(spans[0][1].getDate()).toBe(12);
+    expect(spans[0][1].getHours()).toBe(6);
   });
 });
 
@@ -176,7 +226,7 @@ describe("validateSalaryConfig", () => {
       salaryType: "monthly",
       monthlySalary: 0,
       workDaysPerMonth: 0,
-      startTime: "19:00",
+      startTime: "18:00",
       endTime: "18:00",
     });
 
@@ -185,6 +235,19 @@ describe("validateSalaryConfig", () => {
       "workDaysPerMonth",
       "workTime",
     ]);
+  });
+
+  it("accepts overnight work time and lunch inside the overnight shift", () => {
+    expect(
+      validateSalaryConfig({
+        ...config,
+        startTime: "22:00",
+        endTime: "06:00",
+        lunchStart: "01:00",
+        lunchEnd: "02:00",
+        enableLunchBreak: true,
+      }),
+    ).toHaveLength(0);
   });
 
   it("reports invalid daily salary only in daily mode", () => {

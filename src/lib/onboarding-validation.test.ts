@@ -21,7 +21,7 @@ describe("onboarding step validation", () => {
     const config = {
       ...defaultSalaryConfig,
       workdays: [],
-      startTime: "19:00",
+      startTime: "18:00",
       endTime: "18:00",
     };
 
