@@ -13,10 +13,20 @@ describe("settings panel", () => {
     expect(versionLine).not.toContain(prefixedVersionTemplate);
   });
 
-  it("organizes settings into four clear groups", () => {
-    ["薪资", "作息", "显示", "关于"].forEach((title) => {
-      expect(settingsPanelSource).toContain(`data-settings-group="${title}"`);
+  it("organizes settings into focused cards instead of dense major groups", () => {
+    [
+      "薪资模式",
+      "薪资",
+      "每周工作日",
+      "工作时间",
+      "休息扣除",
+      "显示",
+      "关于",
+    ].forEach((title) => {
+      expect(settingsPanelSource).toContain(`data-settings-card="${title}"`);
     });
+
+    expect(settingsPanelSource).not.toContain('data-settings-group="作息"');
   });
 
   it("keeps display settings limited to theme and amount animation", () => {
@@ -27,7 +37,9 @@ describe("settings panel", () => {
     expect(settingsPanelSource).not.toContain("startInMiniMode");
   });
 
-  it("shows only the salary inputs required by the selected salary mode", () => {
+  it("returns the salary input section to the v0.5.10 card behavior", () => {
+    expect(settingsPanelSource).toContain("const salaryAmountLabel = computed");
+    expect(settingsPanelSource).toContain("<span>{{ salaryAmountLabel }}</span>");
     expect(settingsPanelSource).toContain(
       'v-if="config.salaryType === \'monthly\'"',
     );
@@ -37,23 +49,28 @@ describe("settings panel", () => {
     expect(settingsPanelSource).toContain(
       'v-if="config.salaryType === \'hourly\'"',
     );
+    expect(settingsPanelSource).not.toContain("field-grid--salary");
+    expect(settingsPanelSource).not.toContain("field-grid--single");
 
-    const monthlySectionStart = settingsPanelSource.indexOf(
-      "hasIssue('monthlySalary')",
+    const salaryModeCardStart = settingsPanelSource.indexOf(
+      'data-settings-card="薪资模式"',
     );
-    const workDaysSectionStart = settingsPanelSource.indexOf(
-      "hasIssue('workDaysPerMonth')",
+    const salaryCardStart = settingsPanelSource.indexOf(
+      'data-settings-card="薪资"',
     );
 
-    expect(monthlySectionStart).toBeGreaterThan(-1);
-    expect(workDaysSectionStart).toBeGreaterThan(monthlySectionStart);
+    expect(salaryModeCardStart).toBeGreaterThan(-1);
+    expect(salaryCardStart).toBeGreaterThan(salaryModeCardStart);
   });
 
-  it("uses a lighter rest-break layout inside work schedule settings", () => {
-    expect(settingsPanelSource).not.toContain("上下班时间");
-    expect(settingsPanelSource).not.toContain("午休剔除");
-    expect(settingsPanelSource).toContain("休息扣除");
-    expect(settingsPanelSource).toContain("break-row");
+  it("uses a stable rest deduction card without extra explanatory copy", () => {
+    expect(settingsPanelSource).toContain('data-settings-card="休息扣除"');
+    expect(settingsPanelSource).toContain("group-title--split");
+    expect(settingsPanelSource).toContain(
+      ':disabled="!config.enableLunchBreak"',
+    );
+    expect(settingsPanelSource).not.toContain("break-row");
+    expect(settingsPanelSource).not.toContain("从工作时长中扣除固定休息段");
   });
 
   it("places copyright under the GitHub repository entry", () => {
