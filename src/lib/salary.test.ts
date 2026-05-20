@@ -77,6 +77,7 @@ describe("calculateSalarySnapshot", () => {
     expect(snapshot.progress).toBe(0);
     expect(snapshot.isWorking).toBe(false);
     expect(snapshot.status).toBe("before-work");
+    expect(snapshot.nextTransitionMs).toBe(60_000);
   });
 
   it("holds progress during lunch break", () => {
@@ -87,6 +88,7 @@ describe("calculateSalarySnapshot", () => {
     expect(duringLunch.elapsedWorkMs).toBe(beforeLunch.elapsedWorkMs);
     expect(duringLunch.isWorking).toBe(false);
     expect(duringLunch.status).toBe("lunch-break");
+    expect(duringLunch.nextTransitionMs).toBe(30 * 60_000);
   });
 
   it("returns full daily salary after work ends", () => {
@@ -96,6 +98,14 @@ describe("calculateSalarySnapshot", () => {
     expect(snapshot.progress).toBe(1);
     expect(snapshot.isWorking).toBe(false);
     expect(snapshot.status).toBe("after-work");
+    expect(snapshot.nextTransitionMs).toBe(0);
+  });
+
+  it("reports time until the final work end while working", () => {
+    const snapshot = calculateSalarySnapshot(at("10:00"), config);
+
+    expect(snapshot.status).toBe("working");
+    expect(snapshot.nextTransitionMs).toBe(8 * 3_600_000);
   });
 
   it("returns after-work exactly at the configured end time", () => {
@@ -146,6 +156,7 @@ describe("calculateSalarySnapshot", () => {
     expect(snapshot.elapsedWorkMs).toBe(4 * 3_600_000);
     expect(snapshot.earnedToday).toBe(400);
     expect(snapshot.progress).toBe(0.5);
+    expect(snapshot.nextTransitionMs).toBe(4 * 3_600_000);
   });
 
   it("keeps overnight shifts in after-work status after the next-day end time", () => {
@@ -162,6 +173,7 @@ describe("calculateSalarySnapshot", () => {
     expect(snapshot.status).toBe("after-work");
     expect(snapshot.earnedToday).toBe(800);
     expect(snapshot.progress).toBe(1);
+    expect(snapshot.nextTransitionMs).toBe(0);
   });
 
   it("prefers the completed previous overnight shift before the next overnight shift starts", () => {
@@ -178,6 +190,38 @@ describe("calculateSalarySnapshot", () => {
     expect(snapshot.status).toBe("after-work");
     expect(snapshot.earnedToday).toBe(800);
     expect(snapshot.progress).toBe(1);
+    expect(snapshot.nextTransitionMs).toBe(0);
+  });
+
+  it("keeps a workday overnight shift active after crossing into a rest day", () => {
+    const snapshot = calculateSalarySnapshot(new Date("2026-05-16T02:00:00"), {
+      ...config,
+      salaryType: "daily",
+      dailySalary: 800,
+      workdays: [5],
+      startTime: "22:00",
+      endTime: "06:00",
+      enableLunchBreak: false,
+    });
+
+    expect(snapshot.status).toBe("working");
+    expect(snapshot.elapsedWorkMs).toBe(4 * 3_600_000);
+    expect(snapshot.earnedToday).toBe(400);
+  });
+
+  it("keeps a completed workday overnight shift after crossing into a rest day", () => {
+    const snapshot = calculateSalarySnapshot(new Date("2026-05-16T06:01:00"), {
+      ...config,
+      salaryType: "daily",
+      dailySalary: 800,
+      workdays: [5],
+      startTime: "22:00",
+      endTime: "06:00",
+      enableLunchBreak: false,
+    });
+
+    expect(snapshot.status).toBe("after-work");
+    expect(snapshot.earnedToday).toBe(800);
   });
 });
 
@@ -217,6 +261,30 @@ describe("createWorkSpans", () => {
     expect(spans[0][0].getHours()).toBe(22);
     expect(spans[0][1].getDate()).toBe(12);
     expect(spans[0][1].getHours()).toBe(6);
+  });
+
+  it("returns overnight spans split by an after-midnight lunch break", () => {
+    const spans = createWorkSpans(new Date("2026-05-11T23:00:00"), {
+      ...config,
+      workdays: [1],
+      startTime: "22:00",
+      endTime: "06:00",
+      lunchStart: "01:00",
+      lunchEnd: "02:00",
+      enableLunchBreak: true,
+    });
+
+    expect(spans).toHaveLength(2);
+    const secondSpan = spans[1];
+    expect(secondSpan).toBeDefined();
+    if (!secondSpan) throw new Error("Expected second overnight work span");
+
+    expect(spans[0][0].getHours()).toBe(22);
+    expect(spans[0][1].getDate()).toBe(12);
+    expect(spans[0][1].getHours()).toBe(1);
+    expect(secondSpan[0].getDate()).toBe(12);
+    expect(secondSpan[0].getHours()).toBe(2);
+    expect(secondSpan[1].getHours()).toBe(6);
   });
 });
 
@@ -276,7 +344,7 @@ describe("validateSalaryConfig", () => {
       }),
     ).toContainEqual({
       field: "dailySalary",
-      message: "日薪需要大于 0",
+      message: "日薪需大于 0",
     });
 
     expect(
@@ -288,7 +356,7 @@ describe("validateSalaryConfig", () => {
       }),
     ).not.toContainEqual({
       field: "dailySalary",
-      message: "日薪需要大于 0",
+      message: "日薪需大于 0",
     });
   });
 
@@ -302,14 +370,14 @@ describe("validateSalaryConfig", () => {
       }),
     ).toContainEqual({
       field: "hourlyRate",
-      message: "时薪需要大于 0",
+      message: "时薪需大于 0",
     });
   });
 
   it("reports missing workdays", () => {
     expect(validateSalaryConfig({ ...config, workdays: [] })).toContainEqual({
       field: "workdays",
-      message: "至少需要选择 1 个工作日",
+      message: "至少选 1 天",
     });
   });
 
@@ -322,11 +390,51 @@ describe("validateSalaryConfig", () => {
 
     expect(validateSalaryConfig(invalidLunch)).toContainEqual({
       field: "workTime",
-      message: "午休时间需要完整落在工作时间内",
+      message: "午休需在工时内",
     });
 
     expect(
       validateSalaryConfig({ ...invalidLunch, enableLunchBreak: false }),
     ).toHaveLength(0);
+  });
+
+  it("uses concise messages for invalid monthly salary and same work time", () => {
+    const issues = validateSalaryConfig({
+      ...config,
+      salaryType: "monthly",
+      monthlySalary: 0,
+      workDaysPerMonth: 0,
+      startTime: "18:00",
+      endTime: "18:00",
+    });
+
+    expect(issues).toContainEqual({
+      field: "monthlySalary",
+      message: "月薪需大于 0",
+    });
+    expect(issues).toContainEqual({
+      field: "workDaysPerMonth",
+      message: "工作天数需大于 0",
+    });
+    expect(issues).toContainEqual({
+      field: "workTime",
+      message: "时间不能相同",
+    });
+  });
+
+  it("uses a concise overnight lunch message", () => {
+    expect(
+      validateSalaryConfig({
+        ...config,
+        startTime: "22:00",
+        endTime: "06:00",
+        lunchStart: "20:00",
+        lunchEnd: "21:00",
+        enableLunchBreak: true,
+      }),
+    ).toContainEqual({
+      field: "workTime",
+      message: "夜班午休需在工时内",
+    });
   });
 });

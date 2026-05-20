@@ -40,7 +40,7 @@ describe("onboarding step validation", () => {
     };
 
     expect(getOnboardingStepIssues(2, config, validateSalaryConfig(config))).toEqual([
-      { field: "dailySalary", message: "日薪需要大于 0" },
+      { field: "dailySalary", message: "日薪需大于 0" },
     ]);
   });
 });

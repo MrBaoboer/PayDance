@@ -46,6 +46,9 @@ jobs:
         env:
           GITHUB_REF_NAME: ${{ env.RELEASE_TAG }}
 
+      - name: Check repository hygiene
+        run: npm run check:hygiene
+
       - name: Run unit tests
         run: npm test
 

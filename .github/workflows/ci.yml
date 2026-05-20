@@ -39,6 +39,9 @@ jobs:
       - name: Check version consistency
         run: npm run version:check
 
+      - name: Check repository hygiene
+        run: npm run check:hygiene
+
       - name: Run unit tests
         run: npm test
 

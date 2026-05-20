@@ -572,7 +572,7 @@ const openRepository = async () => {
 .about-footer {
   display: flex;
   flex-wrap: wrap;
-  align-items: stretch;
+  align-items: center;
   justify-content: space-between;
   gap: var(--ui-gap-sm, 12px);
   border: 1px solid var(--line);
@@ -605,6 +605,7 @@ const openRepository = async () => {
   color: var(--muted);
   font-size: var(--ui-font-xs, 12px);
   font-weight: 550;
+  line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -620,7 +621,7 @@ const openRepository = async () => {
   min-width: clamp(112px, 28cqw, 140px);
   align-content: center;
   justify-items: center;
-  gap: 5px;
+  gap: 6px;
 }
 
 .repository-button {

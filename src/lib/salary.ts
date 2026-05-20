@@ -33,6 +33,7 @@ export type SalarySnapshot = {
   status: SalaryStatus;
   workMsToday: number;
   elapsedWorkMs: number;
+  nextTransitionMs: number;
 };
 
 export type SalaryConfigIssue = {
@@ -65,6 +66,7 @@ const emptySnapshot: SalarySnapshot = {
   status: "invalid-config",
   workMsToday: 0,
   elapsedWorkMs: 0,
+  nextTransitionMs: 0,
 };
 
 const clamp = (value: number, min: number, max: number) =>
@@ -106,6 +108,13 @@ const hasPositiveNumber = (value: number) =>
 const isValidWorkday = (day: number) =>
   Number.isInteger(day) && day >= 0 && day <= 6;
 
+export function isOvernightWorkConfig(config: SalaryConfig) {
+  const start = parseTimeToMinutes(config.startTime);
+  const end = parseTimeToMinutes(config.endTime);
+
+  return Number.isFinite(start) && Number.isFinite(end) && end < start;
+}
+
 export function validateSalaryConfig(config: SalaryConfig): SalaryConfigIssue[] {
   const issues: SalaryConfigIssue[] = [];
   const start = parseTimeToMinutes(config.startTime);
@@ -117,41 +126,41 @@ export function validateSalaryConfig(config: SalaryConfig): SalaryConfigIssue[] 
     salaryType !== "daily" &&
     salaryType !== "hourly"
   ) {
-    issues.push({ field: "salaryType", message: "薪资模式不正确" });
+    issues.push({ field: "salaryType", message: "薪资模式错误" });
   }
 
   if (salaryType === "monthly" && !hasPositiveNumber(config.monthlySalary)) {
-    issues.push({ field: "monthlySalary", message: "月薪需要大于 0" });
+    issues.push({ field: "monthlySalary", message: "月薪需大于 0" });
   }
 
   if (salaryType === "daily" && !hasPositiveNumber(config.dailySalary)) {
-    issues.push({ field: "dailySalary", message: "日薪需要大于 0" });
+    issues.push({ field: "dailySalary", message: "日薪需大于 0" });
   }
 
   if (salaryType === "hourly" && !hasPositiveNumber(config.hourlyRate)) {
-    issues.push({ field: "hourlyRate", message: "时薪需要大于 0" });
+    issues.push({ field: "hourlyRate", message: "时薪需大于 0" });
   }
 
   if (salaryType === "monthly" && !hasPositiveNumber(config.workDaysPerMonth)) {
-    issues.push({ field: "workDaysPerMonth", message: "每月工作天数需要大于 0" });
+    issues.push({ field: "workDaysPerMonth", message: "工作天数需大于 0" });
   }
 
   if (!Array.isArray(config.workdays) || config.workdays.length <= 0) {
-    issues.push({ field: "workdays", message: "至少需要选择 1 个工作日" });
+    issues.push({ field: "workdays", message: "至少选 1 天" });
   } else if (!config.workdays.every(isValidWorkday)) {
-    issues.push({ field: "workdays", message: "工作日设置不正确" });
+    issues.push({ field: "workdays", message: "工作日错误" });
   }
 
   if (!Number.isFinite(start)) {
-    issues.push({ field: "startTime", message: "上班时间格式不正确" });
+    issues.push({ field: "startTime", message: "上班时间错误" });
   }
 
   if (!Number.isFinite(end)) {
-    issues.push({ field: "endTime", message: "下班时间格式不正确" });
+    issues.push({ field: "endTime", message: "下班时间错误" });
   }
 
   if (Number.isFinite(start) && Number.isFinite(end) && start === end) {
-    issues.push({ field: "workTime", message: "下班时间不能与上班时间相同" });
+    issues.push({ field: "workTime", message: "时间不能相同" });
   }
 
   if (config.enableLunchBreak) {
@@ -159,11 +168,11 @@ export function validateSalaryConfig(config: SalaryConfig): SalaryConfigIssue[] 
     const lunchEnd = parseTimeToMinutes(config.lunchEnd);
 
     if (!Number.isFinite(lunchStart)) {
-      issues.push({ field: "lunchStart", message: "午休开始时间格式不正确" });
+      issues.push({ field: "lunchStart", message: "午休开始错误" });
     }
 
     if (!Number.isFinite(lunchEnd)) {
-      issues.push({ field: "lunchEnd", message: "午休结束时间格式不正确" });
+      issues.push({ field: "lunchEnd", message: "午休结束错误" });
     }
 
     if (
@@ -190,7 +199,10 @@ export function validateSalaryConfig(config: SalaryConfig): SalaryConfigIssue[] 
           normalizedLunchEnd < workEnd
         )
       ) {
-        issues.push({ field: "workTime", message: "午休时间需要完整落在工作时间内" });
+        issues.push({
+          field: "workTime",
+          message: end < start ? "夜班午休需在工时内" : "午休需在工时内",
+        });
       }
     }
   }
@@ -357,6 +369,29 @@ function getSnapshotStatus(
   return "lunch-break";
 }
 
+function getNextTransitionMs(
+  now: Date,
+  spans: readonly (readonly [Date, Date])[],
+  status: SalaryStatus,
+) {
+  const nowMs = now.getTime();
+
+  if (status === "before-work") {
+    return Math.max(0, spans[0][0].getTime() - nowMs);
+  }
+
+  if (status === "lunch-break") {
+    const nextSpan = spans.find(([start]) => start.getTime() > nowMs);
+    return nextSpan ? Math.max(0, nextSpan[0].getTime() - nowMs) : 0;
+  }
+
+  if (status === "working") {
+    return Math.max(0, spans[spans.length - 1][1].getTime() - nowMs);
+  }
+
+  return 0;
+}
+
 export function calculateSalarySnapshot(
   now: Date,
   config: SalaryConfig,
@@ -394,6 +429,7 @@ export function calculateSalarySnapshot(
   const progress = clamp(elapsedWorkMs / totalWorkMs, 0, 1);
   const status = getSnapshotStatus(now, spans, elapsedWorkMs, totalWorkMs);
   const isWorking = status === "working";
+  const nextTransitionMs = getNextTransitionMs(now, spans, status);
 
   return {
     earnedToday: dailySalary * progress,
@@ -406,5 +442,6 @@ export function calculateSalarySnapshot(
     status,
     workMsToday: totalWorkMs,
     elapsedWorkMs,
+    nextTransitionMs,
   };
 }

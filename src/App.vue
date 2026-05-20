@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Banknote, CircleDollarSign, Clock3, TimerReset, X } from "@lucide/vue";
 import {
+  isOvernightWorkConfig,
   validateSalaryConfig,
   type SalaryConfigIssue,
 } from "./lib/salary";
@@ -77,6 +78,7 @@ const salaryModeLabel = computed(() => {
 const configIssues = computed(() => validateSalaryConfig(config.value));
 const firstConfigIssue = computed(() => configIssues.value[0]?.message ?? "");
 const hasConfigIssues = computed(() => configIssues.value.length > 0);
+const isOvernightWork = computed(() => isOvernightWorkConfig(config.value));
 const shouldShowOnboarding = computed(() =>
   isSettingsReady.value && !hasCompletedOnboarding.value && !isMiniMode.value,
 );
@@ -84,12 +86,12 @@ const statusText = computed(() => {
   if (hasConfigIssues.value) return "配置待修正";
 
   const statusMap = {
-    "after-work": "已下班",
+    "after-work": isOvernightWork.value ? "夜班已完成" : "已下班",
     "before-work": "未到上班",
     "invalid-config": "配置待修正",
     "lunch-break": "午休中",
     "rest-day": "今日休息",
-    working: "正在上班",
+    working: isOvernightWork.value ? "正在夜班" : "正在上班",
   } satisfies Record<typeof snapshot.value.status, string>;
 
   return statusMap[snapshot.value.status];
@@ -108,9 +110,38 @@ const formatDuration = (ms: number) => {
 };
 
 const workedTimeText = computed(() => formatDuration(snapshot.value.elapsedWorkMs));
-const remainingTimeText = computed(() =>
-  formatDuration(snapshot.value.workMsToday - snapshot.value.elapsedWorkMs),
-);
+const middleStat = computed(() => {
+  if (hasConfigIssues.value) {
+    return { label: "配置待修正", value: "--" };
+  }
+
+  if (snapshot.value.status === "rest-day") {
+    return { label: "今日休息", value: "0m" };
+  }
+
+  if (snapshot.value.status === "before-work") {
+    return {
+      label: "距离上班",
+      value: formatDuration(snapshot.value.nextTransitionMs),
+    };
+  }
+
+  if (snapshot.value.status === "lunch-break") {
+    return {
+      label: "距离复工",
+      value: formatDuration(snapshot.value.nextTransitionMs),
+    };
+  }
+
+  if (snapshot.value.status === "after-work") {
+    return { label: "今日完成", value: "100%" };
+  }
+
+  return {
+    label: "距离下班",
+    value: formatDuration(snapshot.value.nextTransitionMs),
+  };
+});
 
 const shellClass = computed(() =>
   themeMode.value === "dark" ? "theme-dark" : "theme-light",
@@ -383,7 +414,8 @@ onBeforeUnmount(() => {
         <div class="hero-controls">
           <StatsPanel
             :expected-earn="dailyEarnText"
-            :remaining-time="remainingTimeText"
+            :middle-label="middleStat.label"
+            :middle-value="middleStat.value"
             :worked-time="workedTimeText"
           />
 

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 defineProps<{
   expectedEarn: string;
+  middleLabel: string;
+  middleValue: string;
   workedTime: string;
-  remainingTime: string;
 }>();
 </script>
 
@@ -13,8 +14,8 @@ defineProps<{
       <strong>{{ workedTime }}</strong>
     </article>
     <article class="stat-item">
-      <span>距离下班</span>
-      <strong>{{ remainingTime }}</strong>
+      <span>{{ middleLabel }}</span>
+      <strong>{{ middleValue }}</strong>
     </article>
     <article class="stat-item">
       <span>今日预计</span>

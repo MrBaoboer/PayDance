@@ -134,6 +134,7 @@ rg --version
 ## 测试
 
 ```powershell
+npm.cmd run check:hygiene
 npm.cmd test
 npm.cmd run build
 npm.cmd run version:check
@@ -171,6 +172,7 @@ Windows 完整安装包构建需要安装 Visual Studio Build Tools，并包含 
 
 ```powershell
 git status --short --branch
+npm.cmd run check:hygiene
 npm.cmd test
 npm.cmd run build
 npm.cmd run version:check
@@ -185,7 +187,7 @@ git tag -a vX.Y.Z -m "Release vX.Y.Z"
 git push origin vX.Y.Z
 ```
 
-推送 `v*` 标签后，`.github/workflows/release.yml` 会自动运行测试、生产依赖审计、Rust 格式化检查、Clippy 检查、构建 Windows `pay-dance.exe`、生成 SHA256 校验文件、上传构建产物并创建 GitHub Release。也可以在 GitHub Actions 页面手动触发 Release workflow，并填写要发布的 `vX.Y.Z` 标签。发布后可用 GitHub CLI 核验：
+推送 `v*` 标签后，`.github/workflows/release.yml` 会自动运行仓库卫生扫描、测试、生产依赖审计、Rust 格式化检查、Clippy 检查、构建 Windows `pay-dance.exe`、生成 SHA256 校验文件、上传构建产物并创建 GitHub Release。也可以在 GitHub Actions 页面手动触发 Release workflow，并填写要发布的 `vX.Y.Z` 标签。发布后可用 GitHub CLI 核验：
 
 ```powershell
 gh run list --workflow Release --limit 3
@@ -204,6 +206,15 @@ gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targe
 两张海报均作为人工定稿素材维护，不再由脚本批量生成或覆盖。后续更换海报时，直接替换同名文件，并同步更新 README 中的预览和说明。
 
 ## 版本记录
+
+### v0.5.16
+
+- 主界面第二张统计卡片改为按状态动态表达：上班前显示“距离上班”，工作中显示“距离下班”，午休中显示“距离复工”，下班后显示“今日完成”，休息日显示休息态。
+- 夜班跨零点计算继续加固，覆盖工作日夜班跨入休息日凌晨、连续夜班、次日下班后和下一班尚未开始等边界。
+- 午休校验文案精简为更直接的短句，并区分普通工时与夜班工时内的非法午休设置。
+- 设置中心底部作者、版本、GitHub 和版权区域做轻量排版微调，保持 v0.5.10 小卡片风格不变。
+- 新增旧品牌文案扫描和敏感信息扫描脚本，并接入本地验证、CI 与 Release workflow。
+- 升级 Tauri / Cargo 侧兼容补丁依赖，保持前端 npm 依赖在当前最新可用状态。
 
 ### v0.5.15
 
