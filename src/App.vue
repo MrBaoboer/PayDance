@@ -699,7 +699,7 @@ onBeforeUnmount(() => {
   height: clamp(26px, 6.3cqh, 32px);
   justify-self: center;
   margin-top: var(--salary-info-offset);
-  border: 0;
+  border: 1px solid transparent;
   border-radius: var(--ui-radius-sm);
   background: transparent;
   padding: 0 clamp(9px, 2.4cqw, 13px);
@@ -715,6 +715,13 @@ onBeforeUnmount(() => {
 .salary-info-button:hover {
   background: var(--subtle);
   color: var(--income-accent);
+}
+
+.theme-light .salary-info-button:hover {
+  border-color: var(--income-accent-ring);
+  background: color-mix(in srgb, var(--income-accent) 10%, white 90%);
+  box-shadow: 0 8px 22px rgb(245 158 11 / 0.16);
+  color: var(--text);
 }
 
 .salary-info-button:active {

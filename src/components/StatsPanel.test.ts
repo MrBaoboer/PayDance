@@ -26,7 +26,7 @@ describe("stats panel", () => {
     expect(statsPanelSource).toContain("margin-left: 0.12em");
     expect(statsPanelSource).toContain("margin-right: 0.14em");
     expect(statsPanelSource).toContain("width: 0.22em");
-    expect(statsPanelSource).toContain("font-family: var(--font-numeric)");
+    expect(statsPanelSource).toContain("font-family: var(--font-dashboard)");
   });
 
   it("keeps metric segments on a shared baseline", () => {
@@ -35,11 +35,11 @@ describe("stats panel", () => {
     expect(statsPanelSource).toContain("min-height: 1.15em");
   });
 
-  it("keeps the expected income currency symbol level with the amount", () => {
+  it("keeps the expected income currency symbol subtle like duration units", () => {
     expect(statsPanelSource).toContain("stat-item__value--money");
     expect(statsPanelSource).toContain(".stat-item__value--money .stat-value__symbol");
-    expect(statsPanelSource).toContain("font-size: 1.1em");
-    expect(statsPanelSource).toContain("color: var(--text)");
+    expect(statsPanelSource).toContain("font-size: 0.88em");
+    expect(statsPanelSource).toContain("color: var(--muted)");
   });
 
   it("keeps unit-based duration glyphs readable", () => {

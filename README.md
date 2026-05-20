@@ -214,6 +214,13 @@ gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targe
 
 ## 版本记录
 
+### v0.6.5
+
+- 左上角状态圆点与“正在上班 / 正在夜班”文案改为与右侧窗口操控图标保持同一视觉中线。
+- 仪表盘“今日预计”中的 `¥` 调整为与 `h / m` 单位一致的浅灰色，减少符号抢占金额数字焦点。
+- 仪表盘数字字体切换为更贴近 Windows 11 Fluent 气质的 `Segoe UI Variable Display` 优先栈，主金额跳动字体保持不变。
+- 浅色模式下“薪资说明”入口 Hover 增加轻橙底色、细描边和柔和阴影，深色模式 Hover 保持原有质感。
+
 ### v0.6.4
 
 - 修复主界面今日进度条右侧圆点被轨道上下裁切的问题，圆点完整浮在进度轨道上。

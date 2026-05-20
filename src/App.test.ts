@@ -39,6 +39,12 @@ describe("main dashboard shell", () => {
     expect(appSource).toContain("margin-top: var(--salary-info-offset)");
   });
 
+  it("uses a richer light-theme hover state for the salary explanation entry", () => {
+    expect(appSource).toContain(".theme-light .salary-info-button:hover");
+    expect(appSource).toContain("border-color: var(--income-accent-ring)");
+    expect(appSource).toContain("box-shadow: 0 8px 22px rgb(245 158 11 / 0.16)");
+  });
+
   it("passes autostart preferences into the first-run guide", () => {
     expect(appSource).toContain(':autostart-enabled="autostartEnabled"');
     expect(appSource).toContain('@update:autostart-enabled="updateAutostartEnabled"');

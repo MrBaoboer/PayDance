@@ -2,6 +2,7 @@
 
 :root {
   --font-sans: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --font-dashboard: "Segoe UI Variable Display", "Segoe UI Variable", "Bahnschrift", "Segoe UI", system-ui, sans-serif;
   --font-numeric: "Bahnschrift", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
 }

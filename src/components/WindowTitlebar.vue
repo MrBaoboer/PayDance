@@ -85,18 +85,29 @@ defineEmits<{
 
 .status-chip {
   display: flex;
+  height: clamp(30px, 7.2cqw, 36px);
   align-items: center;
   gap: clamp(10px, 2.6cqw, 13px);
   padding: 0 clamp(3px, 1cqw, 6px);
   color: var(--muted);
   font-size: var(--ui-font-md, 16px);
   font-weight: 500;
+  line-height: 1;
 }
 
 .status-dot {
+  flex: 0 0 auto;
   width: clamp(7px, 1.7cqw, 9px);
   height: clamp(7px, 1.7cqw, 9px);
   border-radius: 999px;
+}
+
+.status-chip span:last-child {
+  display: inline-flex;
+  height: 100%;
+  align-items: center;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .status-dot--warning,

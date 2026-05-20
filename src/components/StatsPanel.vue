@@ -117,7 +117,7 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
   justify-content: center;
   gap: 0;
   color: var(--text);
-  font-family: var(--font-numeric);
+  font-family: var(--font-dashboard);
   font-size: clamp(14px, calc(11px + 0.72cqw), 17px);
   font-weight: 700;
   line-height: 1;
@@ -157,9 +157,9 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
 }
 
 .stat-item__value--money .stat-value__symbol {
-  color: var(--text);
-  font-size: 1.1em;
-  font-weight: 760;
+  color: var(--muted);
+  font-size: 0.88em;
+  font-weight: 650;
 }
 
 .stat-value__plain {
