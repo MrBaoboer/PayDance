@@ -36,6 +36,7 @@ import StatsPanel from "./components/StatsPanel.vue";
 import WindowTitlebar from "./components/WindowTitlebar.vue";
 
 const appWindow = getCurrentWindow();
+type ThemeMode = "light" | "dark";
 type ResizeDirection =
   | "East"
   | "North"
@@ -63,6 +64,7 @@ const showSalaryInfo = ref(false);
 const autostartEnabled = ref(false);
 const autostartError = ref("");
 const isAutostartUpdating = ref(false);
+const isThemeSwitching = ref(false);
 const fullSize = ref<WindowSize>({ ...fullWindowSize });
 const miniSize = ref<WindowSize>({ ...miniDefaultSize });
 const { snapshot, startTicker, stopTicker } = useSalaryTicker(config);
@@ -139,6 +141,8 @@ const shellClass = computed(() =>
   themeMode.value === "dark" ? "theme-dark" : "theme-light",
 );
 
+let themeApplyToken = 0;
+
 const saveState = async () => {
   try {
     await saveSettings({
@@ -166,6 +170,29 @@ const saveStateNow = async () => {
   await saveState();
 };
 
+const applyThemeMode = async (
+  mode: ThemeMode,
+  options: { persist?: boolean } = {},
+) => {
+  const { persist = true } = options;
+  const token = ++themeApplyToken;
+  isThemeSwitching.value = true;
+
+  try {
+    await appWindow.setTheme(mode);
+    if (token !== themeApplyToken) return;
+
+    themeMode.value = mode;
+    if (persist) {
+      await saveStateNow();
+    }
+  } finally {
+    if (token === themeApplyToken) {
+      isThemeSwitching.value = false;
+    }
+  }
+};
+
 const getCurrentWindowSize = () =>
   normalizeFullSize({
     width: window.innerWidth,
@@ -188,15 +215,17 @@ const setMiniMode = async (value: boolean) => {
 const toggleMiniMode = () => setMiniMode(!isMiniMode.value);
 
 const toggleTheme = async () => {
-  themeMode.value = themeMode.value === "dark" ? "light" : "dark";
-  await appWindow.setTheme(themeMode.value);
-  await saveStateNow();
+  if (isThemeSwitching.value) return;
+
+  const nextMode = themeMode.value === "dark" ? "light" : "dark";
+  await applyThemeMode(nextMode);
 };
 
-const setThemeMode = async (mode: "light" | "dark") => {
-  themeMode.value = mode;
-  await appWindow.setTheme(mode);
-  await saveStateNow();
+const setThemeMode = async (mode: ThemeMode) => {
+  if (isThemeSwitching.value) return;
+  if (themeMode.value === mode) return;
+
+  await applyThemeMode(mode);
 };
 
 const toggleAlwaysOnTop = async () => {
@@ -238,7 +267,7 @@ const openSettings = async () => {
 
 const completeOnboarding = async (preferences: { startInMiniMode: boolean }) => {
   hasCompletedOnboarding.value = true;
-  await appWindow.setTheme(themeMode.value);
+  await applyThemeMode(themeMode.value, { persist: false });
   await setAlwaysOnTop(alwaysOnTop.value);
 
   if (preferences.startInMiniMode) {
@@ -324,7 +353,7 @@ onMounted(async () => {
   showSettings.value = false;
 
   await refreshAutostart();
-  await appWindow.setTheme(themeMode.value);
+  await applyThemeMode(themeMode.value, { persist: false });
   await applyWindowMode();
 
   unlisteners.push(
@@ -390,7 +419,7 @@ onBeforeUnmount(() => {
 <template>
   <main
     class="h-full w-full select-none bg-transparent p-2"
-    :class="[shellClass, isMiniMode ? 'is-mini' : '']"
+    :class="[shellClass, isMiniMode ? 'is-mini' : '', { 'is-theme-switching': isThemeSwitching }]"
   >
     <MiniWindow
       v-if="isMiniMode"
@@ -548,6 +577,14 @@ onBeforeUnmount(() => {
   --dashboard-border: rgb(255 255 255 / 0.72);
   --dashboard-divider: rgb(24 24 27 / 0.08);
   --dashboard-shadow: 0 16px 42px rgb(15 23 42 / 0.1);
+  --progress-track-bg: linear-gradient(180deg, rgb(255 255 255 / 0.9), rgb(244 244 245 / 0.82));
+  --progress-track-border: rgb(255 255 255 / 0.78);
+  --progress-track-shadow: inset 0 1px 0 rgb(255 255 255 / 0.74), inset 0 -1px 0 rgb(15 23 42 / 0.06);
+  --progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11));
+  --progress-dot-border: rgb(255 255 255 / 0.92);
+  --progress-dot-shadow: 0 0 0 1px rgb(217 119 6 / 0.24), 0 6px 16px rgb(217 119 6 / 0.28);
+  --progress-rest-fill-bg: linear-gradient(90deg, var(--muted), color-mix(in srgb, var(--muted) 54%, transparent));
+  --progress-rest-dot-shadow: 0 0 0 1px rgb(127 127 127 / 0.16);
   --shadow: 0 24px 70px rgb(15 23 42 / 0.18);
 }
 
@@ -570,12 +607,25 @@ onBeforeUnmount(() => {
   --onboarding-overlay: rgb(0 0 0 / 0.34);
   --onboarding-panel: rgb(24 24 27 / 0.92);
   --onboarding-border: rgb(255 255 255 / 0.16);
-  --dashboard-panel: rgb(20 20 23 / 0.54);
-  --dashboard-metric-bg: rgb(255 255 255 / 0.055);
-  --dashboard-border: rgb(255 255 255 / 0.12);
-  --dashboard-divider: rgb(255 255 255 / 0.07);
-  --dashboard-shadow: 0 18px 42px rgb(0 0 0 / 0.24);
+  --dashboard-panel: rgb(12 12 15 / 0.7);
+  --dashboard-metric-bg: rgb(255 255 255 / 0.042);
+  --dashboard-border: rgb(255 255 255 / 0.15);
+  --dashboard-divider: rgb(255 255 255 / 0.065);
+  --dashboard-shadow: 0 22px 54px rgb(0 0 0 / 0.34), inset 0 1px 0 rgb(255 255 255 / 0.08), inset 0 -1px 0 rgb(0 0 0 / 0.32);
+  --progress-track-bg: linear-gradient(180deg, rgb(12 12 15 / 0.96), rgb(43 43 48 / 0.68));
+  --progress-track-border: rgb(255 255 255 / 0.12);
+  --progress-track-shadow: inset 0 1px 2px rgb(0 0 0 / 0.46), inset 0 -1px 0 rgb(255 255 255 / 0.045);
+  --progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11) 62%, rgb(252 211 77));
+  --progress-dot-border: rgb(24 24 27);
+  --progress-dot-shadow: 0 0 0 1px rgb(252 211 77 / 0.42), 0 0 18px rgb(245 158 11 / 0.28), 0 7px 16px rgb(0 0 0 / 0.36);
+  --progress-rest-fill-bg: linear-gradient(90deg, rgb(113 113 122 / 0.54), rgb(82 82 91 / 0.3));
+  --progress-rest-dot-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 6px 14px rgb(0 0 0 / 0.28);
   --shadow: 0 26px 80px rgb(0 0 0 / 0.38);
+}
+
+.is-theme-switching,
+.is-theme-switching * {
+  transition: none !important;
 }
 
 .app-window {
@@ -670,7 +720,8 @@ onBeforeUnmount(() => {
 
 .theme-dark .hero-dashboard {
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.018)),
+    radial-gradient(120% 135% at 50% -35%, rgb(255 255 255 / 0.11), transparent 46%),
+    linear-gradient(180deg, rgb(255 255 255 / 0.055), rgb(255 255 255 / 0.018)),
     var(--dashboard-panel);
 }
 
@@ -721,6 +772,15 @@ onBeforeUnmount(() => {
   border-color: var(--income-accent-ring);
   background: color-mix(in srgb, var(--income-accent) 10%, white 90%);
   box-shadow: 0 8px 22px rgb(245 158 11 / 0.16);
+  color: var(--text);
+}
+
+.theme-dark .salary-info-button:hover {
+  border-color: rgb(245 158 11 / 0.24);
+  background:
+    linear-gradient(180deg, rgb(245 158 11 / 0.12), rgb(255 255 255 / 0.045)),
+    rgb(24 24 27 / 0.48);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.26), 0 0 0 1px rgb(245 158 11 / 0.1);
   color: var(--text);
 }
 

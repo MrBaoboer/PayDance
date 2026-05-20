@@ -42,11 +42,13 @@ const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
   position: relative;
   height: clamp(9px, 2.3cqh, 12px);
   overflow: visible;
-  border: 1px solid var(--line);
+  border: 1px solid var(--progress-track-border, var(--line));
   border-radius: 999px;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.22), transparent),
-    var(--subtle);
+  background: var(
+    --progress-track-bg,
+    linear-gradient(180deg, rgb(255 255 255 / 0.22), transparent), var(--subtle)
+  );
+  box-shadow: var(--progress-track-shadow, none);
 }
 
 .progress-fill {
@@ -55,7 +57,7 @@ const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
   min-width: clamp(7px, 1.7cqw, 10px);
   overflow: hidden;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--income-accent), var(--income-accent-bright));
+  background: var(--progress-fill-bg, linear-gradient(90deg, var(--income-accent), var(--income-accent-bright)));
   transition: width 260ms ease-out;
 }
 
@@ -80,21 +82,24 @@ const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
   top: 50%;
   width: clamp(13px, 3.2cqw, 17px);
   height: clamp(13px, 3.2cqw, 17px);
-  border: 2px solid var(--panel);
+  border: 2px solid var(--progress-dot-border, var(--panel));
   border-radius: 999px;
   background: var(--income-accent);
-  box-shadow: 0 0 0 1px var(--income-accent-ring), 0 6px 16px var(--income-accent-shadow);
+  box-shadow: var(--progress-dot-shadow, 0 0 0 1px var(--income-accent-ring), 0 6px 16px var(--income-accent-shadow));
   transform: translate(-50%, -50%);
   transition: left 260ms ease-out, opacity 160ms ease;
 }
 
 .income-progress:not(.is-working) .progress-fill {
-  background: linear-gradient(90deg, var(--muted), color-mix(in srgb, var(--muted) 54%, transparent));
+  background: var(
+    --progress-rest-fill-bg,
+    linear-gradient(90deg, var(--muted), color-mix(in srgb, var(--muted) 54%, transparent))
+  );
 }
 
 .income-progress:not(.is-working) .progress-dot {
   background: var(--muted);
-  box-shadow: 0 0 0 1px rgb(127 127 127 / 0.16);
+  box-shadow: var(--progress-rest-dot-shadow, 0 0 0 1px rgb(127 127 127 / 0.16));
   opacity: 0.72;
 }
 

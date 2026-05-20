@@ -45,6 +45,32 @@ describe("main dashboard shell", () => {
     expect(appSource).toContain("box-shadow: 0 8px 22px rgb(245 158 11 / 0.16)");
   });
 
+  it("guards theme switching so native and web themes do not race", () => {
+    expect(appSource).toContain("const isThemeSwitching = ref(false)");
+    expect(appSource).toContain("let themeApplyToken = 0");
+    expect(appSource).toContain("const applyThemeMode = async");
+    expect(appSource).toContain("const token = ++themeApplyToken");
+    expect(appSource).toContain("if (token !== themeApplyToken) return");
+    expect(appSource).toContain("if (isThemeSwitching.value) return");
+    expect(appSource.indexOf("await appWindow.setTheme(mode)")).toBeLessThan(
+      appSource.indexOf("themeMode.value = mode"),
+    );
+  });
+
+  it("freezes visual transitions while the theme bridge is switching", () => {
+    expect(appSource).toContain("'is-theme-switching': isThemeSwitching");
+    expect(appSource).toContain(".is-theme-switching");
+    expect(appSource).toContain("transition: none !important");
+  });
+
+  it("uses richer dark-theme hover and dashboard tokens", () => {
+    expect(appSource).toContain(".theme-dark .salary-info-button:hover");
+    expect(appSource).toContain("--progress-track-bg");
+    expect(appSource).toContain("--progress-fill-bg");
+    expect(appSource).toContain("--progress-dot-border");
+    expect(appSource).toContain("inset 0 1px 0 rgb(255 255 255 / 0.08)");
+  });
+
   it("passes autostart preferences into the first-run guide", () => {
     expect(appSource).toContain(':autostart-enabled="autostartEnabled"');
     expect(appSource).toContain('@update:autostart-enabled="updateAutostartEnabled"');
