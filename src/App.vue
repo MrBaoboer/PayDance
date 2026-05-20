@@ -9,6 +9,7 @@ import {
 import {
   getStatusText,
 } from "./lib/shift-display";
+import { getDashboardCopy } from "./lib/dashboard-copy";
 import {
   readAutostartEnabled,
   setAutostartEnabled,
@@ -93,6 +94,14 @@ const shouldShowOnboarding = computed(() =>
 );
 const statusText = computed(() =>
   getStatusText(snapshot.value.status, config.value, hasConfigIssues.value),
+);
+const dashboardCopy = computed(() =>
+  getDashboardCopy({
+    hasConfigIssues: hasConfigIssues.value,
+    minuteRate: snapshot.value.minuteRate,
+    secondRate: snapshot.value.secondRate,
+    status: snapshot.value.status,
+  }),
 );
 
 const formatDuration = (ms: number) => {
@@ -422,15 +431,19 @@ onBeforeUnmount(() => {
       />
 
       <section class="hero-panel">
-        <div class="hero-meta">
-          <p>今日入账</p>
+        <div class="hero-stage">
+          <div class="hero-meta">
+            <p>{{ dashboardCopy.title }}</p>
+          </div>
+
+          <button class="amount-display" title="双击进入迷你悬浮模式" @dblclick="setMiniMode(true)">
+            <RollingAmount :mode="amountMode" :value="earnedText" />
+          </button>
+
+          <p class="income-pulse">{{ dashboardCopy.pulse }}</p>
         </div>
 
-        <button class="amount-display" title="双击进入迷你悬浮模式" @dblclick="setMiniMode(true)">
-          <RollingAmount :mode="amountMode" :value="earnedText" />
-        </button>
-
-        <div class="hero-controls">
+        <div class="dashboard-controls">
           <StatsPanel
             :expected-earn="dailyEarnText"
             :middle-label="middleStat.label"
@@ -441,7 +454,7 @@ onBeforeUnmount(() => {
           <IncomeProgress :is-working="snapshot.isWorking" :progress="snapshot.progress" />
 
           <button class="salary-info-button" @click="showSalaryInfo = true">
-            薪资说明
+            薪资明细
           </button>
         </div>
       </section>
@@ -589,15 +602,16 @@ onBeforeUnmount(() => {
   --ui-font-lg: clamp(17px, calc(12px + 1.18cqw), 21px);
   --ui-radius-sm: clamp(8px, 2.1cqw, 10px);
   --ui-radius-md: clamp(10px, 2.7cqw, 13px);
+  --ui-radius-lg: clamp(14px, 3.8cqw, 18px);
   --ui-gap-xs: clamp(5px, 1.35cqw, 8px);
   --ui-gap-sm: clamp(8px, 2.1cqw, 12px);
   --ui-gap-md: clamp(12px, 3.2cqw, 18px);
   --ui-pad-sm: clamp(10px, 2.6cqw, 14px);
   --ui-pad-md: clamp(16px, 4.3cqw, 22px);
-  --hero-top-pad: clamp(26px, 8.3cqh, 46px);
-  --hero-side-pad: clamp(24px, 7.2cqw, 38px);
-  --hero-bottom-pad: clamp(18px, 5.4cqh, 30px);
-  --hero-amount-gap: clamp(18px, 6.3cqh, 34px);
+  --hero-top-pad: clamp(18px, 5.2cqh, 34px);
+  --hero-side-pad: clamp(22px, 6.4cqw, 38px);
+  --hero-bottom-pad: clamp(18px, 5cqh, 28px);
+  --hero-amount-gap: clamp(14px, 4.2cqh, 24px);
 }
 
 .is-mini {
@@ -610,9 +624,20 @@ onBeforeUnmount(() => {
   flex: 1;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
+  gap: var(--ui-gap-md);
   padding: var(--hero-top-pad) var(--hero-side-pad) var(--hero-bottom-pad);
   text-align: center;
+}
+
+.hero-stage {
+  display: grid;
+  width: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  align-content: center;
+  justify-items: center;
+  padding: clamp(4px, 1.8cqh, 14px) 0;
 }
 
 .hero-meta {
@@ -626,25 +651,40 @@ onBeforeUnmount(() => {
 
 .hero-meta p {
   margin: 0;
-  font-size: var(--ui-font-lg);
-  font-weight: 700;
   width: 100%;
+  color: var(--muted);
+  font-size: clamp(16px, calc(12px + 0.95cqw), 22px);
+  font-weight: 720;
 }
 
 .amount-display {
   display: grid;
-  width: min(100% - clamp(24px, 7cqw, 64px), 390px);
+  width: min(100%, 430px);
   place-items: center;
   margin-top: var(--hero-amount-gap);
   color: var(--text);
 }
 
-.hero-controls {
+.income-pulse {
+  max-width: 100%;
+  margin: clamp(12px, 3.5cqh, 20px) 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: clamp(13px, calc(10.5px + 0.62cqw), 16px);
+  font-weight: 650;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard-controls {
   display: grid;
   width: 100%;
   gap: var(--ui-gap-md);
   justify-items: stretch;
-  margin-top: auto;
+  margin-top: 0;
 }
 
 .rate-grid {
@@ -669,14 +709,14 @@ onBeforeUnmount(() => {
 }
 
 .salary-info-button {
-  height: clamp(32px, 7.8cqh, 38px);
-  justify-self: center;
-  border: 1px solid var(--line);
+  height: clamp(28px, 6.6cqh, 34px);
+  justify-self: end;
+  border: 0;
   border-radius: var(--ui-radius-sm);
-  background: var(--panel-soft);
-  padding: 0 var(--ui-pad-sm);
+  background: transparent;
+  padding: 0 clamp(8px, 2.2cqw, 12px);
   color: var(--muted);
-  font-size: var(--ui-font-sm);
+  font-size: var(--ui-font-xs);
   font-weight: 650;
   transition:
     background-color 160ms ease,
@@ -686,7 +726,7 @@ onBeforeUnmount(() => {
 
 .salary-info-button:hover {
   background: var(--subtle);
-  color: var(--text);
+  color: var(--income-accent);
 }
 
 .salary-info-button:active {

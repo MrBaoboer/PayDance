@@ -25,6 +25,28 @@ const chars = computed(() =>
   })),
 );
 
+const valueParts = computed(() => {
+  const [integerPart = "0", fractionPart = "00"] = props.value.split(".");
+
+  return {
+    fraction: fractionPart,
+    hasFraction: props.value.includes("."),
+    integer: integerPart,
+  };
+});
+
+const createChars = (value: string, offset = 0) =>
+  [...value].map((char, index) => ({
+    id: offset + index,
+    char,
+    digit: /^\d$/.test(char) ? Number(char) : null,
+  }));
+
+const integerChars = computed(() => createChars(valueParts.value.integer));
+const fractionChars = computed(() =>
+  createChars(valueParts.value.fraction, valueParts.value.integer.length + 1),
+);
+
 watch(
   () => props.value,
   (value, previousValue) => {
@@ -54,7 +76,44 @@ onBeforeUnmount(() => {
     :aria-label="`¥${value}`"
   >
     <span class="rolling-amount__currency" aria-hidden="true">¥</span>
-    <span class="rolling-amount__value" aria-hidden="true">
+    <span v-if="variant === 'hero'" class="rolling-amount__value" aria-hidden="true">
+      <span class="rolling-amount__integer">
+        <span
+          v-for="item in integerChars"
+          :key="item.id"
+          class="rolling-amount__char"
+          :class="{ 'is-digit': item.digit !== null, 'is-plain': mode === 'plain' }"
+        >
+          <span
+            v-if="item.digit !== null && mode === 'rolling'"
+            class="rolling-amount__digit-strip"
+            :style="{ transform: `translate3d(0, -${item.digit}em, 0)` }"
+          >
+            <span v-for="digit in digitRows" :key="digit">{{ digit }}</span>
+          </span>
+          <span v-else>{{ item.char }}</span>
+        </span>
+      </span>
+      <span v-if="valueParts.hasFraction" class="rolling-amount__fraction">
+        <span class="rolling-amount__separator">.</span>
+        <span
+          v-for="item in fractionChars"
+          :key="item.id"
+          class="rolling-amount__char"
+          :class="{ 'is-digit': item.digit !== null, 'is-plain': mode === 'plain' }"
+        >
+          <span
+            v-if="item.digit !== null && mode === 'rolling'"
+            class="rolling-amount__digit-strip"
+            :style="{ transform: `translate3d(0, -${item.digit}em, 0)` }"
+          >
+            <span v-for="digit in digitRows" :key="digit">{{ digit }}</span>
+          </span>
+          <span v-else>{{ item.char }}</span>
+        </span>
+      </span>
+    </span>
+    <span v-else class="rolling-amount__value" aria-hidden="true">
       <span
         v-for="item in chars"
         :key="item.id"
@@ -104,9 +163,15 @@ onBeforeUnmount(() => {
   display: inline-flex;
   max-width: 100%;
   overflow: hidden;
-  align-items: center;
+  align-items: baseline;
   line-height: 1;
   white-space: nowrap;
+}
+
+.rolling-amount__integer,
+.rolling-amount__fraction {
+  display: inline-flex;
+  align-items: baseline;
 }
 
 .rolling-amount__char {
@@ -138,12 +203,28 @@ onBeforeUnmount(() => {
 }
 
 .rolling-amount--hero {
-  font-size: clamp(46px, min(13.8cqw, 17cqh), 72px);
-  font-weight: 700;
+  font-size: clamp(52px, min(15.4cqw, 18.8cqh), 84px);
+  font-weight: 760;
 }
 
 .rolling-amount--hero .rolling-amount__currency {
   color: var(--muted);
+  font-size: 0.74em;
+  transform: translateY(-0.08em);
+}
+
+.rolling-amount--hero .rolling-amount__fraction {
+  color: var(--income-accent);
+  font-size: 0.72em;
+  font-weight: 720;
+}
+
+.rolling-amount--hero .rolling-amount__separator {
+  display: inline-grid;
+  height: 1em;
+  place-items: center;
+  color: var(--text);
+  opacity: 0.78;
 }
 
 .rolling-amount--mini {

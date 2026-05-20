@@ -10,4 +10,10 @@ describe("stats panel", () => {
     expect(statsPanelSource).not.toContain("<span>距离下班</span>");
     expect(statsPanelSource).not.toContain("{{ remainingTime }}");
   });
+
+  it("uses dashboard metric slots with separate label and value styling", () => {
+    expect(statsPanelSource).toContain("stat-item__label");
+    expect(statsPanelSource).toContain("stat-item__value");
+    expect(statsPanelSource).toContain("stats-panel__frame");
+  });
 });
