@@ -304,12 +304,11 @@ const goBack = () => {
             <span>剔除午休</span>
           </label>
 
-          <div class="field-grid">
+          <div v-if="config.enableLunchBreak" class="field-grid">
             <label class="field" :class="{ 'is-invalid': hasIssue('lunchStart') || hasIssue('workTime') }">
               <span>开始</span>
               <span class="field-input-wrap field-input-wrap--time">
                 <input
-                  :disabled="!config.enableLunchBreak"
                   :value="config.lunchStart"
                   type="time"
                   @input="updateConfig('lunchStart', readText($event))"
@@ -320,7 +319,6 @@ const goBack = () => {
               <span>结束</span>
               <span class="field-input-wrap field-input-wrap--time">
                 <input
-                  :disabled="!config.enableLunchBreak"
                   :value="config.lunchEnd"
                   type="time"
                   @input="updateConfig('lunchEnd', readText($event))"
@@ -342,6 +340,15 @@ const goBack = () => {
 
           <label class="switch-row switch-row--panel">
             <input
+              :checked="autostartEnabled"
+              type="checkbox"
+              @change="emit('update:autostartEnabled', readChecked($event))"
+            />
+            <span>开机自动启动</span>
+          </label>
+
+          <label class="switch-row switch-row--panel">
+            <input
               :checked="alwaysOnTop"
               type="checkbox"
               @change="emit('update:alwaysOnTop', readChecked($event))"
@@ -352,15 +359,6 @@ const goBack = () => {
           <label class="switch-row switch-row--panel">
             <input v-model="startInMiniMode" type="checkbox" />
             <span>进入迷你悬浮模式</span>
-          </label>
-
-          <label class="switch-row switch-row--panel">
-            <input
-              :checked="autostartEnabled"
-              type="checkbox"
-              @change="emit('update:autostartEnabled', readChecked($event))"
-            />
-            <span>开机自动启动</span>
           </label>
         </section>
       </div>

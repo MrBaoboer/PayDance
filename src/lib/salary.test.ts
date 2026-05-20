@@ -223,6 +223,60 @@ describe("calculateSalarySnapshot", () => {
     expect(snapshot.status).toBe("after-work");
     expect(snapshot.earnedToday).toBe(800);
   });
+
+  it("marks daytime shifts as night work only after entering the 22:00 work segment", () => {
+    const longShiftConfig = {
+      ...config,
+      workdays: [1],
+      startTime: "09:30",
+      endTime: "02:30",
+      enableLunchBreak: false,
+    };
+
+    const beforeNight = calculateSalarySnapshot(
+      new Date("2026-05-11T21:59:00"),
+      longShiftConfig,
+    );
+    const atNightStart = calculateSalarySnapshot(
+      new Date("2026-05-11T22:00:00"),
+      longShiftConfig,
+    );
+    const afterMidnight = calculateSalarySnapshot(
+      new Date("2026-05-12T00:30:00"),
+      longShiftConfig,
+    );
+
+    expect(beforeNight.status).toBe("working");
+    expect(beforeNight.isNightWork).toBe(false);
+    expect(atNightStart.status).toBe("working");
+    expect(atNightStart.isNightWork).toBe(true);
+    expect(afterMidnight.status).toBe("working");
+    expect(afterMidnight.isNightWork).toBe(true);
+  });
+
+  it("marks completed shifts as night work when they included work after 22:00", () => {
+    const normalDay = calculateSalarySnapshot(new Date("2026-05-11T18:30:00"), {
+      ...config,
+      startTime: "09:30",
+      endTime: "18:00",
+      enableLunchBreak: false,
+    });
+    const completedNight = calculateSalarySnapshot(
+      new Date("2026-05-12T02:31:00"),
+      {
+        ...config,
+        workdays: [1],
+        startTime: "09:30",
+        endTime: "02:30",
+        enableLunchBreak: false,
+      },
+    );
+
+    expect(normalDay.status).toBe("after-work");
+    expect(normalDay.isNightWork).toBe(false);
+    expect(completedNight.status).toBe("after-work");
+    expect(completedNight.isNightWork).toBe(true);
+  });
 });
 
 describe("createWorkSpans", () => {

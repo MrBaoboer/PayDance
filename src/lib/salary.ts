@@ -34,6 +34,7 @@ export type SalarySnapshot = {
   workMsToday: number;
   elapsedWorkMs: number;
   nextTransitionMs: number;
+  isNightWork: boolean;
 };
 
 export type SalaryConfigIssue = {
@@ -67,10 +68,14 @@ const emptySnapshot: SalarySnapshot = {
   workMsToday: 0,
   elapsedWorkMs: 0,
   nextTransitionMs: 0,
+  isNightWork: false,
 };
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
+
+const nightWorkStartHour = 22;
+const nightWorkEndHour = 6;
 
 const parseTimeToMinutes = (time: string) => {
   const match = /^(\d{1,2}):(\d{2})$/.exec(time);
@@ -278,6 +283,53 @@ const previousDate = (date: Date) => {
   return previous;
 };
 
+const startOfLocalDay = (date: Date) => {
+  const day = new Date(date);
+  day.setHours(0, 0, 0, 0);
+  return day;
+};
+
+const localHourDate = (date: Date, hour: number) => {
+  const value = startOfLocalDay(date);
+  value.setHours(hour, 0, 0, 0);
+  return value;
+};
+
+const isWithinNightWorkWindow = (date: Date) => {
+  const hour = date.getHours();
+  return hour >= nightWorkStartHour || hour < nightWorkEndHour;
+};
+
+const intervalsOverlap = (
+  start: Date,
+  end: Date,
+  windowStart: Date,
+  windowEnd: Date,
+) => start < windowEnd && end > windowStart;
+
+const spansTouchNightWorkWindow = (
+  spans: readonly (readonly [Date, Date])[],
+) => {
+  for (const [spanStart, spanEnd] of spans) {
+    const firstWindowDay = startOfLocalDay(spanStart);
+    firstWindowDay.setDate(firstWindowDay.getDate() - 1);
+
+    for (let dayOffset = 0; dayOffset < 4; dayOffset += 1) {
+      const windowDay = new Date(firstWindowDay);
+      windowDay.setDate(firstWindowDay.getDate() + dayOffset);
+      const windowStart = localHourDate(windowDay, nightWorkStartHour);
+      const windowEnd = localHourDate(windowDay, nightWorkEndHour);
+      windowEnd.setDate(windowEnd.getDate() + 1);
+
+      if (intervalsOverlap(spanStart, spanEnd, windowStart, windowEnd)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
 const isWithinSpanBounds = (
   now: Date,
   spans: readonly (readonly [Date, Date])[],
@@ -430,6 +482,9 @@ export function calculateSalarySnapshot(
   const status = getSnapshotStatus(now, spans, elapsedWorkMs, totalWorkMs);
   const isWorking = status === "working";
   const nextTransitionMs = getNextTransitionMs(now, spans, status);
+  const isNightWork =
+    (status === "working" && isWithinNightWorkWindow(now)) ||
+    (status === "after-work" && spansTouchNightWorkWindow(spans));
 
   return {
     earnedToday: dailySalary * progress,
@@ -443,5 +498,6 @@ export function calculateSalarySnapshot(
     workMsToday: totalWorkMs,
     elapsedWorkMs,
     nextTransitionMs,
+    isNightWork,
   };
 }

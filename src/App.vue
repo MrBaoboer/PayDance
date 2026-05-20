@@ -93,7 +93,11 @@ const shouldShowOnboarding = computed(() =>
   isSettingsReady.value && !hasCompletedOnboarding.value && !isMiniMode.value,
 );
 const statusText = computed(() =>
-  getStatusText(snapshot.value.status, config.value, hasConfigIssues.value),
+  getStatusText(
+    snapshot.value.status,
+    snapshot.value.isNightWork,
+    hasConfigIssues.value,
+  ),
 );
 
 const workedTimeText = computed(() => formatDashboardDuration(snapshot.value.elapsedWorkMs));

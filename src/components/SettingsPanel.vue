@@ -247,7 +247,7 @@ const openRepository = async () => {
     <section class="settings-group">
       <div class="group-title group-title--split">
         <strong>午休</strong>
-        <label class="switch-row">
+        <label class="switch-row switch-row--title-action">
           <input
             :checked="config.enableLunchBreak"
             type="checkbox"
@@ -307,7 +307,7 @@ const openRepository = async () => {
     <section class="settings-group">
       <div class="group-title group-title--split">
         <strong>启动</strong>
-        <label class="switch-row switch-row--autostart">
+        <label class="switch-row switch-row--title-action switch-row--autostart">
           <input
             :checked="autostartEnabled"
             :disabled="isAutostartUpdating"
@@ -531,8 +531,13 @@ const openRepository = async () => {
   opacity: 0.58;
 }
 
-.switch-row--autostart {
-  margin-right: clamp(3px, 0.9cqw, 5px);
+.switch-row--title-action {
+  min-width: clamp(104px, 26cqw, 126px);
+  justify-content: flex-end;
+}
+
+.switch-row--title-action input {
+  flex: 0 0 auto;
 }
 
 .control-stack {

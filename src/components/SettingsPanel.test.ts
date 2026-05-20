@@ -79,9 +79,11 @@ describe("settings panel", () => {
     expect(settingsPanelSource).toContain("开机自动启动");
     expect(settingsPanelSource).toContain("autostartEnabled");
     expect(startupSection).toContain("switch-row--autostart");
+    expect(startupSection).toContain("switch-row--title-action");
     expect(startupSection).toContain("开机自动启动");
-    expect(settingsPanelSource).toContain(".switch-row--autostart");
-    expect(settingsPanelSource).toContain("margin-right: clamp(3px, 0.9cqw, 5px)");
+    expect(settingsPanelSource).toContain(".switch-row--title-action");
+    expect(settingsPanelSource).toContain("justify-content: flex-end");
+    expect(settingsPanelSource).not.toContain("margin-right: clamp(3px, 0.9cqw, 5px)");
     expect(settingsPanelSource).not.toContain("快捷键");
     expect(settingsPanelSource).not.toContain("提醒");
     expect(settingsPanelSource).not.toContain("分段时间轴");

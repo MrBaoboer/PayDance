@@ -32,7 +32,7 @@ defineEmits<{
     <div class="status-chip">
       <span
         class="status-dot"
-        :class="hasConfigIssues ? 'status-dot--warning' : statusText === '正在上班' ? 'status-dot--working' : 'status-dot--idle'"
+        :class="hasConfigIssues ? 'status-dot--warning' : statusText === '正在上班' || statusText === '正在夜班' ? 'status-dot--working' : 'status-dot--idle'"
       />
       <span>{{ statusText }}</span>
     </div>
