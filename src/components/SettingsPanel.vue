@@ -14,12 +14,16 @@ import type { SalaryConfig, SalaryConfigIssue, SalaryType } from "../lib/salary"
 
 const props = defineProps<{
   amountMode: "rolling" | "plain";
+  autostartEnabled: boolean;
+  autostartError: string;
   config: SalaryConfig;
   firstIssue: string;
   hasIssue: (field: SalaryConfigIssue["field"]) => boolean;
+  isAutostartUpdating: boolean;
 }>();
 
 const emit = defineEmits<{
+  "update:autostartEnabled": [enabled: boolean];
   "update:amountMode": [mode: "rolling" | "plain"];
   "update:config": [config: SalaryConfig];
 }>();
@@ -300,6 +304,24 @@ const openRepository = async () => {
       </div>
     </section>
 
+    <section class="settings-group">
+      <div class="group-title group-title--split">
+        <strong>启动</strong>
+        <label class="switch-row">
+          <input
+            :checked="autostartEnabled"
+            :disabled="isAutostartUpdating"
+            type="checkbox"
+            @change="emit('update:autostartEnabled', readChecked($event))"
+          />
+          <span>开机自动启动</span>
+        </label>
+      </div>
+      <p v-if="autostartError" class="settings-inline-error">
+        {{ autostartError }}
+      </p>
+    </section>
+
     <footer class="about-footer" aria-label="软件归属">
       <div class="about-footer__identity">
         <strong>{{ appName }} {{ appEnglishName }}</strong>
@@ -354,6 +376,14 @@ const openRepository = async () => {
   padding: clamp(8px, 2cqh, 11px) var(--ui-pad-sm, 11px);
   color: var(--text);
   font-size: var(--ui-font-sm, 14px);
+  font-weight: 600;
+  text-align: left;
+}
+
+.settings-inline-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: var(--ui-font-xs, 12px);
   font-weight: 600;
   text-align: left;
 }
@@ -495,6 +525,10 @@ const openRepository = async () => {
   width: 16px;
   height: clamp(15px, 3.4cqw, 18px);
   accent-color: var(--accent);
+}
+
+.switch-row input:disabled {
+  opacity: 0.58;
 }
 
 .control-stack {

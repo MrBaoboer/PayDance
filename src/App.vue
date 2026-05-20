@@ -3,10 +3,17 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Banknote, CircleDollarSign, Clock3, TimerReset, X } from "@lucide/vue";
 import {
-  isOvernightWorkConfig,
   validateSalaryConfig,
   type SalaryConfigIssue,
 } from "./lib/salary";
+import {
+  getStatusText,
+} from "./lib/shift-display";
+import {
+  readAutostartEnabled,
+  setAutostartEnabled,
+  tauriAutostartAdapter,
+} from "./lib/autostart";
 import {
   miniDefaultSize,
   miniResizeEdgeSize,
@@ -52,6 +59,9 @@ const {
 const isMiniMode = ref(false);
 const showSettings = ref(false);
 const showSalaryInfo = ref(false);
+const autostartEnabled = ref(false);
+const autostartError = ref("");
+const isAutostartUpdating = ref(false);
 const fullSize = ref<WindowSize>({ ...fullWindowSize });
 const miniSize = ref<WindowSize>({ ...miniDefaultSize });
 const { snapshot, startTicker, stopTicker } = useSalaryTicker(config);
@@ -78,24 +88,12 @@ const salaryModeLabel = computed(() => {
 const configIssues = computed(() => validateSalaryConfig(config.value));
 const firstConfigIssue = computed(() => configIssues.value[0]?.message ?? "");
 const hasConfigIssues = computed(() => configIssues.value.length > 0);
-const isOvernightWork = computed(() => isOvernightWorkConfig(config.value));
 const shouldShowOnboarding = computed(() =>
   isSettingsReady.value && !hasCompletedOnboarding.value && !isMiniMode.value,
 );
-const statusText = computed(() => {
-  if (hasConfigIssues.value) return "配置待修正";
-
-  const statusMap = {
-    "after-work": isOvernightWork.value ? "夜班已完成" : "已下班",
-    "before-work": "未到上班",
-    "invalid-config": "配置待修正",
-    "lunch-break": "午休中",
-    "rest-day": "今日休息",
-    working: isOvernightWork.value ? "正在夜班" : "正在上班",
-  } satisfies Record<typeof snapshot.value.status, string>;
-
-  return statusMap[snapshot.value.status];
-});
+const statusText = computed(() =>
+  getStatusText(snapshot.value.status, config.value, hasConfigIssues.value),
+);
 
 const formatDuration = (ms: number) => {
   if (!Number.isFinite(ms) || ms <= 0) return "0m";
@@ -212,6 +210,26 @@ const toggleAlwaysOnTop = async () => {
   await saveStateNow();
 };
 
+const refreshAutostart = async () => {
+  const result = await readAutostartEnabled(tauriAutostartAdapter);
+  autostartEnabled.value = result.enabled;
+  autostartError.value = result.error;
+};
+
+const updateAutostartEnabled = async (enabled: boolean) => {
+  if (isAutostartUpdating.value) return;
+
+  isAutostartUpdating.value = true;
+  const result = await setAutostartEnabled(
+    tauriAutostartAdapter,
+    enabled,
+    autostartEnabled.value,
+  );
+  autostartEnabled.value = result.enabled;
+  autostartError.value = result.error;
+  isAutostartUpdating.value = false;
+};
+
 const openSettings = async () => {
   showSettings.value = true;
   showSalaryInfo.value = false;
@@ -311,6 +329,7 @@ onMounted(async () => {
   miniSize.value = windowPreferences.miniSize;
   showSettings.value = false;
 
+  await refreshAutostart();
   await appWindow.setTheme(themeMode.value);
   await applyWindowMode();
 
@@ -442,8 +461,12 @@ onBeforeUnmount(() => {
               <SettingsPanel
                 v-model:amount-mode="amountMode"
                 v-model:config="config"
+                :autostart-enabled="autostartEnabled"
+                :autostart-error="autostartError"
                 :first-issue="firstConfigIssue"
                 :has-issue="hasIssue"
+                :is-autostart-updating="isAutostartUpdating"
+                @update:autostart-enabled="updateAutostartEnabled"
               />
             </div>
           </section>

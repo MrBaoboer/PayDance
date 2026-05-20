@@ -69,6 +69,15 @@ describe("settings panel", () => {
     );
   });
 
+  it("adds a lightweight autostart card without unrelated desktop controls", () => {
+    expect(settingsPanelSource).toContain("<strong>启动</strong>");
+    expect(settingsPanelSource).toContain("开机自动启动");
+    expect(settingsPanelSource).toContain("autostartEnabled");
+    expect(settingsPanelSource).not.toContain("快捷键");
+    expect(settingsPanelSource).not.toContain("提醒");
+    expect(settingsPanelSource).not.toContain("分段时间轴");
+  });
+
   it("keeps the attribution footer balanced in narrow settings sheets", () => {
     expect(settingsPanelSource).toContain("flex: 1 1 clamp(180px, 50%, 260px)");
     expect(settingsPanelSource).toContain("min-width: clamp(112px, 28cqw, 140px)");
