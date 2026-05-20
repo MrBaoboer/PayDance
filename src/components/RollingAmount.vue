@@ -214,9 +214,10 @@ onBeforeUnmount(() => {
 }
 
 .rolling-amount--hero .rolling-amount__fraction {
-  color: var(--income-accent);
+  color: var(--text);
   font-size: 0.72em;
   font-weight: 720;
+  opacity: 0.88;
 }
 
 .rolling-amount--hero .rolling-amount__separator {

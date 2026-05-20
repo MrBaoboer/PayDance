@@ -76,7 +76,7 @@ defineEmits<{
 <style scoped>
 .titlebar {
   display: flex;
-  height: clamp(42px, 9.6cqh, 52px);
+  height: clamp(44px, 10.4cqh, 56px);
   flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
@@ -87,14 +87,10 @@ defineEmits<{
   display: flex;
   align-items: center;
   gap: var(--ui-gap-xs, 8px);
-  min-width: 0;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  padding: clamp(5px, 1.2cqh, 7px) clamp(8px, 2.1cqw, 11px);
-  background: color-mix(in srgb, var(--panel-soft) 62%, transparent);
+  padding: 0 clamp(3px, 1cqw, 6px);
   color: var(--muted);
-  font-size: var(--ui-font-sm, 14px);
-  font-weight: 620;
+  font-size: var(--ui-font-md, 16px);
+  font-weight: 500;
 }
 
 .status-dot {
@@ -116,17 +112,16 @@ defineEmits<{
 .window-actions {
   display: flex;
   align-items: center;
-  gap: clamp(2px, 0.7cqw, 4px);
+  gap: clamp(3px, 0.9cqw, 5px);
 }
 
 .icon-button {
   display: grid;
-  width: clamp(29px, 6.8cqw, 34px);
-  height: clamp(29px, 6.8cqw, 34px);
+  width: clamp(30px, 7.2cqw, 36px);
+  height: clamp(30px, 7.2cqw, 36px);
   place-items: center;
   border-radius: var(--ui-radius-sm, 9px);
   color: var(--muted);
-  opacity: 0.78;
   transition:
     background-color 160ms ease,
     color 160ms ease,
@@ -136,7 +131,6 @@ defineEmits<{
 .icon-button:hover {
   background: var(--subtle);
   color: var(--text);
-  opacity: 1;
 }
 
 .icon-button:active {

@@ -8,16 +8,21 @@ const props = defineProps<{
 
 const clampedProgress = computed(() => Math.min(Math.max(props.progress, 0), 1));
 const progressPercent = computed(() => `${clampedProgress.value * 100}%`);
-const progressText = computed(() => `${Math.round(clampedProgress.value * 100)}%`);
+const progressNumber = computed(() => Math.round(clampedProgress.value * 100));
+const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
 </script>
 
 <template>
   <div class="income-progress" :class="{ 'is-working': isWorking }">
-    <span class="progress-label">
-      <span>今日进度</span>
-      <strong>{{ progressText }}</strong>
-    </span>
-    <div class="progress-track">
+    <div
+      class="progress-track"
+      role="progressbar"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      :aria-label="progressTooltip"
+      :aria-valuenow="progressNumber"
+      :title="progressTooltip"
+    >
       <div class="progress-fill" :style="{ width: progressPercent }">
         <span class="progress-glow" />
       </div>
@@ -30,13 +35,12 @@ const progressText = computed(() => `${Math.round(clampedProgress.value * 100)}%
 .income-progress {
   display: grid;
   width: 100%;
-  gap: var(--ui-gap-xs, 8px);
   margin-top: 0;
 }
 
 .progress-track {
   position: relative;
-  height: clamp(9px, 2.3cqh, 12px);
+  height: clamp(9px, 2.1cqh, 11px);
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -74,32 +78,14 @@ const progressText = computed(() => `${Math.round(clampedProgress.value * 100)}%
 .progress-dot {
   position: absolute;
   top: 50%;
-  width: clamp(13px, 3.2cqw, 17px);
-  height: clamp(13px, 3.2cqw, 17px);
-  border: 2px solid var(--panel-soft);
+  width: clamp(11px, 2.9cqw, 15px);
+  height: clamp(11px, 2.9cqw, 15px);
+  border: 2px solid var(--panel);
   border-radius: 999px;
   background: var(--income-accent);
   box-shadow: 0 0 0 1px var(--income-accent-ring), 0 6px 16px var(--income-accent-shadow);
   transform: translate(-50%, -50%);
   transition: left 260ms ease-out, opacity 160ms ease;
-}
-
-.progress-label {
-  display: inline-flex;
-  justify-content: space-between;
-  gap: var(--ui-gap-xs, 6px);
-  color: var(--muted);
-  font-size: var(--ui-font-xs, 13px);
-  font-weight: 650;
-  line-height: 1;
-  text-align: center;
-}
-
-.progress-label strong {
-  font-family: var(--font-mono);
-  font-size: var(--ui-font-xs, 13px);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
 }
 
 .income-progress:not(.is-working) .progress-fill {

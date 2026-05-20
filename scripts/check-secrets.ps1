@@ -36,6 +36,10 @@ try {
 
   foreach ($file in $files) {
     $normalizedFile = $file -replace "\\", "/"
+    if (-not (Test-Path -LiteralPath $file)) {
+      continue
+    }
+
     $fullPath = (Resolve-Path -LiteralPath $file).Path
 
     if ($fullPath -eq $self) {

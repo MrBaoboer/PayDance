@@ -9,7 +9,7 @@ import {
 import {
   getStatusText,
 } from "./lib/shift-display";
-import { getDashboardCopy } from "./lib/dashboard-copy";
+import { formatDashboardDuration } from "./lib/duration-format";
 import {
   readAutostartEnabled,
   setAutostartEnabled,
@@ -95,48 +95,28 @@ const shouldShowOnboarding = computed(() =>
 const statusText = computed(() =>
   getStatusText(snapshot.value.status, config.value, hasConfigIssues.value),
 );
-const dashboardCopy = computed(() =>
-  getDashboardCopy({
-    hasConfigIssues: hasConfigIssues.value,
-    minuteRate: snapshot.value.minuteRate,
-    secondRate: snapshot.value.secondRate,
-    status: snapshot.value.status,
-  }),
-);
 
-const formatDuration = (ms: number) => {
-  if (!Number.isFinite(ms) || ms <= 0) return "0m";
-
-  const totalMinutes = Math.floor(ms / 60_000);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-
-  if (hours <= 0) return `${minutes}m`;
-  if (minutes <= 0) return `${hours}h`;
-  return `${hours}h ${minutes}m`;
-};
-
-const workedTimeText = computed(() => formatDuration(snapshot.value.elapsedWorkMs));
+const workedTimeText = computed(() => formatDashboardDuration(snapshot.value.elapsedWorkMs));
 const middleStat = computed(() => {
   if (hasConfigIssues.value) {
     return { label: "配置待修正", value: "--" };
   }
 
   if (snapshot.value.status === "rest-day") {
-    return { label: "今日休息", value: "0m" };
+    return { label: "今日休息", value: "0:00" };
   }
 
   if (snapshot.value.status === "before-work") {
     return {
       label: "距离上班",
-      value: formatDuration(snapshot.value.nextTransitionMs),
+      value: formatDashboardDuration(snapshot.value.nextTransitionMs),
     };
   }
 
   if (snapshot.value.status === "lunch-break") {
     return {
       label: "距离复工",
-      value: formatDuration(snapshot.value.nextTransitionMs),
+      value: formatDashboardDuration(snapshot.value.nextTransitionMs),
     };
   }
 
@@ -146,7 +126,7 @@ const middleStat = computed(() => {
 
   return {
     label: "距离下班",
-    value: formatDuration(snapshot.value.nextTransitionMs),
+    value: formatDashboardDuration(snapshot.value.nextTransitionMs),
   };
 });
 
@@ -431,30 +411,28 @@ onBeforeUnmount(() => {
       />
 
       <section class="hero-panel">
-        <div class="hero-stage">
-          <div class="hero-meta">
-            <p>{{ dashboardCopy.title }}</p>
-          </div>
-
-          <button class="amount-display" title="双击进入迷你悬浮模式" @dblclick="setMiniMode(true)">
-            <RollingAmount :mode="amountMode" :value="earnedText" />
-          </button>
-
-          <p class="income-pulse">{{ dashboardCopy.pulse }}</p>
+        <div class="hero-meta">
+          <p>今日入账</p>
         </div>
 
-        <div class="dashboard-controls">
-          <StatsPanel
-            :expected-earn="dailyEarnText"
-            :middle-label="middleStat.label"
-            :middle-value="middleStat.value"
-            :worked-time="workedTimeText"
-          />
+        <button class="amount-display" title="双击进入迷你悬浮模式" @dblclick="setMiniMode(true)">
+          <RollingAmount :mode="amountMode" :value="earnedText" />
+        </button>
 
-          <IncomeProgress :is-working="snapshot.isWorking" :progress="snapshot.progress" />
+        <div class="hero-controls">
+          <section class="hero-dashboard" aria-label="今日收入仪表盘">
+            <StatsPanel
+              :expected-earn="dailyEarnText"
+              :middle-label="middleStat.label"
+              :middle-value="middleStat.value"
+              :worked-time="workedTimeText"
+            />
 
-          <button class="salary-info-button" @click="showSalaryInfo = true">
-            薪资明细
+            <IncomeProgress :is-working="snapshot.isWorking" :progress="snapshot.progress" />
+          </section>
+
+          <button class="salary-info-button salary-info-button--quiet" @click="showSalaryInfo = true">
+            薪资说明
           </button>
         </div>
       </section>
@@ -558,6 +536,11 @@ onBeforeUnmount(() => {
   --onboarding-overlay: rgb(0 0 0 / 0.2);
   --onboarding-panel: rgb(255 255 255 / 0.94);
   --onboarding-border: rgb(255 255 255 / 0.9);
+  --dashboard-panel: rgb(255 255 255 / 0.5);
+  --dashboard-metric-bg: rgb(255 255 255 / 0.28);
+  --dashboard-border: rgb(255 255 255 / 0.72);
+  --dashboard-divider: rgb(24 24 27 / 0.08);
+  --dashboard-shadow: 0 16px 42px rgb(15 23 42 / 0.1);
   --shadow: 0 24px 70px rgb(15 23 42 / 0.18);
 }
 
@@ -580,6 +563,11 @@ onBeforeUnmount(() => {
   --onboarding-overlay: rgb(0 0 0 / 0.34);
   --onboarding-panel: rgb(24 24 27 / 0.92);
   --onboarding-border: rgb(255 255 255 / 0.16);
+  --dashboard-panel: rgb(20 20 23 / 0.54);
+  --dashboard-metric-bg: rgb(255 255 255 / 0.055);
+  --dashboard-border: rgb(255 255 255 / 0.12);
+  --dashboard-divider: rgb(255 255 255 / 0.07);
+  --dashboard-shadow: 0 18px 42px rgb(0 0 0 / 0.24);
   --shadow: 0 26px 80px rgb(0 0 0 / 0.38);
 }
 
@@ -602,16 +590,17 @@ onBeforeUnmount(() => {
   --ui-font-lg: clamp(17px, calc(12px + 1.18cqw), 21px);
   --ui-radius-sm: clamp(8px, 2.1cqw, 10px);
   --ui-radius-md: clamp(10px, 2.7cqw, 13px);
-  --ui-radius-lg: clamp(14px, 3.8cqw, 18px);
   --ui-gap-xs: clamp(5px, 1.35cqw, 8px);
   --ui-gap-sm: clamp(8px, 2.1cqw, 12px);
   --ui-gap-md: clamp(12px, 3.2cqw, 18px);
   --ui-pad-sm: clamp(10px, 2.6cqw, 14px);
   --ui-pad-md: clamp(16px, 4.3cqw, 22px);
-  --hero-top-pad: clamp(18px, 5.2cqh, 34px);
-  --hero-side-pad: clamp(22px, 6.4cqw, 38px);
+  --hero-top-pad: clamp(24px, 7.2cqh, 40px);
+  --hero-side-pad: clamp(24px, 7.2cqw, 38px);
   --hero-bottom-pad: clamp(18px, 5cqh, 28px);
-  --hero-amount-gap: clamp(14px, 4.2cqh, 24px);
+  --hero-amount-gap: clamp(16px, 5.2cqh, 30px);
+  --hero-dashboard-gap: clamp(24px, 7cqh, 42px);
+  --salary-info-offset: clamp(8px, 2.2cqh, 14px);
 }
 
 .is-mini {
@@ -624,20 +613,9 @@ onBeforeUnmount(() => {
   flex: 1;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--ui-gap-md);
+  justify-content: center;
   padding: var(--hero-top-pad) var(--hero-side-pad) var(--hero-bottom-pad);
   text-align: center;
-}
-
-.hero-stage {
-  display: grid;
-  width: 100%;
-  min-height: 0;
-  flex: 1 1 auto;
-  align-content: center;
-  justify-items: center;
-  padding: clamp(4px, 1.8cqh, 14px) 0;
 }
 
 .hero-meta {
@@ -651,40 +629,42 @@ onBeforeUnmount(() => {
 
 .hero-meta p {
   margin: 0;
+  font-size: var(--ui-font-lg);
+  font-weight: 700;
   width: 100%;
-  color: var(--muted);
-  font-size: clamp(16px, calc(12px + 0.95cqw), 22px);
-  font-weight: 720;
 }
 
 .amount-display {
   display: grid;
-  width: min(100%, 430px);
+  width: min(100% - clamp(24px, 7cqw, 64px), 390px);
   place-items: center;
   margin-top: var(--hero-amount-gap);
   color: var(--text);
 }
 
-.income-pulse {
-  max-width: 100%;
-  margin: clamp(12px, 3.5cqh, 20px) 0 0;
-  overflow: hidden;
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: clamp(13px, calc(10.5px + 0.62cqw), 16px);
-  font-weight: 650;
-  line-height: 1.25;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
+.hero-controls {
+  display: grid;
+  width: min(100%, 424px);
+  gap: var(--ui-gap-sm);
+  justify-items: stretch;
+  margin-top: var(--hero-dashboard-gap);
 }
 
-.dashboard-controls {
+.hero-dashboard {
   display: grid;
   width: 100%;
-  gap: var(--ui-gap-md);
-  justify-items: stretch;
-  margin-top: 0;
+  gap: clamp(10px, 2.6cqh, 14px);
+  border: 1px solid var(--dashboard-border);
+  border-radius: clamp(14px, 3.6cqw, 18px);
+  background: var(--dashboard-panel);
+  box-shadow: var(--dashboard-shadow);
+  padding: clamp(12px, 3.2cqh, 16px);
+}
+
+.theme-dark .hero-dashboard {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.018)),
+    var(--dashboard-panel);
 }
 
 .rate-grid {
@@ -709,12 +689,13 @@ onBeforeUnmount(() => {
 }
 
 .salary-info-button {
-  height: clamp(28px, 6.6cqh, 34px);
-  justify-self: end;
+  height: clamp(26px, 6.3cqh, 32px);
+  justify-self: center;
+  margin-top: var(--salary-info-offset);
   border: 0;
   border-radius: var(--ui-radius-sm);
   background: transparent;
-  padding: 0 clamp(8px, 2.2cqw, 12px);
+  padding: 0 clamp(9px, 2.4cqw, 13px);
   color: var(--muted);
   font-size: var(--ui-font-xs);
   font-weight: 650;
