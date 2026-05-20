@@ -13,4 +13,15 @@ describe("onboarding panel", () => {
     expect(onboardingPanelSource).toContain("开机自动启动");
     expect(onboardingPanelSource).toContain(":checked=\"autostartEnabled\"");
   });
+
+  it("keeps the work-time step airy by hiding lunch inputs until enabled", () => {
+    expect(onboardingPanelSource).toContain('v-if="config.enableLunchBreak" class="field-grid"');
+    expect(onboardingPanelSource).not.toContain(':disabled="!config.enableLunchBreak"');
+  });
+
+  it("uses a more spacious first-run layout", () => {
+    expect(onboardingPanelSource).toContain("clamp(370px, 88cqw, 440px)");
+    expect(onboardingPanelSource).toContain("min-height: clamp(228px, 53cqh, 276px)");
+    expect(onboardingPanelSource).toContain("gap: clamp(14px, 3.2cqh, 18px)");
+  });
 });

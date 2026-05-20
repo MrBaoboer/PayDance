@@ -17,12 +17,14 @@ describe("main dashboard shell", () => {
     expect(appSource).not.toContain("dashboard-controls");
   });
 
-  it("uses compact clock-style durations on the main dashboard", () => {
+  it("uses v0.6.0-style h/m durations on the main dashboard", () => {
     expect(appSource).toContain("formatDashboardDuration");
-    expect(appSource).toContain('value: "0:00"');
-    expect(appSource).not.toContain("`${hours}h");
-    expect(appSource).not.toContain("min`");
+    expect(appSource).toContain('value: "0m"');
     expect(appSource).not.toContain("MIN");
+  });
+
+  it("formats money without thousands separators on the main surface", () => {
+    expect(appSource).toContain("useGrouping: false");
   });
 
   it("balances the dashboard as part of the main amount stack instead of pinning it to the bottom", () => {

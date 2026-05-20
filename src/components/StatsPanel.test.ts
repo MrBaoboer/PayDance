@@ -42,11 +42,10 @@ describe("stats panel", () => {
     expect(statsPanelSource).toContain("color: var(--text)");
   });
 
-  it("adds breathing room around clock-style duration separators", () => {
+  it("keeps unit-based duration glyphs readable", () => {
     expect(statsPanelSource).toContain('if (text === ":") return { kind: "separator", text };');
     expect(statsPanelSource).toContain(".stat-value__separator");
-    expect(statsPanelSource).toContain("margin: 0 0.16em");
-    expect(statsPanelSource).toContain("color: var(--text)");
-    expect(statsPanelSource).toContain("font-size: 1.1em");
+    expect(statsPanelSource).toContain("margin-left: 0.12em");
+    expect(statsPanelSource).toContain("stat-value__unit");
   });
 });

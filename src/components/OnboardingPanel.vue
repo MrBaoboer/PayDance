@@ -391,7 +391,7 @@ const goBack = () => {
   border-radius: inherit;
   background: var(--onboarding-overlay, rgb(0 0 0 / 0.22));
   backdrop-filter: blur(12px) saturate(1.12);
-  padding: var(--ui-pad-md, 18px);
+  padding: clamp(18px, 4cqw, 24px);
   z-index: 20;
   cursor: move;
 }
@@ -399,7 +399,7 @@ const goBack = () => {
 .onboarding-panel {
   display: grid;
   position: relative;
-  width: min(100%, clamp(360px, 86cqw, 420px));
+  width: min(100%, clamp(370px, 88cqw, 440px));
   max-height: 100%;
   overflow: hidden;
   border: 1px solid var(--onboarding-border, var(--border));
@@ -418,7 +418,7 @@ const goBack = () => {
   justify-content: space-between;
   gap: var(--ui-gap-md, 16px);
   border-bottom: 1px solid var(--line);
-  padding: var(--ui-pad-md, 16px);
+  padding: clamp(16px, 3.8cqw, 20px);
 }
 
 .resize-handle {
@@ -533,25 +533,25 @@ const goBack = () => {
 }
 
 .onboarding-body {
-  min-height: clamp(200px, 48cqh, 236px);
+  min-height: clamp(228px, 53cqh, 276px);
   overflow-y: auto;
-  padding: var(--ui-pad-md, 16px);
+  padding: clamp(18px, 4cqw, 22px);
 }
 
 .onboarding-step {
   display: grid;
-  gap: var(--ui-gap-sm, 12px);
+  gap: clamp(14px, 3.2cqh, 18px);
 }
 
 .field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ui-gap-sm, 10px);
+  gap: clamp(12px, 2.7cqh, 15px);
 }
 
 .field {
   display: grid;
-  gap: var(--ui-gap-xs, 6px);
+  gap: clamp(7px, 1.8cqh, 9px);
 }
 
 .field > span {
@@ -562,7 +562,7 @@ const goBack = () => {
 
 .field-input-wrap {
   display: grid;
-  height: clamp(34px, 8.2cqh, 40px);
+  height: clamp(38px, 9cqh, 44px);
   min-width: 0;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -646,7 +646,7 @@ const goBack = () => {
 }
 
 .segmented-control button {
-  height: clamp(32px, 7.6cqh, 38px);
+  height: clamp(34px, 8.2cqh, 40px);
   border-radius: clamp(6px, 1.6cqw, 8px);
   color: var(--muted);
   font-size: var(--ui-font-sm, 14px);
@@ -662,11 +662,11 @@ const goBack = () => {
 .weekday-control {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: clamp(4px, 1.1cqw, 6px);
+  gap: clamp(5px, 1.3cqw, 8px);
 }
 
 .weekday-control button {
-  height: clamp(30px, 7cqh, 36px);
+  height: clamp(33px, 7.8cqh, 40px);
   border: 1px solid var(--line);
   border-radius: var(--ui-radius-sm, 9px);
   background: var(--panel-soft);
@@ -701,7 +701,7 @@ const goBack = () => {
 }
 
 .switch-row--panel {
-  min-height: clamp(38px, 9cqh, 44px);
+  min-height: clamp(41px, 9.8cqh, 48px);
   border: 1px solid var(--line);
   border-radius: var(--ui-radius-sm, 10px);
   background: var(--panel-soft);
@@ -725,7 +725,7 @@ const goBack = () => {
   justify-content: space-between;
   gap: var(--ui-gap-sm, 12px);
   border-top: 1px solid var(--line);
-  padding: var(--ui-pad-sm, 12px);
+  padding: clamp(13px, 3cqw, 16px);
 }
 
 .primary-button,

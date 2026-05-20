@@ -86,7 +86,7 @@ defineEmits<{
 .status-chip {
   display: flex;
   align-items: center;
-  gap: var(--ui-gap-xs, 8px);
+  gap: clamp(10px, 2.6cqw, 13px);
   padding: 0 clamp(3px, 1cqw, 6px);
   color: var(--muted);
   font-size: var(--ui-font-md, 16px);

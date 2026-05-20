@@ -77,6 +77,7 @@ const { applyWindowMode, setAlwaysOnTop } = useWindowMode(
 const yuanFormatter = new Intl.NumberFormat("zh-CN", {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
+  useGrouping: false,
 });
 
 const earnedText = computed(() => yuanFormatter.format(snapshot.value.earnedToday));
@@ -107,7 +108,7 @@ const middleStat = computed(() => {
   }
 
   if (snapshot.value.status === "rest-day") {
-    return { label: "今日休息", value: "0:00" };
+    return { label: "今日休息", value: "0m" };
   }
 
   if (snapshot.value.status === "before-work") {

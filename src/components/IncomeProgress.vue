@@ -40,8 +40,8 @@ const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
 
 .progress-track {
   position: relative;
-  height: clamp(9px, 2.1cqh, 11px);
-  overflow: hidden;
+  height: clamp(9px, 2.3cqh, 12px);
+  overflow: visible;
   border: 1px solid var(--line);
   border-radius: 999px;
   background:
@@ -78,8 +78,8 @@ const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
 .progress-dot {
   position: absolute;
   top: 50%;
-  width: clamp(11px, 2.9cqw, 15px);
-  height: clamp(11px, 2.9cqw, 15px);
+  width: clamp(13px, 3.2cqw, 17px);
+  height: clamp(13px, 3.2cqw, 17px);
   border: 2px solid var(--panel);
   border-radius: 999px;
   background: var(--income-accent);
