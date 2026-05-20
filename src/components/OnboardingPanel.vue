@@ -12,6 +12,7 @@ import { parseNumberInput } from "../lib/number-input";
 
 const props = defineProps<{
   alwaysOnTop: boolean;
+  autostartEnabled: boolean;
   config: SalaryConfig;
   themeMode: "light" | "dark";
 }>();
@@ -31,6 +32,7 @@ const emit = defineEmits<{
       | "West",
   ];
   "update:alwaysOnTop": [value: boolean];
+  "update:autostartEnabled": [value: boolean];
   "update:config": [config: SalaryConfig];
   "update:themeMode": [mode: "light" | "dark"];
 }>();
@@ -54,7 +56,7 @@ const weekdayOptions = [
   { value: 0, label: "日" },
 ];
 
-const stepTitles = ["薪资模式", "工作时间", "外观风格"];
+const stepTitles = ["薪资模式", "工作时间", "使用偏好"];
 const issues = computed(() => validateSalaryConfig(props.config));
 const currentStepIssues = computed(() =>
   getOnboardingStepIssues(step.value, props.config, issues.value),
@@ -350,6 +352,15 @@ const goBack = () => {
           <label class="switch-row switch-row--panel">
             <input v-model="startInMiniMode" type="checkbox" />
             <span>进入迷你悬浮模式</span>
+          </label>
+
+          <label class="switch-row switch-row--panel">
+            <input
+              :checked="autostartEnabled"
+              type="checkbox"
+              @change="emit('update:autostartEnabled', readChecked($event))"
+            />
+            <span>开机自动启动</span>
           </label>
         </section>
       </div>

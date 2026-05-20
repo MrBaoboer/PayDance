@@ -506,10 +506,12 @@ onBeforeUnmount(() => {
         v-if="shouldShowOnboarding"
         v-model:always-on-top="alwaysOnTop"
         v-model:config="config"
+        :autostart-enabled="autostartEnabled"
         :theme-mode="themeMode"
         @complete="completeOnboarding"
         @drag-start="startDrag"
         @resize-start="startResize"
+        @update:autostart-enabled="updateAutostartEnabled"
         @update:theme-mode="setThemeMode"
       />
     </div>
@@ -600,7 +602,7 @@ onBeforeUnmount(() => {
   --hero-bottom-pad: clamp(18px, 5cqh, 28px);
   --hero-amount-gap: clamp(16px, 5.2cqh, 30px);
   --hero-dashboard-gap: clamp(24px, 7cqh, 42px);
-  --salary-info-offset: clamp(8px, 2.2cqh, 14px);
+  --salary-info-offset: clamp(15px, 3.7cqh, 22px);
 }
 
 .is-mini {
