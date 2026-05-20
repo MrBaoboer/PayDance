@@ -7,15 +7,16 @@ defineProps<{
 }>();
 
 type MetricSegment = {
-  kind: "number" | "plain" | "symbol" | "unit";
+  kind: "number" | "plain" | "separator" | "symbol" | "unit";
   text: string;
 };
 
 const formatMetricSegments = (value: string): MetricSegment[] => {
-  const matches = value.match(/¥|\d+(?:\.\d+)?|[a-zA-Z%]+|\s+|./g) ?? [value];
+  const matches = value.match(/¥|:|\d+(?:\.\d+)?|[a-zA-Z%]+|\s+|./g) ?? [value];
 
   return matches.map((text) => {
     if (text === "¥") return { kind: "symbol", text };
+    if (text === ":") return { kind: "separator", text };
     if (/^\d/.test(text)) return { kind: "number", text };
     if (/^[a-zA-Z%]+$/.test(text)) return { kind: "unit", text };
     return { kind: "plain", text };
@@ -132,6 +133,7 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
 }
 
 .stat-value__symbol,
+.stat-value__separator,
 .stat-value__unit {
   color: var(--muted);
   font-size: 0.88em;
@@ -147,9 +149,13 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
   margin-right: 0.14em;
 }
 
+.stat-value__separator {
+  margin: 0 0.1em;
+}
+
 .stat-item__value--money .stat-value__symbol {
   color: var(--text);
-  font-size: 1em;
+  font-size: 1.1em;
   font-weight: 760;
 }
 

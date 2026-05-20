@@ -307,7 +307,7 @@ const openRepository = async () => {
     <section class="settings-group">
       <div class="group-title group-title--split">
         <strong>启动</strong>
-        <label class="switch-row">
+        <label class="switch-row switch-row--autostart">
           <input
             :checked="autostartEnabled"
             :disabled="isAutostartUpdating"
@@ -529,6 +529,10 @@ const openRepository = async () => {
 
 .switch-row input:disabled {
   opacity: 0.58;
+}
+
+.switch-row--autostart {
+  margin-right: clamp(3px, 0.9cqw, 5px);
 }
 
 .control-stack {

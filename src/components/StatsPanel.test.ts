@@ -22,6 +22,7 @@ describe("stats panel", () => {
     expect(statsPanelSource).toContain("stat-value__number");
     expect(statsPanelSource).toContain("stat-value__unit");
     expect(statsPanelSource).toContain("stat-value__symbol");
+    expect(statsPanelSource).toContain("stat-value__separator");
     expect(statsPanelSource).toContain("margin-left: 0.12em");
     expect(statsPanelSource).toContain("margin-right: 0.14em");
     expect(statsPanelSource).toContain("width: 0.22em");
@@ -37,7 +38,13 @@ describe("stats panel", () => {
   it("keeps the expected income currency symbol level with the amount", () => {
     expect(statsPanelSource).toContain("stat-item__value--money");
     expect(statsPanelSource).toContain(".stat-item__value--money .stat-value__symbol");
-    expect(statsPanelSource).toContain("font-size: 1em");
+    expect(statsPanelSource).toContain("font-size: 1.1em");
     expect(statsPanelSource).toContain("color: var(--text)");
+  });
+
+  it("adds breathing room around clock-style duration separators", () => {
+    expect(statsPanelSource).toContain('if (text === ":") return { kind: "separator", text };');
+    expect(statsPanelSource).toContain(".stat-value__separator");
+    expect(statsPanelSource).toContain("margin: 0 0.1em");
   });
 });

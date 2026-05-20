@@ -33,6 +33,12 @@ describe("main dashboard shell", () => {
 
   it("gives the salary explanation entry more breathing room below the dashboard", () => {
     expect(appSource).toContain("--salary-info-offset");
+    expect(appSource).toContain("--salary-info-offset: clamp(15px, 3.7cqh, 22px)");
     expect(appSource).toContain("margin-top: var(--salary-info-offset)");
+  });
+
+  it("passes autostart preferences into the first-run guide", () => {
+    expect(appSource).toContain(':autostart-enabled="autostartEnabled"');
+    expect(appSource).toContain('@update:autostart-enabled="updateAutostartEnabled"');
   });
 });
