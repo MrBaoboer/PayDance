@@ -1,6 +1,6 @@
 [package]
 name = "pay-dance"
-version = "0.6.6"
+version = "0.6.7"
 description = "薪跳 · 桌面实时薪资仪表盘"
 authors = ["Mr.Baober"]
 license = ""
@@ -23,3 +23,4 @@ serde_json = "1"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-autostart = "2"
+tauri-plugin-single-instance = "2"

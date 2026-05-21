@@ -18,11 +18,12 @@ describe("income progress", () => {
     expect(incomeProgressSource).toContain("overflow: hidden");
   });
 
-  it("uses theme-specific progress variables instead of generic gray surfaces", () => {
+  it("keeps flat theme-specific progress variables while preserving the refined dot", () => {
     expect(incomeProgressSource).toContain("--progress-track-bg");
     expect(incomeProgressSource).toContain("--progress-track-border");
     expect(incomeProgressSource).toContain("--progress-fill-bg");
     expect(incomeProgressSource).toContain("--progress-dot-border");
     expect(incomeProgressSource).toContain("--progress-dot-shadow");
+    expect(incomeProgressSource).not.toContain("inset 0 1px");
   });
 });

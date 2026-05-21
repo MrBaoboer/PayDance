@@ -46,7 +46,7 @@ const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
   border-radius: 999px;
   background: var(
     --progress-track-bg,
-    linear-gradient(180deg, rgb(255 255 255 / 0.22), transparent), var(--subtle)
+    var(--subtle)
   );
   box-shadow: var(--progress-track-shadow, none);
 }

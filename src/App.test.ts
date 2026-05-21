@@ -57,18 +57,21 @@ describe("main dashboard shell", () => {
     );
   });
 
-  it("freezes visual transitions while the theme bridge is switching", () => {
-    expect(appSource).toContain("'is-theme-switching': isThemeSwitching");
-    expect(appSource).toContain(".is-theme-switching");
-    expect(appSource).toContain("transition: none !important");
+  it("keeps theme switching as a logic guard without freezing the whole UI", () => {
+    expect(appSource).not.toContain("'is-theme-switching': isThemeSwitching");
+    expect(appSource).not.toContain(".is-theme-switching");
+    expect(appSource).not.toContain("transition: none !important");
   });
 
-  it("uses richer dark-theme hover and dashboard tokens", () => {
+  it("uses flat dark-theme hover and dashboard tokens", () => {
     expect(appSource).toContain(".theme-dark .salary-info-button:hover");
     expect(appSource).toContain("--progress-track-bg");
     expect(appSource).toContain("--progress-fill-bg");
     expect(appSource).toContain("--progress-dot-border");
-    expect(appSource).toContain("inset 0 1px 0 rgb(255 255 255 / 0.08)");
+    expect(appSource).toContain("--dashboard-shadow: none");
+    expect(appSource).toContain("box-shadow: none");
+    expect(appSource).not.toContain("radial-gradient");
+    expect(appSource).not.toContain("rgb(255 255 255 / 0.11)");
   });
 
   it("passes autostart preferences into the first-run guide", () => {

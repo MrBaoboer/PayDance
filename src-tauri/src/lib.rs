@@ -12,6 +12,13 @@ pub fn run() {
     #[cfg(desktop)]
     let builder = builder.plugin(tauri_plugin_autostart::Builder::new().build());
 
+    #[cfg(desktop)]
+    let builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+        if let Some(window) = app.get_webview_window("main") {
+            show_window(&window);
+        }
+    }));
+
     builder
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_store::Builder::new().build())

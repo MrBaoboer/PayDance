@@ -419,7 +419,7 @@ onBeforeUnmount(() => {
 <template>
   <main
     class="h-full w-full select-none bg-transparent p-2"
-    :class="[shellClass, isMiniMode ? 'is-mini' : '', { 'is-theme-switching': isThemeSwitching }]"
+    :class="[shellClass, isMiniMode ? 'is-mini' : '']"
   >
     <MiniWindow
       v-if="isMiniMode"
@@ -572,14 +572,14 @@ onBeforeUnmount(() => {
   --onboarding-overlay: rgb(0 0 0 / 0.2);
   --onboarding-panel: rgb(255 255 255 / 0.94);
   --onboarding-border: rgb(255 255 255 / 0.9);
-  --dashboard-panel: rgb(255 255 255 / 0.5);
-  --dashboard-metric-bg: rgb(255 255 255 / 0.28);
-  --dashboard-border: rgb(255 255 255 / 0.72);
+  --dashboard-panel: rgb(247 247 248 / 0.96);
+  --dashboard-metric-bg: transparent;
+  --dashboard-border: rgb(228 228 231 / 0.95);
   --dashboard-divider: rgb(24 24 27 / 0.08);
-  --dashboard-shadow: 0 16px 42px rgb(15 23 42 / 0.1);
-  --progress-track-bg: linear-gradient(180deg, rgb(255 255 255 / 0.9), rgb(244 244 245 / 0.82));
-  --progress-track-border: rgb(255 255 255 / 0.78);
-  --progress-track-shadow: inset 0 1px 0 rgb(255 255 255 / 0.74), inset 0 -1px 0 rgb(15 23 42 / 0.06);
+  --dashboard-shadow: none;
+  --progress-track-bg: rgb(229 231 235 / 0.92);
+  --progress-track-border: rgb(228 228 231 / 0.96);
+  --progress-track-shadow: none;
   --progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11));
   --progress-dot-border: rgb(255 255 255 / 0.92);
   --progress-dot-shadow: 0 0 0 1px rgb(217 119 6 / 0.24), 0 6px 16px rgb(217 119 6 / 0.28);
@@ -607,25 +607,20 @@ onBeforeUnmount(() => {
   --onboarding-overlay: rgb(0 0 0 / 0.34);
   --onboarding-panel: rgb(24 24 27 / 0.92);
   --onboarding-border: rgb(255 255 255 / 0.16);
-  --dashboard-panel: rgb(12 12 15 / 0.7);
-  --dashboard-metric-bg: rgb(255 255 255 / 0.042);
-  --dashboard-border: rgb(255 255 255 / 0.15);
-  --dashboard-divider: rgb(255 255 255 / 0.065);
-  --dashboard-shadow: 0 22px 54px rgb(0 0 0 / 0.34), inset 0 1px 0 rgb(255 255 255 / 0.08), inset 0 -1px 0 rgb(0 0 0 / 0.32);
-  --progress-track-bg: linear-gradient(180deg, rgb(12 12 15 / 0.96), rgb(43 43 48 / 0.68));
-  --progress-track-border: rgb(255 255 255 / 0.12);
-  --progress-track-shadow: inset 0 1px 2px rgb(0 0 0 / 0.46), inset 0 -1px 0 rgb(255 255 255 / 0.045);
-  --progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11) 62%, rgb(252 211 77));
+  --dashboard-panel: rgb(32 32 36 / 0.98);
+  --dashboard-metric-bg: transparent;
+  --dashboard-border: rgb(63 63 70 / 0.9);
+  --dashboard-divider: rgb(255 255 255 / 0.08);
+  --dashboard-shadow: none;
+  --progress-track-bg: rgb(55 55 60 / 0.95);
+  --progress-track-border: rgb(75 75 82 / 0.8);
+  --progress-track-shadow: none;
+  --progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11));
   --progress-dot-border: rgb(24 24 27);
   --progress-dot-shadow: 0 0 0 1px rgb(252 211 77 / 0.42), 0 0 18px rgb(245 158 11 / 0.28), 0 7px 16px rgb(0 0 0 / 0.36);
   --progress-rest-fill-bg: linear-gradient(90deg, rgb(113 113 122 / 0.54), rgb(82 82 91 / 0.3));
   --progress-rest-dot-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 6px 14px rgb(0 0 0 / 0.28);
   --shadow: 0 26px 80px rgb(0 0 0 / 0.38);
-}
-
-.is-theme-switching,
-.is-theme-switching * {
-  transition: none !important;
 }
 
 .app-window {
@@ -719,10 +714,7 @@ onBeforeUnmount(() => {
 }
 
 .theme-dark .hero-dashboard {
-  background:
-    radial-gradient(120% 135% at 50% -35%, rgb(255 255 255 / 0.11), transparent 46%),
-    linear-gradient(180deg, rgb(255 255 255 / 0.055), rgb(255 255 255 / 0.018)),
-    var(--dashboard-panel);
+  background: var(--dashboard-panel);
 }
 
 .rate-grid {
@@ -777,10 +769,8 @@ onBeforeUnmount(() => {
 
 .theme-dark .salary-info-button:hover {
   border-color: rgb(245 158 11 / 0.24);
-  background:
-    linear-gradient(180deg, rgb(245 158 11 / 0.12), rgb(255 255 255 / 0.045)),
-    rgb(24 24 27 / 0.48);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.26), 0 0 0 1px rgb(245 158 11 / 0.1);
+  background: rgb(39 39 42 / 0.96);
+  box-shadow: none;
   color: var(--text);
 }
 
