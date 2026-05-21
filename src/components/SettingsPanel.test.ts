@@ -91,8 +91,10 @@ describe("settings panel", () => {
 
   it("keeps the attribution footer balanced in narrow settings sheets", () => {
     expect(settingsPanelSource).toContain("flex: 1 1 clamp(180px, 50%, 260px)");
-    expect(settingsPanelSource).toContain("min-width: clamp(112px, 28cqw, 140px)");
-    expect(settingsPanelSource).toContain("width: min(100%, 140px)");
+    expect(settingsPanelSource).toContain("min-width: clamp(92px, 20cqw, 112px)");
+    expect(settingsPanelSource).toContain("width: clamp(92px, 20cqw, 108px)");
+    expect(settingsPanelSource).toContain("box-shadow: 0 7px 18px rgb(15 23 42 / 0.08)");
+    expect(settingsPanelSource).toContain("width: 20px");
     expect(settingsPanelSource).toContain(".about-footer__identity {\n    text-align: center;");
   });
 });

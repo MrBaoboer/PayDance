@@ -14,7 +14,15 @@ describe("stats panel", () => {
   it("uses dashboard metric slots with separate label and value styling", () => {
     expect(statsPanelSource).toContain("stat-item__label");
     expect(statsPanelSource).toContain("stat-item__value");
-    expect(statsPanelSource).toContain("stats-panel__frame");
+    expect(statsPanelSource).toContain("stats-panel__grid");
+  });
+
+  it("keeps the three metrics flat without nested card borders or backgrounds", () => {
+    expect(statsPanelSource).toContain("stats-panel__grid");
+    expect(statsPanelSource).not.toContain("stats-panel__frame");
+    expect(statsPanelSource).not.toContain("border: 1px solid var(--dashboard-border");
+    expect(statsPanelSource).not.toContain("background: var(--dashboard-metric-bg");
+    expect(statsPanelSource).not.toContain("border-radius: var(--ui-radius-md");
   });
 
   it("splits metric numbers from units for subtler symbols", () => {
@@ -23,9 +31,9 @@ describe("stats panel", () => {
     expect(statsPanelSource).toContain("stat-value__unit");
     expect(statsPanelSource).toContain("stat-value__symbol");
     expect(statsPanelSource).toContain("stat-value__separator");
-    expect(statsPanelSource).toContain("margin-left: 0.12em");
-    expect(statsPanelSource).toContain("margin-right: 0.14em");
-    expect(statsPanelSource).toContain("width: 0.22em");
+    expect(statsPanelSource).toContain("margin-left: 0.2em");
+    expect(statsPanelSource).toContain("margin-right: 0.22em");
+    expect(statsPanelSource).toContain("width: 0.32em");
     expect(statsPanelSource).toContain("font-family: var(--font-dashboard)");
   });
 
@@ -45,7 +53,7 @@ describe("stats panel", () => {
   it("keeps unit-based duration glyphs readable", () => {
     expect(statsPanelSource).toContain('if (text === ":") return { kind: "separator", text };');
     expect(statsPanelSource).toContain(".stat-value__separator");
-    expect(statsPanelSource).toContain("margin-left: 0.12em");
+    expect(statsPanelSource).toContain("margin-left: 0.2em");
     expect(statsPanelSource).toContain("stat-value__unit");
   });
 });

@@ -26,7 +26,7 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
 
 <template>
   <div class="stats-panel" aria-label="今日工资统计">
-    <div class="stats-panel__frame">
+    <div class="stats-panel__grid">
       <article class="stat-item">
         <span class="stat-item__label">已工作</span>
         <strong class="stat-item__value">
@@ -70,14 +70,10 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
   margin-top: 0;
 }
 
-.stats-panel__frame {
+.stats-panel__grid {
   display: grid;
   width: 100%;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  overflow: hidden;
-  border: 1px solid var(--dashboard-border, var(--line));
-  border-radius: var(--ui-radius-md, 13px);
-  background: var(--dashboard-metric-bg, var(--panel-soft));
 }
 
 .stat-item {
@@ -141,11 +137,11 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
 }
 
 .stat-value__unit {
-  margin-left: 0.12em;
+  margin-left: 0.2em;
 }
 
 .stat-value__symbol {
-  margin-right: 0.14em;
+  margin-right: 0.22em;
 }
 
 .stat-value__separator {
@@ -163,7 +159,7 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
 }
 
 .stat-value__plain {
-  width: 0.22em;
+  width: 0.32em;
   overflow: hidden;
 }
 

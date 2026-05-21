@@ -170,6 +170,11 @@ const saveStateNow = async () => {
   await saveState();
 };
 
+const waitForThemePaint = () =>
+  new Promise<void>((resolve) => {
+    window.requestAnimationFrame(() => resolve());
+  });
+
 const applyThemeMode = async (
   mode: ThemeMode,
   options: { persist?: boolean } = {},
@@ -179,10 +184,13 @@ const applyThemeMode = async (
   isThemeSwitching.value = true;
 
   try {
+    themeMode.value = mode;
+    await waitForThemePaint();
+    if (token !== themeApplyToken) return;
+
     await appWindow.setTheme(mode);
     if (token !== themeApplyToken) return;
 
-    themeMode.value = mode;
     if (persist) {
       await saveStateNow();
     }
@@ -418,8 +426,8 @@ onBeforeUnmount(() => {
 
 <template>
   <main
-    class="h-full w-full select-none bg-transparent p-2"
-    :class="[shellClass, isMiniMode ? 'is-mini' : '']"
+    class="app-shell h-full w-full select-none p-0"
+    :class="[shellClass, isMiniMode ? 'is-mini' : '', { 'is-theme-syncing': isThemeSwitching }]"
   >
     <MiniWindow
       v-if="isMiniMode"
@@ -554,9 +562,9 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .theme-light {
-  --panel: rgb(255 255 255 / 0.82);
+  --panel: rgb(255 255 255);
   --panel-soft: rgb(255 255 255 / 0.62);
-  --border: rgb(255 255 255 / 0.82);
+  --border: transparent;
   --line: rgb(228 228 231 / 0.88);
   --text: rgb(24 24 27);
   --muted: rgb(113 113 122);
@@ -572,13 +580,12 @@ onBeforeUnmount(() => {
   --onboarding-overlay: rgb(0 0 0 / 0.2);
   --onboarding-panel: rgb(255 255 255 / 0.94);
   --onboarding-border: rgb(255 255 255 / 0.9);
-  --dashboard-panel: rgb(247 247 248 / 0.96);
-  --dashboard-metric-bg: transparent;
-  --dashboard-border: rgb(228 228 231 / 0.95);
+  --dashboard-panel: rgb(255 255 255 / 0.5);
+  --dashboard-metric-bg: rgb(255 255 255 / 0.28);
+  --dashboard-border: rgb(255 255 255 / 0.72);
   --dashboard-divider: rgb(24 24 27 / 0.08);
-  --dashboard-shadow: none;
+  --dashboard-shadow: 0 16px 42px rgb(15 23 42 / 0.1);
   --progress-track-bg: rgb(229 231 235 / 0.92);
-  --progress-track-border: rgb(228 228 231 / 0.96);
   --progress-track-shadow: none;
   --progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11));
   --progress-dot-border: rgb(255 255 255 / 0.92);
@@ -589,9 +596,9 @@ onBeforeUnmount(() => {
 }
 
 .theme-dark {
-  --panel: rgb(24 24 27 / 0.8);
+  --panel: rgb(24 24 27);
   --panel-soft: rgb(39 39 42 / 0.58);
-  --border: rgb(255 255 255 / 0.12);
+  --border: transparent;
   --line: rgb(255 255 255 / 0.1);
   --text: rgb(250 250 250);
   --muted: rgb(161 161 170);
@@ -607,20 +614,53 @@ onBeforeUnmount(() => {
   --onboarding-overlay: rgb(0 0 0 / 0.34);
   --onboarding-panel: rgb(24 24 27 / 0.92);
   --onboarding-border: rgb(255 255 255 / 0.16);
-  --dashboard-panel: rgb(32 32 36 / 0.98);
-  --dashboard-metric-bg: transparent;
-  --dashboard-border: rgb(63 63 70 / 0.9);
-  --dashboard-divider: rgb(255 255 255 / 0.08);
-  --dashboard-shadow: none;
-  --progress-track-bg: rgb(55 55 60 / 0.95);
-  --progress-track-border: rgb(75 75 82 / 0.8);
+  --dashboard-panel: rgb(17 17 21 / 0.88);
+  --dashboard-metric-bg: rgb(255 255 255 / 0.042);
+  --dashboard-border: rgb(255 255 255 / 0.1);
+  --dashboard-divider: rgb(255 255 255 / 0.07);
+  --dashboard-shadow: 0 24px 58px rgb(0 0 0 / 0.42), inset 0 1px 0 rgb(255 255 255 / 0.035), inset 0 -1px 0 rgb(0 0 0 / 0.34);
+  --progress-track-bg: rgb(58 58 63);
   --progress-track-shadow: none;
-  --progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11));
+  --progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11) 62%, rgb(252 211 77));
   --progress-dot-border: rgb(24 24 27);
   --progress-dot-shadow: 0 0 0 1px rgb(252 211 77 / 0.42), 0 0 18px rgb(245 158 11 / 0.28), 0 7px 16px rgb(0 0 0 / 0.36);
   --progress-rest-fill-bg: linear-gradient(90deg, rgb(113 113 122 / 0.54), rgb(82 82 91 / 0.3));
   --progress-rest-dot-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 6px 14px rgb(0 0 0 / 0.28);
   --shadow: 0 26px 80px rgb(0 0 0 / 0.38);
+}
+
+.app-shell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--panel);
+  transition: background-color 150ms ease;
+}
+
+.app-shell::before {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  border-radius: inherit;
+  background: var(--panel);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+
+.app-shell.is-theme-syncing::before {
+  opacity: 0.9;
+}
+
+.app-shell.is-mini {
+  overflow: visible;
+  border-radius: 0;
+  background: transparent;
+}
+
+.app-shell.is-mini::before {
+  display: none;
 }
 
 .app-window {
@@ -629,7 +669,7 @@ onBeforeUnmount(() => {
   height: 100%;
   overflow: hidden;
   flex-direction: column;
-  border: 1px solid var(--border);
+  border: 0;
   border-radius: 22px;
   background: var(--panel);
   box-shadow: var(--shadow);
@@ -714,7 +754,9 @@ onBeforeUnmount(() => {
 }
 
 .theme-dark .hero-dashboard {
-  background: var(--dashboard-panel);
+  background:
+    linear-gradient(180deg, rgb(24 24 29 / 0.9), rgb(15 15 18 / 0.88)),
+    var(--dashboard-panel);
 }
 
 .rate-grid {
@@ -743,35 +785,34 @@ onBeforeUnmount(() => {
   justify-self: center;
   margin-top: var(--salary-info-offset);
   border: 1px solid transparent;
-  border-radius: var(--ui-radius-sm);
+  border-radius: 999px;
   background: transparent;
-  padding: 0 clamp(9px, 2.4cqw, 13px);
+  box-shadow: none;
+  padding: 0 clamp(12px, 3cqw, 16px);
   color: var(--muted);
   font-size: var(--ui-font-xs);
-  font-weight: 650;
+  font-weight: 620;
   transition:
+    border-color 160ms ease,
     background-color 160ms ease,
     color 160ms ease,
     transform 160ms ease;
 }
 
 .salary-info-button:hover {
-  background: var(--subtle);
+  border-color: rgb(217 119 6 / 0.2);
+  background: rgb(245 158 11 / 0.08);
   color: var(--income-accent);
 }
 
 .theme-light .salary-info-button:hover {
-  border-color: var(--income-accent-ring);
-  background: color-mix(in srgb, var(--income-accent) 10%, white 90%);
-  box-shadow: 0 8px 22px rgb(245 158 11 / 0.16);
-  color: var(--text);
+  color: var(--income-accent);
 }
 
 .theme-dark .salary-info-button:hover {
-  border-color: rgb(245 158 11 / 0.24);
-  background: rgb(39 39 42 / 0.96);
-  box-shadow: none;
-  color: var(--text);
+  border-color: rgb(245 158 11 / 0.22);
+  background: rgb(245 158 11 / 0.08);
+  color: var(--income-accent-bright);
 }
 
 .salary-info-button:active {

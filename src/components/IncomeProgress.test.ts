@@ -20,10 +20,10 @@ describe("income progress", () => {
 
   it("keeps flat theme-specific progress variables while preserving the refined dot", () => {
     expect(incomeProgressSource).toContain("--progress-track-bg");
-    expect(incomeProgressSource).toContain("--progress-track-border");
     expect(incomeProgressSource).toContain("--progress-fill-bg");
     expect(incomeProgressSource).toContain("--progress-dot-border");
     expect(incomeProgressSource).toContain("--progress-dot-shadow");
+    expect(incomeProgressSource).not.toContain("border: 1px solid var(--progress-track-border");
     expect(incomeProgressSource).not.toContain("inset 0 1px");
   });
 });

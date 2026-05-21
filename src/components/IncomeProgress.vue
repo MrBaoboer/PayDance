@@ -42,7 +42,6 @@ const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
   position: relative;
   height: clamp(9px, 2.3cqh, 12px);
   overflow: visible;
-  border: 1px solid var(--progress-track-border, var(--line));
   border-radius: 999px;
   background: var(
     --progress-track-bg,

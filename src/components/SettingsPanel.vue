@@ -661,7 +661,7 @@ const openRepository = async () => {
 .about-footer__repo-card {
   display: grid;
   flex: 0 0 auto;
-  min-width: clamp(112px, 28cqw, 140px);
+  min-width: clamp(92px, 20cqw, 112px);
   align-content: center;
   justify-items: center;
   gap: 6px;
@@ -669,7 +669,7 @@ const openRepository = async () => {
 
 .repository-button {
   display: inline-flex;
-  width: min(100%, 140px);
+  width: clamp(92px, 20cqw, 108px);
   height: clamp(32px, 7.6cqh, 38px);
   flex: 0 0 auto;
   align-items: center;
@@ -677,14 +677,15 @@ const openRepository = async () => {
   gap: var(--ui-gap-xs, 7px);
   border: 1px solid var(--line);
   border-radius: var(--ui-radius-sm, 10px);
-  background: var(--panel);
-  padding: 0 var(--ui-pad-sm, 12px);
+  background: color-mix(in srgb, var(--panel) 86%, var(--subtle));
+  padding: 0 clamp(9px, 2cqw, 11px);
   color: var(--muted);
   font-size: var(--ui-font-sm, 14px);
   font-weight: 700;
   transition:
     border-color 160ms ease,
     background-color 160ms ease,
+    box-shadow 160ms ease,
     color 160ms ease,
     transform 160ms ease;
 }
@@ -692,6 +693,7 @@ const openRepository = async () => {
 .repository-button:hover {
   border-color: var(--income-accent-ring);
   background: var(--income-accent-glow);
+  box-shadow: 0 7px 18px rgb(15 23 42 / 0.08);
   color: var(--text);
 }
 
@@ -706,8 +708,8 @@ const openRepository = async () => {
 }
 
 .github-mark {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   fill: currentColor;
 }
 

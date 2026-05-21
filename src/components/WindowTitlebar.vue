@@ -76,11 +76,11 @@ defineEmits<{
 <style scoped>
 .titlebar {
   display: flex;
-  height: clamp(44px, 10.4cqh, 56px);
+  height: clamp(62px, 14cqh, 74px);
   flex: 0 0 auto;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 0 clamp(10px, 2.8cqw, 16px);
+  padding: clamp(14px, 3.2cqh, 18px) clamp(22px, 5.2cqw, 32px) 0;
 }
 
 .status-chip {
