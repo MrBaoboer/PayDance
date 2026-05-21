@@ -583,8 +583,9 @@ const goBack = () => {
   border: 0;
   background: transparent;
   color: var(--text);
-  font-family: var(--font-mono);
+  font-family: var(--font-dashboard);
   font-size: var(--ui-font-sm, 14px);
+  font-variant-numeric: tabular-nums;
   outline: none;
   padding: 0 clamp(9px, 2.2cqw, 13px);
   text-align: left;
@@ -612,8 +613,10 @@ const goBack = () => {
   align-items: center;
   justify-content: center;
   color: var(--muted);
+  font-family: var(--font-dashboard);
   font-size: var(--ui-font-xs, 13px);
   font-weight: 650;
+  font-variant-numeric: tabular-nums;
   pointer-events: none;
   white-space: nowrap;
 }
@@ -649,8 +652,10 @@ const goBack = () => {
   height: clamp(34px, 8.2cqh, 40px);
   border-radius: clamp(6px, 1.6cqw, 8px);
   color: var(--muted);
+  font-family: var(--font-dashboard);
   font-size: var(--ui-font-sm, 14px);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .segmented-control button.is-active {
@@ -671,8 +676,10 @@ const goBack = () => {
   border-radius: var(--ui-radius-sm, 9px);
   background: var(--panel-soft);
   color: var(--muted);
+  font-family: var(--font-dashboard);
   font-size: var(--ui-font-xs, 13px);
   font-weight: 750;
+  font-variant-numeric: tabular-nums;
 }
 
 .weekday-control button.is-active {
@@ -737,8 +744,10 @@ const goBack = () => {
   gap: var(--ui-gap-xs, 6px);
   border-radius: var(--ui-radius-sm, 10px);
   padding: 0 var(--ui-pad-sm, 12px);
+  font-family: var(--font-dashboard);
   font-size: var(--ui-font-sm, 14px);
   font-weight: 750;
+  font-variant-numeric: tabular-nums;
 }
 
 .primary-button {

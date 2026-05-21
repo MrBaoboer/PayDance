@@ -24,4 +24,10 @@ describe("onboarding panel", () => {
     expect(onboardingPanelSource).toContain("min-height: clamp(228px, 53cqh, 276px)");
     expect(onboardingPanelSource).toContain("gap: clamp(14px, 3.2cqh, 18px)");
   });
+
+  it("uses the dashboard numeric font for numbers, symbols, and Latin glyphs", () => {
+    expect(onboardingPanelSource).toContain("font-family: var(--font-dashboard)");
+    expect(onboardingPanelSource).toContain("font-variant-numeric: tabular-nums");
+    expect(onboardingPanelSource).not.toContain("font-family: var(--font-mono)");
+  });
 });

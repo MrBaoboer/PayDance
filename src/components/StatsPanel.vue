@@ -141,7 +141,7 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
 }
 
 .stat-value__symbol {
-  margin-right: 0.34em;
+  margin-right: 0.2em;
 }
 
 .stat-value__separator {

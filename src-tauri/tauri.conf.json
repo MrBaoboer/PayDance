@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "薪跳",
-  "version": "0.6.9",
+  "version": "0.7.0",
   "identifier": "com.masterbao.paydance",
   "build": {
     "beforeDevCommand": "npm.cmd run dev",
@@ -21,14 +21,10 @@
         "center": true,
         "decorations": false,
         "transparent": true,
-        "shadow": true,
+        "shadow": false,
         "resizable": true,
         "theme": "Light",
-        "alwaysOnTop": false,
-        "windowEffects": {
-          "effects": ["micaLight"],
-          "state": "active"
-        }
+        "alwaysOnTop": false
       }
     ],
     "security": {

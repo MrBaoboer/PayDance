@@ -32,7 +32,7 @@ describe("stats panel", () => {
     expect(statsPanelSource).toContain("stat-value__symbol");
     expect(statsPanelSource).toContain("stat-value__separator");
     expect(statsPanelSource).toContain("margin-left: 0.32em");
-    expect(statsPanelSource).toContain("margin-right: 0.34em");
+    expect(statsPanelSource).toContain("margin-right: 0.2em");
     expect(statsPanelSource).toContain("width: 0.44em");
     expect(statsPanelSource).toContain("font-family: var(--font-dashboard)");
   });
@@ -48,6 +48,7 @@ describe("stats panel", () => {
     expect(statsPanelSource).toContain(".stat-item__value--money .stat-value__symbol");
     expect(statsPanelSource).toContain("font-size: 1.1em");
     expect(statsPanelSource).toContain("color: var(--muted)");
+    expect(statsPanelSource).toContain("margin-right: 0.2em");
   });
 
   it("keeps unit-based duration glyphs readable", () => {
