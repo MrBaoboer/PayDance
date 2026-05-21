@@ -670,9 +670,9 @@ onBeforeUnmount(() => {
   overflow: hidden;
   flex-direction: column;
   border: 0;
-  border-radius: 22px;
-  background: var(--panel);
-  box-shadow: var(--shadow);
+  border-radius: inherit;
+  background: transparent;
+  box-shadow: none;
   color: var(--text);
   container-type: size;
   backdrop-filter: blur(28px);
@@ -832,7 +832,7 @@ onBeforeUnmount(() => {
 .rate-card strong {
   overflow: hidden;
   color: var(--text);
-  font-family: var(--font-mono);
+  font-family: var(--font-dashboard);
   font-size: var(--ui-font-md);
   font-weight: 650;
   text-overflow: ellipsis;
@@ -873,7 +873,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   max-width: 100%;
   color: var(--text);
-  font-family: var(--font-mono);
+  font-family: var(--font-dashboard);
   font-size: var(--ui-font-md);
   font-weight: 700;
   text-overflow: ellipsis;

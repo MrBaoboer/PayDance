@@ -25,15 +25,15 @@ describe("stats panel", () => {
     expect(statsPanelSource).not.toContain("border-radius: var(--ui-radius-md");
   });
 
-  it("splits metric numbers from units for subtler symbols", () => {
+  it("splits metric numbers from units with premium spacing", () => {
     expect(statsPanelSource).toContain("formatMetricSegments");
     expect(statsPanelSource).toContain("stat-value__number");
     expect(statsPanelSource).toContain("stat-value__unit");
     expect(statsPanelSource).toContain("stat-value__symbol");
     expect(statsPanelSource).toContain("stat-value__separator");
-    expect(statsPanelSource).toContain("margin-left: 0.2em");
-    expect(statsPanelSource).toContain("margin-right: 0.22em");
-    expect(statsPanelSource).toContain("width: 0.32em");
+    expect(statsPanelSource).toContain("margin-left: 0.32em");
+    expect(statsPanelSource).toContain("margin-right: 0.34em");
+    expect(statsPanelSource).toContain("width: 0.44em");
     expect(statsPanelSource).toContain("font-family: var(--font-dashboard)");
   });
 
@@ -43,17 +43,17 @@ describe("stats panel", () => {
     expect(statsPanelSource).toContain("min-height: 1.15em");
   });
 
-  it("keeps the expected income currency symbol subtle like duration units", () => {
+  it("keeps the expected income currency symbol equal-height with the amount", () => {
     expect(statsPanelSource).toContain("stat-item__value--money");
     expect(statsPanelSource).toContain(".stat-item__value--money .stat-value__symbol");
-    expect(statsPanelSource).toContain("font-size: 0.88em");
+    expect(statsPanelSource).toContain("font-size: 1.1em");
     expect(statsPanelSource).toContain("color: var(--muted)");
   });
 
   it("keeps unit-based duration glyphs readable", () => {
     expect(statsPanelSource).toContain('if (text === ":") return { kind: "separator", text };');
     expect(statsPanelSource).toContain(".stat-value__separator");
-    expect(statsPanelSource).toContain("margin-left: 0.2em");
+    expect(statsPanelSource).toContain("margin-left: 0.32em");
     expect(statsPanelSource).toContain("stat-value__unit");
   });
 });

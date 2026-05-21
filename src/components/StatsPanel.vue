@@ -131,17 +131,17 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
 .stat-value__symbol,
 .stat-value__unit {
   color: var(--muted);
-  font-size: 0.88em;
+  font-size: 1em;
   font-weight: 650;
   line-height: 1;
 }
 
 .stat-value__unit {
-  margin-left: 0.2em;
+  margin-left: 0.32em;
 }
 
 .stat-value__symbol {
-  margin-right: 0.22em;
+  margin-right: 0.34em;
 }
 
 .stat-value__separator {
@@ -154,12 +154,12 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
 
 .stat-item__value--money .stat-value__symbol {
   color: var(--muted);
-  font-size: 0.88em;
-  font-weight: 650;
+  font-size: 1.1em;
+  font-weight: 760;
 }
 
 .stat-value__plain {
-  width: 0.32em;
+  width: 0.44em;
   overflow: hidden;
 }
 

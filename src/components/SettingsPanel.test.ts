@@ -97,4 +97,20 @@ describe("settings panel", () => {
     expect(settingsPanelSource).toContain("width: 20px");
     expect(settingsPanelSource).toContain(".about-footer__identity {\n    text-align: center;");
   });
+
+  it("uses the dashboard numeric font for settings numbers, symbols, and repository text", () => {
+    const fieldInputBlock = settingsPanelSource.slice(
+      settingsPanelSource.indexOf(".field input {"),
+      settingsPanelSource.indexOf(".field input[type=\"number\"]"),
+    );
+
+    expect(fieldInputBlock).toContain("font-family: var(--font-dashboard)");
+    expect(fieldInputBlock).toContain("font-variant-numeric: tabular-nums");
+    expect(fieldInputBlock).not.toContain("font-family: var(--font-mono)");
+    expect(settingsPanelSource).toContain(".field-unit");
+    expect(settingsPanelSource).toContain("font-family: var(--font-dashboard)");
+    expect(settingsPanelSource).toContain(".repository-button");
+    expect(settingsPanelSource).toContain(".about-footer__identity span");
+    expect(settingsPanelSource).toContain("font-variant-numeric: tabular-nums");
+  });
 });

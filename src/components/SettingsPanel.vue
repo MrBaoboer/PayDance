@@ -458,11 +458,12 @@ const openRepository = async () => {
   min-width: 0;
   border: 0;
   background: transparent;
-  font-family: var(--font-mono);
+  font-family: var(--font-dashboard);
   font-size: var(--ui-font-sm, 14px);
   padding: 0 clamp(9px, 2.2cqw, 13px);
   color: var(--text);
   outline: none;
+  font-variant-numeric: tabular-nums;
 }
 
 .field input[type="number"] {
@@ -487,8 +488,10 @@ const openRepository = async () => {
   align-items: center;
   justify-content: center;
   color: var(--muted);
+  font-family: var(--font-dashboard);
   font-size: var(--ui-font-xs, 13px);
   font-weight: 650;
+  font-variant-numeric: tabular-nums;
   pointer-events: none;
   white-space: nowrap;
 }
@@ -646,11 +649,13 @@ const openRepository = async () => {
 .about-footer__copyright {
   overflow: hidden;
   color: var(--muted);
+  font-family: var(--font-dashboard);
   font-size: var(--ui-font-xs, 12px);
   font-weight: 550;
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .about-footer__copyright--centered {
@@ -680,8 +685,10 @@ const openRepository = async () => {
   background: color-mix(in srgb, var(--panel) 86%, var(--subtle));
   padding: 0 clamp(9px, 2cqw, 11px);
   color: var(--muted);
+  font-family: var(--font-dashboard);
   font-size: var(--ui-font-sm, 14px);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
   transition:
     border-color 160ms ease,
     background-color 160ms ease,

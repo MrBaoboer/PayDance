@@ -77,9 +77,38 @@ describe("main dashboard shell", () => {
     expect(appSource).toContain("app-shell h-full w-full select-none p-0");
     expect(appSource).not.toContain("bg-transparent p-2");
     expect(appSource).toContain("border: 0;");
+    expect(appSource).toContain(".app-window");
+    expect(appSource).toContain("border-radius: inherit");
+    expect(appSource).toContain("background: transparent");
     expect(appSource).toContain("'is-theme-syncing': isThemeSwitching");
     expect(appSource).toContain(".app-shell.is-theme-syncing::before");
     expect(appSource).toContain("background: var(--panel)");
+  });
+
+  it("keeps shell radius ownership in one layer to avoid dark-mode corner halos", () => {
+    const windowBlock = appSource.slice(
+      appSource.indexOf(".app-window {"),
+      appSource.indexOf(".hero-panel {"),
+    );
+
+    expect(appSource).toContain(".app-shell {");
+    expect(appSource).toContain("border-radius: 22px");
+    expect(windowBlock).toContain("border-radius: inherit");
+    expect(windowBlock).toContain("background: transparent");
+    expect(windowBlock).toContain("box-shadow: none");
+    expect(windowBlock).not.toContain("background: var(--panel)");
+    expect(windowBlock).not.toContain("box-shadow: var(--shadow)");
+  });
+
+  it("uses the dashboard numeric font for salary explanation numbers", () => {
+    const salaryInfoStrongBlock = appSource.slice(
+      appSource.indexOf(".salary-info-card strong {"),
+      appSource.indexOf(".settings-overlay"),
+    );
+
+    expect(salaryInfoStrongBlock).toContain("font-family: var(--font-dashboard)");
+    expect(salaryInfoStrongBlock).toContain("font-variant-numeric: tabular-nums");
+    expect(salaryInfoStrongBlock).not.toContain("font-family: var(--font-mono)");
   });
 
   it("keeps a premium dashboard surface without the dirty white haze in dark mode", () => {
