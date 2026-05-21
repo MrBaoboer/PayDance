@@ -1,4 +1,8 @@
-use tauri::{menu::MenuBuilder, tray::TrayIconBuilder, Emitter, Manager, WebviewWindow};
+use tauri::{
+    menu::MenuBuilder,
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
+    Emitter, Manager, WebviewWindow,
+};
 
 fn show_window(window: &WebviewWindow) {
     let _ = window.show();
@@ -24,7 +28,7 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::new().build())
         .setup(|app| {
             let menu = MenuBuilder::new(app)
-                .text("show", "打开窗口")
+                .text("show", "打开主界面")
                 .text("settings", "打开设置")
                 .text("toggle_mini", "切换迷你模式")
                 .separator()
@@ -41,7 +45,21 @@ pub fn run() {
                 .icon(icon)
                 .tooltip("薪跳 · 桌面实时薪资仪表盘")
                 .menu(&menu)
-                .show_menu_on_left_click(true)
+                .show_menu_on_left_click(false)
+                .on_tray_icon_event(|tray, event| {
+                    let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } = event
+                    else {
+                        return;
+                    };
+
+                    if let Some(window) = tray.app_handle().get_webview_window("main") {
+                        show_window(&window);
+                    }
+                })
                 .on_menu_event(|app, event| {
                     let Some(window) = app.get_webview_window("main") else {
                         return;

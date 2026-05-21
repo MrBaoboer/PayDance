@@ -194,7 +194,7 @@ git tag -a vX.Y.Z -m "Release vX.Y.Z"
 git push origin vX.Y.Z
 ```
 
-推送 `v*` 标签后，`.github/workflows/release.yml` 会自动运行仓库卫生扫描、测试、生产依赖审计、Rust 格式化检查、Clippy 检查、构建 Windows `pay-dance.exe`、生成 SHA256 校验文件、上传构建产物并创建 GitHub Release。也可以在 GitHub Actions 页面手动触发 Release workflow，并填写要发布的 `vX.Y.Z` 标签。发布后可用 GitHub CLI 核验：
+推送 `v*` 标签后，`.github/workflows/release.yml` 会自动运行仓库卫生扫描、测试、生产依赖审计、Rust 格式化检查、Clippy 检查、复用 Rust 构建缓存、构建 Windows `pay-dance.exe`、生成 SHA256 校验文件、上传构建产物并创建 GitHub Release。也可以在 GitHub Actions 页面手动触发 Release workflow，并填写要发布的 `vX.Y.Z` 标签。发布后可用 GitHub CLI 核验：
 
 ```powershell
 gh run list --workflow Release --limit 3
@@ -213,6 +213,16 @@ gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targe
 两张海报均作为人工定稿素材维护，不再由脚本批量生成或覆盖。后续更换海报时，直接替换同名文件，并同步更新 README 中的预览和说明。
 
 ## 版本记录
+
+### v0.7.0
+
+- 以本地 v0.6.9 为稳定基线重做窗口边界处理，关闭透明主窗口的原生阴影和 Mica 外层效果，解决深色模式四角多余背景块问题。
+- 主界面与迷你悬浮窗口禁用无意义的 WebView 右键菜单；托盘左键改为直接唤起主界面，右键保留菜单，第一项调整为“打开主界面”。
+- 设置中心与薪资说明打开后，背景区和弹层标题栏仍可拖拽移动主窗口，避免弹层状态下窗口被“锁住”。
+- 首次启动向导提高面板不透明度，并将数字、英文、符号统一到仪表盘字体，降低后方主界面的视觉干扰。
+- 仪表盘今日预计 `¥` 与金额间距调整为 `0.2em`，薪资说明面板金额间距调整为 `0.1em`，同时压缩极矮窗口下的薪资说明布局。
+- 去除迷你悬浮窗口外围装饰性阴影，保留本地 v0.6.9 的单层胶囊视觉，不引入失败版本中的双层外壳。
+- CI 与 Release workflow 增加 Rust 构建缓存，减少后续 Windows portable EXE 构建中的重复编译耗时。
 
 ### v0.6.9
 

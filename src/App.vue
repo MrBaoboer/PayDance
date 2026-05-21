@@ -428,6 +428,7 @@ onBeforeUnmount(() => {
   <main
     class="app-shell h-full w-full select-none p-0"
     :class="[shellClass, isMiniMode ? 'is-mini' : '', { 'is-theme-syncing': isThemeSwitching }]"
+    @contextmenu.prevent
   >
     <MiniWindow
       v-if="isMiniMode"
@@ -480,13 +481,23 @@ onBeforeUnmount(() => {
       </section>
 
       <Transition name="settings-sheet">
-        <div v-if="showSettings" class="settings-overlay settings-overlay--top" @click.self="showSettings = false">
+        <div
+          v-if="showSettings"
+          class="settings-overlay settings-overlay--top"
+          @click.self="showSettings = false"
+          @mousedown.left.self="startDrag"
+        >
           <section class="settings-sheet settings-sheet--top" aria-label="设置中心">
-            <header class="settings-sheet__header">
+            <header class="settings-sheet__header" @mousedown.left="startDrag">
               <div>
                 <strong>设置</strong>
               </div>
-              <button class="sheet-close-button" title="关闭设置" @click="showSettings = false">
+              <button
+                class="sheet-close-button"
+                title="关闭设置"
+                @click="showSettings = false"
+                @mousedown.left.stop
+              >
                 <X :size="16" />
               </button>
             </header>
@@ -507,14 +518,24 @@ onBeforeUnmount(() => {
       </Transition>
 
       <Transition name="settings-sheet">
-        <div v-if="showSalaryInfo" class="settings-overlay" @click.self="showSalaryInfo = false">
+        <div
+          v-if="showSalaryInfo"
+          class="settings-overlay"
+          @click.self="showSalaryInfo = false"
+          @mousedown.left.self="startDrag"
+        >
           <section class="settings-sheet" aria-label="薪资说明">
-            <header class="settings-sheet__header">
+            <header class="settings-sheet__header" @mousedown.left="startDrag">
               <div>
                 <strong>薪资说明</strong>
                 <span>{{ salaryModeLabel }}换算</span>
               </div>
-              <button class="sheet-close-button" title="关闭薪资说明" @click="showSalaryInfo = false">
+              <button
+                class="sheet-close-button"
+                title="关闭薪资说明"
+                @click="showSalaryInfo = false"
+                @mousedown.left.stop
+              >
                 <X :size="16" />
               </button>
             </header>
@@ -522,22 +543,34 @@ onBeforeUnmount(() => {
               <article class="salary-info-card">
                 <CircleDollarSign :size="24" />
                 <span>日薪</span>
-                <strong>¥{{ snapshot.dailySalary.toFixed(2) }}</strong>
+                <strong class="salary-info-money">
+                  <span class="salary-info-money__symbol">¥</span>
+                  <span class="salary-info-money__value">{{ snapshot.dailySalary.toFixed(2) }}</span>
+                </strong>
               </article>
               <article class="salary-info-card">
                 <Banknote :size="24" />
                 <span>时薪</span>
-                <strong>¥{{ snapshot.hourlyRate.toFixed(2) }}</strong>
+                <strong class="salary-info-money">
+                  <span class="salary-info-money__symbol">¥</span>
+                  <span class="salary-info-money__value">{{ snapshot.hourlyRate.toFixed(2) }}</span>
+                </strong>
               </article>
               <article class="salary-info-card">
                 <Clock3 :size="24" />
                 <span>分薪</span>
-                <strong>¥{{ snapshot.minuteRate.toFixed(2) }}</strong>
+                <strong class="salary-info-money">
+                  <span class="salary-info-money__symbol">¥</span>
+                  <span class="salary-info-money__value">{{ snapshot.minuteRate.toFixed(2) }}</span>
+                </strong>
               </article>
               <article class="salary-info-card">
                 <TimerReset :size="24" />
                 <span>秒薪</span>
-                <strong>¥{{ snapshot.secondRate.toFixed(4) }}</strong>
+                <strong class="salary-info-money">
+                  <span class="salary-info-money__symbol">¥</span>
+                  <span class="salary-info-money__value">{{ snapshot.secondRate.toFixed(4) }}</span>
+                </strong>
               </article>
             </div>
           </section>
@@ -578,7 +611,7 @@ onBeforeUnmount(() => {
   --danger: rgb(239 68 68);
   --mini-panel: rgb(255 255 255 / 0.72);
   --onboarding-overlay: rgb(0 0 0 / 0.2);
-  --onboarding-panel: rgb(255 255 255 / 0.94);
+  --onboarding-panel: rgb(255 255 255 / 0.98);
   --onboarding-border: rgb(255 255 255 / 0.9);
   --dashboard-panel: rgb(255 255 255 / 0.5);
   --dashboard-metric-bg: rgb(255 255 255 / 0.28);
@@ -612,7 +645,7 @@ onBeforeUnmount(() => {
   --danger: rgb(248 113 113);
   --mini-panel: rgb(24 24 27 / 0.7);
   --onboarding-overlay: rgb(0 0 0 / 0.34);
-  --onboarding-panel: rgb(24 24 27 / 0.92);
+  --onboarding-panel: rgb(24 24 27 / 0.96);
   --onboarding-border: rgb(255 255 255 / 0.16);
   --dashboard-panel: rgb(17 17 21 / 0.88);
   --dashboard-metric-bg: rgb(255 255 255 / 0.042);
@@ -870,8 +903,10 @@ onBeforeUnmount(() => {
 }
 
 .salary-info-card strong {
+  display: inline-flex;
   overflow: hidden;
   max-width: 100%;
+  align-items: baseline;
   color: var(--text);
   font-family: var(--font-dashboard);
   font-size: var(--ui-font-md);
@@ -879,6 +914,14 @@ onBeforeUnmount(() => {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.salary-info-money__symbol {
+  margin-right: 0.1em;
+}
+
+.salary-info-money__value {
+  min-width: 0;
 }
 
 .settings-overlay {
@@ -923,6 +966,7 @@ onBeforeUnmount(() => {
   gap: var(--ui-gap-md);
   border-bottom: 1px solid var(--line);
   padding: var(--ui-pad-md);
+  cursor: move;
 }
 
 .settings-sheet__header div {
@@ -941,6 +985,32 @@ onBeforeUnmount(() => {
   color: var(--muted);
   font-size: var(--ui-font-sm);
   font-weight: 500;
+}
+
+.settings-sheet__body,
+.salary-info-grid {
+  cursor: default;
+}
+
+@container (max-height: 430px) {
+  .settings-sheet__header {
+    padding: clamp(11px, 2.6cqh, 14px) var(--ui-pad-md);
+  }
+
+  .salary-info-grid {
+    gap: clamp(7px, 1.8cqh, 10px);
+    padding: clamp(10px, 2.5cqh, 14px) var(--ui-pad-md);
+  }
+
+  .salary-info-card {
+    gap: clamp(4px, 1.2cqh, 6px);
+    padding: clamp(10px, 2.5cqh, 14px) var(--ui-pad-sm);
+  }
+
+  .salary-info-card svg {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .sheet-close-button {

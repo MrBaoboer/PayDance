@@ -32,7 +32,7 @@ defineEmits<{
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--mini-panel, var(--panel));
-  box-shadow: 0 16px 42px rgb(15 23 42 / 0.16);
+  box-shadow: none;
   color: var(--text);
   backdrop-filter: blur(30px);
   padding: 0 12px;
