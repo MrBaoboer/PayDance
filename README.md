@@ -223,6 +223,13 @@ gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targe
 
 ## 版本记录
 
+### v0.7.5
+
+- 修复迷你悬浮窗口透明度面板与窗口本体没有居中对齐的问题：右键点击位置只负责触发，面板始终以迷你窗口视觉矩形为锚点居中显示。
+- 透明度面板定位改用浏览器逻辑像素和 `LogicalPosition`，避免物理像素、缩放比例和鼠标坐标混用导致的横向漂移。
+- 移除 `outerPosition`、`outerSize` 和 `currentMonitor` 的额外窗口读取权限，透明度面板不再依赖原生窗口几何读取。
+- 为左侧、中间、右侧不同右键点击位置补充回归测试，确保面板在迷你窗口上方或下方显示时都保持中心对齐。
+
 ### v0.7.4
 
 - 修复 v0.7.3 迷你悬浮窗口右键无法弹出透明度面板的问题；补齐 `outerPosition`、`outerSize` 和 `currentMonitor` 所需的 Tauri 窗口读取权限。

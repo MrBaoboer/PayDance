@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   miniOpacityPanelLogicalSize,
+  resolveMiniOpacityPanelAnchorRect,
   resolveMiniOpacityPanelPosition,
-  resolvePointerMiniOpacityPanelPosition,
+  resolveScreenWorkArea,
 } from "./mini-opacity-position";
 
 describe("mini opacity panel positioning", () => {
@@ -13,40 +14,74 @@ describe("mini opacity panel positioning", () => {
   it("opens below the mini window and centers to it when there is room", () => {
     expect(
       resolveMiniOpacityPanelPosition({
-        miniWindow: { height: 56, width: 180, x: 360, y: 240 },
+        anchorRect: { height: 72, width: 210, x: 80, y: 120 },
         panelSize: { height: 52, width: 108 },
         workArea: { height: 720, width: 1280, x: 0, y: 0 },
       }),
-    ).toEqual({ x: 396, y: 302 });
+    ).toEqual({ x: 131, y: 200 });
   });
 
   it("opens above the mini window near the bottom edge", () => {
     expect(
       resolveMiniOpacityPanelPosition({
-        miniWindow: { height: 56, width: 180, x: 360, y: 670 },
+        anchorRect: { height: 72, width: 210, x: 80, y: 660 },
         panelSize: { height: 52, width: 108 },
         workArea: { height: 720, width: 1280, x: 0, y: 0 },
       }),
-    ).toEqual({ x: 396, y: 612 });
+    ).toEqual({ x: 131, y: 600 });
   });
 
   it("stays inside the current monitor work area", () => {
     expect(
       resolveMiniOpacityPanelPosition({
-        miniWindow: { height: 56, width: 180, x: -100, y: 240 },
+        anchorRect: { height: 72, width: 210, x: -100, y: 120 },
         panelSize: { height: 52, width: 108 },
         workArea: { height: 720, width: 1280, x: 0, y: 0 },
       }),
-    ).toEqual({ x: 6, y: 302 });
+    ).toEqual({ x: 8, y: 200 });
   });
 
-  it("falls back to the pointer when window geometry cannot be read", () => {
-    expect(
-      resolvePointerMiniOpacityPanelPosition({
-        panelSize: { height: 52, width: 108 },
-        pointer: { x: 1240, y: 700 },
+  it("anchors to the mini window visual rect instead of the click point", () => {
+    const targetRect = { height: 72, width: 210, x: 4, y: 4 };
+    const windowOrigin = { x: 240, y: 160 };
+    const clickPoints = [
+      { x: 20, y: 30 },
+      { x: 92, y: 30 },
+      { x: 184, y: 30 },
+    ];
+
+    const positions = clickPoints.map((clientPoint) => {
+      const anchorRect = resolveMiniOpacityPanelAnchorRect({
+        clientPoint,
+        screenPoint: {
+          x: windowOrigin.x + clientPoint.x,
+          y: windowOrigin.y + clientPoint.y,
+        },
+        targetRect,
+      });
+
+      return resolveMiniOpacityPanelPosition({
+        anchorRect,
+        panelSize: miniOpacityPanelLogicalSize,
         workArea: { height: 720, width: 1280, x: 0, y: 0 },
+      });
+    });
+
+    expect(positions).toEqual([
+      { x: 295, y: 244 },
+      { x: 295, y: 244 },
+      { x: 295, y: 244 },
+    ]);
+  });
+
+  it("reads the browser screen work area in logical pixels", () => {
+    expect(
+      resolveScreenWorkArea({
+        availHeight: 720,
+        availLeft: -1280,
+        availTop: 20,
+        availWidth: 1280,
       }),
-    ).toEqual({ x: 1126, y: 642 });
+    ).toEqual({ height: 720, width: 1280, x: -1280, y: 20 });
   });
 });
