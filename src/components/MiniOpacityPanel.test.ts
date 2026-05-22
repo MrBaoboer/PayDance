@@ -1,0 +1,25 @@
+import { describe, expect, it } from "vitest";
+import miniOpacityPanelSource from "./MiniOpacityPanel.vue?raw";
+
+describe("mini opacity panel", () => {
+  it("uses a compact slider from 10 to 100 percent", () => {
+    expect(miniOpacityPanelSource).toContain('type="range"');
+    expect(miniOpacityPanelSource).toContain(":min=\"minMiniOpacityPercent\"");
+    expect(miniOpacityPanelSource).toContain(":max=\"maxMiniOpacityPercent\"");
+    expect(miniOpacityPanelSource).toContain('aria-label="迷你悬浮透明度"');
+  });
+
+  it("receives open events and emits opacity changes back to the main window", () => {
+    expect(miniOpacityPanelSource).toContain("mini-opacity-panel-open");
+    expect(miniOpacityPanelSource).toContain("mini-opacity-change");
+    expect(miniOpacityPanelSource).toContain('emitTo("main"');
+    expect(miniOpacityPanelSource).toContain("commit");
+    expect(miniOpacityPanelSource).toContain('@change="updateOpacity($event, true)"');
+  });
+
+  it("uses theme classes without changing the mini window surface itself", () => {
+    expect(miniOpacityPanelSource).toContain("theme-light");
+    expect(miniOpacityPanelSource).toContain("theme-dark");
+    expect(miniOpacityPanelSource).not.toContain("RollingAmount");
+  });
+});

@@ -27,4 +27,20 @@ describe("app chrome", () => {
     expect(appSource).toContain("@container (max-height: 430px)");
     expect(appSource).toContain(".salary-info-grid");
   });
+
+  it("hosts the mini opacity panel in a separate lightweight window", () => {
+    expect(appSource).toContain("MiniOpacityPanel");
+    expect(appSource).toContain('appWindow.label === "mini-opacity"');
+    expect(appSource).toContain("showMiniOpacityPanel");
+    expect(appSource).toContain("mini-opacity-panel-open");
+    expect(appSource).toContain("mini-opacity-change");
+    expect(appSource).toContain("commit?: boolean");
+    expect(appSource).toContain("event.payload.commit === true");
+  });
+
+  it("persists mini opacity together with the mini window state", () => {
+    expect(appSource).toContain("miniOpacityPercent");
+    expect(appSource).toContain(":opacity-percent=\"miniOpacityPercent\"");
+    expect(appSource).toContain("miniOpacityPercent: miniOpacityPercent.value");
+  });
 });

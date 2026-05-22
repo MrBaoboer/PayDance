@@ -31,4 +31,17 @@ describe("desktop window chrome", () => {
   it("names the first tray action as opening the main window", () => {
     expect(libRs).toContain('.text("show", "打开主界面")');
   });
+
+  it("defines a hidden companion window for the mini opacity slider", () => {
+    const opacityWindow = tauriConfig.app.windows.find(
+      (window) => window.label === "mini-opacity",
+    );
+
+    expect(opacityWindow).toBeDefined();
+    expect(opacityWindow.visible).toBe(false);
+    expect(opacityWindow.decorations).toBe(false);
+    expect(opacityWindow.transparent).toBe(true);
+    expect(opacityWindow.shadow).toBe(false);
+    expect(opacityWindow.skipTaskbar).toBe(true);
+  });
 });

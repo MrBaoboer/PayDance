@@ -18,6 +18,7 @@ export type PersistedWindowState = {
   isMiniMode: boolean;
   fullSize: WindowSize;
   miniSize: WindowSize;
+  miniOpacityPercent: number;
 };
 
 const store = new LazyStore("salary-settings.json");
@@ -38,6 +39,7 @@ export function useSalarySettings() {
     const savedIsMiniMode = await store.get<boolean>("isMiniMode");
     const savedFullSize = await store.get<WindowSize>("fullSize");
     const savedMiniSize = await store.get<WindowSize>("miniSize");
+    const savedMiniOpacityPercent = await store.get<number>("miniOpacityPercent");
     const savedSettingsVersion = await store.get<number>("settingsVersion");
     const savedHasCompletedOnboarding = await store.get<boolean>(
       "hasCompletedOnboarding",
@@ -65,6 +67,7 @@ export function useSalarySettings() {
       savedIsMiniMode,
       savedFullSize,
       savedMiniSize,
+      savedMiniOpacityPercent,
       savedSettingsVersion,
     });
 
@@ -76,6 +79,7 @@ export function useSalarySettings() {
     isMiniMode,
     fullSize,
     miniSize,
+    miniOpacityPercent,
   }: PersistedWindowState) => {
     if (!isSettingsReady.value) return;
 
@@ -86,6 +90,7 @@ export function useSalarySettings() {
     await store.set("themeMode", themeMode.value);
     await store.set("amountMode", amountMode.value);
     await store.set("miniSize", miniSize);
+    await store.set("miniOpacityPercent", miniOpacityPercent);
     await store.set("hasCompletedOnboarding", hasCompletedOnboarding.value);
     await store.set("settingsVersion", settingsSchemaVersion);
     await store.save();

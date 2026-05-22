@@ -1,21 +1,39 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import RollingAmount from "./RollingAmount.vue";
+import {
+  maxMiniOpacityPercent,
+  normalizeMiniOpacityPercent,
+} from "../lib/window-mode";
 
-defineProps<{
+const props = defineProps<{
   amount: string;
   amountMode: "rolling" | "plain";
+  opacityPercent: number;
 }>();
 
 defineEmits<{
   restore: [];
   dragStart: [event: PointerEvent];
+  opacityMenu: [event: MouseEvent];
 }>();
+
+const normalizedOpacity = computed(() =>
+  normalizeMiniOpacityPercent(props.opacityPercent),
+);
+const panelStyle = computed(() => ({
+  "--mini-panel-opacity": String(normalizedOpacity.value / 100),
+}));
+const isOpaque = computed(() => normalizedOpacity.value >= maxMiniOpacityPercent);
 </script>
 
 <template>
   <div
     class="mini-window"
+    :class="{ 'is-opaque': isOpaque }"
+    :style="panelStyle"
     title="双击恢复完整窗口"
+    @contextmenu.prevent.stop="$emit('opacityMenu', $event)"
     @pointerdown="$emit('dragStart', $event)"
     @dblclick="$emit('restore')"
   >
@@ -31,7 +49,7 @@ defineEmits<{
   place-items: center;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: var(--mini-panel, var(--panel));
+  background: rgb(var(--mini-panel-rgb, 255 255 255) / var(--mini-panel-opacity, 0.85));
   box-shadow: none;
   color: var(--text);
   backdrop-filter: blur(30px);
@@ -40,5 +58,9 @@ defineEmits<{
 
 .mini-window :deep(.rolling-amount) {
   max-width: 100%;
+}
+
+.mini-window.is-opaque {
+  backdrop-filter: none;
 }
 </style>

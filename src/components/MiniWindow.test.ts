@@ -13,4 +13,16 @@ describe("mini window", () => {
     expect(miniWindowSource).toContain("box-shadow: none");
     expect(miniWindowSource).not.toContain("0 16px 42px");
   });
+
+  it("changes only the capsule background alpha instead of fading the whole window", () => {
+    expect(miniWindowSource).toContain("opacityPercent");
+    expect(miniWindowSource).toContain("--mini-panel-opacity");
+    expect(miniWindowSource).toContain("--mini-panel-rgb");
+    expect(miniWindowSource).not.toMatch(/\n\s*opacity:/);
+  });
+
+  it("opens the mini opacity panel from a custom right click gesture", () => {
+    expect(miniWindowSource).toContain("@contextmenu.prevent.stop");
+    expect(miniWindowSource).toContain("opacityMenu");
+  });
 });

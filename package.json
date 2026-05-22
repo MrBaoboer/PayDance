@@ -1,7 +1,7 @@
 {
   "name": "pay-dance",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.7.1",
   "author": "Mr.Baober",
   "repository": "github:MasterBao66/PayDance",
   "type": "module",
@@ -13,6 +13,7 @@
     "check:secrets": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-secrets.ps1",
     "check:hygiene": "npm.cmd run check:brand && npm.cmd run check:secrets",
     "verify": "npm.cmd run check:hygiene && npm.cmd test && npm.cmd run build",
+    "setup:encoding": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/setup-dev-encoding.ps1",
     "preview": "vite preview",
     "version:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ensure-version-consistency.ps1",
     "release:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ensure-release-unlocked.ps1",
@@ -36,7 +37,7 @@
     "@vitejs/plugin-vue": "^6.0.7",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
-    "vite": "^8.0.13",
+    "vite": "^8.0.14",
     "vitest": "^4.1.7",
     "vue-tsc": "^3.3.1"
   }

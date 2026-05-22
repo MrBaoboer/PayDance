@@ -59,11 +59,11 @@ Get-Content .\pay-dance.exe.sha256
 | --- | --- |
 | 实时收入仪表盘 | 主界面突出今日已入账、工作进度、剩余时间和今日预计收入 |
 | 实时金额跳动 | 今日收入按工作时间平滑刷新，精确到小数点后 2 位 |
-| 扫读型时间统计 | 主界面用 `4:12` 这类数字时间格式展示已工作与剩余时长，降低理解成本 |
+| 扫读型时间统计 | 主界面用 `4h 12m` 这类短格式展示已工作与剩余时长，降低理解成本 |
 | 三种薪资模式 | 支持月薪、日薪、时薪，并自动换算日薪、时薪、分薪、秒薪 |
 | 工作时间建模 | 支持每月工作天数、每周工作日、普通日班、跨零点夜班和午休剔除 |
-| 迷你悬浮模式 | 更小、更透明、默认置顶，只保留核心金额，适合贴在屏幕角落 |
-| Windows 11 风格 | 无边框窗口、圆角、轻阴影、亮色/暗色主题和 Mica 风格背景 |
+| 迷你悬浮模式 | 更小、更透明、默认置顶，只保留核心金额，并支持 10%-100% 透明度调节 |
+| Windows 11 风格 | 无边框窗口、圆角、轻阴影、亮色/暗色主题和克制的半透明质感 |
 | 系统托盘 | 关闭窗口后隐藏到托盘，可从托盘打开设置、切换置顶、退出 |
 | 开机自启动 | 可在首次启动向导或设置中心开启，随 Windows 登录自动启动薪跳 |
 | 作者归属 | 设置中心展示作者署名和 GitHub 仓库入口 |
@@ -80,11 +80,11 @@ Get-Content .\pay-dance.exe.sha256
 - 作者入口：设置中心底部展示作者署名，并可打开 GitHub 项目仓库。
 - 桌面模式：支持窗口置顶、最小化、关闭到托盘、无边框拖拽。
 - 开机自启动：可在首次启动向导或设置中心开启或关闭，自动沿用上次保存的主窗口或迷你悬浮状态。
-- 迷你模式：支持拖拽移动、双击恢复主窗口、记忆迷你窗口尺寸。
+- 迷你模式：支持拖拽移动、双击恢复主窗口、右键调节透明度、记忆迷你窗口尺寸。
 
 ## 隐私与数据
 
-薪跳 PayDance 不需要登录账号，也不上传薪资数据。应用配置通过 Tauri Store 保存在本机应用数据目录中的 `salary-settings.json`，包括薪资、工作时间、主题、置顶状态、金额变换模式和首次配置状态。
+薪跳 PayDance 不需要登录账号，也不上传薪资数据。应用配置通过 Tauri Store 保存在本机应用数据目录中的 `salary-settings.json`，包括薪资、工作时间、主题、置顶状态、迷你悬浮透明度、金额变换模式和首次配置状态。
 
 当前版本不包含遥测、远程同步或在线账户体系。删除本机应用数据目录中的配置文件后，应用会重新进入首次配置流程。
 
@@ -107,7 +107,7 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAct
 当前正式验证的是 Windows 11 桌面体验。迁移时需要注意：
 
 - macOS/Linux：主体代码可复用，托盘、透明窗口、置顶、阴影和系统材质效果需要逐平台验证。
-- Android/iOS：薪资逻辑和设置流程可复用，但托盘、桌面置顶、迷你悬浮窗和 Mica 材质需要改造成移动端首页、小组件或通知类体验。
+- Android/iOS：薪资逻辑和设置流程可复用，但托盘、桌面置顶、迷你悬浮窗和系统材质需要改造成移动端首页、小组件或通知类体验。
 - 微信小程序：不能直接运行 Tauri 壳，可抽离薪资逻辑后用原生小程序、Taro/uni-app 或 H5 + `web-view` 重做。
 
 因此，本项目的优势是“核心逻辑与 Web UI 可迁移、桌面壳能力可按平台替换”，不是当前 Windows exe 能直接变成 Android、iOS、macOS 或微信小程序安装包。
@@ -129,6 +129,15 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAct
 npm.cmd install --cache .npm-cache
 npm.cmd run tauri -- dev
 ```
+
+建议使用 PowerShell 7 (`pwsh`) 作为本项目开发终端。若 PowerShell 读取中文时出现乱码，可运行一次 UTF-8 环境修复脚本：
+
+```powershell
+npm.cmd run setup:encoding
+pwsh -NoLogo -Command "[Console]::InputEncoding.WebName; [Console]::OutputEncoding.WebName; `$OutputEncoding.WebName; chcp"
+```
+
+期望输出中应看到 `utf-8` 和 `Active code page: 65001`。该脚本会在当前用户 PowerShell profile 中写入带标记的 UTF-8 配置块，并设置 Git 的中文路径与日志输出编码；可重复运行。
 
 如果本机 `rg` 命令来自 Codex 的 WindowsApps 目录且提示 `Access is denied`，可运行项目内修复脚本安装本地 ripgrep：
 
@@ -213,6 +222,14 @@ gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targe
 两张海报均作为人工定稿素材维护，不再由脚本批量生成或覆盖。后续更换海报时，直接替换同名文件，并同步更新 README 中的预览和说明。
 
 ## 版本记录
+
+### v0.7.1
+
+- 迷你悬浮窗口新增右键透明度面板，可在 `10% - 100%` 之间拖动调节；`100%` 时浅色为纯白、深色为纯黑，金额文字始终保持清晰不变淡。
+- 透明度配置写入本地设置，下次启动会沿用上次的迷你悬浮透明度，同时保留 v0.6.9 / v0.7.0 的单层胶囊视觉。
+- 新增 `scripts/setup-dev-encoding.ps1` 与 `npm.cmd run setup:encoding`，用于一键修复 PowerShell 7、控制台代码页和 Git 中文显示编码。
+- 新增 `.editorconfig`，统一源码 UTF-8 与换行规则，降低中文文案、PowerShell 脚本和 README 后续再乱码的概率。
+- Release companion window、迷你透明度、编码脚本和窗口配置均补充自动化测试；Vite 补丁升级到 `8.0.14`。
 
 ### v0.7.0
 

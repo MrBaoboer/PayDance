@@ -13,6 +13,9 @@ export const fullWindowMinSize: WindowSize = { width: 430, height: 410 };
 export const miniDefaultSize: WindowSize = { width: 176, height: 54 };
 export const miniMinSize: WindowSize = { width: 148, height: 44 };
 export const miniResizeEdgeSize = 10;
+export const minMiniOpacityPercent = 10;
+export const maxMiniOpacityPercent = 100;
+export const defaultMiniOpacityPercent = 85;
 
 export const normalizeMiniSize = (
   size: Partial<WindowSize> | null | undefined,
@@ -28,10 +31,23 @@ export const normalizeFullSize = (
   height: Math.max(fullWindowMinSize.height, Math.round(size?.height ?? fullWindowSize.height)),
 });
 
+export const normalizeMiniOpacityPercent = (value: unknown) => {
+  const numericValue =
+    typeof value === "number" && Number.isFinite(value)
+      ? Math.round(value)
+      : defaultMiniOpacityPercent;
+
+  return Math.min(
+    maxMiniOpacityPercent,
+    Math.max(minMiniOpacityPercent, numericValue),
+  );
+};
+
 export type StoredWindowPreferences = {
   savedIsMiniMode?: boolean;
   savedMiniSize?: Partial<WindowSize> | null;
   savedFullSize?: Partial<WindowSize> | null;
+  savedMiniOpacityPercent?: number;
   savedSettingsVersion?: number;
 };
 
@@ -39,11 +55,13 @@ export function resolveWindowPreferences({
   savedIsMiniMode,
   savedMiniSize,
   savedFullSize,
+  savedMiniOpacityPercent,
   savedSettingsVersion,
 }: StoredWindowPreferences): {
   isMiniMode: boolean;
   miniSize: WindowSize;
   fullSize: WindowSize;
+  miniOpacityPercent: number;
 } {
   const isCompatibleSchema =
     typeof savedSettingsVersion === "number" &&
@@ -53,5 +71,8 @@ export function resolveWindowPreferences({
     isMiniMode: savedIsMiniMode === true,
     miniSize: isCompatibleSchema ? normalizeMiniSize(savedMiniSize) : miniDefaultSize,
     fullSize: isCompatibleSchema ? normalizeFullSize(savedFullSize) : fullWindowSize,
+    miniOpacityPercent: isCompatibleSchema
+      ? normalizeMiniOpacityPercent(savedMiniOpacityPercent)
+      : defaultMiniOpacityPercent,
   };
 }

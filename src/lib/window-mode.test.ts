@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   currentSettingsSchemaVersion,
+  defaultMiniOpacityPercent,
   fullWindowMinSize,
+  maxMiniOpacityPercent,
   miniDefaultSize,
   miniMinSize,
+  minMiniOpacityPercent,
   normalizeFullSize,
+  normalizeMiniOpacityPercent,
   normalizeMiniSize,
   resolveWindowPreferences,
 } from "./window-mode";
@@ -26,6 +30,19 @@ describe("window mode preferences", () => {
     expect(normalizeFullSize({ width: 80, height: 20 })).toEqual(fullWindowMinSize);
   });
 
+  it("uses a calm translucent mini opacity by default", () => {
+    expect(minMiniOpacityPercent).toBe(10);
+    expect(maxMiniOpacityPercent).toBe(100);
+    expect(defaultMiniOpacityPercent).toBe(85);
+  });
+
+  it("clamps mini window opacity to the supported range", () => {
+    expect(normalizeMiniOpacityPercent(undefined)).toBe(defaultMiniOpacityPercent);
+    expect(normalizeMiniOpacityPercent(4)).toBe(10);
+    expect(normalizeMiniOpacityPercent(108)).toBe(100);
+    expect(normalizeMiniOpacityPercent(73.4)).toBe(73);
+  });
+
   it("migrates old saved mini sizes to the new compact default", () => {
     expect(
       resolveWindowPreferences({
@@ -37,6 +54,7 @@ describe("window mode preferences", () => {
       isMiniMode: true,
       miniSize: miniDefaultSize,
       fullSize: { width: 480, height: 460 },
+      miniOpacityPercent: defaultMiniOpacityPercent,
     });
   });
 
@@ -45,12 +63,14 @@ describe("window mode preferences", () => {
       resolveWindowPreferences({
         savedIsMiniMode: true,
         savedMiniSize: { width: 220, height: 64 },
+        savedMiniOpacityPercent: 64,
         savedSettingsVersion: currentSettingsSchemaVersion,
       }),
     ).toEqual({
       isMiniMode: true,
       miniSize: { width: 220, height: 64 },
       fullSize: { width: 480, height: 460 },
+      miniOpacityPercent: 64,
     });
   });
 
@@ -59,12 +79,14 @@ describe("window mode preferences", () => {
       resolveWindowPreferences({
         savedIsMiniMode: true,
         savedMiniSize: { width: 210, height: 58 },
+        savedMiniOpacityPercent: 7,
         savedSettingsVersion: currentSettingsSchemaVersion + 1,
       }),
     ).toEqual({
       isMiniMode: true,
       miniSize: { width: 210, height: 58 },
       fullSize: { width: 480, height: 460 },
+      miniOpacityPercent: 10,
     });
   });
 
@@ -80,6 +102,7 @@ describe("window mode preferences", () => {
       isMiniMode: false,
       miniSize: { width: 210, height: 58 },
       fullSize: { width: 720, height: 540 },
+      miniOpacityPercent: defaultMiniOpacityPercent,
     });
   });
 });

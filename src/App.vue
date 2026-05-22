@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { LogicalPosition } from "@tauri-apps/api/dpi";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { Banknote, CircleDollarSign, Clock3, TimerReset, X } from "@lucide/vue";
 import {
   validateSalaryConfig,
@@ -19,7 +21,9 @@ import {
   miniDefaultSize,
   miniResizeEdgeSize,
   fullWindowSize,
+  defaultMiniOpacityPercent,
   normalizeFullSize,
+  normalizeMiniOpacityPercent,
   normalizeMiniSize,
   type WindowSize,
 } from "./lib/window-mode";
@@ -29,6 +33,7 @@ import { useSalaryTicker } from "./composables/useSalaryTicker";
 import { useWindowMode } from "./composables/useWindowMode";
 import MiniWindow from "./components/MiniWindow.vue";
 import IncomeProgress from "./components/IncomeProgress.vue";
+import MiniOpacityPanel from "./components/MiniOpacityPanel.vue";
 import OnboardingPanel from "./components/OnboardingPanel.vue";
 import RollingAmount from "./components/RollingAmount.vue";
 import SettingsPanel from "./components/SettingsPanel.vue";
@@ -36,6 +41,7 @@ import StatsPanel from "./components/StatsPanel.vue";
 import WindowTitlebar from "./components/WindowTitlebar.vue";
 
 const appWindow = getCurrentWindow();
+const isOpacityPanelWindow = appWindow.label === "mini-opacity";
 type ThemeMode = "light" | "dark";
 type ResizeDirection =
   | "East"
@@ -67,6 +73,7 @@ const isAutostartUpdating = ref(false);
 const isThemeSwitching = ref(false);
 const fullSize = ref<WindowSize>({ ...fullWindowSize });
 const miniSize = ref<WindowSize>({ ...miniDefaultSize });
+const miniOpacityPercent = ref(defaultMiniOpacityPercent);
 const { snapshot, startTicker, stopTicker } = useSalaryTicker(config);
 const { applyWindowMode, setAlwaysOnTop } = useWindowMode(
   appWindow,
@@ -149,6 +156,7 @@ const saveState = async () => {
       fullSize: fullSize.value,
       isMiniMode: isMiniMode.value,
       miniSize: miniSize.value,
+      miniOpacityPercent: miniOpacityPercent.value,
     });
   } catch (error) {
     console.error("Failed to save settings", error);
@@ -221,6 +229,33 @@ const setMiniMode = async (value: boolean) => {
 };
 
 const toggleMiniMode = () => setMiniMode(!isMiniMode.value);
+
+const updateMiniOpacityPercent = (
+  value: number,
+  options: { commit?: boolean } = {},
+) => {
+  miniOpacityPercent.value = normalizeMiniOpacityPercent(value);
+  if (options.commit) {
+    void saveStateNow();
+    return;
+  }
+  scheduleSaveState();
+};
+
+const showMiniOpacityPanel = async (event: MouseEvent) => {
+  const opacityWindow = await WebviewWindow.getByLabel("mini-opacity");
+  if (!opacityWindow) return;
+
+  await opacityWindow.setPosition(
+    new LogicalPosition(event.screenX + 8, event.screenY + 8),
+  );
+  await opacityWindow.show();
+  await opacityWindow.setFocus();
+  await opacityWindow.emit("mini-opacity-panel-open", {
+    value: miniOpacityPercent.value,
+    themeMode: themeMode.value,
+  });
+};
 
 const toggleTheme = async () => {
   if (isThemeSwitching.value) return;
@@ -354,10 +389,13 @@ let saveWindowSizeTimer = 0;
 const unlisteners: Array<() => void> = [];
 
 onMounted(async () => {
+  if (isOpacityPanelWindow) return;
+
   const windowPreferences = await loadSettings();
   isMiniMode.value = windowPreferences.isMiniMode;
   fullSize.value = windowPreferences.fullSize;
   miniSize.value = windowPreferences.miniSize;
+  miniOpacityPercent.value = windowPreferences.miniOpacityPercent;
   showSettings.value = false;
 
   await refreshAutostart();
@@ -369,6 +407,17 @@ onMounted(async () => {
       event.preventDefault();
       await appWindow.hide();
     }),
+  );
+
+  unlisteners.push(
+    await appWindow.listen<{ value?: number; commit?: boolean }>(
+      "mini-opacity-change",
+      (event) => {
+        updateMiniOpacityPercent(Number(event.payload.value), {
+          commit: event.payload.commit === true,
+        });
+      },
+    ),
   );
 
   unlisteners.push(
@@ -425,7 +474,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <MiniOpacityPanel v-if="isOpacityPanelWindow" />
+
   <main
+    v-else
     class="app-shell h-full w-full select-none p-0"
     :class="[shellClass, isMiniMode ? 'is-mini' : '', { 'is-theme-syncing': isThemeSwitching }]"
     @contextmenu.prevent
@@ -434,7 +486,9 @@ onBeforeUnmount(() => {
       v-if="isMiniMode"
       :amount="earnedText"
       :amount-mode="amountMode"
+      :opacity-percent="miniOpacityPercent"
       @drag-start="startMiniDrag"
+      @opacity-menu="showMiniOpacityPanel"
       @restore="setMiniMode(false)"
     />
 
@@ -609,7 +663,7 @@ onBeforeUnmount(() => {
   --income-accent-ring: rgb(217 119 6 / 0.22);
   --income-accent-shadow: rgb(217 119 6 / 0.26);
   --danger: rgb(239 68 68);
-  --mini-panel: rgb(255 255 255 / 0.72);
+  --mini-panel-rgb: 255 255 255;
   --onboarding-overlay: rgb(0 0 0 / 0.2);
   --onboarding-panel: rgb(255 255 255 / 0.98);
   --onboarding-border: rgb(255 255 255 / 0.9);
@@ -643,7 +697,7 @@ onBeforeUnmount(() => {
   --income-accent-ring: rgb(245 158 11 / 0.18);
   --income-accent-shadow: rgb(245 158 11 / 0.24);
   --danger: rgb(248 113 113);
-  --mini-panel: rgb(24 24 27 / 0.7);
+  --mini-panel-rgb: 0 0 0;
   --onboarding-overlay: rgb(0 0 0 / 0.34);
   --onboarding-panel: rgb(24 24 27 / 0.96);
   --onboarding-border: rgb(255 255 255 / 0.16);
