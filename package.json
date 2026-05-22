@@ -1,7 +1,7 @@
 {
   "name": "pay-dance",
   "private": true,
-  "version": "0.7.1",
+  "version": "0.7.2",
   "author": "Mr.Baober",
   "repository": "github:MasterBao66/PayDance",
   "type": "module",
@@ -35,6 +35,8 @@
     "@tailwindcss/vite": "^4.3.0",
     "@tauri-apps/cli": "^2.11.2",
     "@vitejs/plugin-vue": "^6.0.7",
+    "@vue/test-utils": "^2.4.10",
+    "happy-dom": "^20.9.0",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.14",

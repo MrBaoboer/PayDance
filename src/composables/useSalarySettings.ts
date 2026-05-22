@@ -31,48 +31,64 @@ export function useSalarySettings() {
   const hasCompletedOnboarding = ref(false);
   const isSettingsReady = ref(false);
 
+  const resetToDefaults = () => {
+    config.value = {
+      ...defaultSalaryConfig,
+      workdays: [...defaultSalaryConfig.workdays],
+    };
+    alwaysOnTop.value = true;
+    themeMode.value = "light";
+    amountMode.value = "rolling";
+    hasCompletedOnboarding.value = false;
+  };
+
   const loadSettings = async () => {
-    const savedConfig = await store.get<Partial<SalaryConfig>>("config");
-    const savedTop = await store.get<boolean>("alwaysOnTop");
-    const savedTheme = await store.get<ThemeMode>("themeMode");
-    const savedAmountMode = await store.get<AmountMode>("amountMode");
-    const savedIsMiniMode = await store.get<boolean>("isMiniMode");
-    const savedFullSize = await store.get<WindowSize>("fullSize");
-    const savedMiniSize = await store.get<WindowSize>("miniSize");
-    const savedMiniOpacityPercent = await store.get<number>("miniOpacityPercent");
-    const savedSettingsVersion = await store.get<number>("settingsVersion");
-    const savedHasCompletedOnboarding = await store.get<boolean>(
-      "hasCompletedOnboarding",
-    );
+    try {
+      const savedConfig = await store.get<Partial<SalaryConfig>>("config");
+      const savedTop = await store.get<boolean>("alwaysOnTop");
+      const savedTheme = await store.get<ThemeMode>("themeMode");
+      const savedAmountMode = await store.get<AmountMode>("amountMode");
+      const savedIsMiniMode = await store.get<boolean>("isMiniMode");
+      const savedFullSize = await store.get<WindowSize>("fullSize");
+      const savedMiniSize = await store.get<WindowSize>("miniSize");
+      const savedMiniOpacityPercent = await store.get<number>("miniOpacityPercent");
+      const savedSettingsVersion = await store.get<number>("settingsVersion");
+      const savedHasCompletedOnboarding = await store.get<boolean>(
+        "hasCompletedOnboarding",
+      );
 
-    config.value = migrateSalaryConfig(savedConfig);
-    hasCompletedOnboarding.value = resolveOnboardingState(
-      savedConfig,
-      savedHasCompletedOnboarding,
-    );
+      config.value = migrateSalaryConfig(savedConfig);
+      hasCompletedOnboarding.value = resolveOnboardingState(
+        savedConfig,
+        savedHasCompletedOnboarding,
+      );
 
-    if (typeof savedTop === "boolean") {
-      alwaysOnTop.value = savedTop;
+      if (typeof savedTop === "boolean") {
+        alwaysOnTop.value = savedTop;
+      }
+
+      if (savedTheme === "dark" || savedTheme === "light") {
+        themeMode.value = savedTheme;
+      }
+
+      if (savedAmountMode === "plain" || savedAmountMode === "rolling") {
+        amountMode.value = savedAmountMode;
+      }
+
+      return resolveWindowPreferences({
+        savedIsMiniMode,
+        savedFullSize,
+        savedMiniSize,
+        savedMiniOpacityPercent,
+        savedSettingsVersion,
+      });
+    } catch (error) {
+      console.error("Failed to load settings, falling back to defaults", error);
+      resetToDefaults();
+      return resolveWindowPreferences({});
+    } finally {
+      isSettingsReady.value = true;
     }
-
-    if (savedTheme === "dark" || savedTheme === "light") {
-      themeMode.value = savedTheme;
-    }
-
-    if (savedAmountMode === "plain" || savedAmountMode === "rolling") {
-      amountMode.value = savedAmountMode;
-    }
-
-    const windowPreferences = resolveWindowPreferences({
-      savedIsMiniMode,
-      savedFullSize,
-      savedMiniSize,
-      savedMiniOpacityPercent,
-      savedSettingsVersion,
-    });
-
-    isSettingsReady.value = true;
-    return windowPreferences;
   };
 
   const saveSettings = async ({

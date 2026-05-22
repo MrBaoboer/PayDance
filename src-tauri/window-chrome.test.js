@@ -44,4 +44,13 @@ describe("desktop window chrome", () => {
     expect(opacityWindow.shadow).toBe(false);
     expect(opacityWindow.skipTaskbar).toBe(true);
   });
+
+  it("keeps the mini opacity companion window compact", () => {
+    const opacityWindow = tauriConfig.app.windows.find(
+      (window) => window.label === "mini-opacity",
+    );
+
+    expect(opacityWindow.width).toBeLessThanOrEqual(184);
+    expect(opacityWindow.height).toBeLessThanOrEqual(76);
+  });
 });
