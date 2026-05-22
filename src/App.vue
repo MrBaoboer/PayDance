@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { LogicalPosition } from "@tauri-apps/api/dpi";
-import { getCurrentWindow } from "@tauri-apps/api/window";
+import { PhysicalPosition } from "@tauri-apps/api/dpi";
+import { currentMonitor, getCurrentWindow } from "@tauri-apps/api/window";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { X } from "@lucide/vue";
 import {
@@ -29,6 +29,10 @@ import {
   type WindowSize,
 } from "./lib/window-mode";
 import { appName } from "./lib/app-meta";
+import {
+  resolveMiniOpacityPanelPhysicalSize,
+  resolveMiniOpacityPanelPosition,
+} from "./lib/mini-opacity-position";
 import { useSalarySettings } from "./composables/useSalarySettings";
 import { useSalaryTicker } from "./composables/useSalaryTicker";
 import { useWindowMode } from "./composables/useWindowMode";
@@ -254,13 +258,42 @@ const updateMiniOpacityPercent = (
   scheduleSaveState();
 };
 
-const showMiniOpacityPanel = async (event: MouseEvent) => {
+const showMiniOpacityPanel = async () => {
   const opacityWindow = await WebviewWindow.getByLabel("mini-opacity");
   if (!opacityWindow) return;
 
-  await opacityWindow.setPosition(
-    new LogicalPosition(event.screenX + 8, event.screenY + 8),
-  );
+  const [miniPosition, miniSize, monitor] = await Promise.all([
+    appWindow.outerPosition(),
+    appWindow.outerSize(),
+    currentMonitor(),
+  ]);
+  const scaleFactor = monitor?.scaleFactor ?? 1;
+  const panelSize = resolveMiniOpacityPanelPhysicalSize(scaleFactor);
+  const workArea = monitor
+    ? {
+        height: monitor.workArea.size.height,
+        width: monitor.workArea.size.width,
+        x: monitor.workArea.position.x,
+        y: monitor.workArea.position.y,
+      }
+    : {
+        height: Math.round(window.screen.availHeight * scaleFactor),
+        width: Math.round(window.screen.availWidth * scaleFactor),
+        x: 0,
+        y: 0,
+      };
+  const position = resolveMiniOpacityPanelPosition({
+    miniWindow: {
+      height: miniSize.height,
+      width: miniSize.width,
+      x: miniPosition.x,
+      y: miniPosition.y,
+    },
+    panelSize,
+    workArea,
+  });
+
+  await opacityWindow.setPosition(new PhysicalPosition(position.x, position.y));
   await opacityWindow.show();
   await opacityWindow.setFocus();
   await opacityWindow.emit("mini-opacity-panel-open", {

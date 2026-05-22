@@ -23,12 +23,19 @@ describe("mini opacity panel", () => {
     expect(miniOpacityPanelSource).not.toContain("RollingAmount");
   });
 
-  it("uses a compact polished popover instead of a rigid large panel", () => {
-    expect(miniOpacityPanelSource).toContain("border-radius: 999px");
-    expect(miniOpacityPanelSource).toContain("height: 100vh");
+  it("uses a tiny polished popover instead of a rigid large capsule", () => {
+    expect(miniOpacityPanelSource).toContain("border-radius: 14px");
+    expect(miniOpacityPanelSource).toContain("height: 100%");
+    expect(miniOpacityPanelSource).toContain("gap: 5px");
+    expect(miniOpacityPanelSource).toContain("height: 2px");
+    expect(miniOpacityPanelSource).toContain("width: 8px");
+    expect(miniOpacityPanelSource).toContain("height: 8px");
     expect(miniOpacityPanelSource).toContain("::-webkit-slider-thumb");
     expect(miniOpacityPanelSource).toContain("--slider-progress");
+    expect(miniOpacityPanelSource).not.toContain("height: 100vh");
+    expect(miniOpacityPanelSource).not.toContain("padding: 8px 12px 9px");
     expect(miniOpacityPanelSource).not.toContain("gap: 12px");
     expect(miniOpacityPanelSource).not.toContain("padding: 14px");
+    expect(miniOpacityPanelSource).not.toContain("drop-shadow");
   });
 });
