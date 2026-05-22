@@ -21,6 +21,9 @@ describe("app chrome", () => {
     expect(appSource).toContain("MiniOpacityPanel");
     expect(appSource).toContain('appWindow.label === "mini-opacity"');
     expect(appSource).toContain("showMiniOpacityPanel");
+    expect(appSource).toContain("event: MouseEvent");
+    expect(appSource).toContain("resolvePointerMiniOpacityPanelPosition");
+    expect(appSource).toContain("Failed to place mini opacity panel");
     expect(appSource).toContain("mini-opacity-panel-open");
     expect(appSource).toContain("mini-opacity-change");
     expect(appSource).toContain("commit?: boolean");

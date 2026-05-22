@@ -24,9 +24,9 @@ describe("mini opacity panel", () => {
   });
 
   it("uses a tiny polished popover instead of a rigid large capsule", () => {
-    expect(miniOpacityPanelSource).toContain("border-radius: 14px");
+    expect(miniOpacityPanelSource).toContain("border-radius: 13px");
     expect(miniOpacityPanelSource).toContain("height: 100%");
-    expect(miniOpacityPanelSource).toContain("gap: 5px");
+    expect(miniOpacityPanelSource).toContain("gap: 4px");
     expect(miniOpacityPanelSource).toContain("height: 2px");
     expect(miniOpacityPanelSource).toContain("width: 8px");
     expect(miniOpacityPanelSource).toContain("height: 8px");
