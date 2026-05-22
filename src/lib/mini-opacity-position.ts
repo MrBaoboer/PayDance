@@ -78,6 +78,32 @@ export const resolveMiniOpacityPanelPosition = ({
   };
 };
 
+export const resolveMiniOpacityPanelWindowPosition = ({
+  anchorRect,
+  gap = defaultPanelGap,
+  panelInnerOffset = { x: 0, y: 0 },
+  panelSize = miniOpacityPanelLogicalSize,
+  workArea,
+}: {
+  anchorRect: MiniOpacityRect;
+  gap?: number;
+  panelInnerOffset?: MiniOpacityPoint;
+  panelSize?: MiniOpacitySize;
+  workArea: MiniOpacityRect;
+}) => {
+  const contentPosition = resolveMiniOpacityPanelPosition({
+    anchorRect,
+    gap,
+    panelSize,
+    workArea,
+  });
+
+  return {
+    x: contentPosition.x - panelInnerOffset.x,
+    y: contentPosition.y - panelInnerOffset.y,
+  };
+};
+
 export const resolveScreenWorkArea = (
   screen: Pick<Screen, "availHeight" | "availWidth"> & {
     availLeft?: number;

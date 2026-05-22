@@ -23,9 +23,14 @@ describe("app chrome", () => {
     expect(appSource).toContain("showMiniOpacityPanel");
     expect(appSource).toContain("anchor: MiniOpacityPanelAnchor");
     expect(appSource).toContain("PhysicalPosition");
+    expect(appSource).toContain("LogicalSize");
     expect(appSource).toContain("currentMonitor");
-    expect(appSource).toContain("appWindow.outerPosition()");
-    expect(appSource).toContain("appWindow.outerSize()");
+    expect(appSource).toContain("appWindow.innerPosition()");
+    expect(appSource).toContain("appWindow.innerSize()");
+    expect(appSource).toContain("opacityWindow.innerSize()");
+    expect(appSource).toContain("opacityWindow.innerPosition()");
+    expect(appSource).toContain("opacityWindow.outerPosition()");
+    expect(appSource).toContain("resolveMiniOpacityPanelWindowPosition");
     expect(appSource).toContain("resolveMiniOpacityPanelPhysicalSize");
     expect(appSource).toContain("resolveMiniOpacityPanelAnchorRect");
     expect(appSource).not.toContain("LogicalPosition");
