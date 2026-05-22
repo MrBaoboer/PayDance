@@ -12,7 +12,7 @@ describe("main dashboard shell", () => {
     expect(appSource).toContain("hero-controls");
     expect(appSource).toContain("hero-dashboard");
     expect(appSource).toContain("salary-info-button--quiet");
-    expect(appSource).toContain("薪资说明");
+    expect(appSource).toContain("SalaryInfoSheet");
     expect(appSource).not.toContain("薪资明细");
     expect(appSource).not.toContain("dashboard-controls");
   });
@@ -98,17 +98,6 @@ describe("main dashboard shell", () => {
     expect(windowBlock).toContain("box-shadow: none");
     expect(windowBlock).not.toContain("background: var(--panel)");
     expect(windowBlock).not.toContain("box-shadow: var(--shadow)");
-  });
-
-  it("uses the dashboard numeric font for salary explanation numbers", () => {
-    const salaryInfoStrongBlock = appSource.slice(
-      appSource.indexOf(".salary-info-card strong {"),
-      appSource.indexOf(".settings-overlay"),
-    );
-
-    expect(salaryInfoStrongBlock).toContain("font-family: var(--font-dashboard)");
-    expect(salaryInfoStrongBlock).toContain("font-variant-numeric: tabular-nums");
-    expect(salaryInfoStrongBlock).not.toContain("font-family: var(--font-mono)");
   });
 
   it("keeps a premium dashboard surface without the dirty white haze in dark mode", () => {

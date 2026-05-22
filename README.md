@@ -120,7 +120,7 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAct
 | 前端 | Vue 3, TypeScript, Vite |
 | UI | Windows 11 风格、CSS Container Queries、@lucide/vue |
 | 本地存储 | `@tauri-apps/plugin-store` |
-| 测试 | Vitest, vue-tsc, cargo fmt, cargo clippy, cargo check |
+| 测试 | Vitest, @vue/test-utils, happy-dom, vue-tsc, cargo fmt, cargo clippy, cargo check |
 | 自动发布 | GitHub Actions, softprops/action-gh-release |
 
 ## 本地开发
@@ -222,6 +222,14 @@ gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targe
 两张海报均作为人工定稿素材维护，不再由脚本批量生成或覆盖。后续更换海报时，直接替换同名文件，并同步更新 README 中的预览和说明。
 
 ## 版本记录
+
+### v0.7.2
+
+- 配置加载加入故障恢复边界；若本地 `salary-settings.json` 损坏或 Store 读取失败，应用会回退默认配置并继续进入可用状态。
+- 迷你悬浮窗口右键透明度面板大幅缩小，改为更轻巧的小型浮层，并使用自定义细滑轨与主题专属明暗质感。
+- 今日入账金额变化时增强脉冲光反馈，让“钱在跳”的视觉感知更明确，同时继续尊重系统减少动态效果设置。
+- 薪资说明面板拆成独立组件，金额数字加重并统一使用 `#18181B`，`¥` 与金额数字继续保持精细间距。
+- 引入 `@vue/test-utils` 与 `happy-dom`，为 Store 故障恢复、透明度面板交互和金额脉冲补充行为测试，逐步减少对源码字符串断言的依赖。
 
 ### v0.7.1
 

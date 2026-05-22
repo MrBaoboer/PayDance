@@ -17,17 +17,6 @@ describe("app chrome", () => {
     expect(appSource).toContain("--onboarding-panel: rgb(24 24 27 / 0.96)");
   });
 
-  it("splits salary detail money symbols for precise optical spacing", () => {
-    expect(appSource).toContain("salary-info-money__symbol");
-    expect(appSource).toContain("salary-info-money__value");
-    expect(appSource).toContain("margin-right: 0.1em");
-  });
-
-  it("compresses the salary detail sheet in very short windows", () => {
-    expect(appSource).toContain("@container (max-height: 430px)");
-    expect(appSource).toContain(".salary-info-grid");
-  });
-
   it("hosts the mini opacity panel in a separate lightweight window", () => {
     expect(appSource).toContain("MiniOpacityPanel");
     expect(appSource).toContain('appWindow.label === "mini-opacity"');
@@ -42,5 +31,11 @@ describe("app chrome", () => {
     expect(appSource).toContain("miniOpacityPercent");
     expect(appSource).toContain(":opacity-percent=\"miniOpacityPercent\"");
     expect(appSource).toContain("miniOpacityPercent: miniOpacityPercent.value");
+  });
+
+  it("keeps a final app-level fallback around settings loading", () => {
+    expect(appSource).toContain("loadWindowPreferences");
+    expect(appSource).toContain("catch (error)");
+    expect(appSource).toContain("defaultWindowPreferences");
   });
 });

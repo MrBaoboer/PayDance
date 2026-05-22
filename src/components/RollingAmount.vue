@@ -59,7 +59,7 @@ watch(
       isTicking.value = true;
       pulseTimer = window.setTimeout(() => {
         isTicking.value = false;
-      }, 220);
+      }, 320);
     });
   },
 );
@@ -238,7 +238,9 @@ onBeforeUnmount(() => {
 }
 
 .rolling-amount--hero.is-ticking {
-  filter: drop-shadow(0 12px 24px var(--income-accent-glow));
+  filter:
+    drop-shadow(0 16px 34px var(--income-accent-glow))
+    drop-shadow(0 0 18px var(--income-accent-ring));
 }
 
 .rolling-amount--hero.is-ticking .rolling-amount__currency {

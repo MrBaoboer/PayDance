@@ -18,4 +18,12 @@ describe("rolling amount", () => {
     expect(rollingAmountSource).toContain("font-family: var(--font-mono)");
     expect(rollingAmountSource).not.toContain("font-family: var(--font-numeric)");
   });
+
+  it("uses a stronger hero pulse without changing reduced-motion behavior", () => {
+    expect(rollingAmountSource).toContain("drop-shadow(0 16px 34px var(--income-accent-glow))");
+    expect(rollingAmountSource).toContain("drop-shadow(0 0 18px var(--income-accent-ring))");
+    expect(rollingAmountSource).toContain("}, 320)");
+    expect(rollingAmountSource).toContain(".rolling-amount--hero.is-ticking {");
+    expect(rollingAmountSource).toContain("filter: none;");
+  });
 });

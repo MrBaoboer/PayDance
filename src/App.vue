@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { LogicalPosition } from "@tauri-apps/api/dpi";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { Banknote, CircleDollarSign, Clock3, TimerReset, X } from "@lucide/vue";
+import { X } from "@lucide/vue";
 import {
   validateSalaryConfig,
   type SalaryConfigIssue,
@@ -25,6 +25,7 @@ import {
   normalizeFullSize,
   normalizeMiniOpacityPercent,
   normalizeMiniSize,
+  resolveWindowPreferences,
   type WindowSize,
 } from "./lib/window-mode";
 import { appName } from "./lib/app-meta";
@@ -36,6 +37,7 @@ import IncomeProgress from "./components/IncomeProgress.vue";
 import MiniOpacityPanel from "./components/MiniOpacityPanel.vue";
 import OnboardingPanel from "./components/OnboardingPanel.vue";
 import RollingAmount from "./components/RollingAmount.vue";
+import SalaryInfoSheet from "./components/SalaryInfoSheet.vue";
 import SettingsPanel from "./components/SettingsPanel.vue";
 import StatsPanel from "./components/StatsPanel.vue";
 import WindowTitlebar from "./components/WindowTitlebar.vue";
@@ -74,6 +76,7 @@ const isThemeSwitching = ref(false);
 const fullSize = ref<WindowSize>({ ...fullWindowSize });
 const miniSize = ref<WindowSize>({ ...miniDefaultSize });
 const miniOpacityPercent = ref(defaultMiniOpacityPercent);
+const defaultWindowPreferences = resolveWindowPreferences({});
 const { snapshot, startTicker, stopTicker } = useSalaryTicker(config);
 const { applyWindowMode, setAlwaysOnTop } = useWindowMode(
   appWindow,
@@ -160,6 +163,15 @@ const saveState = async () => {
     });
   } catch (error) {
     console.error("Failed to save settings", error);
+  }
+};
+
+const loadWindowPreferences = async () => {
+  try {
+    return await loadSettings();
+  } catch (error) {
+    console.error("Failed to initialize settings, using defaults", error);
+    return defaultWindowPreferences;
   }
 };
 
@@ -391,7 +403,7 @@ const unlisteners: Array<() => void> = [];
 onMounted(async () => {
   if (isOpacityPanelWindow) return;
 
-  const windowPreferences = await loadSettings();
+  const windowPreferences = await loadWindowPreferences();
   isMiniMode.value = windowPreferences.isMiniMode;
   fullSize.value = windowPreferences.fullSize;
   miniSize.value = windowPreferences.miniSize;
@@ -578,56 +590,12 @@ onBeforeUnmount(() => {
           @click.self="showSalaryInfo = false"
           @mousedown.left.self="startDrag"
         >
-          <section class="settings-sheet" aria-label="薪资说明">
-            <header class="settings-sheet__header" @mousedown.left="startDrag">
-              <div>
-                <strong>薪资说明</strong>
-                <span>{{ salaryModeLabel }}换算</span>
-              </div>
-              <button
-                class="sheet-close-button"
-                title="关闭薪资说明"
-                @click="showSalaryInfo = false"
-                @mousedown.left.stop
-              >
-                <X :size="16" />
-              </button>
-            </header>
-            <div class="salary-info-grid">
-              <article class="salary-info-card">
-                <CircleDollarSign :size="24" />
-                <span>日薪</span>
-                <strong class="salary-info-money">
-                  <span class="salary-info-money__symbol">¥</span>
-                  <span class="salary-info-money__value">{{ snapshot.dailySalary.toFixed(2) }}</span>
-                </strong>
-              </article>
-              <article class="salary-info-card">
-                <Banknote :size="24" />
-                <span>时薪</span>
-                <strong class="salary-info-money">
-                  <span class="salary-info-money__symbol">¥</span>
-                  <span class="salary-info-money__value">{{ snapshot.hourlyRate.toFixed(2) }}</span>
-                </strong>
-              </article>
-              <article class="salary-info-card">
-                <Clock3 :size="24" />
-                <span>分薪</span>
-                <strong class="salary-info-money">
-                  <span class="salary-info-money__symbol">¥</span>
-                  <span class="salary-info-money__value">{{ snapshot.minuteRate.toFixed(2) }}</span>
-                </strong>
-              </article>
-              <article class="salary-info-card">
-                <TimerReset :size="24" />
-                <span>秒薪</span>
-                <strong class="salary-info-money">
-                  <span class="salary-info-money__symbol">¥</span>
-                  <span class="salary-info-money__value">{{ snapshot.secondRate.toFixed(4) }}</span>
-                </strong>
-              </article>
-            </div>
-          </section>
+          <SalaryInfoSheet
+            :mode-label="salaryModeLabel"
+            :snapshot="snapshot"
+            @close="showSalaryInfo = false"
+            @drag-start="startDrag"
+          />
         </div>
       </Transition>
 
@@ -927,57 +895,6 @@ onBeforeUnmount(() => {
   font-variant-numeric: tabular-nums;
 }
 
-.salary-info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ui-gap-sm);
-  padding: var(--ui-pad-md);
-}
-
-.salary-info-card {
-  display: grid;
-  min-width: 0;
-  place-items: center;
-  gap: var(--ui-gap-xs);
-  border: 1px solid var(--line);
-  border-radius: var(--ui-radius-md);
-  background: var(--panel-soft);
-  padding: var(--ui-pad-md) var(--ui-pad-sm);
-  text-align: center;
-}
-
-.salary-info-card svg,
-.salary-info-card span {
-  color: var(--muted);
-}
-
-.salary-info-card span {
-  font-size: var(--ui-font-sm);
-  font-weight: 650;
-}
-
-.salary-info-card strong {
-  display: inline-flex;
-  overflow: hidden;
-  max-width: 100%;
-  align-items: baseline;
-  color: var(--text);
-  font-family: var(--font-dashboard);
-  font-size: var(--ui-font-md);
-  font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-.salary-info-money__symbol {
-  margin-right: 0.1em;
-}
-
-.salary-info-money__value {
-  min-width: 0;
-}
-
 .settings-overlay {
   position: absolute;
   inset: 0;
@@ -1041,8 +958,7 @@ onBeforeUnmount(() => {
   font-weight: 500;
 }
 
-.settings-sheet__body,
-.salary-info-grid {
+.settings-sheet__body {
   cursor: default;
 }
 
@@ -1051,20 +967,6 @@ onBeforeUnmount(() => {
     padding: clamp(11px, 2.6cqh, 14px) var(--ui-pad-md);
   }
 
-  .salary-info-grid {
-    gap: clamp(7px, 1.8cqh, 10px);
-    padding: clamp(10px, 2.5cqh, 14px) var(--ui-pad-md);
-  }
-
-  .salary-info-card {
-    gap: clamp(4px, 1.2cqh, 6px);
-    padding: clamp(10px, 2.5cqh, 14px) var(--ui-pad-sm);
-  }
-
-  .salary-info-card svg {
-    width: 20px;
-    height: 20px;
-  }
 }
 
 .sheet-close-button {
