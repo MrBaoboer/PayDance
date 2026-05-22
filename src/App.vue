@@ -32,6 +32,7 @@ import { appName } from "./lib/app-meta";
 import {
   resolveMiniOpacityPanelPhysicalSize,
   resolveMiniOpacityPanelPosition,
+  resolvePointerMiniOpacityPanelPosition,
 } from "./lib/mini-opacity-position";
 import { useSalarySettings } from "./composables/useSalarySettings";
 import { useSalaryTicker } from "./composables/useSalaryTicker";
@@ -258,10 +259,14 @@ const updateMiniOpacityPercent = (
   scheduleSaveState();
 };
 
-const showMiniOpacityPanel = async () => {
-  const opacityWindow = await WebviewWindow.getByLabel("mini-opacity");
-  if (!opacityWindow) return;
+const getFallbackWorkArea = (scaleFactor: number) => ({
+  height: Math.round(window.screen.availHeight * scaleFactor),
+  width: Math.round(window.screen.availWidth * scaleFactor),
+  x: 0,
+  y: 0,
+});
 
+const resolveMiniOpacityPanelPlacement = async () => {
   const [miniPosition, miniSize, monitor] = await Promise.all([
     appWindow.outerPosition(),
     appWindow.outerSize(),
@@ -276,13 +281,9 @@ const showMiniOpacityPanel = async () => {
         x: monitor.workArea.position.x,
         y: monitor.workArea.position.y,
       }
-    : {
-        height: Math.round(window.screen.availHeight * scaleFactor),
-        width: Math.round(window.screen.availWidth * scaleFactor),
-        x: 0,
-        y: 0,
-      };
-  const position = resolveMiniOpacityPanelPosition({
+    : getFallbackWorkArea(scaleFactor);
+
+  return resolveMiniOpacityPanelPosition({
     miniWindow: {
       height: miniSize.height,
       width: miniSize.width,
@@ -292,14 +293,39 @@ const showMiniOpacityPanel = async () => {
     panelSize,
     workArea,
   });
+};
+
+const resolveFallbackMiniOpacityPanelPlacement = (event: MouseEvent) => {
+  const scaleFactor = window.devicePixelRatio || 1;
+  return resolvePointerMiniOpacityPanelPosition({
+    panelSize: resolveMiniOpacityPanelPhysicalSize(scaleFactor),
+    pointer: {
+      x: Math.round(event.screenX * scaleFactor),
+      y: Math.round(event.screenY * scaleFactor),
+    },
+    workArea: getFallbackWorkArea(scaleFactor),
+  });
+};
+
+const showMiniOpacityPanel = async (event: MouseEvent) => {
+  const opacityWindow = await WebviewWindow.getByLabel("mini-opacity");
+  if (!opacityWindow) return;
+
+  let position;
+  try {
+    position = await resolveMiniOpacityPanelPlacement();
+  } catch (error) {
+    console.error("Failed to place mini opacity panel", error);
+    position = resolveFallbackMiniOpacityPanelPlacement(event);
+  }
 
   await opacityWindow.setPosition(new PhysicalPosition(position.x, position.y));
-  await opacityWindow.show();
-  await opacityWindow.setFocus();
   await opacityWindow.emit("mini-opacity-panel-open", {
     value: miniOpacityPercent.value,
     themeMode: themeMode.value,
   });
+  await opacityWindow.show();
+  await opacityWindow.setFocus();
 };
 
 const toggleTheme = async () => {

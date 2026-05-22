@@ -6,6 +6,9 @@ const tauriDir = resolve(import.meta.dirname);
 const tauriConfig = JSON.parse(
   readFileSync(resolve(tauriDir, "tauri.conf.json"), "utf8"),
 );
+const defaultCapability = JSON.parse(
+  readFileSync(resolve(tauriDir, "capabilities", "default.json"), "utf8"),
+);
 const libRs = readFileSync(resolve(tauriDir, "src", "lib.rs"), "utf8");
 
 describe("desktop window chrome", () => {
@@ -50,7 +53,13 @@ describe("desktop window chrome", () => {
       (window) => window.label === "mini-opacity",
     );
 
-    expect(opacityWindow.width).toBe(116);
-    expect(opacityWindow.height).toBe(60);
+    expect(opacityWindow.width).toBe(108);
+    expect(opacityWindow.height).toBe(52);
+  });
+
+  it("allows the mini opacity trigger to read window geometry before showing the panel", () => {
+    expect(defaultCapability.permissions).toContain("core:window:allow-outer-position");
+    expect(defaultCapability.permissions).toContain("core:window:allow-outer-size");
+    expect(defaultCapability.permissions).toContain("core:window:allow-current-monitor");
   });
 });

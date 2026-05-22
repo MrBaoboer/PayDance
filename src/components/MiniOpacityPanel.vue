@@ -106,14 +106,14 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   align-content: center;
-  gap: 5px;
+  gap: 4px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 13px;
   background: var(--panel);
   box-shadow: var(--shadow);
   color: var(--text);
   font-family: var(--font-sans);
-  padding: 7px 9px 8px;
+  padding: 6px 8px 7px;
 }
 
 .theme-light {
@@ -124,7 +124,7 @@ onBeforeUnmount(() => {
   --accent: rgb(217 119 6);
   --track: rgb(228 228 231 / 0.92);
   --thumb: rgb(250 250 251);
-  --shadow: 0 8px 18px rgb(15 23 42 / 0.14);
+  --shadow: 0 7px 16px rgb(15 23 42 / 0.13);
 }
 
 .theme-dark {
@@ -135,7 +135,7 @@ onBeforeUnmount(() => {
   --accent: rgb(245 158 11);
   --track: rgb(63 63 70 / 0.92);
   --thumb: rgb(250 250 250);
-  --shadow: 0 10px 22px rgb(0 0 0 / 0.3);
+  --shadow: 0 8px 18px rgb(0 0 0 / 0.28);
 }
 
 .mini-opacity-panel__meta {
