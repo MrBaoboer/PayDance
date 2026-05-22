@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import appSource from "./App.vue?raw";
+import themeSyncSource from "./composables/useThemeSync.ts?raw";
 
 describe("main dashboard shell", () => {
   it("removes the v0.6.0 pulse line from the main surface", () => {
@@ -48,15 +49,17 @@ describe("main dashboard shell", () => {
   });
 
   it("guards theme switching so native and web themes do not race", () => {
-    expect(appSource).toContain("const isThemeSwitching = ref(false)");
-    expect(appSource).toContain("let themeApplyToken = 0");
-    expect(appSource).toContain("const applyThemeMode = async");
-    expect(appSource).toContain("const token = ++themeApplyToken");
-    expect(appSource).toContain("if (token !== themeApplyToken) return");
-    expect(appSource).toContain("if (isThemeSwitching.value) return");
-    expect(appSource.indexOf("themeMode.value = mode")).toBeLessThan(
-      appSource.indexOf("await appWindow.setTheme(mode)"),
+    expect(themeSyncSource).toContain("const isThemeSwitching = ref(false)");
+    expect(themeSyncSource).toContain("let themeApplyToken = 0");
+    expect(themeSyncSource).toContain("const applyThemeMode = async");
+    expect(themeSyncSource).toContain("const token = ++themeApplyToken");
+    expect(themeSyncSource).toContain("if (token !== themeApplyToken) return");
+    expect(themeSyncSource).toContain("if (isThemeSwitching.value) return");
+    expect(themeSyncSource.indexOf("themeMode.value = mode")).toBeLessThan(
+      themeSyncSource.indexOf("await appWindow.setTheme(mode)"),
     );
+    expect(appSource).toContain("useThemeSync(appWindow, themeMode, saveStateNow)");
+    expect(appSource).not.toContain("let themeApplyToken = 0");
   });
 
   it("keeps theme switching as a logic guard without freezing the whole UI", () => {

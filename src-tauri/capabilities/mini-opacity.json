@@ -1,0 +1,12 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "mini-opacity",
+  "description": "Minimal capability for the mini opacity companion window",
+  "windows": ["mini-opacity"],
+  "permissions": [
+    "core:event:allow-emit-to",
+    "core:event:allow-listen",
+    "core:event:allow-unlisten",
+    "core:window:allow-hide"
+  ]
+}

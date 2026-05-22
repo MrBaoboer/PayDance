@@ -3,7 +3,7 @@ name = "pay-dance"
 version = "0.7.8"
 description = "薪跳 · 桌面实时薪资仪表盘"
 authors = ["Mr.Baober"]
-license = ""
+license-file = "../LICENSE"
 repository = "https://github.com/MasterBao66/PayDance"
 edition = "2021"
 
