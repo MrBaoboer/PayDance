@@ -103,38 +103,39 @@ onBeforeUnmount(() => {
 <style scoped>
 .mini-opacity-panel {
   display: grid;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   align-content: center;
-  gap: 6px;
+  gap: 5px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 14px;
   background: var(--panel);
   box-shadow: var(--shadow);
   color: var(--text);
   font-family: var(--font-sans);
-  padding: 8px 12px 9px;
+  padding: 7px 9px 8px;
 }
 
 .theme-light {
-  --panel: linear-gradient(180deg, rgb(255 255 255), rgb(246 246 247));
-  --line: rgb(24 24 27 / 0.12);
+  --panel: rgb(250 250 251 / 0.98);
+  --line: rgb(24 24 27 / 0.11);
   --text: rgb(24 24 27);
   --muted: rgb(82 82 91);
   --accent: rgb(217 119 6);
-  --track: rgb(228 228 231);
-  --thumb: rgb(255 255 255);
-  --shadow: 0 10px 22px rgb(15 23 42 / 0.16);
+  --track: rgb(228 228 231 / 0.92);
+  --thumb: rgb(250 250 251);
+  --shadow: 0 8px 18px rgb(15 23 42 / 0.14);
 }
 
 .theme-dark {
-  --panel: linear-gradient(180deg, rgb(32 32 36), rgb(18 18 21));
+  --panel: rgb(24 24 27 / 0.98);
   --line: rgb(255 255 255 / 0.14);
   --text: rgb(250 250 250);
   --muted: rgb(161 161 170);
   --accent: rgb(245 158 11);
-  --track: rgb(63 63 70);
+  --track: rgb(63 63 70 / 0.92);
   --thumb: rgb(250 250 250);
-  --shadow: 0 12px 26px rgb(0 0 0 / 0.28);
+  --shadow: 0 10px 22px rgb(0 0 0 / 0.3);
 }
 
 .mini-opacity-panel__meta {
@@ -147,8 +148,8 @@ onBeforeUnmount(() => {
 
 strong {
   overflow: hidden;
-  font-size: 12px;
-  font-weight: 720;
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -157,7 +158,7 @@ strong {
 span {
   color: var(--muted);
   font-family: var(--font-dashboard);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 760;
   font-variant-numeric: tabular-nums;
 }
@@ -166,14 +167,14 @@ input {
   appearance: none;
   display: block;
   width: 100%;
-  height: 12px;
+  height: 8px;
   accent-color: var(--accent);
   background: transparent;
   cursor: pointer;
 }
 
 input::-webkit-slider-runnable-track {
-  height: 4px;
+  height: 2px;
   border-radius: 999px;
   background:
     linear-gradient(90deg, var(--accent) var(--slider-progress), transparent 0),
@@ -182,13 +183,13 @@ input::-webkit-slider-runnable-track {
 
 input::-webkit-slider-thumb {
   appearance: none;
-  width: 12px;
-  height: 12px;
-  margin-top: -4px;
-  border: 2px solid var(--accent);
+  width: 8px;
+  height: 8px;
+  margin-top: -3px;
+  border: 1.5px solid var(--accent);
   border-radius: 999px;
   background: var(--thumb);
-  box-shadow: 0 2px 7px rgb(0 0 0 / 0.18);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.18);
 }
 
 input:focus-visible {
@@ -197,7 +198,7 @@ input:focus-visible {
 
 input:focus-visible::-webkit-slider-thumb {
   box-shadow:
-    0 0 0 3px color-mix(in srgb, var(--accent) 24%, transparent),
-    0 2px 7px rgb(0 0 0 / 0.18);
+    0 0 0 2px color-mix(in srgb, var(--accent) 24%, transparent),
+    0 1px 4px rgb(0 0 0 / 0.18);
 }
 </style>

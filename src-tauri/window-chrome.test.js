@@ -50,7 +50,7 @@ describe("desktop window chrome", () => {
       (window) => window.label === "mini-opacity",
     );
 
-    expect(opacityWindow.width).toBeLessThanOrEqual(184);
-    expect(opacityWindow.height).toBeLessThanOrEqual(76);
+    expect(opacityWindow.width).toBe(116);
+    expect(opacityWindow.height).toBe(60);
   });
 });

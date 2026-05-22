@@ -33,7 +33,7 @@ describe("RollingAmount behavior", () => {
     expect(wrapper.classes()).toContain("is-ticking");
     expect(wrapper.attributes("aria-label")).toBe("¥128.48");
 
-    vi.advanceTimersByTime(340);
+    vi.advanceTimersByTime(240);
     await nextTick();
 
     expect(wrapper.classes()).not.toContain("is-ticking");
