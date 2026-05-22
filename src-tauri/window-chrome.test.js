@@ -57,10 +57,10 @@ describe("desktop window chrome", () => {
     expect(opacityWindow.height).toBe(52);
   });
 
-  it("does not need native window geometry reads for mini opacity placement", () => {
-    expect(defaultCapability.permissions).not.toContain("core:window:allow-outer-position");
-    expect(defaultCapability.permissions).not.toContain("core:window:allow-outer-size");
-    expect(defaultCapability.permissions).not.toContain("core:window:allow-current-monitor");
+  it("allows native window geometry reads for precise mini opacity placement", () => {
+    expect(defaultCapability.permissions).toContain("core:window:allow-outer-position");
+    expect(defaultCapability.permissions).toContain("core:window:allow-outer-size");
+    expect(defaultCapability.permissions).toContain("core:window:allow-current-monitor");
     expect(defaultCapability.permissions).toContain("core:window:allow-set-position");
   });
 });

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { LogicalPosition } from "@tauri-apps/api/dpi";
-import { getCurrentWindow } from "@tauri-apps/api/window";
+import { PhysicalPosition } from "@tauri-apps/api/dpi";
+import { currentMonitor, getCurrentWindow } from "@tauri-apps/api/window";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { X } from "@lucide/vue";
 import {
@@ -30,10 +30,13 @@ import {
 } from "./lib/window-mode";
 import { appName } from "./lib/app-meta";
 import {
-  miniOpacityPanelLogicalSize,
   resolveMiniOpacityPanelAnchorRect,
+  resolveMiniOpacityPanelPhysicalGap,
+  resolveMiniOpacityPanelPhysicalSize,
   resolveMiniOpacityPanelPosition,
   resolveScreenWorkArea,
+  type MiniOpacityRect,
+  type MiniOpacityPanelAnchor,
 } from "./lib/mini-opacity-position";
 import { useSalarySettings } from "./composables/useSalarySettings";
 import { useSalaryTicker } from "./composables/useSalaryTicker";
@@ -260,37 +263,69 @@ const updateMiniOpacityPercent = (
   scheduleSaveState();
 };
 
-const resolveMiniOpacityPanelPlacement = (event: MouseEvent) => {
-  const target = event.currentTarget as HTMLElement | null;
-  const rect = target?.getBoundingClientRect();
-  if (!rect) return undefined;
+const scaleRect = (rect: MiniOpacityRect, scaleFactor: number) => ({
+  height: Math.round(rect.height * scaleFactor),
+  width: Math.round(rect.width * scaleFactor),
+  x: Math.round(rect.x * scaleFactor),
+  y: Math.round(rect.y * scaleFactor),
+});
 
-  const anchorRect = resolveMiniOpacityPanelAnchorRect({
-    clientPoint: { x: event.clientX, y: event.clientY },
-    screenPoint: { x: event.screenX, y: event.screenY },
-    targetRect: {
-      height: rect.height,
-      width: rect.width,
-      x: rect.x,
-      y: rect.y,
-    },
-  });
+const resolveFallbackMiniOpacityPanelPlacement = (
+  anchor: MiniOpacityPanelAnchor,
+  scaleFactor = window.devicePixelRatio || 1,
+) => {
+  const anchorRect = resolveMiniOpacityPanelAnchorRect(anchor);
+  const panelSize = resolveMiniOpacityPanelPhysicalSize(scaleFactor);
 
   return resolveMiniOpacityPanelPosition({
-    anchorRect,
-    panelSize: miniOpacityPanelLogicalSize,
-    workArea: resolveScreenWorkArea(window.screen),
+    anchorRect: scaleRect(anchorRect, scaleFactor),
+    gap: resolveMiniOpacityPanelPhysicalGap(scaleFactor),
+    panelSize,
+    workArea: scaleRect(resolveScreenWorkArea(window.screen), scaleFactor),
   });
 };
 
-const showMiniOpacityPanel = async (event: MouseEvent) => {
+const resolveMiniOpacityPanelPlacement = async () => {
+  const [miniPosition, miniSize, monitor] = await Promise.all([
+    appWindow.outerPosition(),
+    appWindow.outerSize(),
+    currentMonitor(),
+  ]);
+  const scaleFactor = monitor?.scaleFactor ?? window.devicePixelRatio ?? 1;
+
+  return resolveMiniOpacityPanelPosition({
+    anchorRect: {
+      height: miniSize.height,
+      width: miniSize.width,
+      x: miniPosition.x,
+      y: miniPosition.y,
+    },
+    gap: resolveMiniOpacityPanelPhysicalGap(scaleFactor),
+    panelSize: resolveMiniOpacityPanelPhysicalSize(scaleFactor),
+    workArea: monitor
+      ? {
+          height: monitor.workArea.size.height,
+          width: monitor.workArea.size.width,
+          x: monitor.workArea.position.x,
+          y: monitor.workArea.position.y,
+        }
+      : scaleRect(resolveScreenWorkArea(window.screen), scaleFactor),
+  });
+};
+
+const showMiniOpacityPanel = async (anchor: MiniOpacityPanelAnchor) => {
   const opacityWindow = await WebviewWindow.getByLabel("mini-opacity");
   if (!opacityWindow) return;
 
-  const position = resolveMiniOpacityPanelPlacement(event);
-  if (!position) return;
+  let position;
+  try {
+    position = await resolveMiniOpacityPanelPlacement();
+  } catch (error) {
+    console.error("Failed to read mini window geometry", error);
+    position = resolveFallbackMiniOpacityPanelPlacement(anchor);
+  }
 
-  await opacityWindow.setPosition(new LogicalPosition(position.x, position.y));
+  await opacityWindow.setPosition(new PhysicalPosition(position.x, position.y));
   await opacityWindow.emit("mini-opacity-panel-open", {
     value: miniOpacityPercent.value,
     themeMode: themeMode.value,

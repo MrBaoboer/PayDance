@@ -15,6 +15,12 @@ export type MiniOpacityPoint = {
   y: number;
 };
 
+export type MiniOpacityPanelAnchor = {
+  clientPoint: MiniOpacityPoint;
+  screenPoint: MiniOpacityPoint;
+  targetRect: MiniOpacityRect;
+};
+
 export const miniOpacityPanelLogicalSize: MiniOpacitySize = {
   height: 52,
   width: 108,
@@ -29,16 +35,22 @@ export const resolveMiniOpacityPanelAnchorRect = ({
   clientPoint,
   screenPoint,
   targetRect,
-}: {
-  clientPoint: MiniOpacityPoint;
-  screenPoint: MiniOpacityPoint;
-  targetRect: MiniOpacityRect;
-}): MiniOpacityRect => ({
+}: MiniOpacityPanelAnchor): MiniOpacityRect => ({
   height: targetRect.height,
   width: targetRect.width,
   x: screenPoint.x - clientPoint.x + targetRect.x,
   y: screenPoint.y - clientPoint.y + targetRect.y,
 });
+
+export const resolveMiniOpacityPanelPhysicalSize = (
+  scaleFactor: number,
+): MiniOpacitySize => ({
+  height: Math.round(miniOpacityPanelLogicalSize.height * scaleFactor),
+  width: Math.round(miniOpacityPanelLogicalSize.width * scaleFactor),
+});
+
+export const resolveMiniOpacityPanelPhysicalGap = (scaleFactor: number) =>
+  Math.round(defaultPanelGap * scaleFactor);
 
 export const resolveMiniOpacityPanelPosition = ({
   anchorRect,

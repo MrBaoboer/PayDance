@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   miniOpacityPanelLogicalSize,
   resolveMiniOpacityPanelAnchorRect,
+  resolveMiniOpacityPanelPhysicalGap,
+  resolveMiniOpacityPanelPhysicalSize,
   resolveMiniOpacityPanelPosition,
   resolveScreenWorkArea,
 } from "./mini-opacity-position";
@@ -9,6 +11,14 @@ import {
 describe("mini opacity panel positioning", () => {
   it("keeps the opacity panel very small in logical pixels", () => {
     expect(miniOpacityPanelLogicalSize).toEqual({ width: 108, height: 52 });
+  });
+
+  it("scales the companion window size and gap for native physical placement", () => {
+    expect(resolveMiniOpacityPanelPhysicalSize(1.25)).toEqual({
+      height: 65,
+      width: 135,
+    });
+    expect(resolveMiniOpacityPanelPhysicalGap(1.25)).toBe(10);
   });
 
   it("opens below the mini window and centers to it when there is room", () => {

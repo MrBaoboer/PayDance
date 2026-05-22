@@ -223,6 +223,13 @@ gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targe
 
 ## 版本记录
 
+### v0.7.6
+
+- 修复 v0.7.5 迷你悬浮窗口右键无法弹出透明度面板的问题：右键事件现在会在迷你窗口组件内部同步捕获视觉锚点，再传给主窗口定位逻辑。
+- 彻底移除父组件对透传 `MouseEvent.currentTarget` 的依赖，避免 Vue 组件事件转发后 `currentTarget` 变为 `null` 导致静默返回。
+- 透明度面板主定位路径改回 Tauri 原生窗口几何，使用 `outerPosition`、`outerSize`、`currentMonitor.scaleFactor` 和 `PhysicalPosition` 按物理像素计算，避免 Windows DPI 缩放下横向不居中。
+- 补充迷你悬浮窗口行为测试，直接验证右键时会发出 `clientPoint`、`screenPoint` 和 `targetRect`，防止透明度面板再次“点了没反应”。
+
 ### v0.7.5
 
 - 修复迷你悬浮窗口透明度面板与窗口本体没有居中对齐的问题：右键点击位置只负责触发，面板始终以迷你窗口视觉矩形为锚点居中显示。

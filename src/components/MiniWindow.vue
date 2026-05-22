@@ -5,6 +5,7 @@ import {
   maxMiniOpacityPercent,
   normalizeMiniOpacityPercent,
 } from "../lib/window-mode";
+import type { MiniOpacityPanelAnchor } from "../lib/mini-opacity-position";
 
 const props = defineProps<{
   amount: string;
@@ -12,10 +13,10 @@ const props = defineProps<{
   opacityPercent: number;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   restore: [];
   dragStart: [event: PointerEvent];
-  opacityMenu: [event: MouseEvent];
+  opacityMenu: [anchor: MiniOpacityPanelAnchor];
 }>();
 
 const normalizedOpacity = computed(() =>
@@ -25,6 +26,32 @@ const panelStyle = computed(() => ({
   "--mini-panel-opacity": String(normalizedOpacity.value / 100),
 }));
 const isOpaque = computed(() => normalizedOpacity.value >= maxMiniOpacityPercent);
+
+const resolveOpacityPanelAnchor = (
+  event: MouseEvent,
+): MiniOpacityPanelAnchor | undefined => {
+  const target = event.currentTarget as HTMLElement | null;
+  const rect = target?.getBoundingClientRect();
+  if (!rect) return undefined;
+
+  return {
+    clientPoint: { x: event.clientX, y: event.clientY },
+    screenPoint: { x: event.screenX, y: event.screenY },
+    targetRect: {
+      height: rect.height,
+      width: rect.width,
+      x: rect.x,
+      y: rect.y,
+    },
+  };
+};
+
+const handleOpacityMenu = (event: MouseEvent) => {
+  const anchor = resolveOpacityPanelAnchor(event);
+  if (!anchor) return;
+
+  emit("opacityMenu", anchor);
+};
 </script>
 
 <template>
@@ -33,7 +60,7 @@ const isOpaque = computed(() => normalizedOpacity.value >= maxMiniOpacityPercent
     :class="{ 'is-opaque': isOpaque }"
     :style="panelStyle"
     title="双击恢复完整窗口"
-    @contextmenu.prevent.stop="$emit('opacityMenu', $event)"
+    @contextmenu.prevent.stop="handleOpacityMenu"
     @pointerdown="$emit('dragStart', $event)"
     @dblclick="$emit('restore')"
   >
