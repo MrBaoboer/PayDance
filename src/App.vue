@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { PhysicalPosition } from "@tauri-apps/api/dpi";
+import { LogicalSize, PhysicalPosition } from "@tauri-apps/api/dpi";
 import { currentMonitor, getCurrentWindow } from "@tauri-apps/api/window";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { X } from "@lucide/vue";
@@ -30,10 +30,12 @@ import {
 } from "./lib/window-mode";
 import { appName } from "./lib/app-meta";
 import {
+  miniOpacityPanelLogicalSize,
   resolveMiniOpacityPanelAnchorRect,
   resolveMiniOpacityPanelPhysicalGap,
   resolveMiniOpacityPanelPhysicalSize,
   resolveMiniOpacityPanelPosition,
+  resolveMiniOpacityPanelWindowPosition,
   resolveScreenWorkArea,
   type MiniOpacityRect,
   type MiniOpacityPanelAnchor,
@@ -285,15 +287,32 @@ const resolveFallbackMiniOpacityPanelPlacement = (
   });
 };
 
-const resolveMiniOpacityPanelPlacement = async () => {
-  const [miniPosition, miniSize, monitor] = await Promise.all([
-    appWindow.outerPosition(),
-    appWindow.outerSize(),
+const resolveMiniOpacityPanelPlacement = async (opacityWindow: WebviewWindow) => {
+  await opacityWindow.setSize(
+    new LogicalSize(
+      miniOpacityPanelLogicalSize.width,
+      miniOpacityPanelLogicalSize.height,
+    ),
+  );
+
+  const [
+    miniPosition,
+    miniSize,
+    monitor,
+    panelInnerSize,
+    panelInnerPosition,
+    panelOuterPosition,
+  ] = await Promise.all([
+    appWindow.innerPosition(),
+    appWindow.innerSize(),
     currentMonitor(),
+    opacityWindow.innerSize(),
+    opacityWindow.innerPosition(),
+    opacityWindow.outerPosition(),
   ]);
   const scaleFactor = monitor?.scaleFactor ?? window.devicePixelRatio ?? 1;
 
-  return resolveMiniOpacityPanelPosition({
+  return resolveMiniOpacityPanelWindowPosition({
     anchorRect: {
       height: miniSize.height,
       width: miniSize.width,
@@ -301,7 +320,14 @@ const resolveMiniOpacityPanelPlacement = async () => {
       y: miniPosition.y,
     },
     gap: resolveMiniOpacityPanelPhysicalGap(scaleFactor),
-    panelSize: resolveMiniOpacityPanelPhysicalSize(scaleFactor),
+    panelInnerOffset: {
+      x: panelInnerPosition.x - panelOuterPosition.x,
+      y: panelInnerPosition.y - panelOuterPosition.y,
+    },
+    panelSize: {
+      height: panelInnerSize.height,
+      width: panelInnerSize.width,
+    },
     workArea: monitor
       ? {
           height: monitor.workArea.size.height,
@@ -319,7 +345,7 @@ const showMiniOpacityPanel = async (anchor: MiniOpacityPanelAnchor) => {
 
   let position;
   try {
-    position = await resolveMiniOpacityPanelPlacement();
+    position = await resolveMiniOpacityPanelPlacement(opacityWindow);
   } catch (error) {
     console.error("Failed to read mini window geometry", error);
     position = resolveFallbackMiniOpacityPanelPlacement(anchor);

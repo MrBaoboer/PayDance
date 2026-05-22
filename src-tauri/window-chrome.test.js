@@ -58,6 +58,8 @@ describe("desktop window chrome", () => {
   });
 
   it("allows native window geometry reads for precise mini opacity placement", () => {
+    expect(defaultCapability.permissions).toContain("core:window:allow-inner-position");
+    expect(defaultCapability.permissions).toContain("core:window:allow-inner-size");
     expect(defaultCapability.permissions).toContain("core:window:allow-outer-position");
     expect(defaultCapability.permissions).toContain("core:window:allow-outer-size");
     expect(defaultCapability.permissions).toContain("core:window:allow-current-monitor");

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   miniOpacityPanelLogicalSize,
   resolveMiniOpacityPanelAnchorRect,
+  resolveMiniOpacityPanelWindowPosition,
   resolveMiniOpacityPanelPhysicalGap,
   resolveMiniOpacityPanelPhysicalSize,
   resolveMiniOpacityPanelPosition,
@@ -29,6 +30,18 @@ describe("mini opacity panel positioning", () => {
         workArea: { height: 720, width: 1280, x: 0, y: 0 },
       }),
     ).toEqual({ x: 131, y: 200 });
+  });
+
+  it("positions the companion window so its visible content centers to the mini content", () => {
+    expect(
+      resolveMiniOpacityPanelWindowPosition({
+        anchorRect: { height: 54, width: 176, x: 140, y: 120 },
+        gap: 8,
+        panelInnerOffset: { x: 6, y: 4 },
+        panelSize: { height: 52, width: 108 },
+        workArea: { height: 720, width: 1280, x: 0, y: 0 },
+      }),
+    ).toEqual({ x: 168, y: 178 });
   });
 
   it("opens above the mini window near the bottom edge", () => {
