@@ -38,4 +38,14 @@ describe("mini opacity panel", () => {
     expect(miniOpacityPanelSource).not.toContain("padding: 14px");
     expect(miniOpacityPanelSource).not.toContain("drop-shadow");
   });
+
+  it("keeps the percentage label as strong as the title copy", () => {
+    const titleBlock = miniOpacityPanelSource.match(/strong \{[\s\S]*?\n\}/)?.[0] ?? "";
+    const percentBlock = miniOpacityPanelSource.match(/span \{[\s\S]*?\n\}/)?.[0] ?? "";
+
+    expect(titleBlock).toContain("font-weight: 700");
+    expect(percentBlock).toContain("color: var(--text)");
+    expect(percentBlock).toContain("font-weight: 700");
+    expect(percentBlock).not.toContain("color: var(--muted)");
+  });
 });

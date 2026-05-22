@@ -156,10 +156,10 @@ strong {
 }
 
 span {
-  color: var(--muted);
+  color: var(--text);
   font-family: var(--font-dashboard);
   font-size: 10px;
-  font-weight: 760;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 

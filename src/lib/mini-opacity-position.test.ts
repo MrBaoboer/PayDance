@@ -44,6 +44,19 @@ describe("mini opacity panel positioning", () => {
     ).toEqual({ x: 168, y: 178 });
   });
 
+  it("keeps visible centers aligned with scaled coordinates and a non-zero work area", () => {
+    const position = resolveMiniOpacityPanelWindowPosition({
+      anchorRect: { height: 68, width: 220, x: -1040, y: 180 },
+      gap: 10,
+      panelInnerOffset: { x: 9, y: 6 },
+      panelSize: { height: 65, width: 135 },
+      workArea: { height: 1380, width: 1920, x: -1920, y: 0 },
+    });
+
+    expect(position).toEqual({ x: -1006, y: 252 });
+    expect(Math.abs(position.x + 9 + 135 / 2 - (-1040 + 220 / 2))).toBeLessThanOrEqual(0.5);
+  });
+
   it("opens above the mini window near the bottom edge", () => {
     expect(
       resolveMiniOpacityPanelPosition({
