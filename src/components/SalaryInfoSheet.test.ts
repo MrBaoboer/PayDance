@@ -13,14 +13,25 @@ describe("salary info sheet", () => {
     expect(salaryInfoMoneyBlock).not.toContain("font-family: var(--font-mono)");
   });
 
-  it("uses the main amount ink color and heavier weight for salary explanation money", () => {
+  it("uses theme-aware ink and heavier weight for salary explanation money", () => {
     const salaryInfoMoneyBlock = salaryInfoSheetSource.slice(
       salaryInfoSheetSource.indexOf(".salary-info-money {"),
       salaryInfoSheetSource.indexOf(".salary-info-money__symbol"),
     );
 
-    expect(salaryInfoMoneyBlock).toContain("color: #18181B");
+    expect(salaryInfoMoneyBlock).toContain("color: var(--text)");
     expect(salaryInfoMoneyBlock).toContain("font-weight: 780");
+  });
+
+  it("keeps salary cards theme-aware instead of hard-coded light surfaces", () => {
+    const salaryInfoCardBlock = salaryInfoSheetSource.slice(
+      salaryInfoSheetSource.indexOf(".salary-info-card {"),
+      salaryInfoSheetSource.indexOf(".salary-info-card svg"),
+    );
+
+    expect(salaryInfoCardBlock).toContain("border: 1px solid var(--line)");
+    expect(salaryInfoCardBlock).toContain("background: var(--panel-soft)");
+    expect(salaryInfoCardBlock).not.toContain("rgb(255 255 255 / 0.9)");
   });
 
   it("splits money symbols for precise optical spacing", () => {

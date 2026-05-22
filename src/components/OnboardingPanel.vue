@@ -5,10 +5,16 @@ import {
   validateSalaryConfig,
   type SalaryConfig,
   type SalaryConfigIssue,
-  type SalaryType,
 } from "../lib/salary";
 import { getOnboardingStepIssues } from "../lib/onboarding-validation";
 import { parseNumberInput } from "../lib/number-input";
+import {
+  readInputChecked,
+  readInputText,
+  salaryTypeOptions,
+  toggleWorkdayValue,
+  weekdayOptions,
+} from "../lib/settings-form";
 
 const props = defineProps<{
   alwaysOnTop: boolean;
@@ -40,22 +46,6 @@ const emit = defineEmits<{
 const step = ref(0);
 const startInMiniMode = ref(false);
 
-const salaryTypeOptions: Array<{ value: SalaryType; label: string }> = [
-  { value: "monthly", label: "月薪" },
-  { value: "daily", label: "日薪" },
-  { value: "hourly", label: "时薪" },
-];
-
-const weekdayOptions = [
-  { value: 1, label: "一" },
-  { value: 2, label: "二" },
-  { value: 3, label: "三" },
-  { value: 4, label: "四" },
-  { value: 5, label: "五" },
-  { value: 6, label: "六" },
-  { value: 0, label: "日" },
-];
-
 const stepTitles = ["薪资模式", "工作时间", "使用偏好"];
 const issues = computed(() => validateSalaryConfig(props.config));
 const currentStepIssues = computed(() =>
@@ -84,15 +74,8 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(
   updateConfig(key, value as SalaryConfig[Key]);
 };
 
-const readText = (event: Event) => (event.target as HTMLInputElement).value;
-const readChecked = (event: Event) => (event.target as HTMLInputElement).checked;
-
 const toggleWorkday = (day: number) => {
-  const workdays = props.config.workdays.includes(day)
-    ? props.config.workdays.filter((item) => item !== day)
-    : [...props.config.workdays, day];
-
-  updateConfig("workdays", [...workdays].sort((a, b) => a - b));
+  updateConfig("workdays", toggleWorkdayValue(props.config.workdays, day));
 };
 
 const goNext = () => {
@@ -284,13 +267,13 @@ const goBack = () => {
             <label class="field" :class="{ 'is-invalid': hasIssue('startTime') || hasIssue('workTime') }">
               <span>上班</span>
               <span class="field-input-wrap field-input-wrap--time">
-                <input :value="config.startTime" type="time" @input="updateConfig('startTime', readText($event))" />
+                <input :value="config.startTime" type="time" @input="updateConfig('startTime', readInputText($event))" />
               </span>
             </label>
             <label class="field" :class="{ 'is-invalid': hasIssue('endTime') || hasIssue('workTime') }">
               <span>下班</span>
               <span class="field-input-wrap field-input-wrap--time">
-                <input :value="config.endTime" type="time" @input="updateConfig('endTime', readText($event))" />
+                <input :value="config.endTime" type="time" @input="updateConfig('endTime', readInputText($event))" />
               </span>
             </label>
           </div>
@@ -299,7 +282,7 @@ const goBack = () => {
             <input
               :checked="config.enableLunchBreak"
               type="checkbox"
-              @change="updateConfig('enableLunchBreak', readChecked($event))"
+              @change="updateConfig('enableLunchBreak', readInputChecked($event))"
             />
             <span>剔除午休</span>
           </label>
@@ -311,7 +294,7 @@ const goBack = () => {
                 <input
                   :value="config.lunchStart"
                   type="time"
-                  @input="updateConfig('lunchStart', readText($event))"
+                  @input="updateConfig('lunchStart', readInputText($event))"
                 />
               </span>
             </label>
@@ -321,7 +304,7 @@ const goBack = () => {
                 <input
                   :value="config.lunchEnd"
                   type="time"
-                  @input="updateConfig('lunchEnd', readText($event))"
+                  @input="updateConfig('lunchEnd', readInputText($event))"
                 />
               </span>
             </label>
@@ -342,7 +325,7 @@ const goBack = () => {
             <input
               :checked="autostartEnabled"
               type="checkbox"
-              @change="emit('update:autostartEnabled', readChecked($event))"
+              @change="emit('update:autostartEnabled', readInputChecked($event))"
             />
             <span>开机自动启动</span>
           </label>
@@ -351,7 +334,7 @@ const goBack = () => {
             <input
               :checked="alwaysOnTop"
               type="checkbox"
-              @change="emit('update:alwaysOnTop', readChecked($event))"
+              @change="emit('update:alwaysOnTop', readInputChecked($event))"
             />
             <span>窗口始终置顶</span>
           </label>

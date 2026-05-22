@@ -10,7 +10,15 @@ import {
   repositoryUrl,
 } from "../lib/app-meta";
 import { parseNumberInput } from "../lib/number-input";
-import type { SalaryConfig, SalaryConfigIssue, SalaryType } from "../lib/salary";
+import type { SalaryConfig, SalaryConfigIssue } from "../lib/salary";
+import {
+  getSalaryAmountLabel,
+  readInputChecked,
+  readInputText,
+  salaryTypeOptions,
+  toggleWorkdayValue,
+  weekdayOptions,
+} from "../lib/settings-form";
 
 const props = defineProps<{
   amountMode: "rolling" | "plain";
@@ -28,27 +36,9 @@ const emit = defineEmits<{
   "update:config": [config: SalaryConfig];
 }>();
 
-const salaryTypeOptions: Array<{ value: SalaryType; label: string }> = [
-  { value: "monthly", label: "月薪" },
-  { value: "daily", label: "日薪" },
-  { value: "hourly", label: "时薪" },
-];
-
-const weekdayOptions = [
-  { value: 1, label: "一" },
-  { value: 2, label: "二" },
-  { value: 3, label: "三" },
-  { value: 4, label: "四" },
-  { value: 5, label: "五" },
-  { value: 6, label: "六" },
-  { value: 0, label: "日" },
-];
-
-const salaryAmountLabel = computed(() => {
-  if (props.config.salaryType === "daily") return "日薪";
-  if (props.config.salaryType === "hourly") return "时薪";
-  return "月薪";
-});
+const salaryAmountLabel = computed(() =>
+  getSalaryAmountLabel(props.config.salaryType),
+);
 
 const updateConfig = <Key extends keyof SalaryConfig>(
   key: Key,
@@ -58,11 +48,7 @@ const updateConfig = <Key extends keyof SalaryConfig>(
 };
 
 const toggleWorkday = (day: number) => {
-  const workdays = props.config.workdays.includes(day)
-    ? props.config.workdays.filter((item) => item !== day)
-    : [...props.config.workdays, day];
-
-  updateConfig("workdays", [...workdays].sort((a, b) => a - b));
+  updateConfig("workdays", toggleWorkdayValue(props.config.workdays, day));
 };
 
 const updateNumberConfig = <Key extends keyof SalaryConfig>(
@@ -74,8 +60,6 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(
   updateConfig(key, value as SalaryConfig[Key]);
 };
 
-const readText = (event: Event) => (event.target as HTMLInputElement).value;
-const readChecked = (event: Event) => (event.target as HTMLInputElement).checked;
 const isOpeningRepository = ref(false);
 const repositoryError = ref("");
 
@@ -227,7 +211,7 @@ const openRepository = async () => {
             <input
               :value="config.startTime"
               type="time"
-              @input="updateConfig('startTime', readText($event))"
+              @input="updateConfig('startTime', readInputText($event))"
             />
           </span>
         </label>
@@ -237,7 +221,7 @@ const openRepository = async () => {
             <input
               :value="config.endTime"
               type="time"
-              @input="updateConfig('endTime', readText($event))"
+              @input="updateConfig('endTime', readInputText($event))"
             />
           </span>
         </label>
@@ -251,7 +235,7 @@ const openRepository = async () => {
           <input
             :checked="config.enableLunchBreak"
             type="checkbox"
-            @change="updateConfig('enableLunchBreak', readChecked($event))"
+            @change="updateConfig('enableLunchBreak', readInputChecked($event))"
           />
           <span>剔除</span>
         </label>
@@ -264,7 +248,7 @@ const openRepository = async () => {
               :disabled="!config.enableLunchBreak"
               :value="config.lunchStart"
               type="time"
-              @input="updateConfig('lunchStart', readText($event))"
+              @input="updateConfig('lunchStart', readInputText($event))"
             />
           </span>
         </label>
@@ -275,7 +259,7 @@ const openRepository = async () => {
               :disabled="!config.enableLunchBreak"
               :value="config.lunchEnd"
               type="time"
-              @input="updateConfig('lunchEnd', readText($event))"
+              @input="updateConfig('lunchEnd', readInputText($event))"
             />
           </span>
         </label>
@@ -312,7 +296,7 @@ const openRepository = async () => {
             :checked="autostartEnabled"
             :disabled="isAutostartUpdating"
             type="checkbox"
-            @change="emit('update:autostartEnabled', readChecked($event))"
+            @change="emit('update:autostartEnabled', readInputChecked($event))"
           />
           <span>开机自动启动</span>
         </label>

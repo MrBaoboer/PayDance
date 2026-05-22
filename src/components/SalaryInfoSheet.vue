@@ -124,9 +124,9 @@ const salaryItems = computed(() => [
   min-width: 0;
   place-items: center;
   gap: var(--ui-gap-xs);
-  border: 1px solid rgb(24 24 27 / 0.08);
+  border: 1px solid var(--line);
   border-radius: var(--ui-radius-md);
-  background: rgb(255 255 255 / 0.9);
+  background: var(--panel-soft);
   padding: var(--ui-pad-md) var(--ui-pad-sm);
   text-align: center;
 }
@@ -146,7 +146,7 @@ const salaryItems = computed(() => [
   overflow: hidden;
   max-width: 100%;
   align-items: baseline;
-  color: #18181B;
+  color: var(--text);
   font-family: var(--font-dashboard);
   font-size: var(--ui-font-md);
   font-weight: 780;

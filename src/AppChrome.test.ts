@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import appSource from "./App.vue?raw";
+import miniOpacityPanelSource from "./composables/useMiniOpacityPanel.ts?raw";
+import windowLifecycleSource from "./composables/useAppWindowLifecycle.ts?raw";
+import windowStatePersistenceSource from "./composables/useWindowStatePersistence.ts?raw";
 
 describe("app chrome", () => {
   it("suppresses the unused webview context menu on full and mini windows", () => {
@@ -21,36 +24,39 @@ describe("app chrome", () => {
     expect(appSource).toContain("MiniOpacityPanel");
     expect(appSource).toContain('appWindow.label === "mini-opacity"');
     expect(appSource).toContain("showMiniOpacityPanel");
-    expect(appSource).toContain("anchor: MiniOpacityPanelAnchor");
-    expect(appSource).toContain("PhysicalPosition");
-    expect(appSource).toContain("LogicalSize");
-    expect(appSource).toContain("currentMonitor");
-    expect(appSource).toContain("appWindow.innerPosition()");
-    expect(appSource).toContain("appWindow.innerSize()");
-    expect(appSource).toContain("opacityWindow.innerSize()");
-    expect(appSource).toContain("opacityWindow.innerPosition()");
-    expect(appSource).toContain("opacityWindow.outerPosition()");
-    expect(appSource).toContain("resolveMiniOpacityPanelWindowPosition");
-    expect(appSource).toContain("resolveMiniOpacityPanelPhysicalSize");
-    expect(appSource).toContain("resolveMiniOpacityPanelAnchorRect");
-    expect(appSource).not.toContain("LogicalPosition");
-    expect(appSource).not.toContain("resolveMiniOpacityPanelPlacement(event");
-    expect(appSource).not.toContain("resolvePointerMiniOpacityPanelPosition");
-    expect(appSource).toContain("mini-opacity-panel-open");
-    expect(appSource).toContain("mini-opacity-change");
-    expect(appSource).toContain("commit?: boolean");
-    expect(appSource).toContain("event.payload.commit === true");
+    expect(appSource).toContain("useMiniOpacityPanel(");
+    expect(miniOpacityPanelSource).toContain("anchor: MiniOpacityPanelAnchor");
+    expect(miniOpacityPanelSource).toContain("PhysicalPosition");
+    expect(miniOpacityPanelSource).toContain("LogicalSize");
+    expect(miniOpacityPanelSource).toContain("currentMonitor");
+    expect(miniOpacityPanelSource).toContain("appWindow.innerPosition()");
+    expect(miniOpacityPanelSource).toContain("appWindow.innerSize()");
+    expect(miniOpacityPanelSource).toContain("opacityWindow.innerSize()");
+    expect(miniOpacityPanelSource).toContain("opacityWindow.innerPosition()");
+    expect(miniOpacityPanelSource).toContain("opacityWindow.outerPosition()");
+    expect(miniOpacityPanelSource).toContain("resolveMiniOpacityPanelWindowPosition");
+    expect(miniOpacityPanelSource).toContain("resolveMiniOpacityPanelPhysicalSize");
+    expect(miniOpacityPanelSource).toContain("resolveMiniOpacityPanelAnchorRect");
+    expect(miniOpacityPanelSource).not.toContain("LogicalPosition");
+    expect(miniOpacityPanelSource).not.toContain("resolveMiniOpacityPanelPlacement(event");
+    expect(miniOpacityPanelSource).not.toContain("resolvePointerMiniOpacityPanelPosition");
+    expect(miniOpacityPanelSource).toContain("mini-opacity-panel-open");
+    expect(windowLifecycleSource).toContain("mini-opacity-change");
+    expect(windowLifecycleSource).toContain("commit?: boolean");
+    expect(windowLifecycleSource).toContain("event.payload.commit === true");
   });
 
   it("persists mini opacity together with the mini window state", () => {
     expect(appSource).toContain("miniOpacityPercent");
     expect(appSource).toContain(":opacity-percent=\"miniOpacityPercent\"");
-    expect(appSource).toContain("miniOpacityPercent: miniOpacityPercent.value");
+    expect(windowStatePersistenceSource).toContain(
+      "miniOpacityPercent: miniOpacityPercent.value",
+    );
   });
 
   it("keeps a final app-level fallback around settings loading", () => {
     expect(appSource).toContain("loadWindowPreferences");
-    expect(appSource).toContain("catch (error)");
-    expect(appSource).toContain("defaultWindowPreferences");
+    expect(windowStatePersistenceSource).toContain("catch (error)");
+    expect(windowStatePersistenceSource).toContain("defaultWindowPreferences");
   });
 });

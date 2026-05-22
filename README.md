@@ -45,6 +45,13 @@ Get-FileHash .\pay-dance.exe -Algorithm SHA256
 Get-Content .\pay-dance.exe.sha256
 ```
 
+### 发布信任链
+
+- Release 附件由 GitHub Actions 在 Windows runner 中构建，正式产物为 `pay-dance.exe` 与同名 SHA256 校验文件。
+- 当前版本尚未接入 Windows 代码签名证书，因此系统可能展示未知发布者提示。
+- 下载后建议核对 SHA256；如果校验值不一致，请不要运行该文件。
+- 后续公开分发阶段建议接入 Authenticode 代码签名，并在 Release notes 中同时展示证书主体、构建来源和校验值。
+
 ## 一句话定位
 
 把“今天上班挣了多少钱”变成一个安静常驻、实时跳动、适合放在屏幕角落的桌面看板。
@@ -119,7 +126,7 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAct
 
 ## 作者与许可
 
-薪跳 PayDance 由 Mr.Baober 设计与开发。当前仓库暂未设置开源许可证，作者保留相关权利；未经作者许可，请勿二次发布、商用分发或移除作者归属信息。
+薪跳 PayDance 由 Mr.Baober 设计与开发。当前仓库采用保留权利许可，具体见 [LICENSE](LICENSE)。未经作者许可，请勿二次发布、商用分发或移除作者归属信息。
 
 ## 跨平台能力
 
@@ -151,6 +158,8 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAct
 - 行为测试：薪资计算、夜班边界、设置加载、迷你悬浮透明度、托盘交互和窗口配置均有测试覆盖。
 - 发布校验：Release workflow 会运行前端测试、生产依赖审计、Rust 格式检查、Clippy 和 Windows portable EXE 构建。
 - 构建缓存：Release workflow 已启用 Rust 构建缓存，减少重复编译耗时。
+- 产品治理：[PRODUCT.md](PRODUCT.md) 固定产品定位、边界和平台策略。
+- 设计治理：[DESIGN.md](DESIGN.md) 固定信息层级、窗口策略、主题 token、字体和动效边界。
 
 ## 本地开发
 
@@ -251,6 +260,12 @@ gh release view vX.Y.Z --json tagName,name,isDraft,isPrerelease,url,assets,targe
 两张海报均作为人工定稿素材维护，不再由脚本批量生成或覆盖。后续更换海报时，直接替换同名文件，并同步更新 README 中的预览和说明。
 
 ## 版本记录
+
+### v0.7.9
+
+- 修复 0.7.2 起暗色模式下“薪资说明”面板卡片被硬编码浅色背景覆盖的问题，恢复为随主题变化的 `var(--panel-soft)` 和 `var(--line)`。
+- 薪资说明金额颜色恢复为主题文本色，暗色模式保持清晰可读，浅色模式仍保持近黑高对比。
+- 补充薪资说明面板主题化回归测试，防止后续再次把暗色面板改成灰白卡片。
 
 ### v0.7.8
 

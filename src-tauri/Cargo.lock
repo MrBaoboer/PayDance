@@ -2417,7 +2417,7 @@ checksum = "df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3"
 
 [[package]]
 name = "pay-dance"
-version = "0.7.8"
+version = "0.7.9"
 dependencies = [
  "serde",
  "serde_json",

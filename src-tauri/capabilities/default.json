@@ -2,7 +2,7 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Default capability for the main PayDance window",
-  "windows": ["main", "mini-opacity"],
+  "windows": ["main"],
   "permissions": [
     "core:event:allow-emit",
     "core:event:allow-emit-to",

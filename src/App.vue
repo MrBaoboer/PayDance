@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { LogicalSize, PhysicalPosition } from "@tauri-apps/api/dpi";
-import { currentMonitor, getCurrentWindow } from "@tauri-apps/api/window";
-import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { X } from "@lucide/vue";
 import {
   validateSalaryConfig,
@@ -24,25 +22,19 @@ import {
   defaultMiniOpacityPercent,
   normalizeFullSize,
   normalizeMiniOpacityPercent,
-  normalizeMiniSize,
   resolveWindowPreferences,
   type WindowSize,
 } from "./lib/window-mode";
 import { appName } from "./lib/app-meta";
-import {
-  miniOpacityPanelLogicalSize,
-  resolveMiniOpacityPanelAnchorRect,
-  resolveMiniOpacityPanelPhysicalGap,
-  resolveMiniOpacityPanelPhysicalSize,
-  resolveMiniOpacityPanelPosition,
-  resolveMiniOpacityPanelWindowPosition,
-  resolveScreenWorkArea,
-  type MiniOpacityRect,
-  type MiniOpacityPanelAnchor,
-} from "./lib/mini-opacity-position";
+import type { MiniOpacityPanelAnchor } from "./lib/mini-opacity-position";
+import { useAppWindowLifecycle } from "./composables/useAppWindowLifecycle";
+import { useMiniOpacityPanel } from "./composables/useMiniOpacityPanel";
 import { useSalarySettings } from "./composables/useSalarySettings";
 import { useSalaryTicker } from "./composables/useSalaryTicker";
+import { useThemeSync } from "./composables/useThemeSync";
+import { registerTrayActions } from "./composables/useTrayActions";
 import { useWindowMode } from "./composables/useWindowMode";
+import { useWindowStatePersistence } from "./composables/useWindowStatePersistence";
 import MiniWindow from "./components/MiniWindow.vue";
 import IncomeProgress from "./components/IncomeProgress.vue";
 import MiniOpacityPanel from "./components/MiniOpacityPanel.vue";
@@ -55,7 +47,6 @@ import WindowTitlebar from "./components/WindowTitlebar.vue";
 
 const appWindow = getCurrentWindow();
 const isOpacityPanelWindow = appWindow.label === "mini-opacity";
-type ThemeMode = "light" | "dark";
 type ResizeDirection =
   | "East"
   | "North"
@@ -83,7 +74,6 @@ const showSalaryInfo = ref(false);
 const autostartEnabled = ref(false);
 const autostartError = ref("");
 const isAutostartUpdating = ref(false);
-const isThemeSwitching = ref(false);
 const fullSize = ref<WindowSize>({ ...fullWindowSize });
 const miniSize = ref<WindowSize>({ ...miniDefaultSize });
 const miniOpacityPercent = ref(defaultMiniOpacityPercent);
@@ -95,6 +85,32 @@ const { applyWindowMode, setAlwaysOnTop } = useWindowMode(
   miniSize,
   fullSize,
   alwaysOnTop,
+);
+const {
+  clearSaveStateTimer,
+  loadWindowPreferences,
+  saveStateNow,
+  scheduleSaveState,
+} = useWindowStatePersistence({
+  defaultWindowPreferences,
+  fullSize,
+  isMiniMode,
+  isSettingsReady,
+  loadSettings,
+  miniOpacityPercent,
+  miniSize,
+  saveSettings,
+});
+const {
+  applyThemeMode,
+  isThemeSwitching,
+  setThemeMode,
+  toggleTheme,
+} = useThemeSync(appWindow, themeMode, saveStateNow);
+const { showMiniOpacityPanel } = useMiniOpacityPanel(
+  appWindow,
+  miniOpacityPercent,
+  themeMode,
 );
 
 const yuanFormatter = new Intl.NumberFormat("zh-CN", {
@@ -162,76 +178,6 @@ const shellClass = computed(() =>
   themeMode.value === "dark" ? "theme-dark" : "theme-light",
 );
 
-let themeApplyToken = 0;
-
-const saveState = async () => {
-  try {
-    await saveSettings({
-      fullSize: fullSize.value,
-      isMiniMode: isMiniMode.value,
-      miniSize: miniSize.value,
-      miniOpacityPercent: miniOpacityPercent.value,
-    });
-  } catch (error) {
-    console.error("Failed to save settings", error);
-  }
-};
-
-const loadWindowPreferences = async () => {
-  try {
-    return await loadSettings();
-  } catch (error) {
-    console.error("Failed to initialize settings, using defaults", error);
-    return defaultWindowPreferences;
-  }
-};
-
-let saveStateTimer = 0;
-const scheduleSaveState = () => {
-  if (!isSettingsReady.value) return;
-
-  window.clearTimeout(saveStateTimer);
-  saveStateTimer = window.setTimeout(() => {
-    void saveState();
-  }, 220);
-};
-
-const saveStateNow = async () => {
-  window.clearTimeout(saveStateTimer);
-  await saveState();
-};
-
-const waitForThemePaint = () =>
-  new Promise<void>((resolve) => {
-    window.requestAnimationFrame(() => resolve());
-  });
-
-const applyThemeMode = async (
-  mode: ThemeMode,
-  options: { persist?: boolean } = {},
-) => {
-  const { persist = true } = options;
-  const token = ++themeApplyToken;
-  isThemeSwitching.value = true;
-
-  try {
-    themeMode.value = mode;
-    await waitForThemePaint();
-    if (token !== themeApplyToken) return;
-
-    await appWindow.setTheme(mode);
-    if (token !== themeApplyToken) return;
-
-    if (persist) {
-      await saveStateNow();
-    }
-  } finally {
-    if (token === themeApplyToken) {
-      isThemeSwitching.value = false;
-    }
-  }
-};
-
 const getCurrentWindowSize = () =>
   normalizeFullSize({
     width: window.innerWidth,
@@ -263,115 +209,6 @@ const updateMiniOpacityPercent = (
     return;
   }
   scheduleSaveState();
-};
-
-const scaleRect = (rect: MiniOpacityRect, scaleFactor: number) => ({
-  height: Math.round(rect.height * scaleFactor),
-  width: Math.round(rect.width * scaleFactor),
-  x: Math.round(rect.x * scaleFactor),
-  y: Math.round(rect.y * scaleFactor),
-});
-
-const resolveFallbackMiniOpacityPanelPlacement = (
-  anchor: MiniOpacityPanelAnchor,
-  scaleFactor = window.devicePixelRatio || 1,
-) => {
-  const anchorRect = resolveMiniOpacityPanelAnchorRect(anchor);
-  const panelSize = resolveMiniOpacityPanelPhysicalSize(scaleFactor);
-
-  return resolveMiniOpacityPanelPosition({
-    anchorRect: scaleRect(anchorRect, scaleFactor),
-    gap: resolveMiniOpacityPanelPhysicalGap(scaleFactor),
-    panelSize,
-    workArea: scaleRect(resolveScreenWorkArea(window.screen), scaleFactor),
-  });
-};
-
-const resolveMiniOpacityPanelPlacement = async (opacityWindow: WebviewWindow) => {
-  await opacityWindow.setSize(
-    new LogicalSize(
-      miniOpacityPanelLogicalSize.width,
-      miniOpacityPanelLogicalSize.height,
-    ),
-  );
-
-  const [
-    miniPosition,
-    miniSize,
-    monitor,
-    panelInnerSize,
-    panelInnerPosition,
-    panelOuterPosition,
-  ] = await Promise.all([
-    appWindow.innerPosition(),
-    appWindow.innerSize(),
-    currentMonitor(),
-    opacityWindow.innerSize(),
-    opacityWindow.innerPosition(),
-    opacityWindow.outerPosition(),
-  ]);
-  const scaleFactor = monitor?.scaleFactor ?? window.devicePixelRatio ?? 1;
-
-  return resolveMiniOpacityPanelWindowPosition({
-    anchorRect: {
-      height: miniSize.height,
-      width: miniSize.width,
-      x: miniPosition.x,
-      y: miniPosition.y,
-    },
-    gap: resolveMiniOpacityPanelPhysicalGap(scaleFactor),
-    panelInnerOffset: {
-      x: panelInnerPosition.x - panelOuterPosition.x,
-      y: panelInnerPosition.y - panelOuterPosition.y,
-    },
-    panelSize: {
-      height: panelInnerSize.height,
-      width: panelInnerSize.width,
-    },
-    workArea: monitor
-      ? {
-          height: monitor.workArea.size.height,
-          width: monitor.workArea.size.width,
-          x: monitor.workArea.position.x,
-          y: monitor.workArea.position.y,
-        }
-      : scaleRect(resolveScreenWorkArea(window.screen), scaleFactor),
-  });
-};
-
-const showMiniOpacityPanel = async (anchor: MiniOpacityPanelAnchor) => {
-  const opacityWindow = await WebviewWindow.getByLabel("mini-opacity");
-  if (!opacityWindow) return;
-
-  let position;
-  try {
-    position = await resolveMiniOpacityPanelPlacement(opacityWindow);
-  } catch (error) {
-    console.error("Failed to read mini window geometry", error);
-    position = resolveFallbackMiniOpacityPanelPlacement(anchor);
-  }
-
-  await opacityWindow.setPosition(new PhysicalPosition(position.x, position.y));
-  await opacityWindow.emit("mini-opacity-panel-open", {
-    value: miniOpacityPercent.value,
-    themeMode: themeMode.value,
-  });
-  await opacityWindow.show();
-  await opacityWindow.setFocus();
-};
-
-const toggleTheme = async () => {
-  if (isThemeSwitching.value) return;
-
-  const nextMode = themeMode.value === "dark" ? "light" : "dark";
-  await applyThemeMode(nextMode);
-};
-
-const setThemeMode = async (mode: ThemeMode) => {
-  if (isThemeSwitching.value) return;
-  if (themeMode.value === mode) return;
-
-  await applyThemeMode(mode);
 };
 
 const toggleAlwaysOnTop = async () => {
@@ -438,6 +275,18 @@ const startResize = async (direction: ResizeDirection) => {
 const hasIssue = (field: SalaryConfigIssue["field"]) =>
   configIssues.value.some((issue) => issue.field === field);
 
+const {
+  clearWindowLifecycleTimers,
+  registerWindowLifecycle,
+} = useAppWindowLifecycle(appWindow, {
+  fullSize,
+  isMiniMode,
+  isSettingsReady,
+  miniSize,
+  saveStateNow,
+  updateMiniOpacityPercent,
+});
+
 let clearMiniDragListeners: (() => void) | undefined;
 
 const clearMiniDrag = () => {
@@ -488,7 +337,6 @@ const startMiniDrag = (event: PointerEvent) => {
 };
 
 watch(config, scheduleSaveState, { deep: true });
-let saveWindowSizeTimer = 0;
 const unlisteners: Array<() => void> = [];
 
 onMounted(async () => {
@@ -506,60 +354,12 @@ onMounted(async () => {
   await applyWindowMode();
 
   unlisteners.push(
-    await appWindow.onCloseRequested(async (event) => {
-      event.preventDefault();
-      await appWindow.hide();
-    }),
-  );
-
-  unlisteners.push(
-    await appWindow.listen<{ value?: number; commit?: boolean }>(
-      "mini-opacity-change",
-      (event) => {
-        updateMiniOpacityPercent(Number(event.payload.value), {
-          commit: event.payload.commit === true,
-        });
-      },
-    ),
-  );
-
-  unlisteners.push(
-    await appWindow.listen("tray-open-settings", () => {
-      void openSettings();
-    }),
-  );
-
-  unlisteners.push(
-    await appWindow.listen("tray-toggle-always-on-top", () => {
-      void toggleAlwaysOnTop();
-    }),
-  );
-
-  unlisteners.push(
-    await appWindow.listen("tray-toggle-mini-mode", () => {
-      void toggleMiniMode();
-    }),
-  );
-
-  unlisteners.push(
-    await appWindow.onResized(() => {
-      if (!isSettingsReady.value) return;
-
-      window.clearTimeout(saveWindowSizeTimer);
-      saveWindowSizeTimer = window.setTimeout(() => {
-        const size = {
-          width: window.innerWidth,
-          height: window.innerHeight,
-        };
-
-        if (isMiniMode.value) {
-          miniSize.value = normalizeMiniSize(size);
-        } else {
-          fullSize.value = normalizeFullSize(size);
-        }
-        void saveStateNow();
-      }, 180);
-    }),
+    ...(await registerWindowLifecycle()),
+    ...(await registerTrayActions(appWindow, {
+      openSettings,
+      toggleAlwaysOnTop,
+      toggleMiniMode,
+    })),
   );
 
   startTicker();
@@ -567,8 +367,8 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   stopTicker();
-  window.clearTimeout(saveStateTimer);
-  window.clearTimeout(saveWindowSizeTimer);
+  clearSaveStateTimer();
+  clearWindowLifecycleTimers();
   clearMiniDrag();
   for (const unlisten of unlisteners) {
     unlisten();

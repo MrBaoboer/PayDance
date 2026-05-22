@@ -9,6 +9,9 @@ const tauriConfig = JSON.parse(
 const defaultCapability = JSON.parse(
   readFileSync(resolve(tauriDir, "capabilities", "default.json"), "utf8"),
 );
+const miniOpacityCapability = JSON.parse(
+  readFileSync(resolve(tauriDir, "capabilities", "mini-opacity.json"), "utf8"),
+);
 const libRs = readFileSync(resolve(tauriDir, "src", "lib.rs"), "utf8");
 
 describe("desktop window chrome", () => {
@@ -57,12 +60,32 @@ describe("desktop window chrome", () => {
     expect(opacityWindow.height).toBe(52);
   });
 
-  it("allows native window geometry reads for precise mini opacity placement", () => {
+  it("keeps native geometry and store permissions on the main window only", () => {
+    expect(defaultCapability.windows).toEqual(["main"]);
     expect(defaultCapability.permissions).toContain("core:window:allow-inner-position");
     expect(defaultCapability.permissions).toContain("core:window:allow-inner-size");
     expect(defaultCapability.permissions).toContain("core:window:allow-outer-position");
     expect(defaultCapability.permissions).toContain("core:window:allow-outer-size");
     expect(defaultCapability.permissions).toContain("core:window:allow-current-monitor");
     expect(defaultCapability.permissions).toContain("core:window:allow-set-position");
+    expect(defaultCapability.permissions).toContain("store:allow-get");
+    expect(JSON.stringify(defaultCapability.permissions)).toContain(
+      "opener:allow-open-url",
+    );
+  });
+
+  it("limits the mini opacity companion window to slider-only permissions", () => {
+    expect(miniOpacityCapability.windows).toEqual(["mini-opacity"]);
+    expect(miniOpacityCapability.permissions).toEqual([
+      "core:event:allow-emit-to",
+      "core:event:allow-listen",
+      "core:event:allow-unlisten",
+      "core:window:allow-hide",
+    ]);
+    expect(miniOpacityCapability.permissions).not.toContain("store:allow-get");
+    expect(JSON.stringify(miniOpacityCapability.permissions)).not.toContain(
+      "opener:allow-open-url",
+    );
+    expect(miniOpacityCapability.permissions).not.toContain("core:window:allow-set-position");
   });
 });
