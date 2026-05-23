@@ -1,15 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { X } from "@lucide/vue";
-import {
-  validateSalaryConfig,
-  type SalaryConfigIssue,
-} from "./lib/salary";
-import {
-  getStatusText,
-} from "./lib/shift-display";
-import { formatDashboardDuration } from "./lib/duration-format";
 import {
   readAutostartEnabled,
   setAutostartEnabled,
@@ -17,17 +8,18 @@ import {
 } from "./lib/autostart";
 import {
   miniDefaultSize,
-  miniResizeEdgeSize,
   fullWindowSize,
   defaultMiniOpacityPercent,
-  normalizeFullSize,
   normalizeMiniOpacityPercent,
   resolveWindowPreferences,
   type WindowSize,
 } from "./lib/window-mode";
 import { appName } from "./lib/app-meta";
 import type { MiniOpacityPanelAnchor } from "./lib/mini-opacity-position";
+import { useAppShell } from "./composables/useAppShell";
 import { useAppWindowLifecycle } from "./composables/useAppWindowLifecycle";
+import { useDashboardModel } from "./composables/useDashboardModel";
+import { useMiniWindowDrag } from "./composables/useMiniWindowDrag";
 import { useMiniOpacityPanel } from "./composables/useMiniOpacityPanel";
 import { useSalarySettings } from "./composables/useSalarySettings";
 import { useSalaryTicker } from "./composables/useSalaryTicker";
@@ -35,15 +27,9 @@ import { useThemeSync } from "./composables/useThemeSync";
 import { registerTrayActions } from "./composables/useTrayActions";
 import { useWindowMode } from "./composables/useWindowMode";
 import { useWindowStatePersistence } from "./composables/useWindowStatePersistence";
+import AppWindow from "./components/AppWindow.vue";
 import MiniWindow from "./components/MiniWindow.vue";
-import IncomeProgress from "./components/IncomeProgress.vue";
 import MiniOpacityPanel from "./components/MiniOpacityPanel.vue";
-import OnboardingPanel from "./components/OnboardingPanel.vue";
-import RollingAmount from "./components/RollingAmount.vue";
-import SalaryInfoSheet from "./components/SalaryInfoSheet.vue";
-import SettingsPanel from "./components/SettingsPanel.vue";
-import StatsPanel from "./components/StatsPanel.vue";
-import WindowTitlebar from "./components/WindowTitlebar.vue";
 
 const appWindow = getCurrentWindow();
 const isOpacityPanelWindow = appWindow.label === "mini-opacity";
@@ -69,8 +55,6 @@ const {
 } = useSalarySettings();
 
 const isMiniMode = ref(false);
-const showSettings = ref(false);
-const showSalaryInfo = ref(false);
 const autostartEnabled = ref(false);
 const autostartError = ref("");
 const isAutostartUpdating = ref(false);
@@ -107,97 +91,50 @@ const {
   setThemeMode,
   toggleTheme,
 } = useThemeSync(appWindow, themeMode, saveStateNow);
+const {
+  activeView,
+  completeOnboarding,
+  openSettings,
+  setMiniMode,
+  shouldShowOnboarding,
+  showSalaryInfo,
+  showSettings,
+  toggleMiniMode,
+} = useAppShell({
+  alwaysOnTop,
+  appWindow,
+  applyThemeMode,
+  applyWindowMode,
+  fullSize,
+  hasCompletedOnboarding,
+  isMiniMode,
+  isOpacityPanelWindow,
+  isSettingsReady,
+  saveStateNow,
+  setAlwaysOnTop,
+  themeMode,
+});
 const { showMiniOpacityPanel } = useMiniOpacityPanel(
   appWindow,
   miniOpacityPercent,
   themeMode,
 );
-
-const yuanFormatter = new Intl.NumberFormat("zh-CN", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-  useGrouping: false,
-});
-
-const earnedText = computed(() => yuanFormatter.format(snapshot.value.earnedToday));
-const dailyEarnText = computed(() => yuanFormatter.format(snapshot.value.dailySalary));
-const salaryModeLabel = computed(() => {
-  if (config.value.salaryType === "daily") return "日薪模式";
-  if (config.value.salaryType === "hourly") return "时薪模式";
-  return "月薪模式";
-});
-const configIssues = computed(() => validateSalaryConfig(config.value));
-const firstConfigIssue = computed(() => configIssues.value[0]?.message ?? "");
-const hasConfigIssues = computed(() => configIssues.value.length > 0);
-const shouldShowOnboarding = computed(() =>
-  isSettingsReady.value && !hasCompletedOnboarding.value && !isMiniMode.value,
-);
-const statusText = computed(() =>
-  getStatusText(
-    snapshot.value.status,
-    snapshot.value.isNightWork,
-    hasConfigIssues.value,
-  ),
-);
-
-const workedTimeText = computed(() => formatDashboardDuration(snapshot.value.elapsedWorkMs));
-const middleStat = computed(() => {
-  if (hasConfigIssues.value) {
-    return { label: "配置待修正", value: "--" };
-  }
-
-  if (snapshot.value.status === "rest-day") {
-    return { label: "今日休息", value: "0m" };
-  }
-
-  if (snapshot.value.status === "before-work") {
-    return {
-      label: "距离上班",
-      value: formatDashboardDuration(snapshot.value.nextTransitionMs),
-    };
-  }
-
-  if (snapshot.value.status === "lunch-break") {
-    return {
-      label: "距离复工",
-      value: formatDashboardDuration(snapshot.value.nextTransitionMs),
-    };
-  }
-
-  if (snapshot.value.status === "after-work") {
-    return { label: "今日完成", value: "100%" };
-  }
-
-  return {
-    label: "距离下班",
-    value: formatDashboardDuration(snapshot.value.nextTransitionMs),
-  };
-});
+const { clearMiniDrag, startMiniDrag } = useMiniWindowDrag(appWindow);
+const {
+  dailyEarnText,
+  earnedText,
+  firstConfigIssue,
+  hasConfigIssues,
+  hasIssue,
+  middleStat,
+  salaryModeLabel,
+  statusText,
+  workedTimeText,
+} = useDashboardModel(config, snapshot);
 
 const shellClass = computed(() =>
   themeMode.value === "dark" ? "theme-dark" : "theme-light",
 );
-
-const getCurrentWindowSize = () =>
-  normalizeFullSize({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
-
-const setMiniMode = async (value: boolean) => {
-  if (value && !isMiniMode.value) {
-    fullSize.value = getCurrentWindowSize();
-  }
-
-  isMiniMode.value = value;
-  if (value) {
-    showSettings.value = false;
-  }
-  await applyWindowMode();
-  await saveStateNow();
-};
-
-const toggleMiniMode = () => setMiniMode(!isMiniMode.value);
 
 const updateMiniOpacityPercent = (
   value: number,
@@ -236,31 +173,6 @@ const updateAutostartEnabled = async (enabled: boolean) => {
   isAutostartUpdating.value = false;
 };
 
-const openSettings = async () => {
-  showSettings.value = true;
-  showSalaryInfo.value = false;
-  if (isMiniMode.value) {
-    isMiniMode.value = false;
-    await applyWindowMode();
-  }
-  await appWindow.show();
-  await appWindow.setFocus();
-  await saveStateNow();
-};
-
-const completeOnboarding = async (preferences: { startInMiniMode: boolean }) => {
-  hasCompletedOnboarding.value = true;
-  await applyThemeMode(themeMode.value, { persist: false });
-  await setAlwaysOnTop(alwaysOnTop.value);
-
-  if (preferences.startInMiniMode) {
-    await setMiniMode(true);
-    return;
-  }
-
-  await saveStateNow();
-};
-
 const startDrag = async (event: MouseEvent) => {
   const target = event.target as HTMLElement;
   if (target.closest("button, input, label")) return;
@@ -271,9 +183,6 @@ const startDrag = async (event: MouseEvent) => {
 const startResize = async (direction: ResizeDirection) => {
   await appWindow.startResizeDragging(direction);
 };
-
-const hasIssue = (field: SalaryConfigIssue["field"]) =>
-  configIssues.value.some((issue) => issue.field === field);
 
 const {
   clearWindowLifecycleTimers,
@@ -286,55 +195,6 @@ const {
   saveStateNow,
   updateMiniOpacityPercent,
 });
-
-let clearMiniDragListeners: (() => void) | undefined;
-
-const clearMiniDrag = () => {
-  clearMiniDragListeners?.();
-  clearMiniDragListeners = undefined;
-};
-
-const isNearResizeEdge = (event: PointerEvent) => {
-  const target = event.currentTarget as HTMLElement | null;
-  const rect = target?.getBoundingClientRect();
-  if (!rect) return false;
-
-  return (
-    event.clientX - rect.left <= miniResizeEdgeSize ||
-    rect.right - event.clientX <= miniResizeEdgeSize ||
-    event.clientY - rect.top <= miniResizeEdgeSize ||
-    rect.bottom - event.clientY <= miniResizeEdgeSize
-  );
-};
-
-const startMiniDrag = (event: PointerEvent) => {
-  if (event.button !== 0 || event.detail > 1) return;
-  if (isNearResizeEdge(event)) return;
-
-  const startX = event.screenX;
-  const startY = event.screenY;
-
-  const handlePointerMove = (moveEvent: PointerEvent) => {
-    const distance = Math.hypot(moveEvent.screenX - startX, moveEvent.screenY - startY);
-    if (distance < 4) return;
-
-    clearMiniDrag();
-    void appWindow.startDragging();
-  };
-
-  const handlePointerEnd = () => clearMiniDrag();
-
-  clearMiniDrag();
-  window.addEventListener("pointermove", handlePointerMove);
-  window.addEventListener("pointerup", handlePointerEnd, { once: true });
-  window.addEventListener("pointercancel", handlePointerEnd, { once: true });
-
-  clearMiniDragListeners = () => {
-    window.removeEventListener("pointermove", handlePointerMove);
-    window.removeEventListener("pointerup", handlePointerEnd);
-    window.removeEventListener("pointercancel", handlePointerEnd);
-  };
-};
 
 watch(config, scheduleSaveState, { deep: true });
 const unlisteners: Array<() => void> = [];
@@ -377,16 +237,16 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <MiniOpacityPanel v-if="isOpacityPanelWindow" />
+  <MiniOpacityPanel v-if="activeView === 'mini-opacity'" />
 
   <main
     v-else
     class="app-shell h-full w-full select-none p-0"
-    :class="[shellClass, isMiniMode ? 'is-mini' : '', { 'is-theme-syncing': isThemeSwitching }]"
+    :class="[shellClass, activeView === 'mini' ? 'is-mini' : '', { 'is-theme-syncing': isThemeSwitching }]"
     @contextmenu.prevent
   >
     <MiniWindow
-      v-if="isMiniMode"
+      v-if="activeView === 'mini'"
       :amount="earnedText"
       :amount-mode="amountMode"
       :opacity-percent="miniOpacityPercent"
@@ -395,474 +255,42 @@ onBeforeUnmount(() => {
       @restore="setMiniMode(false)"
     />
 
-    <div v-else class="app-window" :aria-label="appName">
-      <WindowTitlebar
-        :always-on-top="alwaysOnTop"
-        :has-config-issues="hasConfigIssues"
-        :status-text="statusText"
-        :theme-mode="themeMode"
-        @close="appWindow.close()"
-        @drag-start="startDrag"
-        @minimize="appWindow.minimize()"
-        @toggle-always-on-top="toggleAlwaysOnTop"
-        @toggle-mini-mode="toggleMiniMode"
-        @toggle-settings="showSettings = !showSettings"
-        @toggle-theme="toggleTheme"
-      />
-
-      <section class="hero-panel">
-        <div class="hero-meta">
-          <p>今日入账</p>
-        </div>
-
-        <button class="amount-display" title="双击进入迷你悬浮模式" @dblclick="setMiniMode(true)">
-          <RollingAmount :mode="amountMode" :value="earnedText" />
-        </button>
-
-        <div class="hero-controls">
-          <section class="hero-dashboard" aria-label="今日收入仪表盘">
-            <StatsPanel
-              :expected-earn="dailyEarnText"
-              :middle-label="middleStat.label"
-              :middle-value="middleStat.value"
-              :worked-time="workedTimeText"
-            />
-
-            <IncomeProgress :is-working="snapshot.isWorking" :progress="snapshot.progress" />
-          </section>
-
-          <button class="salary-info-button salary-info-button--quiet" @click="showSalaryInfo = true">
-            薪资说明
-          </button>
-        </div>
-      </section>
-
-      <Transition name="settings-sheet">
-        <div
-          v-if="showSettings"
-          class="settings-overlay settings-overlay--top"
-          @click.self="showSettings = false"
-          @mousedown.left.self="startDrag"
-        >
-          <section class="settings-sheet settings-sheet--top" aria-label="设置中心">
-            <header class="settings-sheet__header" @mousedown.left="startDrag">
-              <div>
-                <strong>设置</strong>
-              </div>
-              <button
-                class="sheet-close-button"
-                title="关闭设置"
-                @click="showSettings = false"
-                @mousedown.left.stop
-              >
-                <X :size="16" />
-              </button>
-            </header>
-            <div class="settings-sheet__body">
-              <SettingsPanel
-                v-model:amount-mode="amountMode"
-                v-model:config="config"
-                :autostart-enabled="autostartEnabled"
-                :autostart-error="autostartError"
-                :first-issue="firstConfigIssue"
-                :has-issue="hasIssue"
-                :is-autostart-updating="isAutostartUpdating"
-                @update:autostart-enabled="updateAutostartEnabled"
-              />
-            </div>
-          </section>
-        </div>
-      </Transition>
-
-      <Transition name="settings-sheet">
-        <div
-          v-if="showSalaryInfo"
-          class="settings-overlay"
-          @click.self="showSalaryInfo = false"
-          @mousedown.left.self="startDrag"
-        >
-          <SalaryInfoSheet
-            :mode-label="salaryModeLabel"
-            :snapshot="snapshot"
-            @close="showSalaryInfo = false"
-            @drag-start="startDrag"
-          />
-        </div>
-      </Transition>
-
-      <OnboardingPanel
-        v-if="shouldShowOnboarding"
-        v-model:always-on-top="alwaysOnTop"
-        v-model:config="config"
-        :autostart-enabled="autostartEnabled"
-        :theme-mode="themeMode"
-        @complete="completeOnboarding"
-        @drag-start="startDrag"
-        @resize-start="startResize"
-        @update:autostart-enabled="updateAutostartEnabled"
-        @update:theme-mode="setThemeMode"
-      />
-    </div>
+    <AppWindow
+      v-else
+      v-model:always-on-top="alwaysOnTop"
+      v-model:amount-mode="amountMode"
+      v-model:config="config"
+      v-model:show-salary-info="showSalaryInfo"
+      v-model:show-settings="showSettings"
+      :app-name="appName"
+      :autostart-enabled="autostartEnabled"
+      :autostart-error="autostartError"
+      :daily-earn-text="dailyEarnText"
+      :earned-text="earnedText"
+      :first-config-issue="firstConfigIssue"
+      :has-config-issues="hasConfigIssues"
+      :has-issue="hasIssue"
+      :is-autostart-updating="isAutostartUpdating"
+      :is-theme-switching="isThemeSwitching"
+      :middle-stat="middleStat"
+      :salary-mode-label="salaryModeLabel"
+      :should-show-onboarding="shouldShowOnboarding"
+      :snapshot="snapshot"
+      :status-text="statusText"
+      :theme-mode="themeMode"
+      :worked-time-text="workedTimeText"
+      @close="appWindow.close()"
+      @complete-onboarding="completeOnboarding"
+      @drag-start="startDrag"
+      @minimize="appWindow.minimize()"
+      @resize-start="startResize"
+      @set-mini-mode="setMiniMode"
+      @toggle-always-on-top="toggleAlwaysOnTop"
+      @toggle-mini-mode="toggleMiniMode"
+      @toggle-settings="showSettings = !showSettings"
+      @toggle-theme="toggleTheme"
+      @update:autostart-enabled="updateAutostartEnabled"
+      @update:theme-mode="setThemeMode"
+    />
   </main>
 </template>
-
-<style scoped>
-.app-shell {
-  position: relative;
-  overflow: hidden;
-  border-radius: 22px;
-  background: var(--panel);
-  transition: background-color 150ms ease;
-}
-
-.app-shell::before {
-  position: absolute;
-  inset: 0;
-  z-index: 80;
-  border-radius: inherit;
-  background: var(--panel);
-  content: "";
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 150ms ease;
-}
-
-.app-shell.is-theme-syncing::before {
-  opacity: 0.9;
-}
-
-.app-shell.is-mini {
-  overflow: visible;
-  border-radius: 0;
-  background: transparent;
-}
-
-.app-shell.is-mini::before {
-  display: none;
-}
-
-.app-window {
-  position: relative;
-  display: flex;
-  height: 100%;
-  overflow: hidden;
-  flex-direction: column;
-  border: 0;
-  border-radius: inherit;
-  background: transparent;
-  box-shadow: none;
-  color: var(--text);
-  container-type: size;
-  backdrop-filter: blur(28px);
-  --ui-font-xs: clamp(12px, calc(10.4px + 0.42cqw), 14px);
-  --ui-font-sm: clamp(13px, calc(10.8px + 0.52cqw), 15px);
-  --ui-font-md: clamp(14px, calc(11px + 0.7cqw), 17px);
-  --ui-font-lg: clamp(17px, calc(12px + 1.18cqw), 21px);
-  --ui-radius-sm: clamp(8px, 2.1cqw, 10px);
-  --ui-radius-md: clamp(10px, 2.7cqw, 13px);
-  --ui-gap-xs: clamp(5px, 1.35cqw, 8px);
-  --ui-gap-sm: clamp(8px, 2.1cqw, 12px);
-  --ui-gap-md: clamp(12px, 3.2cqw, 18px);
-  --ui-pad-sm: clamp(10px, 2.6cqw, 14px);
-  --ui-pad-md: clamp(16px, 4.3cqw, 22px);
-  --hero-top-pad: clamp(24px, 7.2cqh, 40px);
-  --hero-side-pad: clamp(24px, 7.2cqw, 38px);
-  --hero-bottom-pad: clamp(18px, 5cqh, 28px);
-  --hero-amount-gap: clamp(16px, 5.2cqh, 30px);
-  --hero-dashboard-gap: clamp(24px, 7cqh, 42px);
-  --salary-info-offset: clamp(15px, 3.7cqh, 22px);
-}
-
-.is-mini {
-  padding: 4px;
-}
-
-.hero-panel {
-  display: flex;
-  min-height: 0;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--hero-top-pad) var(--hero-side-pad) var(--hero-bottom-pad);
-  text-align: center;
-}
-
-.hero-meta {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted);
-  text-align: center;
-}
-
-.hero-meta p {
-  margin: 0;
-  font-size: var(--ui-font-lg);
-  font-weight: 700;
-  width: 100%;
-}
-
-.amount-display {
-  display: grid;
-  width: min(100% - clamp(24px, 7cqw, 64px), 390px);
-  place-items: center;
-  margin-top: var(--hero-amount-gap);
-  color: var(--text);
-}
-
-.hero-controls {
-  display: grid;
-  width: min(100%, 424px);
-  gap: var(--ui-gap-sm);
-  justify-items: stretch;
-  margin-top: var(--hero-dashboard-gap);
-}
-
-.hero-dashboard {
-  display: grid;
-  width: 100%;
-  gap: clamp(10px, 2.6cqh, 14px);
-  border: 1px solid var(--dashboard-border);
-  border-radius: clamp(14px, 3.6cqw, 18px);
-  background: var(--dashboard-panel);
-  box-shadow: var(--dashboard-shadow);
-  padding: clamp(12px, 3.2cqh, 16px);
-}
-
-.theme-dark .hero-dashboard {
-  background:
-    linear-gradient(180deg, rgb(18 18 22 / 0.96), rgb(12 12 15 / 0.94)),
-    var(--dashboard-panel);
-}
-
-.rate-grid {
-  display: grid;
-  width: 100%;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--ui-gap-sm);
-  margin-top: var(--hero-amount-gap);
-}
-
-.rate-card {
-  display: grid;
-  min-width: 0;
-  gap: var(--ui-gap-xs);
-  place-items: center;
-  padding: var(--ui-pad-sm);
-  border: 1px solid var(--line);
-  border-radius: var(--ui-radius-md);
-  background: var(--panel-soft);
-  box-shadow: 0 8px 24px rgb(15 23 42 / 0.05);
-  text-align: center;
-}
-
-.salary-info-button {
-  height: clamp(26px, 6.3cqh, 32px);
-  justify-self: center;
-  margin-top: var(--salary-info-offset);
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: transparent;
-  box-shadow: none;
-  padding: 0 clamp(12px, 3cqw, 16px);
-  color: var(--muted);
-  font-size: var(--ui-font-xs);
-  font-weight: 620;
-  transition:
-    border-color 160ms ease,
-    background-color 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
-}
-
-.salary-info-button:hover {
-  border-color: rgb(217 119 6 / 0.2);
-  background: rgb(245 158 11 / 0.08);
-  color: var(--income-accent);
-}
-
-.theme-light .salary-info-button:hover {
-  color: var(--income-accent);
-}
-
-.theme-dark .salary-info-button:hover {
-  border-color: rgb(245 158 11 / 0.22);
-  background: rgb(245 158 11 / 0.08);
-  color: var(--income-accent-bright);
-}
-
-.salary-info-button:active {
-  transform: scale(0.98);
-}
-
-.rate-card svg,
-.rate-card span {
-  color: var(--muted);
-}
-
-.rate-card span {
-  font-size: var(--ui-font-sm);
-  font-weight: 600;
-}
-
-.rate-card strong {
-  overflow: hidden;
-  color: var(--text);
-  font-family: var(--font-dashboard);
-  font-size: var(--ui-font-md);
-  font-weight: 650;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-.settings-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: flex-end;
-  border-radius: inherit;
-  background: rgb(0 0 0 / 0.16);
-  backdrop-filter: blur(6px);
-  z-index: 10;
-}
-
-.settings-overlay--top {
-  align-items: flex-start;
-}
-
-.settings-sheet {
-  display: flex;
-  width: 100%;
-  max-height: calc(100% - clamp(28px, 7cqh, 38px));
-  flex-direction: column;
-  overflow: hidden;
-  border-top: 1px solid var(--border);
-  border-radius: 18px 18px 20px 20px;
-  background: var(--panel);
-  box-shadow: 0 -18px 48px rgb(15 23 42 / 0.18);
-}
-
-.settings-sheet--top {
-  border-top: 0;
-  border-bottom: 1px solid var(--border);
-  border-radius: 20px 20px 18px 18px;
-  box-shadow: 0 18px 48px rgb(15 23 42 / 0.18);
-}
-
-.settings-sheet__header {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ui-gap-md);
-  border-bottom: 1px solid var(--line);
-  padding: var(--ui-pad-md);
-  cursor: move;
-}
-
-.settings-sheet__header div {
-  display: grid;
-  min-width: 0;
-  text-align: left;
-}
-
-.settings-sheet__header strong {
-  color: var(--text);
-  font-size: var(--ui-font-lg);
-  font-weight: 750;
-}
-
-.settings-sheet__header span {
-  color: var(--muted);
-  font-size: var(--ui-font-sm);
-  font-weight: 500;
-}
-
-.settings-sheet__body {
-  cursor: default;
-}
-
-@container (max-height: 430px) {
-  .settings-sheet__header {
-    padding: clamp(11px, 2.6cqh, 14px) var(--ui-pad-md);
-  }
-
-}
-
-.sheet-close-button {
-  display: grid;
-  width: clamp(30px, 7.2cqw, 36px);
-  height: clamp(30px, 7.2cqw, 36px);
-  flex: 0 0 auto;
-  place-items: center;
-  border-radius: var(--ui-radius-sm);
-  color: var(--muted);
-  transition:
-    background-color 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
-}
-
-.sheet-close-button:hover {
-  background: var(--subtle);
-  color: var(--text);
-}
-
-.sheet-close-button:active {
-  transform: scale(0.96);
-}
-
-.settings-sheet__body {
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 0;
-  scrollbar-gutter: stable;
-}
-
-.settings-sheet__body::-webkit-scrollbar {
-  width: 10px;
-}
-
-.settings-sheet__body::-webkit-scrollbar-thumb {
-  border: 3px solid transparent;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--muted) 48%, transparent);
-  background-clip: content-box;
-}
-
-.settings-sheet-enter-active,
-.settings-sheet-leave-active {
-  transition:
-    opacity 180ms ease,
-    backdrop-filter 180ms ease;
-}
-
-.settings-sheet-enter-active .settings-sheet,
-.settings-sheet-leave-active .settings-sheet {
-  transition:
-    opacity 220ms ease,
-    transform 220ms cubic-bezier(0.2, 0.72, 0.28, 1);
-}
-
-.settings-sheet-enter-from,
-.settings-sheet-leave-to {
-  opacity: 0;
-  backdrop-filter: blur(0);
-}
-
-.settings-sheet-enter-from .settings-sheet,
-.settings-sheet-leave-to .settings-sheet {
-  opacity: 0;
-  transform: translateY(22px);
-}
-
-.settings-sheet-enter-from .settings-sheet--top,
-.settings-sheet-leave-to .settings-sheet--top {
-  transform: translateY(-22px);
-}
-
-</style>

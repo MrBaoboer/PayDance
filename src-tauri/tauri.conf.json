@@ -1,12 +1,12 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "薪跳",
-  "version": "0.7.10",
+  "version": "0.7.11",
   "identifier": "com.masterbao.paydance",
   "build": {
-    "beforeDevCommand": "npm.cmd run dev",
+    "beforeDevCommand": "npm run dev",
     "devUrl": "http://127.0.0.1:1420",
-    "beforeBuildCommand": "npm.cmd run build",
+    "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
   "app": {
@@ -42,7 +42,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: asset: http://asset.localhost; font-src 'self'; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: asset: http://asset.localhost; font-src 'self'; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
       "devCsp": "default-src 'self' http://127.0.0.1:1420; script-src 'self' 'unsafe-eval' http://127.0.0.1:1420; style-src 'self' 'unsafe-inline' http://127.0.0.1:1420; img-src 'self' data: asset: http://asset.localhost; font-src 'self' data: http://127.0.0.1:1420; connect-src ipc: http://ipc.localhost http://127.0.0.1:1420 ws://127.0.0.1:1420; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
     }
   },

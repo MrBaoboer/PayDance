@@ -24,18 +24,36 @@ export function useWindowStatePersistence({
   saveSettings: (state: PersistedWindowState) => Promise<void>;
 }) {
   let saveStateTimer = 0;
+  let pendingState: PersistedWindowState | null = null;
+  let drainSaveQueuePromise: Promise<void> | null = null;
 
-  const saveState = async () => {
-    try {
-      await saveSettings({
-        fullSize: fullSize.value,
-        isMiniMode: isMiniMode.value,
-        miniSize: miniSize.value,
-        miniOpacityPercent: miniOpacityPercent.value,
-      });
-    } catch (error) {
-      console.error("Failed to save settings", error);
+  const readCurrentState = (): PersistedWindowState => ({
+    fullSize: fullSize.value,
+    isMiniMode: isMiniMode.value,
+    miniSize: miniSize.value,
+    miniOpacityPercent: miniOpacityPercent.value,
+  });
+
+  const drainSaveQueue = async () => {
+    while (pendingState) {
+      const state = pendingState;
+      pendingState = null;
+
+      try {
+        await saveSettings(state);
+      } catch (error) {
+        console.error("Failed to save settings", error);
+      }
     }
+  };
+
+  const queueSaveState = (state: PersistedWindowState) => {
+    pendingState = state;
+    drainSaveQueuePromise ??= drainSaveQueue().finally(() => {
+      drainSaveQueuePromise = null;
+    });
+
+    return drainSaveQueuePromise;
   };
 
   const loadWindowPreferences = async () => {
@@ -52,13 +70,13 @@ export function useWindowStatePersistence({
 
     window.clearTimeout(saveStateTimer);
     saveStateTimer = window.setTimeout(() => {
-      void saveState();
+      void queueSaveState(readCurrentState());
     }, 220);
   };
 
   const saveStateNow = async () => {
     window.clearTimeout(saveStateTimer);
-    await saveState();
+    await queueSaveState(readCurrentState());
   };
 
   const clearSaveStateTimer = () => {

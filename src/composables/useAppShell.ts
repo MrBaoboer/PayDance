@@ -1,0 +1,119 @@
+import { computed, ref, type Ref } from "vue";
+import {
+  resolveAppView,
+  type AppViewState,
+} from "../lib/app-view";
+import type { ThemeMode, WindowSize } from "../lib/window-mode";
+import { normalizeFullSize } from "../lib/window-mode";
+
+type ShellWindow = {
+  setFocus: () => Promise<void>;
+  show: () => Promise<void>;
+};
+
+export function useAppShell({
+  alwaysOnTop,
+  appWindow,
+  applyThemeMode,
+  applyWindowMode,
+  fullSize,
+  hasCompletedOnboarding,
+  isMiniMode,
+  isOpacityPanelWindow,
+  isSettingsReady,
+  saveStateNow,
+  setAlwaysOnTop,
+  themeMode,
+}: {
+  alwaysOnTop: Ref<boolean>;
+  appWindow: ShellWindow;
+  applyThemeMode: (
+    mode: ThemeMode,
+    options?: { persist?: boolean },
+  ) => Promise<void>;
+  applyWindowMode: () => Promise<void>;
+  fullSize: Ref<WindowSize>;
+  hasCompletedOnboarding: Ref<boolean>;
+  isMiniMode: Ref<boolean>;
+  isOpacityPanelWindow: boolean;
+  isSettingsReady: Ref<boolean>;
+  saveStateNow: () => Promise<void>;
+  setAlwaysOnTop: (value: boolean) => Promise<void>;
+  themeMode: Ref<ThemeMode>;
+}) {
+  const showSettings = ref(false);
+  const showSalaryInfo = ref(false);
+
+  const shouldShowOnboarding = computed(() =>
+    isSettingsReady.value && !hasCompletedOnboarding.value && !isMiniMode.value,
+  );
+
+  const activeView = computed(() =>
+    resolveAppView({
+      hasCompletedOnboarding: hasCompletedOnboarding.value,
+      isMiniMode: isMiniMode.value,
+      isOpacityPanelWindow,
+      isSettingsReady: isSettingsReady.value,
+      showSalaryInfo: showSalaryInfo.value,
+      showSettings: showSettings.value,
+    } satisfies AppViewState),
+  );
+
+  const getCurrentWindowSize = () =>
+    normalizeFullSize({
+      height: window.innerHeight,
+      width: window.innerWidth,
+    });
+
+  const setMiniMode = async (value: boolean) => {
+    if (value && !isMiniMode.value) {
+      fullSize.value = getCurrentWindowSize();
+    }
+
+    isMiniMode.value = value;
+    if (value) {
+      showSettings.value = false;
+      showSalaryInfo.value = false;
+    }
+    await applyWindowMode();
+    await saveStateNow();
+  };
+
+  const toggleMiniMode = () => setMiniMode(!isMiniMode.value);
+
+  const openSettings = async () => {
+    showSettings.value = true;
+    showSalaryInfo.value = false;
+    if (isMiniMode.value) {
+      isMiniMode.value = false;
+      await applyWindowMode();
+    }
+    await appWindow.show();
+    await appWindow.setFocus();
+    await saveStateNow();
+  };
+
+  const completeOnboarding = async (preferences: { startInMiniMode: boolean }) => {
+    hasCompletedOnboarding.value = true;
+    await applyThemeMode(themeMode.value, { persist: false });
+    await setAlwaysOnTop(alwaysOnTop.value);
+
+    if (preferences.startInMiniMode) {
+      await setMiniMode(true);
+      return;
+    }
+
+    await saveStateNow();
+  };
+
+  return {
+    activeView,
+    completeOnboarding,
+    openSettings,
+    setMiniMode,
+    shouldShowOnboarding,
+    showSalaryInfo,
+    showSettings,
+    toggleMiniMode,
+  };
+}
