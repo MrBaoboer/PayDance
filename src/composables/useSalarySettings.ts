@@ -99,17 +99,21 @@ export function useSalarySettings() {
   }: PersistedWindowState) => {
     if (!isSettingsReady.value) return;
 
-    await store.set("config", config.value);
-    await store.set("alwaysOnTop", alwaysOnTop.value);
-    await store.set("fullSize", fullSize);
-    await store.set("isMiniMode", isMiniMode);
-    await store.set("themeMode", themeMode.value);
-    await store.set("amountMode", amountMode.value);
-    await store.set("miniSize", miniSize);
-    await store.set("miniOpacityPercent", miniOpacityPercent);
-    await store.set("hasCompletedOnboarding", hasCompletedOnboarding.value);
-    await store.set("settingsVersion", settingsSchemaVersion);
-    await store.save();
+    try {
+      await store.set("config", config.value);
+      await store.set("alwaysOnTop", alwaysOnTop.value);
+      await store.set("fullSize", fullSize);
+      await store.set("isMiniMode", isMiniMode);
+      await store.set("themeMode", themeMode.value);
+      await store.set("amountMode", amountMode.value);
+      await store.set("miniSize", miniSize);
+      await store.set("miniOpacityPercent", miniOpacityPercent);
+      await store.set("hasCompletedOnboarding", hasCompletedOnboarding.value);
+      await store.set("settingsVersion", settingsSchemaVersion);
+      await store.save();
+    } catch (error) {
+      console.error("Failed to save settings", error);
+    }
   };
 
   return {

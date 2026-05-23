@@ -507,74 +507,6 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.theme-light {
-  --panel: rgb(255 255 255);
-  --panel-soft: rgb(255 255 255 / 0.62);
-  --border: transparent;
-  --line: rgb(228 228 231 / 0.88);
-  --text: rgb(24 24 27);
-  --muted: rgb(113 113 122);
-  --subtle: rgb(244 244 245 / 0.94);
-  --accent: rgb(24 24 27);
-  --income-accent: rgb(217 119 6);
-  --income-accent-bright: rgb(245 158 11);
-  --income-accent-glow: rgb(217 119 6 / 0.16);
-  --income-accent-ring: rgb(217 119 6 / 0.22);
-  --income-accent-shadow: rgb(217 119 6 / 0.26);
-  --danger: rgb(239 68 68);
-  --mini-panel-rgb: 255 255 255;
-  --onboarding-overlay: rgb(0 0 0 / 0.2);
-  --onboarding-panel: rgb(255 255 255 / 0.98);
-  --onboarding-border: rgb(255 255 255 / 0.9);
-  --dashboard-panel: rgb(255 255 255 / 0.5);
-  --dashboard-metric-bg: rgb(255 255 255 / 0.28);
-  --dashboard-border: rgb(255 255 255 / 0.72);
-  --dashboard-divider: rgb(24 24 27 / 0.08);
-  --dashboard-shadow: 0 16px 42px rgb(15 23 42 / 0.1);
-  --progress-track-bg: rgb(229 231 235 / 0.92);
-  --progress-track-shadow: none;
-  --progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11));
-  --progress-dot-border: rgb(255 255 255 / 0.92);
-  --progress-dot-shadow: 0 0 0 1px rgb(217 119 6 / 0.24), 0 6px 16px rgb(217 119 6 / 0.28);
-  --progress-rest-fill-bg: linear-gradient(90deg, var(--muted), color-mix(in srgb, var(--muted) 54%, transparent));
-  --progress-rest-dot-shadow: 0 0 0 1px rgb(127 127 127 / 0.16);
-  --shadow: 0 24px 70px rgb(15 23 42 / 0.18);
-}
-
-.theme-dark {
-  --panel: rgb(24 24 27);
-  --panel-soft: rgb(39 39 42 / 0.58);
-  --border: transparent;
-  --line: rgb(255 255 255 / 0.1);
-  --text: rgb(250 250 250);
-  --muted: rgb(161 161 170);
-  --subtle: rgb(63 63 70 / 0.78);
-  --accent: rgb(250 250 250);
-  --income-accent: rgb(245 158 11);
-  --income-accent-bright: rgb(251 191 36);
-  --income-accent-glow: rgb(245 158 11 / 0.2);
-  --income-accent-ring: rgb(245 158 11 / 0.18);
-  --income-accent-shadow: rgb(245 158 11 / 0.24);
-  --danger: rgb(248 113 113);
-  --mini-panel-rgb: 0 0 0;
-  --onboarding-overlay: rgb(0 0 0 / 0.34);
-  --onboarding-panel: rgb(24 24 27 / 0.96);
-  --onboarding-border: rgb(255 255 255 / 0.16);
-  --dashboard-panel: rgb(17 17 21 / 0.88);
-  --dashboard-metric-bg: rgb(255 255 255 / 0.042);
-  --dashboard-border: rgb(255 255 255 / 0.1);
-  --dashboard-divider: rgb(255 255 255 / 0.07);
-  --dashboard-shadow: 0 24px 58px rgb(0 0 0 / 0.42), inset 0 1px 0 rgb(255 255 255 / 0.035), inset 0 -1px 0 rgb(0 0 0 / 0.34);
-  --progress-track-bg: rgb(58 58 63);
-  --progress-track-shadow: none;
-  --progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11) 62%, rgb(252 211 77));
-  --progress-dot-border: rgb(24 24 27);
-  --progress-dot-shadow: 0 0 0 1px rgb(252 211 77 / 0.42), 0 0 18px rgb(245 158 11 / 0.28), 0 7px 16px rgb(0 0 0 / 0.36);
-  --progress-rest-fill-bg: linear-gradient(90deg, rgb(113 113 122 / 0.54), rgb(82 82 91 / 0.3));
-  --progress-rest-dot-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 6px 14px rgb(0 0 0 / 0.28);
-  --shadow: 0 26px 80px rgb(0 0 0 / 0.38);
-}
-
 .app-shell {
   position: relative;
   overflow: hidden;
@@ -701,7 +633,7 @@ onBeforeUnmount(() => {
 
 .theme-dark .hero-dashboard {
   background:
-    linear-gradient(180deg, rgb(24 24 29 / 0.9), rgb(15 15 18 / 0.88)),
+    linear-gradient(180deg, rgb(18 18 22 / 0.96), rgb(12 12 15 / 0.94)),
     var(--dashboard-panel);
 }
 

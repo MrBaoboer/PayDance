@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import onboardingPanelSource from "./OnboardingPanel.vue?raw";
+import lunchBreakFieldsSource from "./settings/LunchBreakFields.vue?raw";
+import salaryAmountFieldsSource from "./settings/SalaryAmountFields.vue?raw";
 
 describe("onboarding panel", () => {
   it("renames the final setup step to usage preferences", () => {
@@ -15,19 +17,22 @@ describe("onboarding panel", () => {
   });
 
   it("keeps the work-time step airy by hiding lunch inputs until enabled", () => {
-    expect(onboardingPanelSource).toContain('v-if="config.enableLunchBreak" class="field-grid"');
-    expect(onboardingPanelSource).not.toContain(':disabled="!config.enableLunchBreak"');
+    expect(onboardingPanelSource).toContain("<LunchBreakFields");
+    expect(onboardingPanelSource).toContain('variant="onboarding"');
+    expect(lunchBreakFieldsSource).toContain('v-if="config.enableLunchBreak"');
+    expect(lunchBreakFieldsSource).toContain('variant === \'settings\'');
   });
 
   it("uses a more spacious first-run layout", () => {
     expect(onboardingPanelSource).toContain("clamp(370px, 88cqw, 440px)");
     expect(onboardingPanelSource).toContain("min-height: clamp(228px, 53cqh, 276px)");
-    expect(onboardingPanelSource).toContain("gap: clamp(14px, 3.2cqh, 18px)");
+    expect(onboardingPanelSource).toContain("padding: clamp(20px, 4.4cqw, 24px)");
+    expect(onboardingPanelSource).toContain("gap: clamp(16px, 3.6cqh, 20px)");
   });
 
   it("uses the dashboard numeric font for numbers, symbols, and Latin glyphs", () => {
-    expect(onboardingPanelSource).toContain("font-family: var(--font-dashboard)");
-    expect(onboardingPanelSource).toContain("font-variant-numeric: tabular-nums");
+    expect(salaryAmountFieldsSource).toContain("font-family: var(--font-dashboard)");
+    expect(salaryAmountFieldsSource).toContain("font-variant-numeric: tabular-nums");
     expect(onboardingPanelSource).not.toContain("font-family: var(--font-mono)");
   });
 });

@@ -42,4 +42,25 @@ describe("useSalarySettings", () => {
       miniSize: miniDefaultSize,
     });
   });
+
+  it("keeps the app usable when saving settings fails", async () => {
+    storeMocks.get.mockResolvedValue(undefined);
+    storeMocks.save.mockRejectedValue(new Error("disk unavailable"));
+
+    const { isSettingsReady, loadSettings, saveSettings } = await import(
+      "./useSalarySettings"
+    ).then((module) => module.useSalarySettings());
+
+    await loadSettings();
+
+    await expect(
+      saveSettings({
+        fullSize: fullWindowSize,
+        isMiniMode: false,
+        miniOpacityPercent: defaultMiniOpacityPercent,
+        miniSize: miniDefaultSize,
+      }),
+    ).resolves.toBeUndefined();
+    expect(isSettingsReady.value).toBe(true);
+  });
 });
