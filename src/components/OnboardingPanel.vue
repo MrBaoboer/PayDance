@@ -7,14 +7,12 @@ import {
   type SalaryConfigIssue,
 } from "../lib/salary";
 import { getOnboardingStepIssues } from "../lib/onboarding-validation";
-import { parseNumberInput } from "../lib/number-input";
-import {
-  readInputChecked,
-  readInputText,
-  salaryTypeOptions,
-  toggleWorkdayValue,
-  weekdayOptions,
-} from "../lib/settings-form";
+import { readInputChecked } from "../lib/settings-form";
+import LunchBreakFields from "./settings/LunchBreakFields.vue";
+import SalaryAmountFields from "./settings/SalaryAmountFields.vue";
+import SalaryModeControl from "./settings/SalaryModeControl.vue";
+import WorkdayPicker from "./settings/WorkdayPicker.vue";
+import WorkTimeFields from "./settings/WorkTimeFields.vue";
 
 const props = defineProps<{
   alwaysOnTop: boolean;
@@ -63,19 +61,6 @@ const updateConfig = <Key extends keyof SalaryConfig>(
   value: SalaryConfig[Key],
 ) => {
   emit("update:config", { ...props.config, [key]: value });
-};
-
-const updateNumberConfig = <Key extends keyof SalaryConfig>(
-  key: Key,
-  event: Event,
-) => {
-  const value = parseNumberInput((event.target as HTMLInputElement).value);
-  if (value === null) return;
-  updateConfig(key, value as SalaryConfig[Key]);
-};
-
-const toggleWorkday = (day: number) => {
-  updateConfig("workdays", toggleWorkdayValue(props.config.workdays, day));
 };
 
 const goNext = () => {
@@ -166,149 +151,42 @@ const goBack = () => {
 
       <div class="onboarding-body">
         <section v-if="step === 0" class="onboarding-step">
-          <div class="segmented-control segmented-control--three" aria-label="薪资输入方式">
-            <button
-              v-for="option in salaryTypeOptions"
-              :key="option.value"
-              :class="{ 'is-active': config.salaryType === option.value }"
-              type="button"
-              @click="updateConfig('salaryType', option.value)"
-            >
-              {{ option.label }}
-            </button>
-          </div>
+          <SalaryModeControl
+            density="onboarding"
+            :model-value="config.salaryType"
+            @update:model-value="updateConfig('salaryType', $event)"
+          />
 
-          <div class="field-grid">
-            <label
-              v-if="config.salaryType === 'monthly'"
-              class="field"
-              :class="{ 'is-invalid': hasIssue('monthlySalary') }"
-            >
-              <span>月薪</span>
-              <span class="field-input-wrap">
-                <input
-                  :value="config.monthlySalary"
-                  min="0"
-                  step="100"
-                  type="number"
-                  @input="updateNumberConfig('monthlySalary', $event)"
-                />
-                <span class="field-unit">元</span>
-              </span>
-            </label>
-            <label
-              v-if="config.salaryType === 'daily'"
-              class="field"
-              :class="{ 'is-invalid': hasIssue('dailySalary') }"
-            >
-              <span>日薪</span>
-              <span class="field-input-wrap">
-                <input
-                  :value="config.dailySalary"
-                  min="0"
-                  step="50"
-                  type="number"
-                  @input="updateNumberConfig('dailySalary', $event)"
-                />
-                <span class="field-unit">元</span>
-              </span>
-            </label>
-            <label
-              v-if="config.salaryType === 'hourly'"
-              class="field"
-              :class="{ 'is-invalid': hasIssue('hourlyRate') }"
-            >
-              <span>时薪</span>
-              <span class="field-input-wrap">
-                <input
-                  :value="config.hourlyRate"
-                  min="0"
-                  step="5"
-                  type="number"
-                  @input="updateNumberConfig('hourlyRate', $event)"
-                />
-                <span class="field-unit">元</span>
-              </span>
-            </label>
-            <label
-              v-if="config.salaryType === 'monthly'"
-              class="field"
-              :class="{ 'is-invalid': hasIssue('workDaysPerMonth') }"
-            >
-              <span>每月工作天数</span>
-              <span class="field-input-wrap">
-                <input
-                  :value="config.workDaysPerMonth"
-                  min="1"
-                  step="0.5"
-                  type="number"
-                  @input="updateNumberConfig('workDaysPerMonth', $event)"
-                />
-                <span class="field-unit">天</span>
-              </span>
-            </label>
-          </div>
+          <SalaryAmountFields
+            density="onboarding"
+            :config="config"
+            :has-issue="hasIssue"
+            @update:config="emit('update:config', $event)"
+          />
         </section>
 
         <section v-else-if="step === 1" class="onboarding-step">
-          <div class="weekday-control" :class="{ 'is-invalid': hasIssue('workdays') }">
-            <button
-              v-for="day in weekdayOptions"
-              :key="day.value"
-              :class="{ 'is-active': config.workdays.includes(day.value) }"
-              type="button"
-              @click="toggleWorkday(day.value)"
-            >
-              {{ day.label }}
-            </button>
-          </div>
+          <WorkdayPicker
+            density="onboarding"
+            :invalid="hasIssue('workdays')"
+            :workdays="config.workdays"
+            @update:workdays="updateConfig('workdays', $event)"
+          />
 
-          <div class="field-grid">
-            <label class="field" :class="{ 'is-invalid': hasIssue('startTime') || hasIssue('workTime') }">
-              <span>上班</span>
-              <span class="field-input-wrap field-input-wrap--time">
-                <input :value="config.startTime" type="time" @input="updateConfig('startTime', readInputText($event))" />
-              </span>
-            </label>
-            <label class="field" :class="{ 'is-invalid': hasIssue('endTime') || hasIssue('workTime') }">
-              <span>下班</span>
-              <span class="field-input-wrap field-input-wrap--time">
-                <input :value="config.endTime" type="time" @input="updateConfig('endTime', readInputText($event))" />
-              </span>
-            </label>
-          </div>
+          <WorkTimeFields
+            density="onboarding"
+            :config="config"
+            :has-issue="hasIssue"
+            @update:config="emit('update:config', $event)"
+          />
 
-          <label class="switch-row">
-            <input
-              :checked="config.enableLunchBreak"
-              type="checkbox"
-              @change="updateConfig('enableLunchBreak', readInputChecked($event))"
-            />
-            <span>剔除午休</span>
-          </label>
-
-          <div v-if="config.enableLunchBreak" class="field-grid">
-            <label class="field" :class="{ 'is-invalid': hasIssue('lunchStart') || hasIssue('workTime') }">
-              <span>开始</span>
-              <span class="field-input-wrap field-input-wrap--time">
-                <input
-                  :value="config.lunchStart"
-                  type="time"
-                  @input="updateConfig('lunchStart', readInputText($event))"
-                />
-              </span>
-            </label>
-            <label class="field" :class="{ 'is-invalid': hasIssue('lunchEnd') || hasIssue('workTime') }">
-              <span>结束</span>
-              <span class="field-input-wrap field-input-wrap--time">
-                <input
-                  :value="config.lunchEnd"
-                  type="time"
-                  @input="updateConfig('lunchEnd', readInputText($event))"
-                />
-              </span>
-            </label>
-          </div>
+          <LunchBreakFields
+            density="onboarding"
+            variant="onboarding"
+            :config="config"
+            :has-issue="hasIssue"
+            @update:config="emit('update:config', $event)"
+          />
         </section>
 
         <section v-else class="onboarding-step">
@@ -518,103 +396,12 @@ const goBack = () => {
 .onboarding-body {
   min-height: clamp(228px, 53cqh, 276px);
   overflow-y: auto;
-  padding: clamp(18px, 4cqw, 22px);
+  padding: clamp(20px, 4.4cqw, 24px);
 }
 
 .onboarding-step {
   display: grid;
-  gap: clamp(14px, 3.2cqh, 18px);
-}
-
-.field-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(12px, 2.7cqh, 15px);
-}
-
-.field {
-  display: grid;
-  gap: clamp(7px, 1.8cqh, 9px);
-}
-
-.field > span {
-  color: var(--muted);
-  font-size: var(--ui-font-xs, 13px);
-  font-weight: 650;
-}
-
-.field-input-wrap {
-  display: grid;
-  height: clamp(38px, 9cqh, 44px);
-  min-width: 0;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  border: 1px solid var(--line);
-  border-radius: var(--ui-radius-sm, 10px);
-  background: var(--panel);
-  overflow: hidden;
-}
-
-.field-input-wrap--time {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.field input {
-  width: 100%;
-  height: 100%;
-  min-width: 0;
-  border: 0;
-  background: transparent;
-  color: var(--text);
-  font-family: var(--font-dashboard);
-  font-size: var(--ui-font-sm, 14px);
-  font-variant-numeric: tabular-nums;
-  outline: none;
-  padding: 0 clamp(9px, 2.2cqw, 13px);
-  text-align: left;
-}
-
-.field input[type="number"] {
-  padding-left: clamp(10px, 2.4cqw, 14px);
-  padding-right: clamp(4px, 1cqw, 7px);
-}
-
-.field input[type="time"] {
-  padding-left: clamp(28px, 6.4cqw, 38px);
-  padding-right: clamp(5px, 1.2cqw, 8px);
-  text-align: center;
-}
-
-.field input[type="time"]::-webkit-calendar-picker-indicator {
-  margin-right: -2px;
-}
-
-.field-unit {
-  display: inline-flex;
-  min-width: clamp(34px, 7.5cqw, 44px);
-  height: 100%;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted);
-  font-family: var(--font-dashboard);
-  font-size: var(--ui-font-xs, 13px);
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
-.field.is-invalid .field-input-wrap {
-  border-color: rgb(245 158 11 / 0.68);
-  box-shadow: 0 0 0 3px rgb(245 158 11 / 0.12);
-}
-
-.field-input-wrap:has(input:disabled) {
-  background: var(--subtle);
-}
-
-.field input:disabled {
-  color: var(--muted);
+  gap: clamp(16px, 3.6cqh, 20px);
 }
 
 .segmented-control {
@@ -625,10 +412,6 @@ const goBack = () => {
   border-radius: var(--ui-radius-sm, 10px);
   background: var(--subtle);
   padding: clamp(3px, 0.9cqw, 5px);
-}
-
-.segmented-control--three {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .segmented-control button {
@@ -645,34 +428,6 @@ const goBack = () => {
   background: var(--panel);
   box-shadow: 0 5px 14px rgb(15 23 42 / 0.08);
   color: var(--text);
-}
-
-.weekday-control {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: clamp(5px, 1.3cqw, 8px);
-}
-
-.weekday-control button {
-  height: clamp(33px, 7.8cqh, 40px);
-  border: 1px solid var(--line);
-  border-radius: var(--ui-radius-sm, 9px);
-  background: var(--panel-soft);
-  color: var(--muted);
-  font-family: var(--font-dashboard);
-  font-size: var(--ui-font-xs, 13px);
-  font-weight: 750;
-  font-variant-numeric: tabular-nums;
-}
-
-.weekday-control button.is-active {
-  border-color: var(--income-accent-ring);
-  background: var(--income-accent-glow);
-  color: var(--text);
-}
-
-.weekday-control.is-invalid button {
-  border-color: rgb(245 158 11 / 0.42);
 }
 
 .switch-row {

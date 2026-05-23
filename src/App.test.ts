@@ -1,6 +1,12 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import appSource from "./App.vue?raw";
 import themeSyncSource from "./composables/useThemeSync.ts?raw";
+
+const appThemeSource = readFileSync(
+  new URL("./styles/app-theme.css", import.meta.url),
+  "utf8",
+);
 
 describe("main dashboard shell", () => {
   it("removes the v0.6.0 pulse line from the main surface", () => {
@@ -70,9 +76,9 @@ describe("main dashboard shell", () => {
 
   it("uses flat dark-theme hover and dashboard tokens", () => {
     expect(appSource).toContain(".theme-dark .salary-info-button:hover");
-    expect(appSource).toContain("--progress-track-bg");
-    expect(appSource).toContain("--progress-fill-bg");
-    expect(appSource).toContain("--progress-dot-border");
+    expect(appThemeSource).toContain("--progress-track-bg");
+    expect(appThemeSource).toContain("--progress-fill-bg");
+    expect(appThemeSource).toContain("--progress-dot-border");
     expect(appSource).toContain("box-shadow: none");
   });
 
@@ -104,18 +110,23 @@ describe("main dashboard shell", () => {
   });
 
   it("keeps a premium dashboard surface without the dirty white haze in dark mode", () => {
-    expect(appSource).toContain("--dashboard-panel: rgb(255 255 255 / 0.5)");
-    expect(appSource).toContain("--dashboard-panel: rgb(17 17 21 / 0.88)");
-    expect(appSource).toContain("--dashboard-border: rgb(255 255 255 / 0.72)");
-    expect(appSource).toContain("--dashboard-border: rgb(255 255 255 / 0.1)");
-    expect(appSource).toContain("--dashboard-shadow: 0 16px 42px rgb(15 23 42 / 0.1)");
-    expect(appSource).not.toContain("rgb(255 255 255 / 0.11)");
+    expect(appThemeSource).toContain("--dashboard-panel: rgb(255 255 255 / 0.5)");
+    expect(appThemeSource).toContain("--dashboard-panel: rgb(12 12 15 / 0.92)");
+    expect(appThemeSource).toContain("--dashboard-border: rgb(255 255 255 / 0.72)");
+    expect(appThemeSource).toContain("--dashboard-border: rgb(255 255 255 / 0.1)");
+    expect(appThemeSource).toContain("--dashboard-shadow: 0 16px 42px rgb(15 23 42 / 0.1)");
+    expect(appThemeSource).not.toContain("rgb(255 255 255 / 0.11)");
     expect(appSource).not.toContain("radial-gradient");
   });
 
   it("keeps the progress track flat while restoring the v0.6.6 dark fill glow", () => {
-    expect(appSource).toContain("--progress-track-shadow: none");
-    expect(appSource).toContain("--progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11) 62%, rgb(252 211 77))");
+    expect(appThemeSource).toContain("--progress-track-shadow: none");
+    expect(appThemeSource).toContain("--progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11) 62%, rgb(252 211 77))");
+  });
+
+  it("keeps theme tokens out of App.vue", () => {
+    expect(appSource).not.toContain(".theme-light {");
+    expect(appSource).not.toContain(".theme-dark {");
   });
 
   it("passes autostart preferences into the first-run guide", () => {

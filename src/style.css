@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./styles/app-theme.css";
 
 :root {
   --font-sans: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
