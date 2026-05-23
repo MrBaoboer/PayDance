@@ -16,7 +16,7 @@
 ## 产品预览
 
 <p align="center">
-  <img src="marketing-posters/poster-01-income-ticker.png" alt="薪跳 PayDance 实时收入看板" width="100%">
+  <img src="marketing-posters/poster-01-live-dashboard-v3.png" alt="薪跳 PayDance 实时收入看板" width="100%">
 </p>
 
 <p align="center">
@@ -25,7 +25,7 @@
 </p>
 
 <p align="center">
-  <img src="marketing-posters/poster-02-first-run-setup.png" alt="薪跳 PayDance 首次配置三步上手" width="100%">
+  <img src="marketing-posters/poster-02-three-step-setup-v3.png" alt="薪跳 PayDance 首次配置三步上手" width="100%">
 </p>
 
 <p align="center">
