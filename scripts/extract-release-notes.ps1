@@ -10,7 +10,7 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
 }
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$readmePath = Join-Path $projectRoot "README.md"
+$changelogPath = Join-Path $projectRoot "CHANGELOG.md"
 $normalizedVersion = $Version.Trim()
 if (-not $normalizedVersion.StartsWith("v")) {
   $normalizedVersion = "v$normalizedVersion"
@@ -30,7 +30,7 @@ function Write-Utf8NoBom {
   [System.IO.File]::WriteAllLines($absolutePath, $Value, $utf8NoBom)
 }
 
-$lines = Get-Content -LiteralPath $readmePath -Encoding utf8
+$lines = Get-Content -LiteralPath $changelogPath -Encoding utf8
 $heading = "### $normalizedVersion"
 $startIndex = [Array]::IndexOf($lines, $heading)
 
@@ -41,7 +41,7 @@ if ($startIndex -lt 0) {
     'This release was built by GitHub Actions. Download `pay-dance.exe` and verify it with `pay-dance.exe.sha256`.'
   )
   Write-Utf8NoBom -Path $OutputPath -Value $fallback
-  Write-Host "Release notes section $heading was not found. Wrote fallback notes to $OutputPath." -ForegroundColor Yellow
+  Write-Host "Release notes section $heading was not found in CHANGELOG.md. Wrote fallback notes to $OutputPath." -ForegroundColor Yellow
   exit 0
 }
 
@@ -54,6 +54,14 @@ for ($i = $startIndex + 1; $i -lt $lines.Count; $i++) {
   $body.Add($lines[$i])
 }
 
+while ($body.Count -gt 0 -and [string]::IsNullOrWhiteSpace($body[0])) {
+  $body.RemoveAt(0)
+}
+
+while ($body.Count -gt 0 -and [string]::IsNullOrWhiteSpace($body[$body.Count - 1])) {
+  $body.RemoveAt($body.Count - 1)
+}
+
 $content = @(
   "## PayDance $normalizedVersion",
   "",
@@ -64,10 +72,9 @@ $content += @(
   "",
   "### Download and verification",
   "",
-  '- Windows portable executable: `pay-dance.exe`',
-  '- SHA256 checksum: `pay-dance.exe.sha256`',
-  "- Download assets from this GitHub Release page."
+  "- Download assets from this GitHub Release page.",
+  '- If a `.sha256` file is provided, verify the executable before running it.'
 )
 
 Write-Utf8NoBom -Path $OutputPath -Value $content
-Write-Host "Wrote release notes to $OutputPath" -ForegroundColor Green
+Write-Host "Wrote release notes from CHANGELOG.md to $OutputPath" -ForegroundColor Green

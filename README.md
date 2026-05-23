@@ -7,12 +7,17 @@
 [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-24C8DB)](https://tauri.app/)
 [![Privacy](https://img.shields.io/badge/privacy-local%20first-18181B)](#隐私声明作者与许可)
 
-> 打工人的桌面实时工资看板，让每一秒的收入跳动都看得见。
+<h3 align="center">打工人的桌面实时工资看板</h3>
 
-[下载 Windows 便携版](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe) ·
-[查看最新正式版](https://github.com/MasterBao66/PayDance/releases/latest) ·
-[阅读产品边界](PRODUCT.md) ·
-[查看设计规范](DESIGN.md)
+<p align="center">
+  <strong>让每一秒的收入跳动都看得见。</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe"><strong>下载 Windows 便携版</strong></a>
+  ·
+  <a href="https://github.com/MasterBao66/PayDance/releases/latest">查看最新正式版</a>
+</p>
 
 ## 产品简介与核心体验
 
@@ -48,7 +53,7 @@
 - **迷你悬浮模式**：只显示核心金额，支持拖拽、双击恢复主窗口、默认置顶和 `10% - 100%` 透明度调节。
 - **Windows 11 桌面体验**：无边框窗口、圆角、亮色/暗色主题、托盘常驻、窗口置顶和开机自启动。
 - **本地优先隐私**：薪资与作息配置保存在本机，不需要账号，不上传数据，不包含遥测。
-- **克制的产品表达**：主界面只保留必要信息，薪资说明与设置中心作为低频入口，避免常驻桌面时打扰工作流。
+- **常驻不打扰**：主界面只保留必要信息，薪资说明与设置中心作为低频入口，桌面常驻时不抢工作流注意力。
 
 ## 快速下载与安全校验
 
@@ -76,7 +81,7 @@ Get-Content .\pay-dance.exe.sha256
 | UI | Windows 11 风格、CSS Container Queries、@lucide/vue |
 | 本地存储 | `@tauri-apps/plugin-store`，配置写入本机应用数据目录 |
 | 测试 | Vitest, @vue/test-utils, happy-dom, vue-tsc, cargo fmt, cargo clippy, cargo check |
-| 工程治理 | 品牌与敏感信息扫描、版本一致性检查、GitHub Actions Release、[PRODUCT.md](PRODUCT.md)、[DESIGN.md](DESIGN.md) |
+| 工程治理 | 品牌与敏感信息扫描、版本一致性检查、GitHub Actions Release、[PRODUCT.md](PRODUCT.md)、[DESIGN.md](DESIGN.md)、[CHANGELOG.md](CHANGELOG.md) |
 
 项目采用 Vue 3 + TypeScript + Tauri 2 架构，核心薪资逻辑、状态模型和大部分前端界面具备跨平台迁移潜力。当前正式验证的是 Windows 11 桌面体验；迁移到 macOS、Linux、移动端或小程序时，托盘、置顶、透明窗口、迷你悬浮和系统材质需要按平台重新设计与验证。
 
@@ -109,4 +114,4 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAct
 
 薪跳 PayDance 由 Mr.Baober 设计与开发。当前仓库采用保留权利许可，具体见 [LICENSE](LICENSE)。代码可用于审阅与学习；未经作者许可，请勿二次发布、商用分发或移除作者归属信息。
 
-更多更新记录请查看 [Releases](https://github.com/MasterBao66/PayDance/releases)。
+完整版本记录请查看 [CHANGELOG.md](CHANGELOG.md)，构建产物与校验文件请查看 [Releases](https://github.com/MasterBao66/PayDance/releases)。
