@@ -1,0 +1,216 @@
+.app-shell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--panel);
+  transition: background-color 150ms ease;
+}
+
+.app-shell::before {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--panel) 36%, transparent);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 150ms ease,
+    backdrop-filter 150ms ease;
+  backdrop-filter: blur(0) brightness(1);
+}
+
+.app-shell.is-theme-syncing::before {
+  opacity: 0.22;
+  backdrop-filter: blur(6px) brightness(0.98);
+}
+
+.app-shell.is-mini {
+  overflow: visible;
+  border-radius: 0;
+  background: transparent;
+}
+
+.app-shell.is-mini::before {
+  display: none;
+}
+
+.app-window {
+  position: relative;
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  flex-direction: column;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text);
+  container-type: size;
+  backdrop-filter: blur(28px);
+  --ui-font-xs: clamp(12px, calc(10.4px + 0.42cqw), 14px);
+  --ui-font-sm: clamp(13px, calc(10.8px + 0.52cqw), 15px);
+  --ui-font-md: clamp(14px, calc(11px + 0.7cqw), 17px);
+  --ui-font-lg: clamp(17px, calc(12px + 1.18cqw), 21px);
+  --ui-radius-sm: clamp(8px, 2.1cqw, 10px);
+  --ui-radius-md: clamp(10px, 2.7cqw, 13px);
+  --ui-gap-xs: clamp(5px, 1.35cqw, 8px);
+  --ui-gap-sm: clamp(8px, 2.1cqw, 12px);
+  --ui-gap-md: clamp(12px, 3.2cqw, 18px);
+  --ui-pad-sm: clamp(10px, 2.6cqw, 14px);
+  --ui-pad-md: clamp(16px, 4.3cqw, 22px);
+  --hero-top-pad: clamp(24px, 7.2cqh, 40px);
+  --hero-side-pad: clamp(24px, 7.2cqw, 38px);
+  --hero-bottom-pad: clamp(18px, 5cqh, 28px);
+  --hero-amount-gap: clamp(16px, 5.2cqh, 30px);
+  --hero-dashboard-gap: clamp(24px, 7cqh, 42px);
+  --salary-info-offset: clamp(15px, 3.7cqh, 22px);
+}
+
+.is-mini {
+  padding: 4px;
+}
+
+.settings-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  border-radius: inherit;
+  background: rgb(0 0 0 / 0.16);
+  backdrop-filter: blur(6px);
+  z-index: 10;
+}
+
+.settings-overlay--top {
+  align-items: flex-start;
+}
+
+.settings-sheet {
+  display: flex;
+  width: 100%;
+  max-height: calc(100% - clamp(28px, 7cqh, 38px));
+  flex-direction: column;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  border-radius: 18px 18px 20px 20px;
+  background: var(--panel);
+  box-shadow: 0 -18px 48px rgb(15 23 42 / 0.18);
+}
+
+.settings-sheet--top {
+  border-top: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 20px 20px 18px 18px;
+  box-shadow: 0 18px 48px rgb(15 23 42 / 0.18);
+}
+
+.settings-sheet__header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-gap-md);
+  border-bottom: 1px solid var(--line);
+  padding: var(--ui-pad-md);
+  cursor: move;
+}
+
+.settings-sheet__header div {
+  display: grid;
+  min-width: 0;
+  text-align: left;
+}
+
+.settings-sheet__header strong {
+  color: var(--text);
+  font-size: var(--ui-font-lg);
+  font-weight: 750;
+}
+
+.settings-sheet__header span {
+  color: var(--muted);
+  font-size: var(--ui-font-sm);
+  font-weight: 500;
+}
+
+.settings-sheet__body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0;
+  cursor: default;
+  scrollbar-gutter: stable;
+}
+
+@container (max-height: 430px) {
+  .settings-sheet__header {
+    padding: clamp(11px, 2.6cqh, 14px) var(--ui-pad-md);
+  }
+}
+
+.sheet-close-button {
+  display: grid;
+  width: clamp(30px, 7.2cqw, 36px);
+  height: clamp(30px, 7.2cqw, 36px);
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: var(--ui-radius-sm);
+  color: var(--muted);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.sheet-close-button:hover {
+  background: var(--subtle);
+  color: var(--text);
+}
+
+.sheet-close-button:active {
+  transform: scale(0.96);
+}
+
+.settings-sheet__body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.settings-sheet__body::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 48%, transparent);
+  background-clip: content-box;
+}
+
+.settings-sheet-enter-active,
+.settings-sheet-leave-active {
+  transition:
+    opacity 180ms ease,
+    backdrop-filter 180ms ease;
+}
+
+.settings-sheet-enter-active .settings-sheet,
+.settings-sheet-leave-active .settings-sheet {
+  transition:
+    opacity 220ms ease,
+    transform 220ms cubic-bezier(0.2, 0.72, 0.28, 1);
+}
+
+.settings-sheet-enter-from,
+.settings-sheet-leave-to {
+  opacity: 0;
+  backdrop-filter: blur(0);
+}
+
+.settings-sheet-enter-from .settings-sheet,
+.settings-sheet-leave-to .settings-sheet {
+  opacity: 0;
+  transform: translateY(22px);
+}
+
+.settings-sheet-enter-from .settings-sheet--top,
+.settings-sheet-leave-to .settings-sheet--top {
+  transform: translateY(-22px);
+}

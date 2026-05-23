@@ -1,4 +1,5 @@
 .theme-light {
+  color-scheme: light;
   --panel: rgb(255 255 255);
   --panel-soft: rgb(255 255 255 / 0.62);
   --border: transparent;
@@ -20,7 +21,7 @@
   --dashboard-panel: rgb(255 255 255 / 0.5);
   --dashboard-metric-bg: rgb(255 255 255 / 0.28);
   --dashboard-border: rgb(255 255 255 / 0.72);
-  --dashboard-divider: rgb(24 24 27 / 0.08);
+  --dashboard-divider: rgb(24 24 27 / 0.14);
   --dashboard-shadow: 0 16px 42px rgb(15 23 42 / 0.1);
   --progress-track-bg: rgb(229 231 235 / 0.92);
   --progress-track-shadow: none;
@@ -33,6 +34,7 @@
 }
 
 .theme-dark {
+  color-scheme: dark;
   --panel: rgb(18 18 20);
   --panel-soft: rgb(30 30 34 / 0.66);
   --border: transparent;
@@ -54,7 +56,7 @@
   --dashboard-panel: rgb(12 12 15 / 0.92);
   --dashboard-metric-bg: rgb(255 255 255 / 0.042);
   --dashboard-border: rgb(255 255 255 / 0.1);
-  --dashboard-divider: rgb(255 255 255 / 0.07);
+  --dashboard-divider: rgb(255 255 255 / 0.14);
   --dashboard-shadow: 0 24px 58px rgb(0 0 0 / 0.38), inset 0 1px 0 rgb(255 255 255 / 0.025), inset 0 -1px 0 rgb(0 0 0 / 0.34);
   --progress-track-bg: rgb(50 50 56);
   --progress-track-shadow: none;

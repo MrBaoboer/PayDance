@@ -152,6 +152,7 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(
   border: 1px solid var(--line);
   border-radius: var(--ui-radius-sm, 10px);
   background: var(--panel);
+  color-scheme: inherit;
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease,
@@ -168,6 +169,7 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(
   min-width: 0;
   border: 0;
   background: transparent;
+  color-scheme: inherit;
   color: var(--text);
   font-family: var(--font-dashboard);
   font-size: var(--ui-font-sm, 14px);

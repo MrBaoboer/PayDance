@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import appSource from "./App.vue?raw";
+import appWindowSource from "./components/AppWindow.vue?raw";
 import miniOpacityPanelSource from "./composables/useMiniOpacityPanel.ts?raw";
 import windowLifecycleSource from "./composables/useAppWindowLifecycle.ts?raw";
 import windowStatePersistenceSource from "./composables/useWindowStatePersistence.ts?raw";
@@ -16,9 +17,9 @@ describe("app chrome", () => {
   });
 
   it("keeps sheets draggable while their interactive controls remain usable", () => {
-    expect(appSource).toContain("@mousedown.left=\"startDrag\"");
-    expect(appSource).toContain("@mousedown.left.stop");
-    expect(appSource).toContain("settings-sheet__header");
+    expect(appWindowSource).toContain("@mousedown.left=\"emit('dragStart', $event)\"");
+    expect(appWindowSource).toContain("@mousedown.left.stop");
+    expect(appWindowSource).toContain("settings-sheet__header");
   });
 
   it("uses a calmer, more opaque first-run panel backdrop", () => {

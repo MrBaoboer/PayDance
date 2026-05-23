@@ -88,10 +88,10 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
 
 .stat-item + .stat-item::before {
   position: absolute;
-  top: 24%;
-  bottom: 24%;
+  top: 22%;
+  bottom: 22%;
   left: 0;
-  width: 1px;
+  width: clamp(1px, 0.18cqw, 2px);
   background: var(--dashboard-divider, var(--line));
   content: "";
 }

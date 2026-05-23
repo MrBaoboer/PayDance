@@ -4,6 +4,7 @@ import {
   type SalaryConfig,
   type SalarySnapshot,
 } from "../lib/salary";
+import { createMonotonicWallClock } from "../lib/monotonic-clock";
 
 export function useSalaryTicker(config: Ref<SalaryConfig>) {
   const snapshot = ref<SalarySnapshot>(
@@ -13,11 +14,13 @@ export function useSalaryTicker(config: Ref<SalaryConfig>) {
   let rafId = 0;
 
   const startTicker = () => {
-    const baseWallTime = Date.now();
-    const basePerfTime = performance.now();
+    const clock = createMonotonicWallClock();
 
     const tick = (perfTime: number) => {
-      const now = new Date(baseWallTime + perfTime - basePerfTime);
+      const now = clock.now({
+        monotonicMs: perfTime,
+        wallTimeMs: Date.now(),
+      });
       snapshot.value = calculateSalarySnapshot(now, config.value);
       rafId = requestAnimationFrame(tick);
     };

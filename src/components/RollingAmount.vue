@@ -5,10 +5,12 @@ const props = withDefaults(
   defineProps<{
     value: string;
     mode?: "rolling" | "plain";
+    suspendPulse?: boolean;
     variant?: "hero" | "mini";
   }>(),
   {
     mode: "rolling",
+    suspendPulse: false,
     variant: "hero",
   },
 );
@@ -51,6 +53,7 @@ watch(
   () => props.value,
   (value, previousValue) => {
     if (!previousValue || value === previousValue) return;
+    if (props.suspendPulse) return;
 
     window.clearTimeout(pulseTimer);
     isTicking.value = false;
@@ -61,6 +64,16 @@ watch(
         isTicking.value = false;
       }, 220);
     });
+  },
+);
+
+watch(
+  () => props.suspendPulse,
+  (suspendPulse) => {
+    if (!suspendPulse) return;
+
+    window.clearTimeout(pulseTimer);
+    isTicking.value = false;
   },
 );
 
