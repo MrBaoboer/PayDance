@@ -54,6 +54,7 @@ describe("MiniOpacityPanel behavior", () => {
     expect(slider.attributes("min")).toBe("10");
     expect(slider.attributes("max")).toBe("100");
     expect(slider.attributes("aria-label")).toBe("迷你悬浮透明度");
+    expect(slider.attributes("aria-valuetext")).toBe("迷你悬浮透明度 63%");
 
     (slider.element as HTMLInputElement).value = "42";
     await slider.trigger("input");

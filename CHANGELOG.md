@@ -4,6 +4,16 @@
 
 更多构建产物与校验文件请查看 [GitHub Releases](https://github.com/MasterBao66/PayDance/releases)。
 
+### v0.7.12
+
+- 工程检查脚本收敛到 Node canonical，Release notes 从 CHANGELOG 读取的流程不再依赖 PowerShell，保留 Windows 专属环境脚本。
+- 新增 ESLint、Vue a11y lint 与 Prettier 检查，并接入本地验证、CI 与 Release workflow，减少模板语义、格式和无障碍回归。
+- 设置中心与首次启动向导抽出共用 SegmentedControl、SwitchRow、SettingsGroup，并将向导三步拆为独立组件，保持视觉不变但降低维护成本。
+- 薪资计算模型拆成配置、时间、校验、工作段、夜班和快照模块，`src/lib/salary.ts` 保留兼容出口，核心薪资测试继续覆盖原路径。
+- 设置持久化新增写入前配置校验和写后回读核对，避免无效配置或 Store 静默异常污染本地配置。
+- 改善薪资模式、工作日、主金额、迷你窗口和透明度滑杆的可访问性语义，并增加文件体积边界测试防止大组件再次膨胀。
+- Tauri installer bundle target 从泛化 `all` 收窄为明确 Windows NSIS 目标；本版不引入付费代码签名，继续使用 SHA256 校验发布可信度。
+
 ### v0.7.11
 
 - App 主文件瘦身为顶层接线层，主仪表盘、窗口弹层、页面级视图状态、迷你拖拽与金额格式化拆出独立模块，降低后续迭代碰撞面。

@@ -48,6 +48,12 @@ jobs:
       - name: Check repository hygiene
         run: npm run check:hygiene
 
+      - name: Run lint
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
+
       - name: Run unit tests
         run: npm test
 

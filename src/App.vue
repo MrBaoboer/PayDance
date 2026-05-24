@@ -15,7 +15,6 @@ import {
   type WindowSize,
 } from "./lib/window-mode";
 import { appName } from "./lib/app-meta";
-import type { MiniOpacityPanelAnchor } from "./lib/mini-opacity-position";
 import { useAppShell } from "./composables/useAppShell";
 import { useAppWindowLifecycle } from "./composables/useAppWindowLifecycle";
 import { useDashboardModel } from "./composables/useDashboardModel";
@@ -70,27 +69,22 @@ const { applyWindowMode, setAlwaysOnTop } = useWindowMode(
   fullSize,
   alwaysOnTop,
 );
-const {
-  clearSaveStateTimer,
-  loadWindowPreferences,
+const { clearSaveStateTimer, loadWindowPreferences, saveStateNow, scheduleSaveState } =
+  useWindowStatePersistence({
+    defaultWindowPreferences,
+    fullSize,
+    isMiniMode,
+    isSettingsReady,
+    loadSettings,
+    miniOpacityPercent,
+    miniSize,
+    saveSettings,
+  });
+const { applyThemeMode, isThemeSwitching, setThemeMode, toggleTheme } = useThemeSync(
+  appWindow,
+  themeMode,
   saveStateNow,
-  scheduleSaveState,
-} = useWindowStatePersistence({
-  defaultWindowPreferences,
-  fullSize,
-  isMiniMode,
-  isSettingsReady,
-  loadSettings,
-  miniOpacityPercent,
-  miniSize,
-  saveSettings,
-});
-const {
-  applyThemeMode,
-  isThemeSwitching,
-  setThemeMode,
-  toggleTheme,
-} = useThemeSync(appWindow, themeMode, saveStateNow);
+);
 const {
   activeView,
   completeOnboarding,
@@ -136,10 +130,7 @@ const shellClass = computed(() =>
   themeMode.value === "dark" ? "theme-dark" : "theme-light",
 );
 
-const updateMiniOpacityPercent = (
-  value: number,
-  options: { commit?: boolean } = {},
-) => {
+const updateMiniOpacityPercent = (value: number, options: { commit?: boolean } = {}) => {
   miniOpacityPercent.value = normalizeMiniOpacityPercent(value);
   if (options.commit) {
     void saveStateNow();
@@ -184,17 +175,17 @@ const startResize = async (direction: ResizeDirection) => {
   await appWindow.startResizeDragging(direction);
 };
 
-const {
-  clearWindowLifecycleTimers,
-  registerWindowLifecycle,
-} = useAppWindowLifecycle(appWindow, {
-  fullSize,
-  isMiniMode,
-  isSettingsReady,
-  miniSize,
-  saveStateNow,
-  updateMiniOpacityPercent,
-});
+const { clearWindowLifecycleTimers, registerWindowLifecycle } = useAppWindowLifecycle(
+  appWindow,
+  {
+    fullSize,
+    isMiniMode,
+    isSettingsReady,
+    miniSize,
+    saveStateNow,
+    updateMiniOpacityPercent,
+  },
+);
 
 watch(config, scheduleSaveState, { deep: true });
 const unlisteners: Array<() => void> = [];
@@ -242,7 +233,11 @@ onBeforeUnmount(() => {
   <main
     v-else
     class="app-shell h-full w-full select-none p-0"
-    :class="[shellClass, activeView === 'mini' ? 'is-mini' : '', { 'is-theme-syncing': isThemeSwitching }]"
+    :class="[
+      shellClass,
+      activeView === 'mini' ? 'is-mini' : '',
+      { 'is-theme-syncing': isThemeSwitching },
+    ]"
     @contextmenu.prevent
   >
     <MiniWindow

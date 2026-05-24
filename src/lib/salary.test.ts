@@ -261,16 +261,13 @@ describe("calculateSalarySnapshot", () => {
       endTime: "18:00",
       enableLunchBreak: false,
     });
-    const completedNight = calculateSalarySnapshot(
-      new Date("2026-05-12T02:31:00"),
-      {
-        ...config,
-        workdays: [1],
-        startTime: "09:30",
-        endTime: "02:30",
-        enableLunchBreak: false,
-      },
-    );
+    const completedNight = calculateSalarySnapshot(new Date("2026-05-12T02:31:00"), {
+      ...config,
+      workdays: [1],
+      startTime: "09:30",
+      endTime: "02:30",
+      enableLunchBreak: false,
+    });
 
     expect(normalDay.status).toBe("after-work");
     expect(normalDay.isNightWork).toBe(false);

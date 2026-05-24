@@ -89,6 +89,7 @@ onBeforeUnmount(() => {
     </header>
     <input
       aria-label="迷你悬浮透明度"
+      :aria-valuetext="`迷你悬浮透明度 ${opacityPercent}%`"
       :max="maxMiniOpacityPercent"
       :min="minMiniOpacityPercent"
       :value="opacityPercent"

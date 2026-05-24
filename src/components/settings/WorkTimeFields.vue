@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useId } from "vue";
 import type { SalaryConfig, SalaryConfigIssue } from "../../lib/salary";
 import { readInputText } from "../../lib/settings-form";
 
@@ -12,6 +13,8 @@ const emit = defineEmits<{
   "update:config": [config: SalaryConfig];
 }>();
 
+const idPrefix = useId();
+
 const updateConfig = <Key extends keyof SalaryConfig>(
   key: Key,
   value: SalaryConfig[Key],
@@ -22,20 +25,30 @@ const updateConfig = <Key extends keyof SalaryConfig>(
 
 <template>
   <div class="field-grid" :class="`field-grid--${density}`">
-    <label class="field" :class="{ 'is-invalid': hasIssue('startTime') || hasIssue('workTime') }">
+    <label
+      class="field"
+      :for="`${idPrefix}-start-time`"
+      :class="{ 'is-invalid': hasIssue('startTime') || hasIssue('workTime') }"
+    >
       <span>上班</span>
       <span class="field-input-wrap field-input-wrap--time">
         <input
+          :id="`${idPrefix}-start-time`"
           :value="config.startTime"
           type="time"
           @input="updateConfig('startTime', readInputText($event))"
         />
       </span>
     </label>
-    <label class="field" :class="{ 'is-invalid': hasIssue('endTime') || hasIssue('workTime') }">
+    <label
+      class="field"
+      :for="`${idPrefix}-end-time`"
+      :class="{ 'is-invalid': hasIssue('endTime') || hasIssue('workTime') }"
+    >
       <span>下班</span>
       <span class="field-input-wrap field-input-wrap--time">
         <input
+          :id="`${idPrefix}-end-time`"
           :value="config.endTime"
           type="time"
           @input="updateConfig('endTime', readInputText($event))"

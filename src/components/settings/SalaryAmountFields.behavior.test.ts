@@ -26,8 +26,8 @@ describe("SalaryAmountFields", () => {
       },
     });
 
-    expect(wrapper.classes()).toContain("salary-mode-control");
-    expect(wrapper.classes()).not.toContain("segmented-control");
+    expect(wrapper.classes()).toContain("segmented-control");
+    expect(wrapper.attributes("role")).toBe("radiogroup");
     expect(wrapper.findAll("button").map((button) => button.text())).toEqual([
       "月薪",
       "日薪",

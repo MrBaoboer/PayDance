@@ -20,10 +20,7 @@ type MiniOpacityHostWindow = {
   innerSize: () => Promise<{ height: number; width: number }>;
 };
 
-export const scaleMiniOpacityRect = (
-  rect: MiniOpacityRect,
-  scaleFactor: number,
-) => ({
+export const scaleMiniOpacityRect = (rect: MiniOpacityRect, scaleFactor: number) => ({
   height: Math.round(rect.height * scaleFactor),
   width: Math.round(rect.width * scaleFactor),
   x: Math.round(rect.x * scaleFactor),
@@ -50,9 +47,7 @@ export function useMiniOpacityPanel(
   miniOpacityPercent: Ref<number>,
   themeMode: Ref<ThemeMode>,
 ) {
-  const resolveMiniOpacityPanelPlacement = async (
-    opacityWindow: WebviewWindow,
-  ) => {
+  const resolveMiniOpacityPanelPlacement = async (opacityWindow: WebviewWindow) => {
     await opacityWindow.setSize(
       new LogicalSize(
         miniOpacityPanelLogicalSize.width,

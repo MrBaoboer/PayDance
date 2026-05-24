@@ -7,9 +7,7 @@ import {
 import { createMonotonicWallClock } from "../lib/monotonic-clock";
 
 export function useSalaryTicker(config: Ref<SalaryConfig>) {
-  const snapshot = ref<SalarySnapshot>(
-    calculateSalarySnapshot(new Date(), config.value),
-  );
+  const snapshot = ref<SalarySnapshot>(calculateSalarySnapshot(new Date(), config.value));
 
   let rafId = 0;
 

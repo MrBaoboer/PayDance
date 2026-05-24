@@ -45,8 +45,12 @@ describe("app chrome", () => {
     expect(miniOpacityPanelSource).toContain("resolveMiniOpacityPanelPhysicalSize");
     expect(miniOpacityPanelSource).toContain("resolveMiniOpacityPanelAnchorRect");
     expect(miniOpacityPanelSource).not.toContain("LogicalPosition");
-    expect(miniOpacityPanelSource).not.toContain("resolveMiniOpacityPanelPlacement(event");
-    expect(miniOpacityPanelSource).not.toContain("resolvePointerMiniOpacityPanelPosition");
+    expect(miniOpacityPanelSource).not.toContain(
+      "resolveMiniOpacityPanelPlacement(event",
+    );
+    expect(miniOpacityPanelSource).not.toContain(
+      "resolvePointerMiniOpacityPanelPosition",
+    );
     expect(miniOpacityPanelSource).toContain("mini-opacity-panel-open");
     expect(windowLifecycleSource).toContain("mini-opacity-change");
     expect(windowLifecycleSource).toContain("commit?: boolean");
@@ -55,7 +59,7 @@ describe("app chrome", () => {
 
   it("persists mini opacity together with the mini window state", () => {
     expect(appSource).toContain("miniOpacityPercent");
-    expect(appSource).toContain(":opacity-percent=\"miniOpacityPercent\"");
+    expect(appSource).toContain(':opacity-percent="miniOpacityPercent"');
     expect(windowStatePersistenceSource).toContain(
       "miniOpacityPercent: miniOpacityPercent.value",
     );

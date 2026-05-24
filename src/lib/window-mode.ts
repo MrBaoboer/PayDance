@@ -21,14 +21,23 @@ export const normalizeMiniSize = (
   size: Partial<WindowSize> | null | undefined,
 ): WindowSize => ({
   width: Math.max(miniMinSize.width, Math.round(size?.width ?? miniDefaultSize.width)),
-  height: Math.max(miniMinSize.height, Math.round(size?.height ?? miniDefaultSize.height)),
+  height: Math.max(
+    miniMinSize.height,
+    Math.round(size?.height ?? miniDefaultSize.height),
+  ),
 });
 
 export const normalizeFullSize = (
   size: Partial<WindowSize> | null | undefined,
 ): WindowSize => ({
-  width: Math.max(fullWindowMinSize.width, Math.round(size?.width ?? fullWindowSize.width)),
-  height: Math.max(fullWindowMinSize.height, Math.round(size?.height ?? fullWindowSize.height)),
+  width: Math.max(
+    fullWindowMinSize.width,
+    Math.round(size?.width ?? fullWindowSize.width),
+  ),
+  height: Math.max(
+    fullWindowMinSize.height,
+    Math.round(size?.height ?? fullWindowSize.height),
+  ),
 });
 
 export const normalizeMiniOpacityPercent = (value: unknown) => {
@@ -37,10 +46,7 @@ export const normalizeMiniOpacityPercent = (value: unknown) => {
       ? Math.round(value)
       : defaultMiniOpacityPercent;
 
-  return Math.min(
-    maxMiniOpacityPercent,
-    Math.max(minMiniOpacityPercent, numericValue),
-  );
+  return Math.min(maxMiniOpacityPercent, Math.max(minMiniOpacityPercent, numericValue));
 };
 
 export type StoredWindowPreferences = {

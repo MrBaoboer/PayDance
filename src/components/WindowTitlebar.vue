@@ -1,13 +1,5 @@
 <script setup lang="ts">
-import {
-  Minus,
-  Moon,
-  Pin,
-  Settings2,
-  Shrink,
-  Sun,
-  X,
-} from "@lucide/vue";
+import { Minus, Moon, Pin, Settings2, Shrink, Sun, X } from "@lucide/vue";
 
 defineProps<{
   alwaysOnTop: boolean;
@@ -28,20 +20,39 @@ defineEmits<{
 </script>
 
 <template>
+  <!-- eslint-disable vuejs-accessibility/no-static-element-interactions -->
   <header class="titlebar" @mousedown.left="$emit('dragStart', $event)">
     <div class="status-chip">
       <span
         class="status-dot"
-        :class="hasConfigIssues ? 'status-dot--warning' : statusText === '正在上班' || statusText === '正在夜班' ? 'status-dot--working' : 'status-dot--idle'"
+        :class="
+          hasConfigIssues
+            ? 'status-dot--warning'
+            : statusText === '正在上班' || statusText === '正在夜班'
+              ? 'status-dot--working'
+              : 'status-dot--idle'
+        "
       />
       <span>{{ statusText }}</span>
     </div>
 
     <div class="window-actions">
-      <button class="icon-button" aria-label="打开设置" title="设置" type="button" @click="$emit('toggleSettings')">
+      <button
+        class="icon-button"
+        aria-label="打开设置"
+        title="设置"
+        type="button"
+        @click="$emit('toggleSettings')"
+      >
         <Settings2 :size="16" />
       </button>
-      <button class="icon-button" aria-label="切换迷你悬浮模式" title="迷你悬浮模式" type="button" @click="$emit('toggleMiniMode')">
+      <button
+        class="icon-button"
+        aria-label="切换迷你悬浮模式"
+        title="迷你悬浮模式"
+        type="button"
+        @click="$emit('toggleMiniMode')"
+      >
         <Shrink :size="16" />
       </button>
       <button
@@ -63,10 +74,22 @@ defineEmits<{
       >
         <Pin :class="{ 'pin-icon--filled': alwaysOnTop }" :size="16" />
       </button>
-      <button class="icon-button" aria-label="最小化窗口" title="最小化" type="button" @click="$emit('minimize')">
+      <button
+        class="icon-button"
+        aria-label="最小化窗口"
+        title="最小化"
+        type="button"
+        @click="$emit('minimize')"
+      >
         <Minus :size="16" />
       </button>
-      <button class="icon-button danger" aria-label="关闭到托盘" title="关闭到托盘" type="button" @click="$emit('close')">
+      <button
+        class="icon-button danger"
+        aria-label="关闭到托盘"
+        title="关闭到托盘"
+        type="button"
+        @click="$emit('close')"
+      >
         <X :size="16" />
       </button>
     </div>

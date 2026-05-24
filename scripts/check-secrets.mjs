@@ -56,7 +56,7 @@ for (const file of files) {
 
   if (binaryExtensions.has(extname(file).toLowerCase())) continue;
 
-  let content = "";
+  let content;
   try {
     content = readFileSync(fullPath, "utf8");
   } catch {

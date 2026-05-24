@@ -18,10 +18,16 @@ const toggleWorkday = (day: number) => {
 </script>
 
 <template>
-  <div class="weekday-control" :class="[`weekday-control--${density}`, { 'is-invalid': invalid }]">
+  <div
+    class="weekday-control"
+    :class="[`weekday-control--${density}`, { 'is-invalid': invalid }]"
+    role="group"
+    aria-label="每周工作日"
+  >
     <button
       v-for="day in weekdayOptions"
       :key="day.value"
+      :aria-pressed="workdays.includes(day.value)"
       :class="{ 'is-active': workdays.includes(day.value) }"
       type="button"
       @click="toggleWorkday(day.value)"

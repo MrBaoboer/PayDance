@@ -54,7 +54,9 @@ describe("mini opacity panel positioning", () => {
     });
 
     expect(position).toEqual({ x: -1006, y: 252 });
-    expect(Math.abs(position.x + 9 + 135 / 2 - (-1040 + 220 / 2))).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(position.x + 9 + 135 / 2 - (-1040 + 220 / 2))).toBeLessThanOrEqual(
+      0.5,
+    );
   });
 
   it("opens above the mini window near the bottom edge", () => {

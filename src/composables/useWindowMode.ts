@@ -36,7 +36,9 @@ export function useWindowMode(
 
     const size = normalizeFullSize(fullSize.value);
     fullSize.value = size;
-    await appWindow.setMinSize(new LogicalSize(fullWindowMinSize.width, fullWindowMinSize.height));
+    await appWindow.setMinSize(
+      new LogicalSize(fullWindowMinSize.width, fullWindowMinSize.height),
+    );
     await appWindow.setSize(new LogicalSize(size.width, size.height));
     await appWindow.setAlwaysOnTop(alwaysOnTop.value);
   };

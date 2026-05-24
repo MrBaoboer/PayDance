@@ -43,10 +43,7 @@ const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
   height: clamp(9px, 2.3cqh, 12px);
   overflow: visible;
   border-radius: 999px;
-  background: var(
-    --progress-track-bg,
-    var(--subtle)
-  );
+  background: var(--progress-track-bg, var(--subtle));
   box-shadow: var(--progress-track-shadow, none);
 }
 
@@ -56,7 +53,10 @@ const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
   min-width: clamp(7px, 1.7cqw, 10px);
   overflow: hidden;
   border-radius: inherit;
-  background: var(--progress-fill-bg, linear-gradient(90deg, var(--income-accent), var(--income-accent-bright)));
+  background: var(
+    --progress-fill-bg,
+    linear-gradient(90deg, var(--income-accent), var(--income-accent-bright))
+  );
   transition: width 260ms ease-out;
 }
 
@@ -84,15 +84,25 @@ const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
   border: 2px solid var(--progress-dot-border, var(--panel));
   border-radius: 999px;
   background: var(--income-accent);
-  box-shadow: var(--progress-dot-shadow, 0 0 0 1px var(--income-accent-ring), 0 6px 16px var(--income-accent-shadow));
+  box-shadow: var(
+    --progress-dot-shadow,
+    0 0 0 1px var(--income-accent-ring),
+    0 6px 16px var(--income-accent-shadow)
+  );
   transform: translate(-50%, -50%);
-  transition: left 260ms ease-out, opacity 160ms ease;
+  transition:
+    left 260ms ease-out,
+    opacity 160ms ease;
 }
 
 .income-progress:not(.is-working) .progress-fill {
   background: var(
     --progress-rest-fill-bg,
-    linear-gradient(90deg, var(--muted), color-mix(in srgb, var(--muted) 54%, transparent))
+    linear-gradient(
+      90deg,
+      var(--muted),
+      color-mix(in srgb, var(--muted) 54%, transparent)
+    )
   );
 }
 

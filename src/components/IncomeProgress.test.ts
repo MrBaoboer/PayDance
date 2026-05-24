@@ -23,7 +23,9 @@ describe("income progress", () => {
     expect(incomeProgressSource).toContain("--progress-fill-bg");
     expect(incomeProgressSource).toContain("--progress-dot-border");
     expect(incomeProgressSource).toContain("--progress-dot-shadow");
-    expect(incomeProgressSource).not.toContain("border: 1px solid var(--progress-track-border");
+    expect(incomeProgressSource).not.toContain(
+      "border: 1px solid var(--progress-track-border",
+    );
     expect(incomeProgressSource).not.toContain("inset 0 1px");
   });
 });

@@ -55,6 +55,12 @@ jobs:
       - name: Check repository hygiene
         run: npm run check:hygiene
 
+      - name: Run lint
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
+
       - name: Run unit tests
         run: npm test
 
@@ -90,8 +96,7 @@ jobs:
 
       - name: Generate release notes
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
-        shell: pwsh
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/extract-release-notes.ps1 -Version "${{ env.RELEASE_TAG }}" -OutputPath release-notes.md
+        run: node scripts/extract-release-notes.mjs --version "${{ env.RELEASE_TAG }}" --output release-notes.md
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'

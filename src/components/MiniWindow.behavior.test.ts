@@ -48,4 +48,26 @@ describe("MiniWindow behavior", () => {
       },
     ]);
   });
+
+  it("exposes a keyboard restore path for the mini window", async () => {
+    const wrapper = mount(MiniWindow, {
+      props: {
+        amount: "330.29",
+        amountMode: "plain",
+        opacityPercent: 100,
+      },
+      global: {
+        stubs: {
+          RollingAmount: {
+            props: ["value"],
+            template: "<span>{{ value }}</span>",
+          },
+        },
+      },
+    });
+
+    await wrapper.get(".mini-window").trigger("keydown", { key: "Enter" });
+
+    expect(wrapper.emitted("restore")).toHaveLength(1);
+  });
 });

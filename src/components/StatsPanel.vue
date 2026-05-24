@@ -162,5 +162,4 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
   width: 0.44em;
   overflow: hidden;
 }
-
 </style>

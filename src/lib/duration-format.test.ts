@@ -12,6 +12,8 @@ describe("dashboard duration format", () => {
   });
 
   it("floors partial minutes so the dashboard never jumps ahead", () => {
-    expect(formatDashboardDuration(4 * 60 * 60_000 + 12 * 60_000 + 59_999)).toBe("4h 12m");
+    expect(formatDashboardDuration(4 * 60 * 60_000 + 12 * 60_000 + 59_999)).toBe(
+      "4h 12m",
+    );
   });
 });

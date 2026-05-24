@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useId } from "vue";
 import type { SalaryConfig, SalaryConfigIssue } from "../../lib/salary";
-import { readInputChecked, readInputText } from "../../lib/settings-form";
+import { readInputText } from "../../lib/settings-form";
+import SwitchRow from "../ui/SwitchRow.vue";
 
 const props = defineProps<{
   config: SalaryConfig;
@@ -12,6 +14,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   "update:config": [config: SalaryConfig];
 }>();
+
+const idPrefix = useId();
 
 const updateConfig = <Key extends keyof SalaryConfig>(
   key: Key,
@@ -26,20 +30,23 @@ const updateConfig = <Key extends keyof SalaryConfig>(
     <template v-if="variant === 'settings'">
       <div class="group-title group-title--split">
         <strong>午休</strong>
-        <label class="switch-row switch-row--title-action">
-          <input
-            :checked="config.enableLunchBreak"
-            type="checkbox"
-            @change="updateConfig('enableLunchBreak', readInputChecked($event))"
-          />
-          <span>剔除</span>
-        </label>
+        <SwitchRow
+          label="剔除"
+          title-action
+          :model-value="config.enableLunchBreak"
+          @update:model-value="updateConfig('enableLunchBreak', $event)"
+        />
       </div>
       <div class="field-grid" :class="`field-grid--${density}`">
-        <label class="field" :class="{ 'is-invalid': hasIssue('lunchStart') || hasIssue('workTime') }">
+        <label
+          class="field"
+          :for="`${idPrefix}-settings-lunch-start`"
+          :class="{ 'is-invalid': hasIssue('lunchStart') || hasIssue('workTime') }"
+        >
           <span>开始</span>
           <span class="field-input-wrap field-input-wrap--time">
             <input
+              :id="`${idPrefix}-settings-lunch-start`"
               :disabled="!config.enableLunchBreak"
               :value="config.lunchStart"
               type="time"
@@ -47,10 +54,15 @@ const updateConfig = <Key extends keyof SalaryConfig>(
             />
           </span>
         </label>
-        <label class="field" :class="{ 'is-invalid': hasIssue('lunchEnd') || hasIssue('workTime') }">
+        <label
+          class="field"
+          :for="`${idPrefix}-settings-lunch-end`"
+          :class="{ 'is-invalid': hasIssue('lunchEnd') || hasIssue('workTime') }"
+        >
           <span>结束</span>
           <span class="field-input-wrap field-input-wrap--time">
             <input
+              :id="`${idPrefix}-settings-lunch-end`"
               :disabled="!config.enableLunchBreak"
               :value="config.lunchEnd"
               type="time"
@@ -62,30 +74,41 @@ const updateConfig = <Key extends keyof SalaryConfig>(
     </template>
 
     <template v-else>
-      <label class="switch-row">
-        <input
-          :checked="config.enableLunchBreak"
-          type="checkbox"
-          @change="updateConfig('enableLunchBreak', readInputChecked($event))"
-        />
-        <span>剔除午休</span>
-      </label>
+      <SwitchRow
+        label="剔除午休"
+        :model-value="config.enableLunchBreak"
+        @update:model-value="updateConfig('enableLunchBreak', $event)"
+      />
 
-      <div v-if="config.enableLunchBreak" class="field-grid" :class="`field-grid--${density}`">
-        <label class="field" :class="{ 'is-invalid': hasIssue('lunchStart') || hasIssue('workTime') }">
+      <div
+        v-if="config.enableLunchBreak"
+        class="field-grid"
+        :class="`field-grid--${density}`"
+      >
+        <label
+          class="field"
+          :for="`${idPrefix}-onboarding-lunch-start`"
+          :class="{ 'is-invalid': hasIssue('lunchStart') || hasIssue('workTime') }"
+        >
           <span>开始</span>
           <span class="field-input-wrap field-input-wrap--time">
             <input
+              :id="`${idPrefix}-onboarding-lunch-start`"
               :value="config.lunchStart"
               type="time"
               @input="updateConfig('lunchStart', readInputText($event))"
             />
           </span>
         </label>
-        <label class="field" :class="{ 'is-invalid': hasIssue('lunchEnd') || hasIssue('workTime') }">
+        <label
+          class="field"
+          :for="`${idPrefix}-onboarding-lunch-end`"
+          :class="{ 'is-invalid': hasIssue('lunchEnd') || hasIssue('workTime') }"
+        >
           <span>结束</span>
           <span class="field-input-wrap field-input-wrap--time">
             <input
+              :id="`${idPrefix}-onboarding-lunch-end`"
               :value="config.lunchEnd"
               type="time"
               @input="updateConfig('lunchEnd', readInputText($event))"
@@ -217,35 +240,6 @@ const updateConfig = <Key extends keyof SalaryConfig>(
 
 .field input:disabled {
   color: var(--muted);
-}
-
-.switch-row {
-  display: flex;
-  align-items: center;
-  gap: var(--ui-gap-xs, 8px);
-  color: var(--muted);
-  font-size: var(--ui-font-sm, 14px);
-  font-weight: 650;
-}
-
-.lunch-break-fields--settings .switch-row {
-  gap: var(--ui-gap-xs, 7px);
-  font-weight: 600;
-}
-
-.switch-row input {
-  width: 16px;
-  height: clamp(15px, 3.4cqw, 18px);
-  accent-color: var(--accent);
-}
-
-.switch-row--title-action {
-  min-width: clamp(104px, 26cqw, 126px);
-  justify-content: flex-end;
-}
-
-.switch-row--title-action input {
-  flex: 0 0 auto;
 }
 
 @media (max-width: 460px) {

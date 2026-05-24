@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const scriptPath = resolve(import.meta.dirname, "extract-release-notes.ps1");
+const scriptPath = resolve(import.meta.dirname, "extract-release-notes.mjs");
 const outputPath = resolve(
   import.meta.dirname,
   "..",
@@ -17,18 +17,8 @@ describe("release notes extraction", () => {
     }
 
     execFileSync(
-      "powershell",
-      [
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        scriptPath,
-        "-Version",
-        "v0.7.9",
-        "-OutputPath",
-        outputPath,
-      ],
+      "node",
+      [scriptPath, "--version", "v0.7.9", "--output", outputPath],
       { encoding: "utf8" },
     );
 

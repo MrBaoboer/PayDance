@@ -59,11 +59,17 @@ describe("main dashboard shell", () => {
   });
 
   it("keeps the salary explanation entry text-like instead of adding a third surface layer", () => {
-    expect(mainDashboardSource).toContain(":global(.theme-light) .salary-info-button:hover");
+    expect(mainDashboardSource).toContain(
+      ":global(.theme-light) .salary-info-button:hover",
+    );
     expect(mainDashboardSource).toContain("border-radius: 999px");
     expect(mainDashboardSource).toContain("background: rgb(245 158 11 / 0.08)");
-    expect(mainDashboardSource).not.toContain("box-shadow: 0 8px 22px rgb(245 158 11 / 0.16)");
-    expect(mainDashboardSource).not.toContain("background: color-mix(in srgb, var(--income-accent) 10%, white 90%)");
+    expect(mainDashboardSource).not.toContain(
+      "box-shadow: 0 8px 22px rgb(245 158 11 / 0.16)",
+    );
+    expect(mainDashboardSource).not.toContain(
+      "background: color-mix(in srgb, var(--income-accent) 10%, white 90%)",
+    );
   });
 
   it("guards theme switching so native and web themes do not race", () => {
@@ -76,7 +82,8 @@ describe("main dashboard shell", () => {
     expect(themeSyncSource.indexOf("themeMode.value = mode")).toBeLessThan(
       themeSyncSource.indexOf("await appWindow.setTheme(mode)"),
     );
-    expect(appSource).toContain("useThemeSync(appWindow, themeMode, saveStateNow)");
+    expect(appSource).toContain("useThemeSync(");
+    expect(appSource).toContain("saveStateNow,");
     expect(appSource).not.toContain("let themeApplyToken = 0");
   });
 
@@ -87,7 +94,9 @@ describe("main dashboard shell", () => {
   });
 
   it("uses flat dark-theme hover and dashboard tokens", () => {
-    expect(mainDashboardSource).toContain(":global(.theme-dark) .salary-info-button:hover");
+    expect(mainDashboardSource).toContain(
+      ":global(.theme-dark) .salary-info-button:hover",
+    );
     expect(appThemeSource).toContain("--progress-track-bg");
     expect(appThemeSource).toContain("--progress-fill-bg");
     expect(appThemeSource).toContain("--progress-dot-border");
@@ -126,14 +135,18 @@ describe("main dashboard shell", () => {
     expect(appThemeSource).toContain("--dashboard-panel: rgb(12 12 15 / 0.92)");
     expect(appThemeSource).toContain("--dashboard-border: rgb(255 255 255 / 0.72)");
     expect(appThemeSource).toContain("--dashboard-border: rgb(255 255 255 / 0.1)");
-    expect(appThemeSource).toContain("--dashboard-shadow: 0 16px 42px rgb(15 23 42 / 0.1)");
+    expect(appThemeSource).toContain(
+      "--dashboard-shadow: 0 16px 42px rgb(15 23 42 / 0.1)",
+    );
     expect(appThemeSource).not.toContain("rgb(255 255 255 / 0.11)");
     expect(mainDashboardSource).not.toContain("radial-gradient");
   });
 
   it("keeps the progress track flat while restoring the v0.6.6 dark fill glow", () => {
     expect(appThemeSource).toContain("--progress-track-shadow: none");
-    expect(appThemeSource).toContain("--progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11) 62%, rgb(252 211 77))");
+    expect(appThemeSource).toContain("--progress-fill-bg: linear-gradient(");
+    expect(appThemeSource).toContain("rgb(245 158 11) 62%");
+    expect(appThemeSource).toContain("rgb(252 211 77)");
   });
 
   it("keeps theme tokens out of App.vue", () => {

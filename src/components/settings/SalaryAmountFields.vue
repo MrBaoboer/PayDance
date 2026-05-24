@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, useId } from "vue";
 import { parseNumberInput } from "../../lib/number-input";
 import type { SalaryConfig, SalaryConfigIssue } from "../../lib/salary";
 import { getSalaryAmountLabel } from "../../lib/settings-form";
@@ -14,9 +14,8 @@ const emit = defineEmits<{
   "update:config": [config: SalaryConfig];
 }>();
 
-const salaryAmountLabel = computed(() =>
-  getSalaryAmountLabel(props.config.salaryType),
-);
+const salaryAmountLabel = computed(() => getSalaryAmountLabel(props.config.salaryType));
+const idPrefix = useId();
 
 const updateConfig = <Key extends keyof SalaryConfig>(
   key: Key,
@@ -25,10 +24,7 @@ const updateConfig = <Key extends keyof SalaryConfig>(
   emit("update:config", { ...props.config, [key]: value });
 };
 
-const updateNumberConfig = <Key extends keyof SalaryConfig>(
-  key: Key,
-  event: Event,
-) => {
+const updateNumberConfig = <Key extends keyof SalaryConfig>(key: Key, event: Event) => {
   const value = parseNumberInput((event.target as HTMLInputElement).value);
   if (value === null) return;
   updateConfig(key, value as SalaryConfig[Key]);
@@ -40,11 +36,13 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(
     <label
       v-if="config.salaryType === 'monthly'"
       class="field"
+      :for="`${idPrefix}-monthly-salary`"
       :class="{ 'is-invalid': hasIssue('monthlySalary') }"
     >
       <span>{{ salaryAmountLabel }}</span>
       <span class="field-input-wrap">
         <input
+          :id="`${idPrefix}-monthly-salary`"
           :value="config.monthlySalary"
           min="0"
           step="100"
@@ -57,11 +55,13 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(
     <label
       v-if="config.salaryType === 'daily'"
       class="field"
+      :for="`${idPrefix}-daily-salary`"
       :class="{ 'is-invalid': hasIssue('dailySalary') }"
     >
       <span>{{ salaryAmountLabel }}</span>
       <span class="field-input-wrap">
         <input
+          :id="`${idPrefix}-daily-salary`"
           :value="config.dailySalary"
           min="0"
           step="50"
@@ -74,11 +74,13 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(
     <label
       v-if="config.salaryType === 'hourly'"
       class="field"
+      :for="`${idPrefix}-hourly-rate`"
       :class="{ 'is-invalid': hasIssue('hourlyRate') }"
     >
       <span>{{ salaryAmountLabel }}</span>
       <span class="field-input-wrap">
         <input
+          :id="`${idPrefix}-hourly-rate`"
           :value="config.hourlyRate"
           min="0"
           step="5"
@@ -91,11 +93,13 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(
     <label
       v-if="config.salaryType === 'monthly'"
       class="field"
+      :for="`${idPrefix}-work-days-per-month`"
       :class="{ 'is-invalid': hasIssue('workDaysPerMonth') }"
     >
       <span>每月工作天数</span>
       <span class="field-input-wrap">
         <input
+          :id="`${idPrefix}-work-days-per-month`"
           :value="config.workDaysPerMonth"
           min="1"
           step="0.5"

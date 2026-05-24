@@ -16,9 +16,7 @@ const libRs = readFileSync(resolve(tauriDir, "src", "lib.rs"), "utf8");
 
 describe("desktop window chrome", () => {
   it("disables the native shadow on the transparent main window", () => {
-    const mainWindow = tauriConfig.app.windows.find(
-      (window) => window.label === "main",
-    );
+    const mainWindow = tauriConfig.app.windows.find((window) => window.label === "main");
 
     expect(mainWindow).toBeDefined();
     expect(mainWindow.transparent).toBe(true);
@@ -86,6 +84,8 @@ describe("desktop window chrome", () => {
     expect(JSON.stringify(miniOpacityCapability.permissions)).not.toContain(
       "opener:allow-open-url",
     );
-    expect(miniOpacityCapability.permissions).not.toContain("core:window:allow-set-position");
+    expect(miniOpacityCapability.permissions).not.toContain(
+      "core:window:allow-set-position",
+    );
   });
 });

@@ -4,9 +4,10 @@ import miniOpacityPanelSource from "./MiniOpacityPanel.vue?raw";
 describe("mini opacity panel", () => {
   it("uses a compact slider from 10 to 100 percent", () => {
     expect(miniOpacityPanelSource).toContain('type="range"');
-    expect(miniOpacityPanelSource).toContain(":min=\"minMiniOpacityPercent\"");
-    expect(miniOpacityPanelSource).toContain(":max=\"maxMiniOpacityPercent\"");
+    expect(miniOpacityPanelSource).toContain(':min="minMiniOpacityPercent"');
+    expect(miniOpacityPanelSource).toContain(':max="maxMiniOpacityPercent"');
     expect(miniOpacityPanelSource).toContain('aria-label="迷你悬浮透明度"');
+    expect(miniOpacityPanelSource).toContain(":aria-valuetext");
   });
 
   it("receives open events and emits opacity changes back to the main window", () => {

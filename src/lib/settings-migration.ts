@@ -1,8 +1,4 @@
-import {
-  defaultSalaryConfig,
-  type SalaryConfig,
-  type SalaryType,
-} from "./salary";
+import { defaultSalaryConfig, type SalaryConfig, type SalaryType } from "./salary";
 
 export const settingsSchemaVersion = 3;
 
@@ -31,9 +27,7 @@ const normalizeWorkdays = (workdays: unknown) => {
   return uniqueWorkdays.sort((a, b) => a - b);
 };
 
-export function migrateSalaryConfig(
-  savedConfig: PersistedSalaryConfig,
-): SalaryConfig {
+export function migrateSalaryConfig(savedConfig: PersistedSalaryConfig): SalaryConfig {
   const salaryType = isSalaryType(savedConfig?.salaryType)
     ? savedConfig.salaryType
     : defaultSalaryConfig.salaryType;

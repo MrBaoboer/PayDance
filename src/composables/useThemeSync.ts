@@ -18,10 +18,7 @@ export function useThemeSync(
   const isThemeSwitching = ref(false);
   let themeApplyToken = 0;
 
-  const applyThemeMode = async (
-    mode: ThemeMode,
-    options: { persist?: boolean } = {},
-  ) => {
+  const applyThemeMode = async (mode: ThemeMode, options: { persist?: boolean } = {}) => {
     const { persist = true } = options;
     const token = ++themeApplyToken;
     isThemeSwitching.value = true;

@@ -41,8 +41,12 @@ const salaryItems = computed(() => [
 </script>
 
 <template>
+  <!-- eslint-disable vuejs-accessibility/no-static-element-interactions -->
   <section class="settings-sheet salary-info-sheet" aria-label="薪资说明">
-    <header class="salary-info-sheet__header" @mousedown.left="$emit('dragStart', $event)">
+    <header
+      class="salary-info-sheet__header"
+      @mousedown.left="$emit('dragStart', $event)"
+    >
       <div>
         <strong>薪资说明</strong>
         <span>{{ modeLabel }}换算</span>

@@ -52,7 +52,9 @@ describe("stats panel", () => {
   });
 
   it("keeps unit-based duration glyphs readable", () => {
-    expect(statsPanelSource).toContain('if (text === ":") return { kind: "separator", text };');
+    expect(statsPanelSource).toContain(
+      'if (text === ":") return { kind: "separator", text };',
+    );
     expect(statsPanelSource).toContain(".stat-value__separator");
     expect(statsPanelSource).toContain("margin-left: 0.32em");
     expect(statsPanelSource).toContain("stat-value__unit");

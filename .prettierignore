@@ -1,0 +1,11 @@
+dist
+node_modules
+release-assets
+src-tauri/target
+src-tauri/gen
+.tools
+.claude
+*.png
+*.ico
+*.exe
+*.sha256

@@ -7,12 +7,11 @@ import {
   type SalaryConfigIssue,
 } from "../lib/salary";
 import { getOnboardingStepIssues } from "../lib/onboarding-validation";
-import { readInputChecked } from "../lib/settings-form";
-import LunchBreakFields from "./settings/LunchBreakFields.vue";
-import SalaryAmountFields from "./settings/SalaryAmountFields.vue";
-import SalaryModeControl from "./settings/SalaryModeControl.vue";
-import WorkdayPicker from "./settings/WorkdayPicker.vue";
-import WorkTimeFields from "./settings/WorkTimeFields.vue";
+import type { ResizeDirection } from "../lib/resize-handles";
+import ResizeHandles from "./onboarding/ResizeHandles.vue";
+import StepPreferences from "./onboarding/StepPreferences.vue";
+import StepSalaryMode from "./onboarding/StepSalaryMode.vue";
+import StepWorkTime from "./onboarding/StepWorkTime.vue";
 
 const props = defineProps<{
   alwaysOnTop: boolean;
@@ -24,17 +23,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   complete: [preferences: { startInMiniMode: boolean }];
   dragStart: [event: MouseEvent];
-  resizeStart: [
-    direction:
-      | "East"
-      | "North"
-      | "NorthEast"
-      | "NorthWest"
-      | "South"
-      | "SouthEast"
-      | "SouthWest"
-      | "West",
-  ];
+  resizeStart: [direction: ResizeDirection];
   "update:alwaysOnTop": [value: boolean];
   "update:autostartEnabled": [value: boolean];
   "update:config": [config: SalaryConfig];
@@ -56,13 +45,6 @@ const canContinue = computed(() => currentStepIssues.value.length === 0);
 const hasIssue = (field: SalaryConfigIssue["field"]) =>
   issues.value.some((issue) => issue.field === field);
 
-const updateConfig = <Key extends keyof SalaryConfig>(
-  key: Key,
-  value: SalaryConfig[Key],
-) => {
-  emit("update:config", { ...props.config, [key]: value });
-};
-
 const goNext = () => {
   if (isLastStep.value) {
     emit("complete", { startInMiniMode: startInMiniMode.value });
@@ -78,63 +60,9 @@ const goBack = () => {
 </script>
 
 <template>
+  <!-- eslint-disable vuejs-accessibility/no-static-element-interactions -->
   <div class="onboarding-overlay" @mousedown.left.self="emit('dragStart', $event)">
-    <button
-      class="resize-handle resize-handle--north"
-      aria-hidden="true"
-      tabindex="-1"
-      type="button"
-      @mousedown.left.stop.prevent="emit('resizeStart', 'North')"
-    />
-    <button
-      class="resize-handle resize-handle--east"
-      aria-hidden="true"
-      tabindex="-1"
-      type="button"
-      @mousedown.left.stop.prevent="emit('resizeStart', 'East')"
-    />
-    <button
-      class="resize-handle resize-handle--south"
-      aria-hidden="true"
-      tabindex="-1"
-      type="button"
-      @mousedown.left.stop.prevent="emit('resizeStart', 'South')"
-    />
-    <button
-      class="resize-handle resize-handle--west"
-      aria-hidden="true"
-      tabindex="-1"
-      type="button"
-      @mousedown.left.stop.prevent="emit('resizeStart', 'West')"
-    />
-    <button
-      class="resize-handle resize-handle--north-east"
-      aria-hidden="true"
-      tabindex="-1"
-      type="button"
-      @mousedown.left.stop.prevent="emit('resizeStart', 'NorthEast')"
-    />
-    <button
-      class="resize-handle resize-handle--north-west"
-      aria-hidden="true"
-      tabindex="-1"
-      type="button"
-      @mousedown.left.stop.prevent="emit('resizeStart', 'NorthWest')"
-    />
-    <button
-      class="resize-handle resize-handle--south-east"
-      aria-hidden="true"
-      tabindex="-1"
-      type="button"
-      @mousedown.left.stop.prevent="emit('resizeStart', 'SouthEast')"
-    />
-    <button
-      class="resize-handle resize-handle--south-west"
-      aria-hidden="true"
-      tabindex="-1"
-      type="button"
-      @mousedown.left.stop.prevent="emit('resizeStart', 'SouthWest')"
-    />
+    <ResizeHandles @resize-start="emit('resizeStart', $event)" />
     <section class="onboarding-panel" aria-label="首次配置">
       <header class="onboarding-header">
         <div>
@@ -150,78 +78,30 @@ const goBack = () => {
       </header>
 
       <div class="onboarding-body">
-        <section v-if="step === 0" class="onboarding-step">
-          <SalaryModeControl
-            density="onboarding"
-            :model-value="config.salaryType"
-            @update:model-value="updateConfig('salaryType', $event)"
-          />
+        <StepSalaryMode
+          v-if="step === 0"
+          :config="config"
+          :has-issue="hasIssue"
+          @update:config="emit('update:config', $event)"
+        />
 
-          <SalaryAmountFields
-            density="onboarding"
-            :config="config"
-            :has-issue="hasIssue"
-            @update:config="emit('update:config', $event)"
-          />
-        </section>
+        <StepWorkTime
+          v-else-if="step === 1"
+          :config="config"
+          :has-issue="hasIssue"
+          @update:config="emit('update:config', $event)"
+        />
 
-        <section v-else-if="step === 1" class="onboarding-step">
-          <WorkdayPicker
-            density="onboarding"
-            :invalid="hasIssue('workdays')"
-            :workdays="config.workdays"
-            @update:workdays="updateConfig('workdays', $event)"
-          />
-
-          <WorkTimeFields
-            density="onboarding"
-            :config="config"
-            :has-issue="hasIssue"
-            @update:config="emit('update:config', $event)"
-          />
-
-          <LunchBreakFields
-            density="onboarding"
-            variant="onboarding"
-            :config="config"
-            :has-issue="hasIssue"
-            @update:config="emit('update:config', $event)"
-          />
-        </section>
-
-        <section v-else class="onboarding-step">
-          <div class="segmented-control" aria-label="主题">
-            <button :class="{ 'is-active': themeMode === 'light' }" type="button" @click="emit('update:themeMode', 'light')">
-              浅色
-            </button>
-            <button :class="{ 'is-active': themeMode === 'dark' }" type="button" @click="emit('update:themeMode', 'dark')">
-              深色
-            </button>
-          </div>
-
-          <label class="switch-row switch-row--panel">
-            <input
-              :checked="autostartEnabled"
-              type="checkbox"
-              @change="emit('update:autostartEnabled', readInputChecked($event))"
-            />
-            <span>开机自动启动</span>
-          </label>
-
-          <label class="switch-row switch-row--panel">
-            <input
-              :checked="alwaysOnTop"
-              type="checkbox"
-              @change="emit('update:alwaysOnTop', readInputChecked($event))"
-            />
-            <span>窗口始终置顶</span>
-          </label>
-
-          <label class="switch-row switch-row--panel">
-            <input v-model="startInMiniMode" type="checkbox" />
-            <span>进入迷你悬浮模式</span>
-          </label>
-        </section>
+        <StepPreferences
+          v-else
+          v-model:start-in-mini-mode="startInMiniMode"
+          :always-on-top="alwaysOnTop"
+          :autostart-enabled="autostartEnabled"
+          :theme-mode="themeMode"
+          @update:always-on-top="emit('update:alwaysOnTop', $event)"
+          @update:autostart-enabled="emit('update:autostartEnabled', $event)"
+          @update:theme-mode="emit('update:themeMode', $event)"
+        />
       </div>
 
       <div v-if="firstIssue" class="onboarding-alert">
@@ -229,11 +109,21 @@ const goBack = () => {
       </div>
 
       <footer class="onboarding-footer">
-        <button class="secondary-button" :disabled="step === 0" type="button" @click="goBack">
+        <button
+          class="secondary-button"
+          :disabled="step === 0"
+          type="button"
+          @click="goBack"
+        >
           <ChevronLeft :size="16" />
           <span>上一步</span>
         </button>
-        <button class="primary-button" :disabled="!canContinue" type="button" @click="goNext">
+        <button
+          class="primary-button"
+          :disabled="!canContinue"
+          type="button"
+          @click="goNext"
+        >
           <span>{{ isLastStep ? "开始" : "下一步" }}</span>
           <Check v-if="isLastStep" :size="16" />
           <ChevronRight v-else :size="16" />
@@ -282,84 +172,6 @@ const goBack = () => {
   padding: clamp(16px, 3.8cqw, 20px);
 }
 
-.resize-handle {
-  position: absolute;
-  z-index: 2;
-  border: 0;
-  background: transparent;
-  padding: 0;
-}
-
-.resize-handle--north,
-.resize-handle--south {
-  left: 12px;
-  right: 12px;
-  height: 10px;
-  cursor: ns-resize;
-}
-
-.resize-handle--north {
-  top: 0;
-}
-
-.resize-handle--south {
-  bottom: 0;
-}
-
-.resize-handle--east,
-.resize-handle--west {
-  top: 12px;
-  bottom: 12px;
-  width: 10px;
-  cursor: ew-resize;
-}
-
-.resize-handle--east {
-  right: 0;
-}
-
-.resize-handle--west {
-  left: 0;
-}
-
-.resize-handle--north-east,
-.resize-handle--north-west,
-.resize-handle--south-east,
-.resize-handle--south-west {
-  width: 16px;
-  height: 16px;
-}
-
-.resize-handle--north-east,
-.resize-handle--south-west {
-  cursor: nesw-resize;
-}
-
-.resize-handle--north-west,
-.resize-handle--south-east {
-  cursor: nwse-resize;
-}
-
-.resize-handle--north-east {
-  top: 0;
-  right: 0;
-}
-
-.resize-handle--north-west {
-  top: 0;
-  left: 0;
-}
-
-.resize-handle--south-east {
-  right: 0;
-  bottom: 0;
-}
-
-.resize-handle--south-west {
-  bottom: 0;
-  left: 0;
-}
-
 .onboarding-header div:first-child {
   min-width: 0;
 }
@@ -397,60 +209,6 @@ const goBack = () => {
   min-height: clamp(228px, 53cqh, 276px);
   overflow-y: auto;
   padding: clamp(20px, 4.4cqw, 24px);
-}
-
-.onboarding-step {
-  display: grid;
-  gap: clamp(16px, 3.6cqh, 20px);
-}
-
-.segmented-control {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(3px, 0.9cqw, 5px);
-  border: 1px solid var(--line);
-  border-radius: var(--ui-radius-sm, 10px);
-  background: var(--subtle);
-  padding: clamp(3px, 0.9cqw, 5px);
-}
-
-.segmented-control button {
-  height: clamp(34px, 8.2cqh, 40px);
-  border-radius: clamp(6px, 1.6cqw, 8px);
-  color: var(--muted);
-  font-family: var(--font-dashboard);
-  font-size: var(--ui-font-sm, 14px);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.segmented-control button.is-active {
-  background: var(--panel);
-  box-shadow: 0 5px 14px rgb(15 23 42 / 0.08);
-  color: var(--text);
-}
-
-.switch-row {
-  display: flex;
-  align-items: center;
-  gap: var(--ui-gap-xs, 8px);
-  color: var(--muted);
-  font-size: var(--ui-font-sm, 14px);
-  font-weight: 650;
-}
-
-.switch-row input {
-  width: 16px;
-  height: clamp(15px, 3.4cqw, 18px);
-  accent-color: var(--accent);
-}
-
-.switch-row--panel {
-  min-height: clamp(41px, 9.8cqh, 48px);
-  border: 1px solid var(--line);
-  border-radius: var(--ui-radius-sm, 10px);
-  background: var(--panel-soft);
-  padding: 0 var(--ui-pad-sm, 12px);
 }
 
 .onboarding-alert {

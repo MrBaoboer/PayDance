@@ -5,7 +5,11 @@ import {
   type ThemeMode,
   type WindowSize,
 } from "../lib/window-mode";
-import { defaultSalaryConfig, type SalaryConfig } from "../lib/salary";
+import {
+  defaultSalaryConfig,
+  validateSalaryConfig,
+  type SalaryConfig,
+} from "../lib/salary";
 import {
   migrateSalaryConfig,
   resolveOnboardingState,
@@ -22,6 +26,9 @@ export type PersistedWindowState = {
 };
 
 const store = new LazyStore("salary-settings.json");
+
+const serializeSalaryConfig = (config: SalaryConfig) =>
+  JSON.stringify({ ...config, workdays: [...config.workdays] });
 
 export function useSalarySettings() {
   const config = ref<SalaryConfig>({ ...defaultSalaryConfig });
@@ -100,6 +107,12 @@ export function useSalarySettings() {
     if (!isSettingsReady.value) return;
 
     try {
+      const configIssues = validateSalaryConfig(config.value);
+      if (configIssues.length > 0) {
+        console.error("Skipped saving invalid salary settings", configIssues);
+        return;
+      }
+
       await store.set("config", config.value);
       await store.set("alwaysOnTop", alwaysOnTop.value);
       await store.set("fullSize", fullSize);
@@ -111,6 +124,12 @@ export function useSalarySettings() {
       await store.set("hasCompletedOnboarding", hasCompletedOnboarding.value);
       await store.set("settingsVersion", settingsSchemaVersion);
       await store.save();
+
+      const savedConfig = await store.get<Partial<SalaryConfig>>("config");
+      const verifiedConfig = migrateSalaryConfig(savedConfig);
+      if (serializeSalaryConfig(verifiedConfig) !== serializeSalaryConfig(config.value)) {
+        console.error("Saved salary settings did not match the in-memory config");
+      }
     } catch (error) {
       console.error("Failed to save settings", error);
     }

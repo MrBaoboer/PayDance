@@ -22,17 +22,13 @@ export const getSalaryAmountLabel = (salaryType: SalaryType) => {
   return "月薪";
 };
 
-export const toggleWorkdayValue = (
-  workdays: SalaryConfig["workdays"],
-  day: number,
-) =>
+export const toggleWorkdayValue = (workdays: SalaryConfig["workdays"], day: number) =>
   (workdays.includes(day)
     ? workdays.filter((item) => item !== day)
     : [...workdays, day]
   ).sort((a, b) => a - b);
 
-export const readInputText = (event: Event) =>
-  (event.target as HTMLInputElement).value;
+export const readInputText = (event: Event) => (event.target as HTMLInputElement).value;
 
 export const readInputChecked = (event: Event) =>
   (event.target as HTMLInputElement).checked;

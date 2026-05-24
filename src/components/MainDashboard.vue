@@ -28,7 +28,15 @@ const emit = defineEmits<{
       <p>今日入账</p>
     </div>
 
-    <button class="amount-display" title="双击进入迷你悬浮模式" @dblclick="emit('setMiniMode', true)">
+    <button
+      class="amount-display"
+      aria-label="今日入账金额，双击或按 Enter 进入迷你悬浮模式"
+      title="双击进入迷你悬浮模式"
+      type="button"
+      @dblclick="emit('setMiniMode', true)"
+      @keydown.enter.prevent="emit('setMiniMode', true)"
+      @keydown.space.prevent="emit('setMiniMode', true)"
+    >
       <RollingAmount
         :mode="amountMode"
         :suspend-pulse="suspendAmountPulse"

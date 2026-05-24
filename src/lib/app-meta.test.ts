@@ -26,6 +26,6 @@ describe("app metadata", () => {
   });
 
   it("exposes the current app version for about surfaces", () => {
-    expect(appVersion).toBe("0.7.11");
+    expect(appVersion).toBe("0.7.12");
   });
 });

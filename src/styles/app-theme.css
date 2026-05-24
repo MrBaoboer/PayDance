@@ -27,8 +27,13 @@
   --progress-track-shadow: none;
   --progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11));
   --progress-dot-border: rgb(255 255 255 / 0.92);
-  --progress-dot-shadow: 0 0 0 1px rgb(217 119 6 / 0.24), 0 6px 16px rgb(217 119 6 / 0.28);
-  --progress-rest-fill-bg: linear-gradient(90deg, var(--muted), color-mix(in srgb, var(--muted) 54%, transparent));
+  --progress-dot-shadow:
+    0 0 0 1px rgb(217 119 6 / 0.24), 0 6px 16px rgb(217 119 6 / 0.28);
+  --progress-rest-fill-bg: linear-gradient(
+    90deg,
+    var(--muted),
+    color-mix(in srgb, var(--muted) 54%, transparent)
+  );
   --progress-rest-dot-shadow: 0 0 0 1px rgb(127 127 127 / 0.16);
   --shadow: 0 24px 70px rgb(15 23 42 / 0.18);
 }
@@ -57,13 +62,27 @@
   --dashboard-metric-bg: rgb(255 255 255 / 0.042);
   --dashboard-border: rgb(255 255 255 / 0.1);
   --dashboard-divider: rgb(255 255 255 / 0.14);
-  --dashboard-shadow: 0 24px 58px rgb(0 0 0 / 0.38), inset 0 1px 0 rgb(255 255 255 / 0.025), inset 0 -1px 0 rgb(0 0 0 / 0.34);
+  --dashboard-shadow:
+    0 24px 58px rgb(0 0 0 / 0.38), inset 0 1px 0 rgb(255 255 255 / 0.025),
+    inset 0 -1px 0 rgb(0 0 0 / 0.34);
   --progress-track-bg: rgb(50 50 56);
   --progress-track-shadow: none;
-  --progress-fill-bg: linear-gradient(90deg, rgb(217 119 6), rgb(245 158 11) 62%, rgb(252 211 77));
+  --progress-fill-bg: linear-gradient(
+    90deg,
+    rgb(217 119 6),
+    rgb(245 158 11) 62%,
+    rgb(252 211 77)
+  );
   --progress-dot-border: rgb(24 24 27);
-  --progress-dot-shadow: 0 0 0 1px rgb(252 211 77 / 0.42), 0 0 18px rgb(245 158 11 / 0.28), 0 7px 16px rgb(0 0 0 / 0.36);
-  --progress-rest-fill-bg: linear-gradient(90deg, rgb(113 113 122 / 0.54), rgb(82 82 91 / 0.3));
-  --progress-rest-dot-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 6px 14px rgb(0 0 0 / 0.28);
+  --progress-dot-shadow:
+    0 0 0 1px rgb(252 211 77 / 0.42), 0 0 18px rgb(245 158 11 / 0.28),
+    0 7px 16px rgb(0 0 0 / 0.36);
+  --progress-rest-fill-bg: linear-gradient(
+    90deg,
+    rgb(113 113 122 / 0.54),
+    rgb(82 82 91 / 0.3)
+  );
+  --progress-rest-dot-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.1), 0 6px 14px rgb(0 0 0 / 0.28);
   --shadow: 0 26px 80px rgb(0 0 0 / 0.38);
 }

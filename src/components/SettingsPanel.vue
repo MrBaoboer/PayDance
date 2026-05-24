@@ -10,12 +10,14 @@ import {
   repositoryUrl,
 } from "../lib/app-meta";
 import type { SalaryConfig, SalaryConfigIssue } from "../lib/salary";
-import { readInputChecked } from "../lib/settings-form";
 import LunchBreakFields from "./settings/LunchBreakFields.vue";
 import SalaryAmountFields from "./settings/SalaryAmountFields.vue";
 import SalaryModeControl from "./settings/SalaryModeControl.vue";
 import WorkdayPicker from "./settings/WorkdayPicker.vue";
 import WorkTimeFields from "./settings/WorkTimeFields.vue";
+import SegmentedControl from "./ui/SegmentedControl.vue";
+import SettingsGroup from "./ui/SettingsGroup.vue";
+import SwitchRow from "./ui/SwitchRow.vue";
 
 const props = defineProps<{
   amountMode: "rolling" | "plain";
@@ -32,6 +34,15 @@ const emit = defineEmits<{
   "update:amountMode": [mode: "rolling" | "plain"];
   "update:config": [config: SalaryConfig];
 }>();
+
+const amountModeOptions = [
+  { label: "滚动变换", value: "rolling" },
+  { label: "直接变换", value: "plain" },
+] as const;
+
+const updateAmountMode = (mode: string) => {
+  emit("update:amountMode", mode as "rolling" | "plain");
+};
 
 const updateConfig = <Key extends keyof SalaryConfig>(
   key: Key,
@@ -66,55 +77,43 @@ const openRepository = async () => {
       {{ firstIssue }}
     </div>
 
-    <section class="settings-group">
-      <div class="group-title">
-        <strong>薪资模式</strong>
-      </div>
+    <SettingsGroup title="薪资模式">
       <SalaryModeControl
         density="settings"
         :invalid="hasIssue('salaryType')"
         :model-value="config.salaryType"
         @update:model-value="updateConfig('salaryType', $event)"
       />
-    </section>
+    </SettingsGroup>
 
-    <section class="settings-group">
-      <div class="group-title">
-        <strong>薪资</strong>
-      </div>
+    <SettingsGroup title="薪资">
       <SalaryAmountFields
         density="settings"
         :config="config"
         :has-issue="hasIssue"
         @update:config="emit('update:config', $event)"
       />
-    </section>
+    </SettingsGroup>
 
-    <section class="settings-group">
-      <div class="group-title">
-        <strong>每周工作日</strong>
-      </div>
+    <SettingsGroup title="每周工作日">
       <WorkdayPicker
         density="settings"
         :invalid="hasIssue('workdays')"
         :workdays="config.workdays"
         @update:workdays="updateConfig('workdays', $event)"
       />
-    </section>
+    </SettingsGroup>
 
-    <section class="settings-group">
-      <div class="group-title">
-        <strong>工作时间</strong>
-      </div>
+    <SettingsGroup title="工作时间">
       <WorkTimeFields
         density="settings"
         :config="config"
         :has-issue="hasIssue"
         @update:config="emit('update:config', $event)"
       />
-    </section>
+    </SettingsGroup>
 
-    <section class="settings-group">
+    <SettingsGroup>
       <LunchBreakFields
         density="settings"
         variant="settings"
@@ -122,47 +121,32 @@ const openRepository = async () => {
         :has-issue="hasIssue"
         @update:config="emit('update:config', $event)"
       />
-    </section>
+    </SettingsGroup>
 
-    <section class="settings-group">
-      <div class="group-title">
-        <strong>金额变换</strong>
-      </div>
-      <div class="segmented-control" aria-label="金额数字变化方式">
-        <button
-          :class="{ 'is-active': amountMode === 'rolling' }"
-          type="button"
-          @click="emit('update:amountMode', 'rolling')"
-        >
-          滚动变换
-        </button>
-        <button
-          :class="{ 'is-active': amountMode === 'plain' }"
-          type="button"
-          @click="emit('update:amountMode', 'plain')"
-        >
-          直接变换
-        </button>
-      </div>
-    </section>
+    <SettingsGroup title="金额变换">
+      <SegmentedControl
+        :columns="2"
+        label="金额数字变化方式"
+        :model-value="amountMode"
+        :options="amountModeOptions"
+        @update:model-value="updateAmountMode"
+      />
+    </SettingsGroup>
 
-    <section class="settings-group">
-      <div class="group-title group-title--split">
-        <strong>启动</strong>
-        <label class="switch-row switch-row--title-action switch-row--autostart">
-          <input
-            :checked="autostartEnabled"
-            :disabled="isAutostartUpdating"
-            type="checkbox"
-            @change="emit('update:autostartEnabled', readInputChecked($event))"
-          />
-          <span>开机自动启动</span>
-        </label>
-      </div>
+    <SettingsGroup title="启动">
+      <template #action>
+        <SwitchRow
+          label="开机自动启动"
+          title-action
+          :disabled="isAutostartUpdating"
+          :model-value="autostartEnabled"
+          @update:model-value="emit('update:autostartEnabled', $event)"
+        />
+      </template>
       <p v-if="autostartError" class="settings-inline-error">
         {{ autostartError }}
       </p>
-    </section>
+    </SettingsGroup>
 
     <footer class="about-footer" aria-label="软件归属">
       <div class="about-footer__identity">
@@ -179,11 +163,7 @@ const openRepository = async () => {
           type="button"
           @click="openRepository"
         >
-          <svg
-            class="github-mark"
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-          >
+          <svg class="github-mark" aria-hidden="true" viewBox="0 0 24 24">
             <path
               fill-rule="evenodd"
               clip-rule="evenodd"
@@ -192,7 +172,9 @@ const openRepository = async () => {
           </svg>
           <span>GitHub</span>
         </button>
-        <span class="about-footer__copyright about-footer__copyright--centered">{{ appCopyright }}</span>
+        <span class="about-footer__copyright about-footer__copyright--centered">{{
+          appCopyright
+        }}</span>
       </div>
       <p v-if="repositoryError" class="about-footer__error">
         {{ repositoryError }}
@@ -228,92 +210,6 @@ const openRepository = async () => {
   font-size: var(--ui-font-xs, 12px);
   font-weight: 600;
   text-align: left;
-}
-
-.settings-group {
-  display: grid;
-  gap: clamp(10px, 2.4cqh, 13px);
-  border: 1px solid var(--line);
-  border-radius: var(--ui-radius-md, 12px);
-  background: var(--panel);
-  padding: clamp(12px, 3cqw, 15px);
-}
-
-.group-title {
-  display: flex;
-  min-height: clamp(22px, 5.2cqh, 28px);
-  align-items: center;
-}
-
-.group-title--split {
-  justify-content: space-between;
-  gap: var(--ui-gap-sm, 12px);
-}
-
-.group-title strong {
-  color: var(--text);
-  font-size: var(--ui-font-sm, 15px);
-  font-weight: 700;
-}
-
-.switch-row {
-  display: flex;
-  align-items: center;
-  gap: var(--ui-gap-xs, 7px);
-  color: var(--muted);
-  font-size: var(--ui-font-sm, 14px);
-  font-weight: 600;
-}
-
-.switch-row input {
-  width: 16px;
-  height: clamp(15px, 3.4cqw, 18px);
-  accent-color: var(--accent);
-}
-
-.switch-row input:disabled {
-  opacity: 0.58;
-}
-
-.switch-row--title-action {
-  min-width: clamp(104px, 26cqw, 126px);
-  justify-content: flex-end;
-}
-
-.switch-row--title-action input {
-  flex: 0 0 auto;
-}
-
-.segmented-control {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(3px, 0.9cqw, 5px);
-  border: 1px solid var(--line);
-  border-radius: var(--ui-radius-sm, 10px);
-  background: var(--subtle);
-  padding: clamp(3px, 0.9cqw, 5px);
-}
-
-.segmented-control--three {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.segmented-control button {
-  height: clamp(32px, 7.6cqh, 38px);
-  border-radius: clamp(6px, 1.6cqw, 8px);
-  color: var(--muted);
-  font-size: var(--ui-font-sm, 14px);
-  font-weight: 650;
-  transition:
-    background-color 160ms ease,
-    color 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.segmented-control button.is-active {
-  background: var(--panel);
-  box-shadow: 0 5px 14px rgb(15 23 42 / 0.08);
-  color: var(--text);
 }
 
 .about-footer {

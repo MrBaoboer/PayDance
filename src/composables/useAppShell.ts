@@ -1,8 +1,5 @@
 import { computed, ref, type Ref } from "vue";
-import {
-  resolveAppView,
-  type AppViewState,
-} from "../lib/app-view";
+import { resolveAppView, type AppViewState } from "../lib/app-view";
 import type { ThemeMode, WindowSize } from "../lib/window-mode";
 import { normalizeFullSize } from "../lib/window-mode";
 
@@ -27,10 +24,7 @@ export function useAppShell({
 }: {
   alwaysOnTop: Ref<boolean>;
   appWindow: ShellWindow;
-  applyThemeMode: (
-    mode: ThemeMode,
-    options?: { persist?: boolean },
-  ) => Promise<void>;
+  applyThemeMode: (mode: ThemeMode, options?: { persist?: boolean }) => Promise<void>;
   applyWindowMode: () => Promise<void>;
   fullSize: Ref<WindowSize>;
   hasCompletedOnboarding: Ref<boolean>;
@@ -44,8 +38,8 @@ export function useAppShell({
   const showSettings = ref(false);
   const showSalaryInfo = ref(false);
 
-  const shouldShowOnboarding = computed(() =>
-    isSettingsReady.value && !hasCompletedOnboarding.value && !isMiniMode.value,
+  const shouldShowOnboarding = computed(
+    () => isSettingsReady.value && !hasCompletedOnboarding.value && !isMiniMode.value,
   );
 
   const activeView = computed(() =>

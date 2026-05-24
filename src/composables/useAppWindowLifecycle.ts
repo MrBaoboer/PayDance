@@ -35,10 +35,7 @@ export function useAppWindowLifecycle(
     isSettingsReady: Ref<boolean>;
     miniSize: Ref<WindowSize>;
     saveStateNow: () => Promise<void>;
-    updateMiniOpacityPercent: (
-      value: number,
-      options?: { commit?: boolean },
-    ) => void;
+    updateMiniOpacityPercent: (value: number, options?: { commit?: boolean }) => void;
   },
 ) {
   let saveWindowSizeTimer = 0;
@@ -57,12 +54,9 @@ export function useAppWindowLifecycle(
       await appWindow.listen<{ value?: number; commit?: boolean }>(
         "mini-opacity-change",
         (event) => {
-          updateMiniOpacityPercent(
-            normalizeMiniOpacityPercent(event.payload.value),
-            {
-              commit: event.payload.commit === true,
-            },
-          );
+          updateMiniOpacityPercent(normalizeMiniOpacityPercent(event.payload.value), {
+            commit: event.payload.commit === true,
+          });
         },
       ),
     );

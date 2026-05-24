@@ -33,10 +33,7 @@ export function useMiniWindowDrag(appWindow: DraggableWindow) {
     const startY = event.screenY;
 
     const handlePointerMove = (moveEvent: PointerEvent) => {
-      const distance = Math.hypot(
-        moveEvent.screenX - startX,
-        moveEvent.screenY - startY,
-      );
+      const distance = Math.hypot(moveEvent.screenX - startX, moveEvent.screenY - startY);
       if (distance < 4) return;
 
       clearMiniDrag();

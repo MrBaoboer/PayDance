@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultSalaryConfig } from "../lib/salary";
-import { defaultMiniOpacityPercent, fullWindowSize, miniDefaultSize } from "../lib/window-mode";
+import {
+  defaultMiniOpacityPercent,
+  fullWindowSize,
+  miniDefaultSize,
+} from "../lib/window-mode";
 
 const storeMocks = vi.hoisted(() => ({
   get: vi.fn(),
@@ -24,8 +28,15 @@ describe("useSalarySettings", () => {
   it("falls back to defaults and marks settings ready when the store cannot be read", async () => {
     storeMocks.get.mockRejectedValue(new Error("corrupt settings"));
 
-    const { config, amountMode, alwaysOnTop, hasCompletedOnboarding, isSettingsReady, loadSettings, themeMode } =
-      await import("./useSalarySettings").then((module) => module.useSalarySettings());
+    const {
+      config,
+      amountMode,
+      alwaysOnTop,
+      hasCompletedOnboarding,
+      isSettingsReady,
+      loadSettings,
+      themeMode,
+    } = await import("./useSalarySettings").then((module) => module.useSalarySettings());
 
     const windowPreferences = await loadSettings();
 
@@ -47,9 +58,8 @@ describe("useSalarySettings", () => {
     storeMocks.get.mockResolvedValue(undefined);
     storeMocks.save.mockRejectedValue(new Error("disk unavailable"));
 
-    const { isSettingsReady, loadSettings, saveSettings } = await import(
-      "./useSalarySettings"
-    ).then((module) => module.useSalarySettings());
+    const { isSettingsReady, loadSettings, saveSettings } =
+      await import("./useSalarySettings").then((module) => module.useSalarySettings());
 
     await loadSettings();
 
@@ -62,5 +72,52 @@ describe("useSalarySettings", () => {
       }),
     ).resolves.toBeUndefined();
     expect(isSettingsReady.value).toBe(true);
+  });
+
+  it("does not persist invalid salary settings", async () => {
+    storeMocks.get.mockResolvedValue(undefined);
+
+    const { config, loadSettings, saveSettings } =
+      await import("./useSalarySettings").then((module) => module.useSalarySettings());
+
+    await loadSettings();
+    storeMocks.get.mockClear();
+    storeMocks.set.mockClear();
+    storeMocks.save.mockClear();
+    config.value = {
+      ...defaultSalaryConfig,
+      monthlySalary: 0,
+    };
+
+    await saveSettings({
+      fullSize: fullWindowSize,
+      isMiniMode: false,
+      miniOpacityPercent: defaultMiniOpacityPercent,
+      miniSize: miniDefaultSize,
+    });
+
+    expect(storeMocks.set).not.toHaveBeenCalled();
+    expect(storeMocks.save).not.toHaveBeenCalled();
+  });
+
+  it("checks the saved config after writing settings", async () => {
+    storeMocks.get.mockResolvedValue(undefined);
+
+    const { loadSettings, saveSettings } = await import("./useSalarySettings").then(
+      (module) => module.useSalarySettings(),
+    );
+
+    await loadSettings();
+    storeMocks.get.mockClear();
+    storeMocks.get.mockResolvedValue(defaultSalaryConfig);
+
+    await saveSettings({
+      fullSize: fullWindowSize,
+      isMiniMode: false,
+      miniOpacityPercent: defaultMiniOpacityPercent,
+      miniSize: miniDefaultSize,
+    });
+
+    expect(storeMocks.get).toHaveBeenCalledWith("config");
   });
 });

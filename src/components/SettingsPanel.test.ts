@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import settingsPanelSource from "./SettingsPanel.vue?raw";
+import settingsGroupSource from "./ui/SettingsGroup.vue?raw";
+import switchRowSource from "./ui/SwitchRow.vue?raw";
 import lunchBreakFieldsSource from "./settings/LunchBreakFields.vue?raw";
 import salaryAmountFieldsSource from "./settings/SalaryAmountFields.vue?raw";
 
@@ -17,7 +19,7 @@ describe("settings panel", () => {
 
   it("returns settings cards to the v0.5.10 structure", () => {
     ["薪资模式", "薪资", "每周工作日", "工作时间", "金额变换"].forEach((title) => {
-      expect(settingsPanelSource).toContain(`<strong>${title}</strong>`);
+      expect(settingsPanelSource).toContain(`<SettingsGroup title="${title}">`);
     });
 
     expect(settingsPanelSource).toContain("<LunchBreakFields");
@@ -34,14 +36,10 @@ describe("settings panel", () => {
     expect(salaryAmountFieldsSource).toContain("const salaryAmountLabel = computed");
     expect(salaryAmountFieldsSource).toContain("<span>{{ salaryAmountLabel }}</span>");
     expect(salaryAmountFieldsSource).toContain(
-      'v-if="config.salaryType === \'monthly\'"',
+      "v-if=\"config.salaryType === 'monthly'\"",
     );
-    expect(salaryAmountFieldsSource).toContain(
-      'v-if="config.salaryType === \'daily\'"',
-    );
-    expect(salaryAmountFieldsSource).toContain(
-      'v-if="config.salaryType === \'hourly\'"',
-    );
+    expect(salaryAmountFieldsSource).toContain("v-if=\"config.salaryType === 'daily'\"");
+    expect(salaryAmountFieldsSource).toContain("v-if=\"config.salaryType === 'hourly'\"");
     expect(salaryAmountFieldsSource).not.toContain("field-grid--salary");
     expect(salaryAmountFieldsSource).not.toContain("field-grid--single");
   });
@@ -49,10 +47,8 @@ describe("settings panel", () => {
   it("keeps the v0.5.10 lunch card interaction", () => {
     expect(settingsPanelSource).toContain("<LunchBreakFields");
     expect(lunchBreakFieldsSource).toContain("<strong>午休</strong>");
-    expect(lunchBreakFieldsSource).toContain("<span>剔除</span>");
-    expect(lunchBreakFieldsSource).toContain(
-      ':disabled="!config.enableLunchBreak"',
-    );
+    expect(lunchBreakFieldsSource).toContain('label="剔除"');
+    expect(lunchBreakFieldsSource).toContain(':disabled="!config.enableLunchBreak"');
     expect(lunchBreakFieldsSource).not.toContain("休息扣除");
     expect(lunchBreakFieldsSource).not.toContain("从工作时长中扣除固定休息段");
   });
@@ -70,18 +66,18 @@ describe("settings panel", () => {
 
   it("adds a lightweight autostart card without unrelated desktop controls", () => {
     const startupSection = settingsPanelSource.slice(
-      settingsPanelSource.indexOf("<strong>启动</strong>"),
+      settingsPanelSource.indexOf('<SettingsGroup title="启动">'),
       settingsPanelSource.indexOf("settings-inline-error"),
     );
 
-    expect(settingsPanelSource).toContain("<strong>启动</strong>");
+    expect(settingsPanelSource).toContain('<SettingsGroup title="启动">');
     expect(settingsPanelSource).toContain("开机自动启动");
     expect(settingsPanelSource).toContain("autostartEnabled");
-    expect(startupSection).toContain("switch-row--autostart");
-    expect(startupSection).toContain("switch-row--title-action");
+    expect(startupSection).toContain("<SwitchRow");
+    expect(startupSection).toContain("title-action");
     expect(startupSection).toContain("开机自动启动");
-    expect(settingsPanelSource).toContain(".switch-row--title-action");
-    expect(settingsPanelSource).toContain("justify-content: flex-end");
+    expect(switchRowSource).toContain(".switch-row--title-action");
+    expect(switchRowSource).toContain("justify-content: flex-end");
     expect(settingsPanelSource).not.toContain("margin-right: clamp(3px, 0.9cqw, 5px)");
     expect(settingsPanelSource).not.toContain("快捷键");
     expect(settingsPanelSource).not.toContain("提醒");
@@ -91,7 +87,7 @@ describe("settings panel", () => {
   it("uses a slightly more breathable settings rhythm", () => {
     expect(settingsPanelSource).toContain("gap: clamp(11px, 2.6cqh, 14px)");
     expect(settingsPanelSource).toContain("padding: clamp(15px, 3.6cqw, 19px)");
-    expect(settingsPanelSource).toContain("padding: clamp(12px, 3cqw, 15px)");
+    expect(settingsGroupSource).toContain("padding: clamp(12px, 3cqw, 15px)");
   });
 
   it("keeps the attribution footer balanced in narrow settings sheets", () => {
@@ -100,13 +96,15 @@ describe("settings panel", () => {
     expect(settingsPanelSource).toContain("width: clamp(92px, 20cqw, 108px)");
     expect(settingsPanelSource).toContain("box-shadow: 0 7px 18px rgb(15 23 42 / 0.08)");
     expect(settingsPanelSource).toContain("width: 20px");
-    expect(settingsPanelSource).toContain(".about-footer__identity {\n    text-align: center;");
+    expect(settingsPanelSource).toContain(
+      ".about-footer__identity {\n    text-align: center;",
+    );
   });
 
   it("uses the dashboard numeric font for settings numbers, symbols, and repository text", () => {
     const fieldInputBlock = salaryAmountFieldsSource.slice(
       salaryAmountFieldsSource.indexOf(".field input {"),
-      salaryAmountFieldsSource.indexOf(".field input[type=\"number\"]"),
+      salaryAmountFieldsSource.indexOf('.field input[type="number"]'),
     );
 
     expect(fieldInputBlock).toContain("font-family: var(--font-dashboard)");

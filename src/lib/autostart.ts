@@ -1,8 +1,4 @@
-import {
-  disable,
-  enable,
-  isEnabled,
-} from "@tauri-apps/plugin-autostart";
+import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 
 export type AutostartAdapter = {
   disable: () => Promise<void>;

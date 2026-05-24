@@ -67,6 +67,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
+  <!-- eslint-disable vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
   <div class="app-window" :aria-label="appName">
     <WindowTitlebar
       :always-on-top="alwaysOnTop"
@@ -102,7 +103,10 @@ const emit = defineEmits<{
         @mousedown.left.self="emit('dragStart', $event)"
       >
         <section class="settings-sheet settings-sheet--top" aria-label="设置中心">
-          <header class="settings-sheet__header" @mousedown.left="emit('dragStart', $event)">
+          <header
+            class="settings-sheet__header"
+            @mousedown.left="emit('dragStart', $event)"
+          >
             <div>
               <strong>设置</strong>
             </div>

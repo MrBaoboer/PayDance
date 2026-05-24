@@ -34,9 +34,7 @@ describe("resolveAppView", () => {
   });
 
   it("resolves low-frequency overlays after the primary views", () => {
-    expect(resolveAppView({ ...baseState, showSettings: true })).toBe(
-      "settings-overlay",
-    );
+    expect(resolveAppView({ ...baseState, showSettings: true })).toBe("settings-overlay");
     expect(resolveAppView({ ...baseState, showSalaryInfo: true })).toBe(
       "salary-info-overlay",
     );

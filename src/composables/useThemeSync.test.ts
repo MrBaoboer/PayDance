@@ -45,11 +45,7 @@ describe("useThemeSync", () => {
     const setTheme = vi.fn(async () => {});
     const saveStateNow = vi.fn(async () => {});
 
-    const { applyThemeMode } = useThemeSync(
-      { setTheme },
-      themeMode,
-      saveStateNow,
-    );
+    const { applyThemeMode } = useThemeSync({ setTheme }, themeMode, saveStateNow);
 
     await applyThemeMode("light", { persist: false });
 
