@@ -20,10 +20,16 @@ describe("rolling amount", () => {
   });
 
   it("uses a larger single-layer hero pulse without changing the 0.7.1 duration", () => {
+    expect(rollingAmountSource).toContain("--amount-pulse-glow");
+    expect(rollingAmountSource).toContain("@keyframes hero-amount-pulse");
     expect(rollingAmountSource).toContain(
-      "drop-shadow(0 14px 30px var(--income-accent-glow))",
+      "animation: hero-amount-pulse 220ms cubic-bezier(0.16, 0.84, 0.28, 1)",
+    );
+    expect(rollingAmountSource).toContain(
+      "drop-shadow(0 18px 44px var(--amount-pulse-glow))",
     );
     expect(rollingAmountSource).toContain("}, 220)");
+    expect(rollingAmountSource).not.toContain(".rolling-amount--mini.is-ticking");
     expect(rollingAmountSource).not.toContain(
       "drop-shadow(0 0 18px var(--income-accent-ring))",
     );
