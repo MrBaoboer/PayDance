@@ -6,28 +6,73 @@ import {
 } from "../lib/salary";
 import { createMonotonicWallClock } from "../lib/monotonic-clock";
 
+const minTickerIntervalMs = 120;
+const maxActiveTickerIntervalMs = 1_000;
+const idleTickerIntervalMs = 1_000;
+const centPrecision = 0.01;
+
+const clampDelay = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
+
+const resolveNextTickDelay = (snapshot: SalarySnapshot) => {
+  if (snapshot.status !== "working" || snapshot.secondRate <= 0) {
+    if (snapshot.nextTransitionMs > 0) {
+      return clampDelay(
+        snapshot.nextTransitionMs,
+        minTickerIntervalMs,
+        idleTickerIntervalMs,
+      );
+    }
+
+    return idleTickerIntervalMs;
+  }
+
+  const nextCentMs = (centPrecision / snapshot.secondRate) * 1_000;
+  const activeDelay = clampDelay(
+    nextCentMs,
+    minTickerIntervalMs,
+    maxActiveTickerIntervalMs,
+  );
+
+  if (snapshot.nextTransitionMs > 0) {
+    return Math.min(
+      activeDelay,
+      Math.max(minTickerIntervalMs, snapshot.nextTransitionMs),
+    );
+  }
+
+  return activeDelay;
+};
+
 export function useSalaryTicker(config: Ref<SalaryConfig>) {
   const snapshot = ref<SalarySnapshot>(calculateSalarySnapshot(new Date(), config.value));
 
-  let rafId = 0;
+  let timerId = 0;
+  let isRunning = false;
 
   const startTicker = () => {
-    const clock = createMonotonicWallClock();
+    if (isRunning) return;
 
-    const tick = (perfTime: number) => {
+    const clock = createMonotonicWallClock();
+    isRunning = true;
+
+    const tick = () => {
+      if (!isRunning) return;
+
       const now = clock.now({
-        monotonicMs: perfTime,
+        monotonicMs: performance.now(),
         wallTimeMs: Date.now(),
       });
       snapshot.value = calculateSalarySnapshot(now, config.value);
-      rafId = requestAnimationFrame(tick);
+      timerId = window.setTimeout(tick, resolveNextTickDelay(snapshot.value));
     };
 
-    rafId = requestAnimationFrame(tick);
+    tick();
   };
 
   const stopTicker = () => {
-    cancelAnimationFrame(rafId);
+    isRunning = false;
+    window.clearTimeout(timerId);
   };
 
   return {

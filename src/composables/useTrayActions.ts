@@ -1,3 +1,5 @@
+import { trayEventNames } from "../lib/app-events";
+
 type UnlistenFn = () => void;
 
 type TrayEventWindow = {
@@ -18,19 +20,19 @@ export async function registerTrayActions(
   const unlisteners: UnlistenFn[] = [];
 
   unlisteners.push(
-    await appWindow.listen("tray-open-settings", () => {
+    await appWindow.listen(trayEventNames.openSettings, () => {
       void actions.openSettings();
     }),
   );
 
   unlisteners.push(
-    await appWindow.listen("tray-toggle-always-on-top", () => {
+    await appWindow.listen(trayEventNames.toggleAlwaysOnTop, () => {
       void actions.toggleAlwaysOnTop();
     }),
   );
 
   unlisteners.push(
-    await appWindow.listen("tray-toggle-mini-mode", () => {
+    await appWindow.listen(trayEventNames.toggleMiniMode, () => {
       void actions.toggleMiniMode();
     }),
   );

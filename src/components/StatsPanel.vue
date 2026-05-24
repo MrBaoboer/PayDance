@@ -91,7 +91,8 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
   top: 22%;
   bottom: 22%;
   left: 0;
-  width: clamp(1px, 0.18cqw, 2px);
+  width: 2px;
+  border-radius: 999px;
   background: var(--dashboard-divider, var(--line));
   content: "";
 }

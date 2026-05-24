@@ -64,6 +64,7 @@ const handleOpacityMenu = (event: MouseEvent) => {
     @pointerdown="$emit('dragStart', $event)"
     @dblclick="$emit('restore')"
     @keydown.enter.prevent="$emit('restore')"
+    @keydown.space.prevent="$emit('restore')"
   >
     <RollingAmount :mode="amountMode" :value="amount" variant="mini" />
   </div>

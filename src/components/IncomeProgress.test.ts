@@ -28,4 +28,13 @@ describe("income progress", () => {
     );
     expect(incomeProgressSource).not.toContain("inset 0 1px");
   });
+
+  it("animates progress with transforms instead of layout properties", () => {
+    expect(incomeProgressSource).toContain("--progress-scale");
+    expect(incomeProgressSource).toContain("--progress-x");
+    expect(incomeProgressSource).toContain("scaleX(var(--progress-scale))");
+    expect(incomeProgressSource).toContain("translate3d(var(--progress-x), -50%, 0)");
+    expect(incomeProgressSource).not.toContain("transition: width");
+    expect(incomeProgressSource).not.toContain("left 260ms ease-out");
+  });
 });

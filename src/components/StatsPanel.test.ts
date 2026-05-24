@@ -43,6 +43,11 @@ describe("stats panel", () => {
     expect(statsPanelSource).toContain("min-height: 1.15em");
   });
 
+  it("uses one stable divider thickness for both dashboard separators", () => {
+    expect(statsPanelSource).toContain("width: 2px");
+    expect(statsPanelSource).not.toContain("width: clamp(1px, 0.18cqw, 2px)");
+  });
+
   it("keeps the expected income currency symbol equal-height with the amount", () => {
     expect(statsPanelSource).toContain("stat-item__value--money");
     expect(statsPanelSource).toContain(".stat-item__value--money .stat-value__symbol");
