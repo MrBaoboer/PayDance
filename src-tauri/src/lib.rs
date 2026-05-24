@@ -4,6 +4,10 @@ use tauri::{
     Emitter, Manager, WebviewWindow,
 };
 
+const TRAY_OPEN_SETTINGS_EVENT: &str = "tray-open-settings";
+const TRAY_TOGGLE_ALWAYS_ON_TOP_EVENT: &str = "tray-toggle-always-on-top";
+const TRAY_TOGGLE_MINI_MODE_EVENT: &str = "tray-toggle-mini-mode";
+
 fn show_window(window: &WebviewWindow) {
     let _ = window.show();
     let _ = window.set_focus();
@@ -69,15 +73,15 @@ pub fn run() {
                         "show" => show_window(&window),
                         "settings" => {
                             show_window(&window);
-                            let _ = window.emit("tray-open-settings", ());
+                            let _ = window.emit(TRAY_OPEN_SETTINGS_EVENT, ());
                         }
                         "toggle_mini" => {
                             show_window(&window);
-                            let _ = window.emit("tray-toggle-mini-mode", ());
+                            let _ = window.emit(TRAY_TOGGLE_MINI_MODE_EVENT, ());
                         }
                         "toggle_top" => {
                             show_window(&window);
-                            let _ = window.emit("tray-toggle-always-on-top", ());
+                            let _ = window.emit(TRAY_TOGGLE_ALWAYS_ON_TOP_EVENT, ());
                         }
                         "quit" => app.exit(0),
                         _ => {}

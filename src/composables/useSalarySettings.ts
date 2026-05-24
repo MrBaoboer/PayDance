@@ -15,6 +15,7 @@ import {
   resolveOnboardingState,
   settingsSchemaVersion,
 } from "../lib/settings-migration";
+import { settingsStoreFileName, settingsStoreKeys } from "../lib/settings-store";
 
 export type AmountMode = "rolling" | "plain";
 
@@ -25,7 +26,7 @@ export type PersistedWindowState = {
   miniOpacityPercent: number;
 };
 
-const store = new LazyStore("salary-settings.json");
+const store = new LazyStore(settingsStoreFileName);
 
 const serializeSalaryConfig = (config: SalaryConfig) =>
   JSON.stringify({ ...config, workdays: [...config.workdays] });
@@ -51,17 +52,23 @@ export function useSalarySettings() {
 
   const loadSettings = async () => {
     try {
-      const savedConfig = await store.get<Partial<SalaryConfig>>("config");
-      const savedTop = await store.get<boolean>("alwaysOnTop");
-      const savedTheme = await store.get<ThemeMode>("themeMode");
-      const savedAmountMode = await store.get<AmountMode>("amountMode");
-      const savedIsMiniMode = await store.get<boolean>("isMiniMode");
-      const savedFullSize = await store.get<WindowSize>("fullSize");
-      const savedMiniSize = await store.get<WindowSize>("miniSize");
-      const savedMiniOpacityPercent = await store.get<number>("miniOpacityPercent");
-      const savedSettingsVersion = await store.get<number>("settingsVersion");
+      const savedConfig = await store.get<Partial<SalaryConfig>>(
+        settingsStoreKeys.config,
+      );
+      const savedTop = await store.get<boolean>(settingsStoreKeys.alwaysOnTop);
+      const savedTheme = await store.get<ThemeMode>(settingsStoreKeys.themeMode);
+      const savedAmountMode = await store.get<AmountMode>(settingsStoreKeys.amountMode);
+      const savedIsMiniMode = await store.get<boolean>(settingsStoreKeys.isMiniMode);
+      const savedFullSize = await store.get<WindowSize>(settingsStoreKeys.fullSize);
+      const savedMiniSize = await store.get<WindowSize>(settingsStoreKeys.miniSize);
+      const savedMiniOpacityPercent = await store.get<number>(
+        settingsStoreKeys.miniOpacityPercent,
+      );
+      const savedSettingsVersion = await store.get<number>(
+        settingsStoreKeys.settingsVersion,
+      );
       const savedHasCompletedOnboarding = await store.get<boolean>(
-        "hasCompletedOnboarding",
+        settingsStoreKeys.hasCompletedOnboarding,
       );
 
       config.value = migrateSalaryConfig(savedConfig);
@@ -108,27 +115,37 @@ export function useSalarySettings() {
 
     try {
       const configIssues = validateSalaryConfig(config.value);
-      if (configIssues.length > 0) {
+      const shouldPersistSalaryConfig = configIssues.length <= 0;
+      if (shouldPersistSalaryConfig) {
+        await store.set(settingsStoreKeys.config, config.value);
+      } else {
         console.error("Skipped saving invalid salary settings", configIssues);
-        return;
       }
 
-      await store.set("config", config.value);
-      await store.set("alwaysOnTop", alwaysOnTop.value);
-      await store.set("fullSize", fullSize);
-      await store.set("isMiniMode", isMiniMode);
-      await store.set("themeMode", themeMode.value);
-      await store.set("amountMode", amountMode.value);
-      await store.set("miniSize", miniSize);
-      await store.set("miniOpacityPercent", miniOpacityPercent);
-      await store.set("hasCompletedOnboarding", hasCompletedOnboarding.value);
-      await store.set("settingsVersion", settingsSchemaVersion);
+      await store.set(settingsStoreKeys.alwaysOnTop, alwaysOnTop.value);
+      await store.set(settingsStoreKeys.fullSize, fullSize);
+      await store.set(settingsStoreKeys.isMiniMode, isMiniMode);
+      await store.set(settingsStoreKeys.themeMode, themeMode.value);
+      await store.set(settingsStoreKeys.amountMode, amountMode.value);
+      await store.set(settingsStoreKeys.miniSize, miniSize);
+      await store.set(settingsStoreKeys.miniOpacityPercent, miniOpacityPercent);
+      await store.set(
+        settingsStoreKeys.hasCompletedOnboarding,
+        hasCompletedOnboarding.value,
+      );
+      await store.set(settingsStoreKeys.settingsVersion, settingsSchemaVersion);
       await store.save();
 
-      const savedConfig = await store.get<Partial<SalaryConfig>>("config");
-      const verifiedConfig = migrateSalaryConfig(savedConfig);
-      if (serializeSalaryConfig(verifiedConfig) !== serializeSalaryConfig(config.value)) {
-        console.error("Saved salary settings did not match the in-memory config");
+      if (shouldPersistSalaryConfig) {
+        const savedConfig = await store.get<Partial<SalaryConfig>>(
+          settingsStoreKeys.config,
+        );
+        const verifiedConfig = migrateSalaryConfig(savedConfig);
+        if (
+          serializeSalaryConfig(verifiedConfig) !== serializeSalaryConfig(config.value)
+        ) {
+          console.error("Saved salary settings did not match the in-memory config");
+        }
       }
     } catch (error) {
       console.error("Failed to save settings", error);

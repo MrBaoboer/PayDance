@@ -49,7 +49,7 @@ describe("MiniWindow behavior", () => {
     ]);
   });
 
-  it("exposes a keyboard restore path for the mini window", async () => {
+  it("exposes Enter and Space restore paths for the mini window", async () => {
     const wrapper = mount(MiniWindow, {
       props: {
         amount: "330.29",
@@ -67,7 +67,8 @@ describe("MiniWindow behavior", () => {
     });
 
     await wrapper.get(".mini-window").trigger("keydown", { key: "Enter" });
+    await wrapper.get(".mini-window").trigger("keydown", { key: " " });
 
-    expect(wrapper.emitted("restore")).toHaveLength(1);
+    expect(wrapper.emitted("restore")).toHaveLength(2);
   });
 });

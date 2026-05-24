@@ -4,6 +4,16 @@
 
 更多构建产物与校验文件请查看 [GitHub Releases](https://github.com/MasterBao66/PayDance/releases)。
 
+### v0.7.13
+
+- 薪资实时 ticker 从每帧 `requestAnimationFrame` 业务重算改为按金额小数变化和状态边界自适应调度，降低桌面常驻与迷你悬浮模式下的 CPU/电量负担。
+- 设置持久化拆分薪资配置与 UI/窗口偏好保存：薪资输入临时无效时不再阻断主题、窗口尺寸、迷你透明度和首次启动状态保存。
+- 仪表盘两段竖向分隔线统一为稳定粗细，进度条改用 transform 驱动填充和圆点位移，减少布局重排并保持现有视觉方向。
+- 本地验证脚本拆为 `verify:fast` 与 `verify:release`，发布级验证补齐版本一致性、Release 锁、生产依赖审计、Rust fmt/check/clippy。
+- 迷你悬浮窗口补充 Space 键恢复完整窗口，全局交互控件增加 `:focus-visible` 焦点样式，改善键盘可访问性。
+- 托盘事件名、设置 Store key 与窗口状态保存 debounce 收敛为命名常量，降低字符串拼写和魔法数字维护风险。
+- 更新 Issue 模板版本提示，并在 PRODUCT 中明确 Windows 11 稳定后的下一阶段桌面端战略方向是 macOS 迁移验证。
+
 ### v0.7.12
 
 - 工程检查脚本收敛到 Node canonical，Release notes 从 CHANGELOG 读取的流程不再依赖 PowerShell，保留 Windows 专属环境脚本。

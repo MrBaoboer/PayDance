@@ -74,7 +74,7 @@ describe("useSalarySettings", () => {
     expect(isSettingsReady.value).toBe(true);
   });
 
-  it("does not persist invalid salary settings", async () => {
+  it("does not persist invalid salary settings while preserving UI preferences", async () => {
     storeMocks.get.mockResolvedValue(undefined);
 
     const { config, loadSettings, saveSettings } =
@@ -90,14 +90,20 @@ describe("useSalarySettings", () => {
     };
 
     await saveSettings({
-      fullSize: fullWindowSize,
-      isMiniMode: false,
-      miniOpacityPercent: defaultMiniOpacityPercent,
-      miniSize: miniDefaultSize,
+      fullSize: { height: 520, width: 640 },
+      isMiniMode: true,
+      miniOpacityPercent: 64,
+      miniSize: { height: 72, width: 210 },
     });
 
-    expect(storeMocks.set).not.toHaveBeenCalled();
-    expect(storeMocks.save).not.toHaveBeenCalled();
+    expect(storeMocks.set).not.toHaveBeenCalledWith("config", expect.anything());
+    expect(storeMocks.set).toHaveBeenCalledWith("fullSize", {
+      height: 520,
+      width: 640,
+    });
+    expect(storeMocks.set).toHaveBeenCalledWith("isMiniMode", true);
+    expect(storeMocks.set).toHaveBeenCalledWith("miniOpacityPercent", 64);
+    expect(storeMocks.save).toHaveBeenCalled();
   });
 
   it("checks the saved config after writing settings", async () => {

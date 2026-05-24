@@ -4,6 +4,8 @@ import type { WindowSize } from "../lib/window-mode";
 
 type WindowPreferences = PersistedWindowState;
 
+export const windowStateSaveDebounceMs = 220;
+
 export function useWindowStatePersistence({
   defaultWindowPreferences,
   fullSize,
@@ -71,7 +73,7 @@ export function useWindowStatePersistence({
     window.clearTimeout(saveStateTimer);
     saveStateTimer = window.setTimeout(() => {
       void queueSaveState(readCurrentState());
-    }, 220);
+    }, windowStateSaveDebounceMs);
   };
 
   const saveStateNow = async () => {

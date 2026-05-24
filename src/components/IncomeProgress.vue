@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 const props = defineProps<{
   progress: number;
@@ -7,26 +7,54 @@ const props = defineProps<{
 }>();
 
 const clampedProgress = computed(() => Math.min(Math.max(props.progress, 0), 1));
-const progressPercent = computed(() => `${clampedProgress.value * 100}%`);
 const progressNumber = computed(() => Math.round(clampedProgress.value * 100));
 const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
+const trackRef = ref<HTMLElement | null>(null);
+const trackWidth = ref(0);
+let resizeObserver: ResizeObserver | undefined;
+
+const updateTrackWidth = () => {
+  trackWidth.value = trackRef.value?.clientWidth ?? 0;
+};
+
+const progressStyle = computed(() => ({
+  "--progress-scale": String(clampedProgress.value),
+  "--progress-x": `${trackWidth.value * clampedProgress.value}px`,
+}));
+
+onMounted(() => {
+  updateTrackWidth();
+
+  if ("ResizeObserver" in window) {
+    resizeObserver = new ResizeObserver(updateTrackWidth);
+    if (trackRef.value) {
+      resizeObserver.observe(trackRef.value);
+    }
+  }
+});
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect();
+});
 </script>
 
 <template>
   <div class="income-progress" :class="{ 'is-working': isWorking }">
     <div
+      ref="trackRef"
       class="progress-track"
       role="progressbar"
       aria-valuemin="0"
       aria-valuemax="100"
       :aria-label="progressTooltip"
       :aria-valuenow="progressNumber"
+      :style="progressStyle"
       :title="progressTooltip"
     >
-      <div class="progress-fill" :style="{ width: progressPercent }">
+      <div class="progress-fill">
         <span class="progress-glow" />
       </div>
-      <span class="progress-dot" :style="{ left: progressPercent }" />
+      <span class="progress-dot" />
     </div>
   </div>
 </template>
@@ -49,15 +77,17 @@ const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
 
 .progress-fill {
   position: relative;
+  width: 100%;
   height: 100%;
-  min-width: clamp(7px, 1.7cqw, 10px);
   overflow: hidden;
   border-radius: inherit;
   background: var(
     --progress-fill-bg,
     linear-gradient(90deg, var(--income-accent), var(--income-accent-bright))
   );
-  transition: width 260ms ease-out;
+  transform: scaleX(var(--progress-scale));
+  transform-origin: left center;
+  transition: transform 260ms ease-out;
 }
 
 .progress-glow {
@@ -79,6 +109,7 @@ const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
 .progress-dot {
   position: absolute;
   top: 50%;
+  left: 0;
   width: clamp(13px, 3.2cqw, 17px);
   height: clamp(13px, 3.2cqw, 17px);
   border: 2px solid var(--progress-dot-border, var(--panel));
@@ -89,9 +120,9 @@ const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
     0 0 0 1px var(--income-accent-ring),
     0 6px 16px var(--income-accent-shadow)
   );
-  transform: translate(-50%, -50%);
+  transform: translate3d(var(--progress-x), -50%, 0) translateX(-50%);
   transition:
-    left 260ms ease-out,
+    transform 260ms ease-out,
     opacity 160ms ease;
 }
 

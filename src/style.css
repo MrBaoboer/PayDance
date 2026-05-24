@@ -30,3 +30,9 @@ button,
 input {
   font: inherit;
 }
+
+:where(button, input, [role="button"], [type="range"]):focus-visible {
+  outline: 2px solid var(--income-accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px var(--income-accent-ring);
+}
