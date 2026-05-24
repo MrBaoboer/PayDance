@@ -8,6 +8,7 @@ const props = defineProps<{
 
 const clampedProgress = computed(() => Math.min(Math.max(props.progress, 0), 1));
 const progressNumber = computed(() => Math.round(clampedProgress.value * 100));
+const progressPercent = computed(() => `${(clampedProgress.value * 100).toFixed(4)}%`);
 const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
 const trackRef = ref<HTMLElement | null>(null);
 const trackWidth = ref(0);
@@ -18,7 +19,7 @@ const updateTrackWidth = () => {
 };
 
 const progressStyle = computed(() => ({
-  "--progress-scale": String(clampedProgress.value),
+  "--progress-percent": progressPercent.value,
   "--progress-x": `${trackWidth.value * clampedProgress.value}px`,
 }));
 
@@ -76,18 +77,17 @@ onBeforeUnmount(() => {
 }
 
 .progress-fill {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   border-radius: inherit;
   background: var(
     --progress-fill-bg,
     linear-gradient(90deg, var(--income-accent), var(--income-accent-bright))
   );
-  transform: scaleX(var(--progress-scale));
-  transform-origin: left center;
-  transition: transform 260ms ease-out;
+  clip-path: inset(0 calc(100% - var(--progress-percent)) 0 0 round 999px);
+  transition: clip-path 260ms ease-out;
+  will-change: clip-path;
 }
 
 .progress-glow {

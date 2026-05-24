@@ -210,6 +210,7 @@ const updateConfig = <Key extends keyof SalaryConfig>(
   font-family: var(--font-dashboard);
   font-size: var(--ui-font-sm, 14px);
   font-variant-numeric: tabular-nums;
+  caret-color: var(--text);
   outline: none;
   padding: 0 clamp(9px, 2.2cqw, 13px);
 }
@@ -225,8 +226,8 @@ const updateConfig = <Key extends keyof SalaryConfig>(
 }
 
 .field-input-wrap:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgb(127 127 127 / 0.14);
+  border-color: var(--field-focus-border);
+  box-shadow: 0 0 0 3px var(--field-focus-ring);
 }
 
 .field.is-invalid .field-input-wrap {

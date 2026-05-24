@@ -31,8 +31,12 @@ input {
   font: inherit;
 }
 
-:where(button, input, [role="button"], [type="range"]):focus-visible {
-  outline: 2px solid var(--income-accent);
+:where(button, [role="button"]):focus-visible {
+  outline: 2px solid var(--focus-outline, var(--income-accent));
   outline-offset: 3px;
-  box-shadow: 0 0 0 4px var(--income-accent-ring);
+  box-shadow: 0 0 0 4px var(--focus-ring, var(--income-accent-ring));
+}
+
+:where(input:not([type="range"]), textarea, select):focus-visible {
+  outline: none;
 }
