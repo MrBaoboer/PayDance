@@ -6,17 +6,13 @@ import {
   miniDefaultSize,
 } from "../lib/window-mode";
 
-const storeMocks = vi.hoisted(() => ({
+const storeMocks = {
   get: vi.fn(),
   save: vi.fn(),
   set: vi.fn(),
-}));
+};
 
-vi.mock("@tauri-apps/plugin-store", () => ({
-  LazyStore: vi.fn(function LazyStore() {
-    return storeMocks;
-  }),
-}));
+const createMockStore = () => Promise.resolve(storeMocks);
 
 describe("useSalarySettings", () => {
   beforeEach(() => {
@@ -36,7 +32,9 @@ describe("useSalarySettings", () => {
       isSettingsReady,
       loadSettings,
       themeMode,
-    } = await import("./useSalarySettings").then((module) => module.useSalarySettings());
+    } = await import("./useSalarySettings").then((module) =>
+      module.useSalarySettings(createMockStore),
+    );
 
     const windowPreferences = await loadSettings();
 
@@ -59,7 +57,9 @@ describe("useSalarySettings", () => {
     storeMocks.save.mockRejectedValue(new Error("disk unavailable"));
 
     const { isSettingsReady, loadSettings, saveSettings } =
-      await import("./useSalarySettings").then((module) => module.useSalarySettings());
+      await import("./useSalarySettings").then((module) =>
+        module.useSalarySettings(createMockStore),
+      );
 
     await loadSettings();
 
@@ -78,7 +78,9 @@ describe("useSalarySettings", () => {
     storeMocks.get.mockResolvedValue(undefined);
 
     const { config, loadSettings, saveSettings } =
-      await import("./useSalarySettings").then((module) => module.useSalarySettings());
+      await import("./useSalarySettings").then((module) =>
+        module.useSalarySettings(createMockStore),
+      );
 
     await loadSettings();
     storeMocks.get.mockClear();
@@ -110,7 +112,7 @@ describe("useSalarySettings", () => {
     storeMocks.get.mockResolvedValue(undefined);
 
     const { loadSettings, saveSettings } = await import("./useSalarySettings").then(
-      (module) => module.useSalarySettings(),
+      (module) => module.useSalarySettings(createMockStore),
     );
 
     await loadSettings();

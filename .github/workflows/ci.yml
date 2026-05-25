@@ -60,6 +60,9 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+      - name: Build Web Preview
+        run: npm run build:web
+
       - name: Check Rust formatting
         run: cargo fmt --all -- --check
         working-directory: src-tauri

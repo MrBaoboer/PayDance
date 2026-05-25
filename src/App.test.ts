@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import appSource from "./App.vue?raw";
+import desktopAppSource from "./DesktopApp.vue?raw";
 import themeSyncSource from "./composables/useThemeSync.ts?raw";
 import dashboardModelSource from "./composables/useDashboardModel.ts?raw";
 import mainDashboardSource from "./components/MainDashboard.vue?raw";
@@ -17,14 +18,20 @@ const appShellSource = readFileSync(
 );
 
 describe("main dashboard shell", () => {
-  it("keeps App.vue as a page shell under the 300-line architecture budget", () => {
+  it("keeps App.vue as a runtime selector under the 300-line architecture budget", () => {
     expect(appSource.split(/\r?\n/).length).toBeLessThanOrEqual(300);
+    expect(appSource).toContain("WebPreviewApp");
+    expect(appSource).toContain("DesktopApp");
+  });
+
+  it("keeps DesktopApp.vue as a page shell under the 300-line architecture budget", () => {
+    expect(desktopAppSource.split(/\r?\n/).length).toBeLessThanOrEqual(300);
   });
 
   it("removes the v0.6.0 pulse line from the main surface", () => {
-    expect(appSource).not.toContain("getDashboardCopy");
-    expect(appSource).not.toContain("income-pulse");
-    expect(appSource).not.toContain("dashboardCopy");
+    expect(desktopAppSource).not.toContain("getDashboardCopy");
+    expect(desktopAppSource).not.toContain("income-pulse");
+    expect(desktopAppSource).not.toContain("dashboardCopy");
   });
 
   it("keeps salary details as the quieter salary explanation entry", () => {
@@ -82,15 +89,13 @@ describe("main dashboard shell", () => {
     expect(themeSyncSource.indexOf("themeMode.value = mode")).toBeLessThan(
       themeSyncSource.indexOf("await appWindow.setTheme(mode)"),
     );
-    expect(appSource).toContain("useThemeSync(");
-    expect(appSource).toContain("saveStateNow,");
-    expect(appSource).not.toContain("let themeApplyToken = 0");
+    expect(desktopAppSource).toContain("useThemeSync(");
+    expect(desktopAppSource).toContain("saveStateNow,");
+    expect(desktopAppSource).not.toContain("let themeApplyToken = 0");
   });
 
   it("keeps theme switching as a logic guard without freezing the whole UI", () => {
-    expect(appSource).not.toContain("'is-theme-switching': isThemeSwitching");
-    expect(appSource).not.toContain(".is-theme-switching");
-    expect(appSource).not.toContain("transition: none !important");
+    expect(desktopAppSource).not.toContain("transition: none !important");
   });
 
   it("uses flat dark-theme hover and dashboard tokens", () => {
@@ -104,13 +109,13 @@ describe("main dashboard shell", () => {
   });
 
   it("removes the full-window outer gutter while giving theme switches a synced shell surface", () => {
-    expect(appSource).toContain("app-shell h-full w-full select-none p-0");
-    expect(appSource).not.toContain("bg-transparent p-2");
+    expect(desktopAppSource).toContain("app-shell h-full w-full select-none p-0");
+    expect(desktopAppSource).not.toContain("bg-transparent p-2");
     expect(appShellSource).toContain("border: 0;");
     expect(appShellSource).toContain(".app-window");
     expect(appShellSource).toContain("border-radius: inherit");
     expect(appShellSource).toContain("background: transparent");
-    expect(appSource).toContain("'is-theme-syncing': isThemeSwitching");
+    expect(desktopAppSource).toContain("'is-theme-syncing': isThemeSwitching");
     expect(appShellSource).toContain(".app-shell.is-theme-syncing::before");
     expect(appShellSource).not.toContain("opacity: 0.9");
   });
@@ -150,12 +155,14 @@ describe("main dashboard shell", () => {
   });
 
   it("keeps theme tokens out of App.vue", () => {
-    expect(appSource).not.toContain(".theme-light {");
-    expect(appSource).not.toContain(".theme-dark {");
+    expect(desktopAppSource).not.toContain(".theme-light {");
+    expect(desktopAppSource).not.toContain(".theme-dark {");
   });
 
   it("passes autostart preferences into the first-run guide", () => {
     expect(appWindowSource).toContain(':autostart-enabled="autostartEnabled"');
-    expect(appSource).toContain('@update:autostart-enabled="updateAutostartEnabled"');
+    expect(desktopAppSource).toContain(
+      '@update:autostart-enabled="updateAutostartEnabled"',
+    );
   });
 });

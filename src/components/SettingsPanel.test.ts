@@ -67,11 +67,11 @@ describe("settings panel", () => {
 
   it("adds a lightweight autostart card without unrelated desktop controls", () => {
     const startupSection = settingsPanelSource.slice(
-      settingsPanelSource.indexOf('<SettingsGroup title="启动">'),
+      settingsPanelSource.indexOf('title="启动"'),
       settingsPanelSource.indexOf("settings-inline-error"),
     );
 
-    expect(settingsPanelSource).toContain('<SettingsGroup title="启动">');
+    expect(settingsPanelSource).toContain('title="启动"');
     expect(settingsPanelSource).toContain("开机自动启动");
     expect(settingsPanelSource).toContain("autostartEnabled");
     expect(startupSection).toContain("<SwitchRow");

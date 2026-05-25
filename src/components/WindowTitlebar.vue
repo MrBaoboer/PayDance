@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { Minus, Moon, Pin, Settings2, Shrink, Sun, X } from "@lucide/vue";
 
-defineProps<{
-  alwaysOnTop: boolean;
-  hasConfigIssues: boolean;
-  statusText: string;
-  themeMode: "light" | "dark";
-}>();
+withDefaults(
+  defineProps<{
+    alwaysOnTop: boolean;
+    hasConfigIssues: boolean;
+    showDesktopActions?: boolean;
+    statusText: string;
+    themeMode: "light" | "dark";
+  }>(),
+  {
+    showDesktopActions: true,
+  },
+);
 
 defineEmits<{
   close: [];
@@ -66,6 +72,7 @@ defineEmits<{
         <Moon v-else :size="16" />
       </button>
       <button
+        v-if="showDesktopActions"
         class="icon-button"
         :aria-label="alwaysOnTop ? '取消窗口置顶' : '窗口置顶'"
         :title="alwaysOnTop ? '取消置顶' : '窗口置顶'"
@@ -75,6 +82,7 @@ defineEmits<{
         <Pin :class="{ 'pin-icon--filled': alwaysOnTop }" :size="16" />
       </button>
       <button
+        v-if="showDesktopActions"
         class="icon-button"
         aria-label="最小化窗口"
         title="最小化"
@@ -84,6 +92,7 @@ defineEmits<{
         <Minus :size="16" />
       </button>
       <button
+        v-if="showDesktopActions"
         class="icon-button danger"
         aria-label="关闭到托盘"
         title="关闭到托盘"

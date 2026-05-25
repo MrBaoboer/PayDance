@@ -1,5 +1,4 @@
 import { ref } from "vue";
-import { LazyStore } from "@tauri-apps/plugin-store";
 import {
   resolveWindowPreferences,
   type ThemeMode,
@@ -16,6 +15,10 @@ import {
   settingsSchemaVersion,
 } from "../lib/settings-migration";
 import { settingsStoreFileName, settingsStoreKeys } from "../lib/settings-store";
+import {
+  createSettingsStore,
+  type SettingsStoreAdapter,
+} from "../platform/settings-store";
 
 export type AmountMode = "rolling" | "plain";
 
@@ -26,18 +29,24 @@ export type PersistedWindowState = {
   miniOpacityPercent: number;
 };
 
-const store = new LazyStore(settingsStoreFileName);
-
 const serializeSalaryConfig = (config: SalaryConfig) =>
   JSON.stringify({ ...config, workdays: [...config.workdays] });
 
-export function useSalarySettings() {
+export function useSalarySettings(
+  storeLoader = () => createSettingsStore(settingsStoreFileName),
+) {
   const config = ref<SalaryConfig>({ ...defaultSalaryConfig });
   const alwaysOnTop = ref(true);
   const themeMode = ref<ThemeMode>("light");
   const amountMode = ref<AmountMode>("rolling");
   const hasCompletedOnboarding = ref(false);
   const isSettingsReady = ref(false);
+  let storePromise: Promise<SettingsStoreAdapter> | null = null;
+
+  const getStore = () => {
+    storePromise ??= storeLoader();
+    return storePromise;
+  };
 
   const resetToDefaults = () => {
     config.value = {
@@ -52,6 +61,7 @@ export function useSalarySettings() {
 
   const loadSettings = async () => {
     try {
+      const store = await getStore();
       const savedConfig = await store.get<Partial<SalaryConfig>>(
         settingsStoreKeys.config,
       );
@@ -114,6 +124,7 @@ export function useSalarySettings() {
     if (!isSettingsReady.value) return;
 
     try {
+      const store = await getStore();
       const configIssues = validateSalaryConfig(config.value);
       const shouldPersistSalaryConfig = configIssues.length <= 0;
       if (shouldPersistSalaryConfig) {

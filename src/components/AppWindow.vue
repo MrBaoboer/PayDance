@@ -37,6 +37,7 @@ defineProps<{
   middleStat: DashboardMiddleStat;
   salaryModeLabel: string;
   shouldShowOnboarding: boolean;
+  showDesktopFeatures?: boolean;
   showSalaryInfo: boolean;
   showSettings: boolean;
   snapshot: SalarySnapshot;
@@ -72,6 +73,7 @@ const emit = defineEmits<{
     <WindowTitlebar
       :always-on-top="alwaysOnTop"
       :has-config-issues="hasConfigIssues"
+      :show-desktop-actions="showDesktopFeatures"
       :status-text="statusText"
       :theme-mode="themeMode"
       @close="emit('close')"
@@ -129,6 +131,7 @@ const emit = defineEmits<{
               :first-issue="firstConfigIssue"
               :has-issue="hasIssue"
               :is-autostart-updating="isAutostartUpdating"
+              :show-desktop-features="showDesktopFeatures"
               @update:amount-mode="emit('update:amountMode', $event)"
               @update:autostart-enabled="emit('update:autostartEnabled', $event)"
               @update:config="emit('update:config', $event)"
@@ -159,6 +162,7 @@ const emit = defineEmits<{
       :always-on-top="alwaysOnTop"
       :autostart-enabled="autostartEnabled"
       :config="config"
+      :show-desktop-features="showDesktopFeatures"
       :theme-mode="themeMode"
       @complete="emit('completeOnboarding', $event)"
       @drag-start="emit('dragStart', $event)"

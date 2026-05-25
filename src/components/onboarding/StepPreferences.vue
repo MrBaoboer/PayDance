@@ -4,12 +4,18 @@ import SwitchRow from "../ui/SwitchRow.vue";
 
 type ThemeMode = "light" | "dark";
 
-defineProps<{
-  alwaysOnTop: boolean;
-  autostartEnabled: boolean;
-  startInMiniMode: boolean;
-  themeMode: ThemeMode;
-}>();
+withDefaults(
+  defineProps<{
+    alwaysOnTop: boolean;
+    autostartEnabled: boolean;
+    showDesktopFeatures?: boolean;
+    startInMiniMode: boolean;
+    themeMode: ThemeMode;
+  }>(),
+  {
+    showDesktopFeatures: true,
+  },
+);
 
 const emit = defineEmits<{
   "update:alwaysOnTop": [value: boolean];
@@ -40,6 +46,7 @@ const updateThemeMode = (value: string) => {
     />
 
     <SwitchRow
+      v-if="showDesktopFeatures"
       label="开机自动启动"
       panel
       :model-value="autostartEnabled"
@@ -47,6 +54,7 @@ const updateThemeMode = (value: string) => {
     />
 
     <SwitchRow
+      v-if="showDesktopFeatures"
       label="窗口始终置顶"
       panel
       :model-value="alwaysOnTop"

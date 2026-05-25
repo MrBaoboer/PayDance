@@ -13,12 +13,18 @@ import StepPreferences from "./onboarding/StepPreferences.vue";
 import StepSalaryMode from "./onboarding/StepSalaryMode.vue";
 import StepWorkTime from "./onboarding/StepWorkTime.vue";
 
-const props = defineProps<{
-  alwaysOnTop: boolean;
-  autostartEnabled: boolean;
-  config: SalaryConfig;
-  themeMode: "light" | "dark";
-}>();
+const props = withDefaults(
+  defineProps<{
+    alwaysOnTop: boolean;
+    autostartEnabled: boolean;
+    config: SalaryConfig;
+    showDesktopFeatures?: boolean;
+    themeMode: "light" | "dark";
+  }>(),
+  {
+    showDesktopFeatures: true,
+  },
+);
 
 const emit = defineEmits<{
   complete: [preferences: { startInMiniMode: boolean }];
@@ -97,6 +103,7 @@ const goBack = () => {
           v-model:start-in-mini-mode="startInMiniMode"
           :always-on-top="alwaysOnTop"
           :autostart-enabled="autostartEnabled"
+          :show-desktop-features="showDesktopFeatures"
           :theme-mode="themeMode"
           @update:always-on-top="emit('update:alwaysOnTop', $event)"
           @update:autostart-enabled="emit('update:autostartEnabled', $event)"

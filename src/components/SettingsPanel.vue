@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   appAuthor,
   appCopyright,
@@ -10,6 +9,7 @@ import {
   repositoryUrl,
 } from "../lib/app-meta";
 import type { SalaryConfig, SalaryConfigIssue } from "../lib/salary";
+import { openExternalUrl } from "../platform/opener";
 import LunchBreakFields from "./settings/LunchBreakFields.vue";
 import SalaryAmountFields from "./settings/SalaryAmountFields.vue";
 import SalaryModeControl from "./settings/SalaryModeControl.vue";
@@ -19,15 +19,21 @@ import SegmentedControl from "./ui/SegmentedControl.vue";
 import SettingsGroup from "./ui/SettingsGroup.vue";
 import SwitchRow from "./ui/SwitchRow.vue";
 
-const props = defineProps<{
-  amountMode: "rolling" | "plain";
-  autostartEnabled: boolean;
-  autostartError: string;
-  config: SalaryConfig;
-  firstIssue: string;
-  hasIssue: (field: SalaryConfigIssue["field"]) => boolean;
-  isAutostartUpdating: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    amountMode: "rolling" | "plain";
+    autostartEnabled: boolean;
+    autostartError: string;
+    config: SalaryConfig;
+    firstIssue: string;
+    hasIssue: (field: SalaryConfigIssue["field"]) => boolean;
+    isAutostartUpdating: boolean;
+    showDesktopFeatures?: boolean;
+  }>(),
+  {
+    showDesktopFeatures: true,
+  },
+);
 
 const emit = defineEmits<{
   "update:autostartEnabled": [enabled: boolean];
@@ -61,7 +67,7 @@ const openRepository = async () => {
   repositoryError.value = "";
 
   try {
-    await openUrl(repositoryUrl);
+    await openExternalUrl(repositoryUrl);
   } catch (error) {
     console.error("Failed to open repository", error);
     repositoryError.value = "无法打开 GitHub 仓库，请稍后重试。";
@@ -133,7 +139,7 @@ const openRepository = async () => {
       />
     </SettingsGroup>
 
-    <SettingsGroup title="启动">
+    <SettingsGroup v-if="showDesktopFeatures" title="启动">
       <template #action>
         <SwitchRow
           label="开机自动启动"

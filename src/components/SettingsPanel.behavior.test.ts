@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import { defaultSalaryConfig } from "../lib/salary";
 import SettingsPanel from "./SettingsPanel.vue";
 
-vi.mock("@tauri-apps/plugin-opener", () => ({
-  openUrl: vi.fn(async () => {}),
+vi.mock("../platform/opener", () => ({
+  openExternalUrl: vi.fn(async () => {}),
 }));
 
 const mountSettingsPanel = (

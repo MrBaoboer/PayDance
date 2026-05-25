@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import appSource from "./App.vue?raw";
+import desktopAppSource from "./DesktopApp.vue?raw";
 import appWindowSource from "./components/AppWindow.vue?raw";
 import miniOpacityPanelSource from "./composables/useMiniOpacityPanel.ts?raw";
 import windowLifecycleSource from "./composables/useAppWindowLifecycle.ts?raw";
@@ -13,7 +13,7 @@ const appThemeSource = readFileSync(
 
 describe("app chrome", () => {
   it("suppresses the unused webview context menu on full and mini windows", () => {
-    expect(appSource).toContain("@contextmenu.prevent");
+    expect(desktopAppSource).toContain("@contextmenu.prevent");
   });
 
   it("keeps sheets draggable while their interactive controls remain usable", () => {
@@ -28,10 +28,10 @@ describe("app chrome", () => {
   });
 
   it("hosts the mini opacity panel in a separate lightweight window", () => {
-    expect(appSource).toContain("MiniOpacityPanel");
-    expect(appSource).toContain('appWindow.label === "mini-opacity"');
-    expect(appSource).toContain("showMiniOpacityPanel");
-    expect(appSource).toContain("useMiniOpacityPanel(");
+    expect(desktopAppSource).toContain("MiniOpacityPanel");
+    expect(desktopAppSource).toContain('appWindow.label === "mini-opacity"');
+    expect(desktopAppSource).toContain("showMiniOpacityPanel");
+    expect(desktopAppSource).toContain("useMiniOpacityPanel(");
     expect(miniOpacityPanelSource).toContain("anchor: MiniOpacityPanelAnchor");
     expect(miniOpacityPanelSource).toContain("PhysicalPosition");
     expect(miniOpacityPanelSource).toContain("LogicalSize");
@@ -58,15 +58,15 @@ describe("app chrome", () => {
   });
 
   it("persists mini opacity together with the mini window state", () => {
-    expect(appSource).toContain("miniOpacityPercent");
-    expect(appSource).toContain(':opacity-percent="miniOpacityPercent"');
+    expect(desktopAppSource).toContain("miniOpacityPercent");
+    expect(desktopAppSource).toContain(':opacity-percent="miniOpacityPercent"');
     expect(windowStatePersistenceSource).toContain(
       "miniOpacityPercent: miniOpacityPercent.value",
     );
   });
 
   it("keeps a final app-level fallback around settings loading", () => {
-    expect(appSource).toContain("loadWindowPreferences");
+    expect(desktopAppSource).toContain("loadWindowPreferences");
     expect(windowStatePersistenceSource).toContain("catch (error)");
     expect(windowStatePersistenceSource).toContain("defaultWindowPreferences");
   });

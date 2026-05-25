@@ -4,6 +4,17 @@
 
 更多构建产物与校验文件请查看 [GitHub Releases](https://github.com/MasterBao66/PayDance/releases)。
 
+### v0.8.0
+
+- 新增 PayDance Web Preview：通过 GitHub Pages 在线体验核心薪资计算、首次配置、设置中心和迷你悬浮效果。
+- 根应用改为按运行目标加载 Desktop App 或 Web Preview，网页构建不执行 Tauri 原生窗口、托盘和 Store 调用。
+- 配置存储抽象为平台适配层：Windows 桌面版继续使用 Tauri Store，Web Preview 使用浏览器 localStorage。
+- 外链打开能力改为平台适配：桌面端使用 Tauri opener，网页端使用浏览器新标签页。
+- Web Preview 隐藏托盘、窗口置顶、开机自启动等桌面专属能力，并在 README 中明确体验版与完整 Windows 版边界。
+- 新增 GitHub Pages 自动部署 workflow，并将 Web Preview 构建纳入本地与 CI 验证链路。
+- PRODUCT / DESIGN 同步补充 Web Preview 定位，同时继续明确 macOS 是 Windows 版本稳定后的下一阶段桌面迁移方向。
+- Issue 模板版本提示同步更新至 v0.8.0。
+
 ### v0.7.16
 
 - 主界面金额变化光效恢复为 v0.7.9 的自然单层 `drop-shadow` 过渡，人民币符号与金额光亮重新保持同步、克制和柔和。
