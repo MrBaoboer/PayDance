@@ -2,7 +2,13 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ExternalLink } from "@lucide/vue";
 import productLogoUrl from "../src-tauri/icons/icon.png";
-import { appEnglishName, appName, appVersion, repositoryUrl } from "./lib/app-meta";
+import {
+  appCopyright,
+  appEnglishName,
+  appName,
+  appVersion,
+  repositoryUrl,
+} from "./lib/app-meta";
 import {
   defaultMiniOpacityPercent,
   fullWindowSize,
@@ -232,13 +238,15 @@ onBeforeUnmount(() => {
 
     <section class="web-preview__hero" aria-label="PayDance Web Preview">
       <div class="web-preview__copy">
-        <h1>看见每一秒的收入跳动。</h1>
+        <h1>
+          每一秒，<br />
+          都在入账。
+        </h1>
         <p class="web-preview__lead">
-          配置薪资与作息，今日入账会在桌面上实时增长。网页端可预览核心体验，完整桌面能力请下载
-          Windows 版。
+          把今天挣到的钱放在桌面上实时跳动。配置一次，打开就能看。
         </p>
 
-        <nav class="web-preview__actions" aria-label="网页体验版操作">
+        <nav class="web-preview__actions" aria-label="网页端操作">
           <a
             class="web-preview__action web-preview__action--primary"
             href="https://github.com/MasterBao66/PayDance/releases/latest"
@@ -252,28 +260,14 @@ onBeforeUnmount(() => {
           </a>
         </nav>
 
-        <dl class="web-preview__chips" aria-label="产品核心优势">
-          <div class="web-preview__chip">
-            <dt>实时入账</dt>
-            <dd>金额随工作时间增长</dd>
-          </div>
-          <div class="web-preview__chip">
-            <dt>迷你悬浮</dt>
-            <dd>角落常驻，少打扰</dd>
-          </div>
-          <div class="web-preview__chip">
-            <dt>本地保存</dt>
-            <dd>无账号，无遥测</dd>
-          </div>
-        </dl>
+        <ul class="web-preview__pills" aria-label="产品核心优势">
+          <li>实时入账</li>
+          <li>迷你悬浮</li>
+          <li>本地保存</li>
+        </ul>
       </div>
 
       <div id="paydance-preview" class="web-preview__showcase">
-        <div class="web-preview__showcase-header">
-          <span>{{ appName }} {{ appEnglishName }}</span>
-          <strong>网页体验版</strong>
-        </div>
-
         <div
           v-if="activeView !== 'mini'"
           class="app-shell web-preview__frame h-full w-full select-none p-0"
@@ -367,132 +361,132 @@ onBeforeUnmount(() => {
             </label>
           </section>
         </div>
-
-        <p class="web-preview__notice">
-          Web Preview 只用于预览核心体验；完整桌面能力请使用 Windows 桌面版。
-        </p>
       </div>
     </section>
+
+    <footer class="web-preview__footer" aria-label="作者归属">
+      {{ appCopyright }} · {{ appName }} {{ appEnglishName }}
+    </footer>
   </main>
 </template>
 
 <style scoped>
 .web-preview {
+  --brand-logo-size: 48px;
+  --brand-name-size: 22px;
+  --web-max-width: 1280px;
   --web-page-bg: rgb(247 247 245);
-  --web-surface: rgb(255 255 255 / 0.72);
-  --web-surface-strong: rgb(255 255 255 / 0.92);
+  --web-surface: rgb(255 255 255 / 0.8);
+  --web-surface-strong: rgb(255 255 255 / 0.96);
   --web-border: rgb(24 24 27 / 0.11);
-  --web-shadow: 0 28px 84px rgb(24 24 27 / 0.13);
-  min-height: 100%;
+  --web-shadow: 0 32px 92px rgb(24 24 27 / 0.12);
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
   overflow: auto;
   background:
     radial-gradient(
-      circle at 76% 26%,
-      color-mix(in srgb, var(--income-accent) 13%, transparent) 0,
-      transparent 30%
+      circle at 79% 34%,
+      color-mix(in srgb, var(--income-accent) 11%, transparent) 0,
+      transparent 31%
     ),
     linear-gradient(
       145deg,
       rgb(250 250 249) 0%,
-      var(--web-page-bg) 48%,
-      rgb(239 238 234) 100%
+      var(--web-page-bg) 54%,
+      rgb(242 240 236) 100%
     );
   color: var(--text);
-  padding: clamp(20px, 4vw, 44px);
+  padding: clamp(24px, 3.6vw, 54px) clamp(24px, 5vw, 74px) clamp(18px, 3vw, 34px);
 }
 
 .theme-dark.web-preview {
   --web-page-bg: rgb(12 12 14);
-  --web-surface: rgb(24 24 27 / 0.72);
-  --web-surface-strong: rgb(32 32 36 / 0.92);
+  --web-surface: rgb(24 24 27 / 0.78);
+  --web-surface-strong: rgb(34 34 38 / 0.94);
   --web-border: rgb(255 255 255 / 0.11);
   --web-shadow: 0 30px 88px rgb(0 0 0 / 0.38);
   background:
     radial-gradient(
-      circle at 75% 24%,
-      color-mix(in srgb, var(--income-accent) 9%, transparent) 0,
-      transparent 28%
+      circle at 78% 33%,
+      color-mix(in srgb, var(--income-accent) 8%, transparent) 0,
+      transparent 30%
     ),
-    linear-gradient(145deg, rgb(13 13 15) 0%, var(--web-page-bg) 58%, rgb(19 18 17) 100%);
+    linear-gradient(145deg, rgb(10 10 12) 0%, var(--web-page-bg) 62%, rgb(17 16 15) 100%);
 }
 
 .web-preview__topbar {
   position: relative;
   z-index: 2;
   display: flex;
-  max-width: 1120px;
+  width: min(100%, var(--web-max-width));
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  margin: 0 auto clamp(34px, 6vw, 76px);
+  gap: 20px;
+  margin: 0 auto;
 }
 
 .web-preview__brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   color: var(--text);
-  font-size: 15px;
+  font-size: var(--brand-name-size);
   font-weight: 820;
   text-decoration: none;
 }
 
 .web-preview__brand img {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  box-shadow: 0 10px 24px rgb(24 24 27 / 0.12);
+  width: var(--brand-logo-size);
+  height: var(--brand-logo-size);
+  border-radius: 13px;
+  box-shadow: 0 16px 36px rgb(24 24 27 / 0.13);
 }
 
 .web-preview__version {
   border: 1px solid var(--web-border);
   border-radius: 999px;
   background: var(--web-surface);
-  padding: 7px 12px;
+  padding: 10px 16px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 760;
 }
 
 .web-preview__hero {
   display: grid;
-  min-height: calc(100vh - clamp(112px, 14vw, 176px));
-  max-width: 1120px;
-  align-items: start;
-  grid-template-columns: minmax(292px, 0.82fr) minmax(480px, 1fr);
-  gap: clamp(44px, 7vw, 92px);
+  width: min(100%, var(--web-max-width));
+  flex: 1;
+  align-items: center;
+  grid-template-columns: minmax(360px, 0.9fr) minmax(480px, 520px);
+  gap: clamp(58px, 8vw, 116px);
   margin: 0 auto;
+  padding: clamp(34px, 6vh, 70px) 0 clamp(28px, 5vh, 56px);
 }
 
 .web-preview__copy {
   display: grid;
   align-content: start;
-  gap: clamp(18px, 3vw, 28px);
-  padding-top: clamp(22px, 5vw, 54px);
+  gap: clamp(18px, 2.6vw, 30px);
 }
 
 .web-preview h1 {
-  max-width: 7.8em;
+  max-width: 6.4em;
   margin: 0;
   color: var(--text);
-  font-size: clamp(46px, 6.4vw, 78px);
+  font-size: clamp(54px, 6.2vw, 96px);
   font-weight: 850;
-  line-height: 1.01;
+  line-height: 0.98;
   letter-spacing: 0;
 }
 
-.web-preview__lead,
-.web-preview__notice,
-.web-preview__chips dd {
+.web-preview__lead {
+  max-width: 430px;
+  margin: 0;
   color: var(--muted);
-  font-size: clamp(15px, 1.4vw, 17px);
+  font-size: clamp(16px, 1.35vw, 20px);
   font-weight: 520;
   line-height: 1.7;
-}
-
-.web-preview__lead {
-  max-width: 500px;
-  margin: 0;
 }
 
 .web-preview__actions {
@@ -540,43 +534,31 @@ onBeforeUnmount(() => {
   color: var(--muted);
 }
 
-.web-preview__chips {
+.web-preview__pills {
   display: flex;
-  max-width: 560px;
+  max-width: 520px;
   flex-wrap: wrap;
-  gap: 10px;
-  margin: 0;
+  gap: 8px;
+  margin: -2px 0 0;
+  padding: 0;
+  list-style: none;
 }
 
-.web-preview__chip {
-  display: grid;
-  min-width: 132px;
-  gap: 3px;
+.web-preview__pills li {
   border: 1px solid var(--web-border);
-  border-radius: 16px;
-  background: var(--web-surface);
-  padding: 12px 14px;
-  backdrop-filter: blur(16px);
-}
-
-.web-preview__chips dt {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--web-surface) 86%, transparent);
   color: var(--text);
   font-size: 13px;
-  font-weight: 820;
-}
-
-.web-preview__chips dd {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.45;
+  font-weight: 760;
+  padding: 7px 12px;
 }
 
 .web-preview__showcase {
   position: relative;
   display: grid;
   justify-items: center;
-  gap: 14px;
-  padding-top: clamp(2px, 1vw, 10px);
+  gap: 0;
 }
 
 .web-preview__showcase::before {
@@ -589,24 +571,6 @@ onBeforeUnmount(() => {
   content: "";
   filter: blur(44px);
   pointer-events: none;
-}
-
-.web-preview__showcase-header {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  width: min(100%, 480px);
-  align-items: center;
-  justify-content: space-between;
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.web-preview__showcase-header strong {
-  color: var(--income-accent);
-  font-size: 12px;
-  font-weight: 820;
 }
 
 .web-preview__frame {
@@ -662,14 +626,6 @@ onBeforeUnmount(() => {
   transform: translateX(-50%);
 }
 
-.web-preview__notice {
-  position: relative;
-  z-index: 1;
-  max-width: min(100%, 480px);
-  margin: 0;
-  text-align: left;
-}
-
 .web-mini-opacity__header {
   display: flex;
   justify-content: space-between;
@@ -688,19 +644,37 @@ onBeforeUnmount(() => {
   accent-color: var(--income-accent);
 }
 
+.web-preview__footer {
+  width: min(100%, var(--web-max-width));
+  margin: 0 auto;
+  border-top: 1px solid color-mix(in srgb, var(--web-border) 72%, transparent);
+  padding-top: clamp(14px, 2vw, 18px);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 660;
+  text-align: center;
+}
+
 @media (max-width: 980px) {
   .web-preview__hero {
     min-height: auto;
     grid-template-columns: 1fr;
+    padding-top: clamp(38px, 7vw, 62px);
   }
 
   .web-preview h1 {
-    max-width: 11em;
+    max-width: 9em;
+  }
+
+  .web-preview__showcase {
+    justify-items: start;
   }
 }
 
 @media (max-width: 560px) {
   .web-preview {
+    --brand-logo-size: 42px;
+    --brand-name-size: 19px;
     padding: 18px;
   }
 
@@ -709,12 +683,12 @@ onBeforeUnmount(() => {
   }
 
   .web-preview__topbar {
-    margin-bottom: 30px;
+    align-items: flex-start;
   }
 
-  .web-preview__chips {
-    display: grid;
-    grid-template-columns: 1fr;
+  .web-preview__version {
+    padding: 9px 13px;
+    font-size: 13px;
   }
 
   .web-preview__actions {
@@ -724,10 +698,6 @@ onBeforeUnmount(() => {
   .web-preview__frame {
     width: 100%;
     height: clamp(410px, 108vw, 460px);
-  }
-
-  .web-preview__showcase-header {
-    width: 100%;
   }
 
   .web-preview__mini-layer {

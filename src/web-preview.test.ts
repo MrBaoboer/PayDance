@@ -24,11 +24,12 @@ describe("PayDance Web Preview", () => {
 
   it("presents web preview as a bounded online experience", () => {
     expect(webPreviewSource).toContain("PayDance Web Preview");
-    expect(webPreviewSource).toContain("看见每一秒的收入跳动。");
+    expect(webPreviewSource).toContain("每一秒，");
+    expect(webPreviewSource).toContain("都在入账。");
     expect(webPreviewSource).toContain("下载 Windows 版");
     expect(webPreviewSource).not.toContain("开始体验");
     expect(webPreviewSource).toContain(':show-desktop-features="false"');
-    expect(webPreviewSource).toContain("只用于预览核心体验");
+    expect(webPreviewSource).not.toContain("Web Preview 只用于预览核心体验");
     expect(webPreviewSource).not.toContain("@tauri-apps");
   });
 
@@ -37,6 +38,22 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("appVersion");
     expect(webPreviewSource).toContain('class="web-preview__brand"');
     expect(webPreviewSource).toContain('class="web-preview__version"');
+    expect(webPreviewSource).toContain("--brand-logo-size: 48px");
+    expect(webPreviewSource).toContain("--brand-name-size: 22px");
+  });
+
+  it("removes auxiliary text around the software preview", () => {
+    expect(webPreviewSource).not.toContain("web-preview__showcase-header");
+    expect(webPreviewSource).not.toContain("web-preview__notice");
+    expect(webPreviewSource).not.toContain("网页体验版");
+  });
+
+  it("adds a centered author attribution footer", () => {
+    expect(webPreviewSource).toContain("appCopyright");
+    expect(webPreviewSource).toContain('class="web-preview__footer"');
+    expect(webPreviewSource).toContain(
+      "{{ appCopyright }} · {{ appName }} {{ appEnglishName }}",
+    );
   });
 
   it("uses a compact preview stage for mini floating mode", () => {
