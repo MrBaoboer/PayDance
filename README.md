@@ -1,32 +1,33 @@
 # 薪跳 PayDance
 
-[![Latest Release](https://img.shields.io/github/v/release/MasterBao66/PayDance?label=latest)](https://github.com/MasterBao66/PayDance/releases/latest)
-[![CI](https://github.com/MasterBao66/PayDance/actions/workflows/ci.yml/badge.svg)](https://github.com/MasterBao66/PayDance/actions/workflows/ci.yml)
-[![Release](https://github.com/MasterBao66/PayDance/actions/workflows/release.yml/badge.svg)](https://github.com/MasterBao66/PayDance/actions/workflows/release.yml)
-[![Platform](https://img.shields.io/badge/platform-Windows%2011-0078D4)](https://github.com/MasterBao66/PayDance/releases/latest)
-[![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-24C8DB)](https://tauri.app/)
-[![Privacy](https://img.shields.io/badge/privacy-local%20first-18181B)](#隐私声明作者与许可)
-
 <p align="center">
-  <strong>打工人的桌面实时工资看板</strong><br>
-  看见每一秒的收入跳动
+  <font size="6"><strong>打工人的桌面实时工资看板</strong></font><br>
+  <font size="4">把今天已经挣到的钱，实时放在桌面上</font>
 </p>
 
 <p align="center">
   <a href="https://masterbao66.github.io/PayDance/"><strong>在线体验</strong></a>
-  ·
+  &nbsp;&nbsp;·&nbsp;&nbsp;
   <a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe"><strong>下载 Windows 便携版</strong></a>
-  ·
-  <a href="https://github.com/MasterBao66/PayDance/releases/latest">Release</a>
+</p>
+
+<p align="center">
+  <sub>在线体验用于快速了解核心界面与配置流程；完整桌面体验请下载 Windows 版。</sub>
+</p>
+
+<p align="center">
+  <a href="https://github.com/MasterBao66/PayDance/releases/latest"><img src="https://img.shields.io/github/v/release/MasterBao66/PayDance?label=latest" alt="Latest Release"></a>
+  <a href="https://github.com/MasterBao66/PayDance/actions/workflows/ci.yml"><img src="https://github.com/MasterBao66/PayDance/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/platform-Windows%2011-0078D4" alt="Windows 11">
+  <img src="https://img.shields.io/badge/built%20with-Tauri%202-24C8DB" alt="Built with Tauri 2">
+  <a href="#隐私声明作者与许可"><img src="https://img.shields.io/badge/privacy-local%20first-18181B" alt="Local first privacy"></a>
 </p>
 
 ## 产品简介与核心体验
 
-薪跳 PayDance 是一款面向 Windows 11 的桌面实时工资看板。配置薪资与作息后，它会把“今天已经挣了多少钱”放在桌面上，随着工作时间实时增长。
+薪跳 PayDance 是一款面向 Windows 11 的桌面实时工资看板。配置薪资与上下班时间后，它会把“今天已经挣了多少钱”放在桌面上，随着工作时间实时增长。
 
-主窗口展示今日入账、工作进度、剩余时间和今日预计；迷你悬浮窗口只保留金额，适合放在屏幕角落长期扫读。
-
-[在线体验](https://masterbao66.github.io/PayDance/) 可先预览核心界面与配置流程。完整托盘、置顶、开机自启、原生透明窗口和系统级迷你悬浮，请使用 Windows 桌面版。
+主窗口展示今日入账、工作进度、剩余时间和今日预计；迷你悬浮窗口只保留金额，适合放在屏幕角落随时查看。
 
 ## 产品预览
 
@@ -52,11 +53,11 @@
 
 - **实时收入跳动**：根据当前时间持续计算今日入账，金额精确到小数点后 2 位，让收入增长变得可见。
 - **多薪资模式**：支持月薪、日薪、时薪，并自动换算日薪、时薪、分薪和秒薪。
-- **真实作息建模**：支持每月工作天数、每周工作日、上下班时间、午休剔除和跨零点夜班。
+- **真实时间建模**：支持每月工作天数、每周工作日、上下班时间、午休剔除和跨零点夜班。
 - **迷你悬浮模式**：只显示核心金额，支持拖拽、双击恢复主窗口、默认置顶和 `10% - 100%` 透明度调节。
 - **Windows 11 桌面体验**：无边框窗口、圆角、亮色/暗色主题、托盘常驻、窗口置顶和开机自启动。
-- **本地优先隐私**：薪资与作息配置保存在本机，不需要账号，不上传数据，不包含遥测。
-- **在线体验橱窗**：Web Preview 可在浏览器中预览核心看板、首次配置和迷你悬浮手感。
+- **本地优先隐私**：薪资与上下班时间配置保存在本机，不需要账号，不上传数据，不包含遥测。
+- **在线体验入口**：Web Preview 可在浏览器中预览核心看板、首次配置和迷你悬浮手感。
 - **发布可靠性**：Release 附带 SHA256 校验，CI 覆盖代码卫生、行为测试、桌面构建和 Web Preview 部署。
 
 ## 快速下载与安全校验
@@ -67,8 +68,6 @@
 | Windows 11     | [pay-dance.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe) | 便携版，下载后直接运行         |
 | GitHub Release | [最新正式版](https://github.com/MasterBao66/PayDance/releases/latest)                           | 查看更新说明、附件和校验文件   |
 | 源码           | [MasterBao66/PayDance](https://github.com/MasterBao66/PayDance)                                 | Vue 3 + TypeScript + Tauri 2   |
-
-Web Preview 是产品橱窗，不替代桌面版。完整托盘、窗口置顶、开机自启动、原生透明窗口和系统级迷你悬浮请使用 Windows 桌面版。
 
 Release 页面会同时提供 `pay-dance.exe` 与 `pay-dance.exe.sha256`。Windows 对未签名二进制可能展示发布者验证提示，建议以 GitHub Release 来源与 SHA256 校验作为下载后的完整性确认。
 
@@ -91,7 +90,7 @@ Get-Content .\pay-dance.exe.sha256
 | 测试        | Vitest, @vue/test-utils, happy-dom, vue-tsc, cargo fmt, cargo clippy, cargo check                                                          |
 | 工程治理    | 品牌与敏感信息扫描、版本一致性检查、GitHub Actions Release、[PRODUCT.md](PRODUCT.md)、[DESIGN.md](DESIGN.md)、[CHANGELOG.md](CHANGELOG.md) |
 
-项目采用 Vue 3 + TypeScript + Tauri 2 架构，核心薪资逻辑、状态模型和大部分前端界面具备迁移潜力。当前正式验证 Windows 11，并提供 Web Preview 作为线上橱窗；下一阶段桌面端战略方向是迁移并验证 macOS 版本。迁移到其他平台时，托盘、置顶、透明窗口、迷你悬浮和系统材质仍需要按平台重新设计与验证。
+项目采用 Vue 3 + TypeScript + Tauri 2 架构，核心薪资逻辑、状态模型和大部分前端界面具备迁移潜力。当前正式验证 Windows 11，并提供 Web Preview 作为线上预览入口；下一阶段桌面端战略方向是迁移并验证 macOS 版本。迁移到其他平台时，托盘、置顶、透明窗口、迷你悬浮和系统材质仍需要按平台重新设计与验证。
 
 ## 开发者指南
 

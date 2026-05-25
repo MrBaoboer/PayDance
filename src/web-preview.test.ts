@@ -33,7 +33,7 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain('class="web-preview__headline-accent"');
     expect(webPreviewSource).toContain("收入跳动");
     expect(webPreviewSource).toContain("把今天已经挣到的钱");
-    expect(webPreviewSource).toContain("实时放在桌面上");
+    expect(webPreviewSource).toContain("把今天已经挣到的钱 实时放在桌面上");
     expect(webPreviewSource).toContain("下载 Windows 版");
     expect(webPreviewSource).not.toContain("开始体验");
     expect(webPreviewSource).toContain(':show-desktop-features="false"');
@@ -45,9 +45,14 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("productLogoUrl");
     expect(webPreviewSource).toContain("appVersion");
     expect(webPreviewSource).toContain('class="web-preview__brand"');
+    expect(webPreviewSource).toContain('class="web-preview__brand-icon"');
     expect(webPreviewSource).toContain('class="web-preview__version"');
     expect(webPreviewSource).toContain("--brand-logo-size: 58px");
     expect(webPreviewSource).toContain("--brand-name-size: 26px");
+    expect(webPreviewSource).toContain("overflow: hidden");
+    expect(webPreviewSource).toContain("transform: scale(1.16)");
+    expect(webPreviewSource).toContain("Web Preview");
+    expect(webPreviewSource).toContain("::before");
   });
 
   it("uses a more expressive web typography system", () => {
@@ -76,6 +81,10 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("Download");
     expect(webPreviewSource).not.toContain("translateY(-1px)");
     expect(webPreviewSource).toContain(".web-preview__action--quiet {\n  gap: 7px;");
+    expect(cssBlock(".web-preview__action")).toContain(
+      "transition: box-shadow 160ms ease",
+    );
+    expect(cssBlock(".web-preview__action")).not.toContain("background-color 180ms ease");
     expect(webPreviewSource).toContain(".web-preview__action--primary:hover");
     expect(webPreviewSource).toContain(".web-preview__action--quiet:hover");
   });
@@ -109,10 +118,16 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("miniLayerStyle");
     expect(webPreviewSource).toContain("--mini-stage-width");
     expect(webPreviewSource).toContain("--mini-stage-height");
+    expect(webPreviewSource).toContain("--mini-opacity-percent");
     expect(webPreviewSource).toContain(".web-preview__mini-window.theme-light");
     expect(webPreviewSource).toContain(".web-preview__mini-window.theme-dark");
-    expect(webPreviewSource).toContain("--mini-panel-rgb: 18 18 20");
-    expect(webPreviewSource).toContain("--mini-panel-rgb: 250 250 251");
+    expect(webPreviewSource).toContain("--mini-panel-rgb: 255 255 255");
+    expect(webPreviewSource).toContain("--mini-panel-rgb: 0 0 0");
+    expect(webPreviewSource).toContain("--mini-stage-contrast");
+    expect(webPreviewSource).toContain("--mini-stage-merge");
+    expect(webPreviewSource).toContain(
+      "var(--mini-stage-contrast) var(--mini-opacity-percent)",
+    );
     expect(webPreviewSource).toContain("--mini-preview-corner: 14px");
     expect(webPreviewSource).toContain(
       "clip-path: inset(0 round var(--mini-preview-corner))",
@@ -146,8 +161,14 @@ describe("PayDance Web Preview", () => {
     const readmeSource = read("README.md");
 
     expect(readmeSource).not.toContain("## 近期改进");
-    expect(readmeSource).toContain("Web Preview");
+    expect(readmeSource).toContain('<font size="6">');
+    expect(readmeSource).toContain("把今天已经挣到的钱，实时放在桌面上");
     expect(readmeSource).toContain("下载 Windows 便携版");
+    expect(readmeSource).not.toContain("Release</a>");
+    expect(readmeSource).not.toContain("配置薪资与作息");
+    expect(readmeSource).not.toContain("长期扫读");
+    expect(readmeSource).not.toContain("Web Preview 是产品橱窗，不替代桌面版");
+    expect(readmeSource).toContain("完整桌面体验请下载 Windows 版");
   });
 
   it("builds the web preview for GitHub Pages", () => {

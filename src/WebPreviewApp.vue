@@ -131,6 +131,7 @@ const miniStyle = computed(() => ({
   width: `${miniSize.value.width}px`,
 }));
 const miniLayerStyle = computed(() => ({
+  "--mini-opacity-percent": `${miniOpacityPercent.value}%`,
   "--mini-stage-height": `${miniStageHeight}px`,
   "--mini-stage-width": `${getMiniStageWidth()}px`,
 }));
@@ -230,10 +231,15 @@ onBeforeUnmount(() => {
   <main class="web-preview" :class="shellClass">
     <header class="web-preview__topbar" aria-label="产品信息">
       <a class="web-preview__brand" :href="repositoryUrl">
-        <img :src="productLogoUrl" alt="" aria-hidden="true" />
+        <span class="web-preview__brand-icon" aria-hidden="true">
+          <img :src="productLogoUrl" alt="" />
+        </span>
         <span>{{ appName }} {{ appEnglishName }}</span>
       </a>
-      <span class="web-preview__version">v{{ appVersion }}</span>
+      <span class="web-preview__version" :aria-label="`当前版本 ${appVersion}`">
+        <span>Web Preview</span>
+        <strong>v{{ appVersion }}</strong>
+      </span>
     </header>
 
     <section class="web-preview__hero" aria-label="PayDance Web Preview">
@@ -242,7 +248,7 @@ onBeforeUnmount(() => {
           <span class="web-preview__headline-main">看见每一秒的</span>
           <span class="web-preview__headline-accent">收入跳动</span>
         </h1>
-        <p class="web-preview__lead">把今天已经挣到的钱实时放在桌面上</p>
+        <p class="web-preview__lead">把今天已经挣到的钱 实时放在桌面上</p>
 
         <nav class="web-preview__actions" aria-label="网页端操作">
           <a
@@ -397,7 +403,7 @@ onBeforeUnmount(() => {
     "Noto Serif SC", "Noto Sans SC", "Microsoft YaHei UI", "PingFang SC", serif;
   --web-font-ui:
     "Noto Sans SC", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
-  --web-max-width: 1210px;
+  --web-max-width: 1160px;
   --web-page-bg: rgb(247 247 245);
   --web-stage-glow: rgb(217 119 6 / 0.1);
   --web-stage-panel: rgb(255 255 255);
@@ -467,22 +473,51 @@ onBeforeUnmount(() => {
   text-decoration: none;
 }
 
+.web-preview__brand-icon {
+  display: inline-grid;
+  width: var(--brand-logo-size);
+  height: var(--brand-logo-size);
+  overflow: hidden;
+  place-items: center;
+  border-radius: 15px;
+  box-shadow: 0 18px 42px rgb(24 24 27 / 0.12);
+}
+
 .web-preview__brand img {
   width: var(--brand-logo-size);
   height: var(--brand-logo-size);
-  border-radius: 15px;
-  box-shadow: 0 18px 42px rgb(24 24 27 / 0.14);
+  transform: scale(1.16);
 }
 
 .web-preview__version {
-  border: 1px solid var(--web-border);
-  border-radius: 999px;
-  background: var(--web-surface);
-  padding: 12px 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: var(--muted);
   font-family: var(--web-font-ui);
-  font-size: 17px;
+}
+
+.web-preview__version::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--income-accent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--income-accent) 42%, transparent);
+  content: "";
+}
+
+.web-preview__version span {
+  color: var(--muted);
+  font-size: 12px;
   font-weight: 760;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.web-preview__version strong {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 820;
 }
 
 .web-preview__hero {
@@ -491,7 +526,7 @@ onBeforeUnmount(() => {
   flex: 1;
   align-items: center;
   grid-template-columns: minmax(390px, 0.92fr) minmax(480px, 520px);
-  gap: clamp(30px, 4.8vw, 68px);
+  gap: clamp(22px, 3vw, 42px);
   margin: 0 auto;
   padding: clamp(34px, 6vh, 70px) 0 clamp(28px, 5vh, 56px);
 }
@@ -560,11 +595,7 @@ onBeforeUnmount(() => {
   font-size: 15px;
   font-weight: 760;
   text-decoration: none;
-  transition:
-    background-color 180ms ease,
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    color 180ms ease;
+  transition: box-shadow 160ms ease;
 }
 
 .web-preview__action:hover {
@@ -682,6 +713,8 @@ onBeforeUnmount(() => {
 
 .web-preview__mini-layer {
   --mini-preview-corner: 14px;
+  --mini-stage-contrast: rgb(226 227 230);
+  --mini-stage-merge: rgb(255 255 255);
   position: relative;
   z-index: 1;
   width: min(100%, var(--mini-stage-width));
@@ -689,9 +722,19 @@ onBeforeUnmount(() => {
   overflow: visible;
   border: 1px solid var(--web-border);
   border-radius: 28px;
-  background: color-mix(in srgb, var(--web-stage-panel) 96%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--mini-stage-contrast) var(--mini-opacity-percent),
+    var(--mini-stage-merge)
+  );
   box-shadow: 0 24px 64px rgb(24 24 27 / 0.14);
   backdrop-filter: blur(18px);
+}
+
+.theme-dark.web-preview .web-preview__mini-layer {
+  --mini-stage-contrast: rgb(42 43 48);
+  --mini-stage-merge: rgb(0 0 0);
+  box-shadow: 0 26px 72px rgb(0 0 0 / 0.44);
 }
 
 .web-preview__mini-window {
@@ -703,15 +746,15 @@ onBeforeUnmount(() => {
 }
 
 .web-preview__mini-window.theme-light {
-  --border: rgb(255 255 255 / 0.14);
-  --mini-panel-rgb: 18 18 20;
-  --text: rgb(250 250 250);
+  --border: rgb(24 24 27 / 0.12);
+  --mini-panel-rgb: 255 255 255;
+  --text: rgb(24 24 27);
 }
 
 .web-preview__mini-window.theme-dark {
-  --border: rgb(24 24 27 / 0.12);
-  --mini-panel-rgb: 250 250 251;
-  --text: rgb(24 24 27);
+  --border: rgb(255 255 255 / 0.14);
+  --mini-panel-rgb: 0 0 0;
+  --text: rgb(250 250 250);
 }
 
 .web-preview__mini-window :deep(.mini-window) {
@@ -816,8 +859,15 @@ onBeforeUnmount(() => {
   }
 
   .web-preview__version {
-    padding: 9px 13px;
-    font-size: 14px;
+    gap: 7px;
+  }
+
+  .web-preview__version span {
+    display: none;
+  }
+
+  .web-preview__version strong {
+    font-size: 15px;
   }
 
   .web-preview__actions {
