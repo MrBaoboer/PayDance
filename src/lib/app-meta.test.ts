@@ -21,11 +21,11 @@ describe("app metadata", () => {
   });
 
   it("records the product author attribution", () => {
-    expect(appAuthor).toBe("Mr.Baober");
-    expect(appCopyright).toBe("©️2026 Mr.Baober");
+    expect(appAuthor).toBe("Mr.Baoboer");
+    expect(appCopyright).toBe("©️2026 Mr.Baoboer");
   });
 
   it("exposes the current app version for about surfaces", () => {
-    expect(appVersion).toBe("0.8.7");
+    expect(appVersion).toBe("0.8.8");
   });
 });

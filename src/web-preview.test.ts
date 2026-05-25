@@ -32,9 +32,12 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("看见每一秒的");
     expect(webPreviewSource).toContain('class="web-preview__headline-accent"');
     expect(webPreviewSource).toContain("收入跳动");
-    expect(webPreviewSource).toContain("把今天已经挣到的钱");
-    expect(webPreviewSource).toContain("实时放在桌面上");
+    expect(webPreviewSource).toContain("具象化你的劳动价值");
+    expect(webPreviewSource).toContain("专注工作，也看见回报");
     expect(webPreviewSource).toContain("下载 Windows 版");
+    expect(webPreviewSource).toContain(
+      "https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe",
+    );
     expect(webPreviewSource).not.toContain("开始体验");
     expect(webPreviewSource).toContain(':show-desktop-features="false"');
     expect(webPreviewSource).not.toContain("Web Preview 只用于预览核心体验");
@@ -120,11 +123,13 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("@media (max-width: 820px)");
   });
 
-  it("uses a tighter single-line lead with more breathing room below the headline", () => {
-    expect(webPreviewSource).toContain("把今天已经挣到的钱，实时放在桌面上");
+  it("uses a two-line lead with more breathing room below the headline", () => {
+    expect(webPreviewSource).toContain("具象化你的劳动价值");
+    expect(webPreviewSource).toContain("专注工作，也看见回报");
+    expect(webPreviewSource).toContain('class="web-preview__lead-line"');
     expect(webPreviewSource).not.toContain("<span>把今天已经挣到的钱</span>");
     expect(cssBlock(".web-preview__lead")).toContain("margin: 6px 0 0");
-    expect(cssBlock(".web-preview__lead")).not.toContain("display: flex");
+    expect(cssBlock(".web-preview__lead")).toContain("display: grid");
     expect(cssBlock(".web-preview__lead")).not.toContain("gap:");
   });
 
@@ -132,6 +137,7 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).not.toContain("ExternalLink");
     expect(webPreviewSource).toContain("github-mark");
     expect(webPreviewSource).toContain("Download");
+    expect(webPreviewSource).toContain("Windows11Mark");
     expect(webPreviewSource).not.toContain("translateY(-1px)");
     expect(webPreviewSource).toContain(".web-preview__action--quiet {\n  gap: 3px;");
     expect(cssBlock(".web-preview__action")).toContain(
@@ -145,14 +151,23 @@ describe("PayDance Web Preview", () => {
   it("uses compact feature tags with short descriptions", () => {
     expect(webPreviewSource).toContain('class="web-preview__chips"');
     expect(webPreviewSource).toContain('class="web-preview__chip"');
-    expect(webPreviewSource).toContain("秒秒入账");
-    expect(webPreviewSource).toContain("角落常驻");
-    expect(webPreviewSource).toContain("隐私安心");
-    expect(webPreviewSource).toContain("无账号，无遥测");
+    expect(webPreviewSource).toContain("Zap");
+    expect(webPreviewSource).toContain("Focus");
+    expect(webPreviewSource).toContain("ShieldCheck");
+    expect(webPreviewSource).toContain("毫秒级更新");
+    expect(webPreviewSource).toContain("今日收入实时跳动");
+    expect(webPreviewSource).toContain("安心专注");
+    expect(webPreviewSource).toContain("轻量窗口，静默运行");
+    expect(webPreviewSource).toContain("隐私优先");
+    expect(webPreviewSource).toContain("所有数据本地处理");
+    expect(webPreviewSource).toContain('class="web-preview__chip-icon"');
     expect(webPreviewSource).toContain("text-align: center");
+    expect(webPreviewSource).not.toContain("秒秒入账");
+    expect(webPreviewSource).not.toContain("角落常驻");
+    expect(webPreviewSource).not.toContain("隐私安心");
     expect(webPreviewSource).not.toContain("本地保存");
     expect(webPreviewSource).not.toContain("金额随工作时间增长");
-    expect(webPreviewSource).toContain("无账号，无遥测");
+    expect(webPreviewSource).not.toContain("无账号，无遥测");
   });
 
   it("removes auxiliary text around the software preview", () => {
@@ -220,6 +235,8 @@ describe("PayDance Web Preview", () => {
     expect(readmeSource).toContain("把今天已经挣到的钱，实时放在桌面上");
     expect(readmeSource).toContain("系统托盘、窗口置顶、开机自启动和透明迷你窗");
     expect(readmeSource).toContain("下载 Windows 便携版");
+    expect(readmeSource).toContain("Mr.Baoboer");
+    expect(readmeSource).not.toContain(["Mr", "Ba" + "ober"].join("."));
     expect(readmeSource).not.toContain("actions/workflows/ci.yml/badge.svg");
     expect(readmeSource).not.toContain("Release</a>");
     expect(readmeSource).not.toContain("配置薪资与作息");

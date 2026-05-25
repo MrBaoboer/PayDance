@@ -125,6 +125,6 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAct
 
 薪跳 PayDance 坚持本地优先：不需要登录账号，不上传薪资数据，不包含遥测、远程同步或在线账户体系。应用配置通过 Tauri Store 保存在本机应用数据目录中的 `salary-settings.json`，主要包括薪资、工作时间、主题、置顶状态、迷你悬浮透明度、金额变换模式和首次配置状态。
 
-薪跳 PayDance 由 Mr.Baober 设计与开发。当前仓库采用保留权利许可，具体见 [LICENSE](LICENSE)。代码可用于审阅与学习；未经作者许可，请勿二次发布、商用分发或移除作者归属信息。
+薪跳 PayDance 由 Mr.Baoboer 设计与开发。当前仓库采用保留权利许可，具体见 [LICENSE](LICENSE)。代码可用于审阅与学习；未经作者许可，请勿二次发布、商用分发或移除作者归属信息。
 
 完整版本记录请查看 [CHANGELOG.md](CHANGELOG.md)，构建产物与校验文件请查看 [Releases](https://github.com/MasterBao66/PayDance/releases)。

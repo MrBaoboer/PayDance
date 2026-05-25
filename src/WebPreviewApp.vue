@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { Download } from "@lucide/vue";
+import {
+  computed,
+  defineComponent,
+  h,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from "vue";
+import { Download, Focus, ShieldCheck, Zap } from "@lucide/vue";
 import productLogoUrl from "../src-tauri/icons/icon.png";
 import {
   appCopyright,
@@ -58,6 +66,56 @@ let clearMiniDrag: (() => void) | null = null;
 const miniStagePaddingX = 34;
 const miniStageHeight = 188;
 const miniStageTop = 52;
+
+const Windows11Mark = defineComponent({
+  name: "Windows11Mark",
+  setup() {
+    return () =>
+      h(
+        "svg",
+        {
+          "aria-hidden": "true",
+          class: "windows11-mark",
+          focusable: "false",
+          viewBox: "0 0 24 24",
+        },
+        [
+          h("rect", {
+            fill: "currentColor",
+            height: "8",
+            rx: "0.9",
+            width: "8",
+            x: "3",
+            y: "3",
+          }),
+          h("rect", {
+            fill: "currentColor",
+            height: "8",
+            rx: "0.9",
+            width: "8",
+            x: "13",
+            y: "3",
+          }),
+          h("rect", {
+            fill: "currentColor",
+            height: "8",
+            rx: "0.9",
+            width: "8",
+            x: "3",
+            y: "13",
+          }),
+          h("rect", {
+            fill: "currentColor",
+            height: "8",
+            rx: "0.9",
+            width: "8",
+            x: "13",
+            y: "13",
+          }),
+        ],
+      );
+  },
+});
 
 const getMiniStageWidth = () => miniSize.value.width + miniStagePaddingX * 2;
 
@@ -251,13 +309,17 @@ onBeforeUnmount(() => {
           <span class="web-preview__headline-main">看见每一秒的</span>
           <span class="web-preview__headline-accent">收入跳动</span>
         </h1>
-        <p class="web-preview__lead">把今天已经挣到的钱，实时放在桌面上</p>
+        <p class="web-preview__lead">
+          <span class="web-preview__lead-line">具象化你的劳动价值</span>
+          <span class="web-preview__lead-line">专注工作，也看见回报</span>
+        </p>
 
         <nav class="web-preview__actions" aria-label="网页端操作">
           <a
             class="web-preview__action web-preview__action--primary"
-            href="https://github.com/MasterBao66/PayDance/releases/latest"
+            href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe"
           >
+            <Windows11Mark />
             下载 Windows 版
             <Download :size="16" />
           </a>
@@ -275,16 +337,25 @@ onBeforeUnmount(() => {
 
         <dl class="web-preview__chips" aria-label="产品核心优势">
           <div class="web-preview__chip">
-            <dt>秒秒入账</dt>
+            <span class="web-preview__chip-icon" aria-hidden="true">
+              <Zap :size="18" :stroke-width="2.6" />
+            </span>
+            <dt>毫秒级更新</dt>
             <dd>今日收入实时跳动</dd>
           </div>
           <div class="web-preview__chip">
-            <dt>角落常驻</dt>
-            <dd>只看金额少打扰</dd>
+            <span class="web-preview__chip-icon" aria-hidden="true">
+              <Focus :size="18" :stroke-width="2.4" />
+            </span>
+            <dt>安心专注</dt>
+            <dd>轻量窗口，静默运行</dd>
           </div>
           <div class="web-preview__chip">
-            <dt>隐私安心</dt>
-            <dd>无账号，无遥测</dd>
+            <span class="web-preview__chip-icon" aria-hidden="true">
+              <ShieldCheck :size="18" :stroke-width="2.4" />
+            </span>
+            <dt>隐私优先</dt>
+            <dd>所有数据本地处理</dd>
           </div>
         </dl>
       </div>
@@ -427,6 +498,7 @@ onBeforeUnmount(() => {
   --web-font-ui:
     "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
   --web-max-width: 1180px;
+  --web-orbit: rgb(217 119 6 / 0.18);
   --web-page-bg: rgb(247 247 245);
   --web-stage-glow: rgb(217 119 6 / 0.08);
   --web-stage-panel: rgb(255 255 255);
@@ -458,8 +530,9 @@ onBeforeUnmount(() => {
 }
 
 .theme-dark.web-preview {
+  --web-orbit: rgb(245 158 11 / 0.16);
   --web-page-bg: rgb(12 12 14);
-  --web-stage-glow: rgb(245 158 11 / 0.11);
+  --web-stage-glow: rgb(245 158 11 / 0.1);
   --web-stage-panel: rgb(18 18 20);
   --web-stage-ring: rgb(255 255 255 / 0.13);
   --web-surface: rgb(24 24 27 / 0.78);
@@ -468,12 +541,12 @@ onBeforeUnmount(() => {
   --web-shadow: 0 30px 88px rgb(0 0 0 / 0.38);
   background:
     radial-gradient(
-      circle at 78% 34%,
-      color-mix(in srgb, var(--income-accent) 13%, transparent) 0,
-      transparent 26%
+      ellipse at 76% 36%,
+      color-mix(in srgb, var(--income-accent) 10%, transparent) 0,
+      transparent 29%
     ),
-    radial-gradient(circle at 56% 46%, rgb(255 255 255 / 0.045) 0, transparent 34%),
-    linear-gradient(145deg, rgb(6 6 8) 0%, var(--web-page-bg) 58%, rgb(23 18 12) 100%);
+    radial-gradient(circle at 58% 48%, rgb(255 255 255 / 0.035) 0, transparent 32%),
+    linear-gradient(145deg, rgb(7 7 9) 0%, var(--web-page-bg) 60%, rgb(18 15 12) 100%);
 }
 
 .web-preview__topbar {
@@ -575,6 +648,7 @@ onBeforeUnmount(() => {
 }
 
 .web-preview__lead {
+  display: grid;
   max-width: 540px;
   margin: 6px 0 0;
   color: var(--muted);
@@ -582,6 +656,10 @@ onBeforeUnmount(() => {
   font-weight: 520;
   line-height: 1.5;
   white-space: nowrap;
+}
+
+.web-preview__lead-line {
+  display: block;
 }
 
 .web-preview__actions {
@@ -617,14 +695,14 @@ onBeforeUnmount(() => {
 .web-preview__action--primary {
   border-color: transparent;
   background: var(--income-accent);
-  color: rgb(24 24 27);
+  color: rgb(255 255 255);
   box-shadow: 0 14px 32px color-mix(in srgb, var(--income-accent) 28%, transparent);
 }
 
 .web-preview__action--primary:hover {
   border-color: transparent;
   background: color-mix(in srgb, var(--income-accent) 90%, rgb(255 255 255) 10%);
-  color: rgb(24 24 27);
+  color: rgb(255 255 255);
   box-shadow: 0 16px 34px color-mix(in srgb, var(--income-accent) 30%, transparent);
 }
 
@@ -647,6 +725,12 @@ onBeforeUnmount(() => {
   fill: currentColor;
 }
 
+.windows11-mark {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+}
+
 .web-preview__chips {
   display: flex;
   max-width: 600px;
@@ -659,12 +743,27 @@ onBeforeUnmount(() => {
 .web-preview__chip {
   display: grid;
   min-width: 146px;
-  gap: 4px;
+  justify-items: center;
   border: 1px solid var(--web-border);
   border-radius: 16px;
   background: color-mix(in srgb, var(--web-surface) 86%, transparent);
-  padding: 13px 15px;
+  padding: 18px 16px 17px;
   text-align: center;
+}
+
+.web-preview__chip-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--income-accent) 11%, transparent);
+  color: var(--income-accent);
+  margin-bottom: 12px;
+}
+
+.theme-dark.web-preview .web-preview__chip-icon {
+  background: color-mix(in srgb, var(--income-accent) 16%, transparent);
 }
 
 .web-preview__chips dt {
@@ -676,6 +775,7 @@ onBeforeUnmount(() => {
 
 .web-preview__chips dd {
   margin: 0;
+  margin-top: 5px;
   color: var(--muted);
   font-size: 13px;
   font-weight: 520;
@@ -692,6 +792,7 @@ onBeforeUnmount(() => {
 
 .web-preview__showcase::before {
   position: absolute;
+  z-index: 0;
   inset: 8% auto auto;
   width: min(410px, 70%);
   height: 150px;
@@ -702,7 +803,25 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
-.web-preview__showcase.is-mini::before {
+.web-preview__showcase::after {
+  position: absolute;
+  z-index: 0;
+  width: min(650px, 134vw);
+  height: 470px;
+  border: 1px dashed var(--web-orbit);
+  border-radius: 50%;
+  content: "";
+  opacity: 0.62;
+  pointer-events: none;
+  transform: rotate(-18deg) translateY(8px);
+}
+
+.theme-dark.web-preview .web-preview__showcase::after {
+  opacity: 0.38;
+}
+
+.web-preview__showcase.is-mini::before,
+.web-preview__showcase.is-mini::after {
   display: none;
 }
 
