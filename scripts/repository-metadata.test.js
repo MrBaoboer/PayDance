@@ -8,8 +8,8 @@ describe("repository metadata", () => {
   it("keeps issue template version hints aligned with the current release line", () => {
     expect(read(".github/ISSUE_TEMPLATE.md")).not.toContain("v0.5.15");
     expect(read(".github/ISSUE_TEMPLATE/bug_report.yml")).not.toContain("v0.5.15");
-    expect(read(".github/ISSUE_TEMPLATE.md")).toContain("v0.8.0");
-    expect(read(".github/ISSUE_TEMPLATE/bug_report.yml")).toContain("v0.8.0");
+    expect(read(".github/ISSUE_TEMPLATE.md")).toContain("v0.8.1");
+    expect(read(".github/ISSUE_TEMPLATE/bug_report.yml")).toContain("v0.8.1");
   });
 
   it("records macOS as the next desktop migration direction without overpromising packages", () => {

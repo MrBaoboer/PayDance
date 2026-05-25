@@ -7,11 +7,26 @@
 [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-24C8DB)](https://tauri.app/)
 [![Privacy](https://img.shields.io/badge/privacy-local%20first-18181B)](#隐私声明作者与许可)
 
+<p align="center">
+  <strong>打工人的桌面实时工资看板</strong><br>
+  看见每一秒的收入跳动
+</p>
+
+<p align="center">
+  <a href="https://masterbao66.github.io/PayDance/"><strong>在线体验 Web Preview</strong></a>
+  ·
+  <a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe"><strong>下载 Windows 版</strong></a>
+  ·
+  <a href="https://github.com/MasterBao66/PayDance/releases/latest">查看最新 Release</a>
+</p>
+
 ## 产品简介与核心体验
 
 薪跳 PayDance 是一款面向 Windows 11 的桌面实时薪资仪表盘。你只需要配置薪资模式、工作日、上下班时间和午休规则，它就会把“今天已经挣了多少钱”实时放在桌面上，让收入随工作时间安静、清晰地增长。
 
-主窗口负责完整信息：今日入账、已工作、距离下班、今日预计和进度条。迷你悬浮窗口只保留核心金额 `¥123.45`，默认置顶，可放在屏幕角落；当你想降低存在感时，也可以在迷你窗口中调节透明度。你也可以先打开 Web Preview，在浏览器中体验核心计算、首次配置、设置中心和迷你悬浮效果。
+主窗口负责完整信息：今日入账、已工作、距离下班、今日预计和进度条。迷你悬浮窗口只保留核心金额 `¥123.45`，默认置顶，可放在屏幕角落；当你想降低存在感时，也可以在迷你窗口中调节透明度。
+
+不想立刻下载也没关系。你可以先打开 [PayDance Web Preview](https://masterbao66.github.io/PayDance/)，在浏览器中体验核心计算、首次配置、设置中心和迷你悬浮手感。完整托盘、置顶、开机自启动和原生透明窗口仍属于 Windows 桌面版。
 
 ## 产品预览
 
@@ -42,6 +57,13 @@
 - **Windows 11 桌面体验**：无边框窗口、圆角、亮色/暗色主题、托盘常驻、窗口置顶和开机自启动。
 - **本地优先隐私**：薪资与作息配置保存在本机，不需要账号，不上传数据，不包含遥测。
 - **常驻不打扰**：主界面只保留必要信息，薪资说明与设置中心作为低频入口，桌面常驻时不抢工作流注意力。
+
+## 最近迭代
+
+- **Web Preview 上线**：可在浏览器中体验核心薪资计算、首次配置、设置中心和迷你悬浮模拟，降低第一次了解产品的门槛。
+- **视觉稳定性精修**：主窗口圆角、深色模式、仪表盘、进度条、金额脉冲光和迷你悬浮透明度持续打磨，减少桌面常驻时的打扰感。
+- **工程质量加固**：配置容错、夜班边界、发布校验、代码卫生扫描、行为测试和 Web Preview 自动部署都已纳入验证链路。
+- **平台路线明确**：当前正式验证 Windows 11，Web Preview 作为线上橱窗；Windows 版稳定后，下一阶段桌面端战略方向是 macOS 迁移验证。
 
 ## 快速下载与安全校验
 

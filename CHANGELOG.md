@@ -4,6 +4,14 @@
 
 更多构建产物与校验文件请查看 [GitHub Releases](https://github.com/MasterBao66/PayDance/releases)。
 
+### v0.8.1
+
+- Web Preview 重构为更接近产品官网的线上橱窗：首屏强化产品主张、Windows 下载入口、在线体验入口和 GitHub 仓库入口。
+- 网页端主窗口预览尺寸收敛到接近桌面端默认的 `480 × 460`，避免在线体验窗口过宽、过大导致真实桌面手感失真。
+- Web Preview 页面空间、背景层次、行动按钮和核心优势说明重新排版，减少开发预览感，让主窗口成为第一视觉焦点。
+- README 首屏新增 Web Preview 与 Windows 下载主入口，并补充最近版本在网页体验、视觉稳定性、工程质量和 macOS 路线上的迭代进展。
+- Issue 模板版本提示同步更新至 v0.8.1。
+
 ### v0.8.0
 
 - 新增 PayDance Web Preview：通过 GitHub Pages 在线体验核心薪资计算、首次配置、设置中心和迷你悬浮效果。

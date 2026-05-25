@@ -23,11 +23,19 @@ describe("PayDance Web Preview", () => {
   });
 
   it("presents web preview as a bounded online experience", () => {
-    expect(webPreviewSource).toContain("Web Preview · 在线体验核心计算与界面");
+    expect(webPreviewSource).toContain("PayDance Web Preview");
+    expect(webPreviewSource).toContain("把今天挣到的钱，放在桌面上实时跳动。");
     expect(webPreviewSource).toContain("下载 Windows 版");
+    expect(webPreviewSource).toContain("在线体验");
     expect(webPreviewSource).toContain(':show-desktop-features="false"');
-    expect(webPreviewSource).toContain("网页体验版用于预览");
+    expect(webPreviewSource).toContain("用于在线体验核心交互");
     expect(webPreviewSource).not.toContain("@tauri-apps");
+  });
+
+  it("keeps the web preview window close to the desktop default size", () => {
+    expect(webPreviewSource).toContain("width: min(100%, 480px)");
+    expect(webPreviewSource).toContain("height: 460px");
+    expect(webPreviewSource).not.toContain("width: min(100%, 720px)");
   });
 
   it("builds the web preview for GitHub Pages", () => {
