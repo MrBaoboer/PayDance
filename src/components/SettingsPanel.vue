@@ -213,10 +213,9 @@ const openRepository = async () => {
 }
 
 .about-footer {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: var(--ui-gap-sm, 12px);
   border: 1px solid var(--line);
   border-radius: var(--ui-radius-md, 12px);
@@ -226,8 +225,7 @@ const openRepository = async () => {
 
 .about-footer__identity {
   display: grid;
-  flex: 1 1 clamp(180px, 50%, 260px);
-  min-width: 0;
+  min-width: clamp(96px, 20cqw, 112px);
   gap: 4px;
   align-content: center;
   text-align: left;
@@ -262,7 +260,6 @@ const openRepository = async () => {
 
 .about-footer__repo-card {
   display: grid;
-  flex: 0 0 auto;
   min-width: clamp(92px, 20cqw, 112px);
   align-content: center;
   justify-items: center;
@@ -318,26 +315,11 @@ const openRepository = async () => {
 }
 
 .about-footer__error {
-  flex: 1 0 100%;
+  grid-column: 1 / -1;
   margin: 0;
   color: var(--danger);
   font-size: var(--ui-font-xs, 12px);
   font-weight: 600;
   text-align: left;
-}
-
-@media (max-width: 460px) {
-  .about-footer {
-    justify-content: center;
-  }
-
-  .about-footer__identity {
-    text-align: center;
-  }
-
-  .about-footer__repo-card {
-    width: 100%;
-    justify-items: center;
-  }
 }
 </style>

@@ -158,9 +158,7 @@ onBeforeUnmount(() => {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
   transform-origin: center bottom;
-  transition:
-    filter 220ms ease,
-    transform 220ms ease;
+  transition: filter 220ms ease;
 }
 
 .rolling-amount__currency {
@@ -261,17 +259,14 @@ onBeforeUnmount(() => {
 @keyframes hero-amount-pulse {
   0% {
     filter: drop-shadow(0 6px 18px rgb(0 0 0 / 0));
-    transform: translate3d(0, 0, 0) scale(1);
   }
 
   42% {
     filter: drop-shadow(0 18px 44px var(--amount-pulse-glow));
-    transform: translate3d(0, -0.5px, 0) scale(1.005);
   }
 
   100% {
     filter: drop-shadow(0 8px 20px rgb(0 0 0 / 0));
-    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
@@ -285,7 +280,6 @@ onBeforeUnmount(() => {
   .rolling-amount--hero.is-ticking {
     animation: none;
     filter: none;
-    transform: none;
   }
 }
 </style>
