@@ -24,12 +24,34 @@ describe("PayDance Web Preview", () => {
 
   it("presents web preview as a bounded online experience", () => {
     expect(webPreviewSource).toContain("PayDance Web Preview");
-    expect(webPreviewSource).toContain("把今天挣到的钱，放在桌面上实时跳动。");
+    expect(webPreviewSource).toContain("看见每一秒的收入跳动。");
     expect(webPreviewSource).toContain("下载 Windows 版");
-    expect(webPreviewSource).toContain("在线体验");
+    expect(webPreviewSource).not.toContain("开始体验");
     expect(webPreviewSource).toContain(':show-desktop-features="false"');
-    expect(webPreviewSource).toContain("用于在线体验核心交互");
+    expect(webPreviewSource).toContain("只用于预览核心体验");
     expect(webPreviewSource).not.toContain("@tauri-apps");
+  });
+
+  it("brands the web storefront with the product logo and current version", () => {
+    expect(webPreviewSource).toContain("productLogoUrl");
+    expect(webPreviewSource).toContain("appVersion");
+    expect(webPreviewSource).toContain('class="web-preview__brand"');
+    expect(webPreviewSource).toContain('class="web-preview__version"');
+  });
+
+  it("uses a compact preview stage for mini floating mode", () => {
+    expect(webPreviewSource).toContain("miniLayerStyle");
+    expect(webPreviewSource).toContain("--mini-stage-width");
+    expect(webPreviewSource).toContain("--mini-stage-height");
+    expect(webPreviewSource).not.toContain(
+      "width: min(100%, 480px);\n  height: 460px;\n  border-radius: 22px;\n  background: color-mix(in srgb, var(--panel) 86%, transparent);",
+    );
+  });
+
+  it("keeps the dark preview window opaque instead of leaking the page background", () => {
+    expect(webPreviewSource).toContain(".web-preview__frame :deep(.app-window)");
+    expect(webPreviewSource).toContain("background: var(--panel)");
+    expect(webPreviewSource).toContain("backdrop-filter: none");
   });
 
   it("keeps the web preview window close to the desktop default size", () => {
@@ -38,11 +60,24 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).not.toContain("width: min(100%, 720px)");
   });
 
+  it("keeps README focused without a separate recent updates section", () => {
+    const readmeSource = read("README.md");
+
+    expect(readmeSource).not.toContain("## 近期改进");
+    expect(readmeSource).toContain("Web Preview");
+    expect(readmeSource).toContain("下载 Windows 便携版");
+  });
+
   it("builds the web preview for GitHub Pages", () => {
     expect(read("vite.config.ts")).toContain(
       'base: mode === "web" ? "/PayDance/" : "./"',
     );
     expect(read(".github/workflows/web-preview.yml")).toContain("npm run build:web");
-    expect(read(".github/workflows/web-preview.yml")).toContain("actions/deploy-pages");
+    expect(read(".github/workflows/web-preview.yml")).toContain(
+      "actions/upload-pages-artifact@v5",
+    );
+    expect(read(".github/workflows/web-preview.yml")).toContain(
+      "actions/deploy-pages@v5",
+    );
   });
 });
