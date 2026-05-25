@@ -58,11 +58,19 @@ describe("PayDance Web Preview", () => {
 
   it("uses a more expressive web typography system", () => {
     expect(webPreviewSource).not.toContain("fonts.googleapis.com");
+    expect(webPreviewSource).toContain('font-family: "PayDance Web Sans"');
+    expect(webPreviewSource).toContain('font-family: "PayDance Web Serif"');
+    expect(webPreviewSource).toContain(
+      "noto-sans-sc-chinese-simplified-700-normal.woff2",
+    );
+    expect(webPreviewSource).toContain(
+      "noto-serif-sc-chinese-simplified-900-normal.woff2",
+    );
     expect(webPreviewSource).toContain("--web-font-display");
     expect(webPreviewSource).toContain("--web-font-ui");
     expect(webPreviewSource).toContain("--web-font-action");
-    expect(webPreviewSource).toContain("MiSans");
-    expect(webPreviewSource).toContain("HarmonyOS Sans SC");
+    expect(webPreviewSource).toContain("PayDance Web Sans");
+    expect(webPreviewSource).toContain("PayDance Web Serif");
     expect(webPreviewSource).toContain(".web-preview__copy");
     expect(webPreviewSource).toContain("font-family: var(--web-font-ui)");
     expect(cssBlock(".web-preview")).not.toContain("font-family:");

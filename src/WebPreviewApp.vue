@@ -391,18 +391,33 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+@font-face {
+  font-family: "PayDance Web Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("@fontsource/noto-sans-sc/files/noto-sans-sc-chinese-simplified-700-normal.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "PayDance Web Serif";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("@fontsource/noto-serif-sc/files/noto-serif-sc-chinese-simplified-900-normal.woff2")
+    format("woff2");
+}
+
 .web-preview {
   --brand-logo-size: 62px;
   --brand-name-size: 28px;
   --web-font-action:
-    "MiSans", "HarmonyOS Sans SC", "Microsoft YaHei UI", "PingFang SC", system-ui,
-    sans-serif;
+    "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
   --web-font-display:
-    "MiSans Demibold", "HarmonyOS Sans SC", "Microsoft YaHei UI", "PingFang SC",
-    system-ui, sans-serif;
+    "PayDance Web Serif", "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", serif;
   --web-font-ui:
-    "MiSans", "HarmonyOS Sans SC", "Microsoft YaHei UI", "PingFang SC", system-ui,
-    sans-serif;
+    "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
   --web-max-width: 1120px;
   --web-page-bg: rgb(247 247 245);
   --web-stage-glow: rgb(217 119 6 / 0.1);

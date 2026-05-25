@@ -8,8 +8,8 @@
   "scripts": {
     "dev": "vite",
     "dev:web": "vite --mode web",
-    "build": "vue-tsc --noEmit && vite build",
-    "build:web": "vue-tsc --noEmit && vite build --mode web",
+    "build": "vue-tsc --noEmit && vite build --configLoader runner",
+    "build:web": "vue-tsc --noEmit && vite build --mode web --configLoader runner",
     "test": "vitest run",
     "lint": "eslint .",
     "format:check": "prettier --check \"src/**/*.{ts,vue,css}\" \"scripts/**/*.mjs\" \"src-tauri/**/*.{js,json}\" \".github/workflows/*.yml\" \"*.{json,html,js,ts}\"",
@@ -39,6 +39,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@fontsource/noto-sans-sc": "^5.2.9",
+    "@fontsource/noto-serif-sc": "^5.2.9",
     "@tailwindcss/vite": "^4.3.0",
     "@tauri-apps/cli": "^2.11.2",
     "@types/node": "^25.9.1",
