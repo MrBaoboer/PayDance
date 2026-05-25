@@ -8,8 +8,8 @@ describe("repository metadata", () => {
   it("keeps issue template version hints aligned with the current release line", () => {
     expect(read(".github/ISSUE_TEMPLATE.md")).not.toContain("v0.5.15");
     expect(read(".github/ISSUE_TEMPLATE/bug_report.yml")).not.toContain("v0.5.15");
-    expect(read(".github/ISSUE_TEMPLATE.md")).toContain("v0.8.1");
-    expect(read(".github/ISSUE_TEMPLATE/bug_report.yml")).toContain("v0.8.1");
+    expect(read(".github/ISSUE_TEMPLATE.md")).toContain("v0.8.2");
+    expect(read(".github/ISSUE_TEMPLATE/bug_report.yml")).toContain("v0.8.2");
   });
 
   it("records macOS as the next desktop migration direction without overpromising packages", () => {
@@ -17,6 +17,8 @@ describe("repository metadata", () => {
 
     expect(productSource).toContain("macOS");
     expect(productSource).toContain("下一阶段");
-    expect(productSource).toContain("不代表当前 Windows 便携版可以直接变成其他平台安装包");
+    expect(productSource).toContain(
+      "不代表当前 Windows 便携版可以直接变成其他平台安装包",
+    );
   });
 });

@@ -22,11 +22,11 @@
 
 ## 产品简介与核心体验
 
-薪跳 PayDance 是一款面向 Windows 11 的桌面实时工资看板。配置薪资与作息后，它会把“今天已经挣了多少钱”安静地放在桌面上，随着工作时间持续跳动。
+薪跳 PayDance 是一款面向 Windows 11 的桌面实时工资看板。配置薪资与作息后，它会把“今天已经挣了多少钱”放在桌面上，随着工作时间实时增长。
 
-主窗口展示今日入账、工作进度、剩余时间和今日预计；迷你悬浮窗口只保留金额，适合放在屏幕角落长期扫一眼。
+主窗口展示今日入账、工作进度、剩余时间和今日预计；迷你悬浮窗口只保留金额，适合放在屏幕角落长期扫读。
 
-[在线体验](https://masterbao66.github.io/PayDance/) 可以先感受核心界面与配置流程；完整的托盘、置顶、开机自启、原生透明窗口和系统级迷你悬浮，请使用 Windows 桌面版。
+[在线体验](https://masterbao66.github.io/PayDance/) 可先预览核心界面与配置流程。完整托盘、置顶、开机自启、原生透明窗口和系统级迷你悬浮，请使用 Windows 桌面版。
 
 ## 产品预览
 
@@ -56,23 +56,17 @@
 - **迷你悬浮模式**：只显示核心金额，支持拖拽、双击恢复主窗口、默认置顶和 `10% - 100%` 透明度调节。
 - **Windows 11 桌面体验**：无边框窗口、圆角、亮色/暗色主题、托盘常驻、窗口置顶和开机自启动。
 - **本地优先隐私**：薪资与作息配置保存在本机，不需要账号，不上传数据，不包含遥测。
-- **常驻不打扰**：主界面只保留必要信息，薪资说明与设置中心作为低频入口，桌面常驻时不抢工作流注意力。
-
-## 近期改进
-
-- **Web Preview**：无需下载，先在浏览器里体验核心看板、首次配置和迷你悬浮手感。
-- **视觉稳定性**：持续精修主窗口圆角、深色模式、仪表盘、进度条、金额脉冲光和迷你悬浮透明度。
-- **发布可靠性**：发布校验、代码卫生扫描、行为测试、Web Preview 自动部署和 SHA256 校验已纳入验证链路。
-- **平台路线**：当前正式验证 Windows 11；Windows 版稳定后，下一阶段桌面端战略方向是 macOS 迁移验证。
+- **在线体验橱窗**：Web Preview 可在浏览器中预览核心看板、首次配置和迷你悬浮手感。
+- **发布可靠性**：Release 附带 SHA256 校验，CI 覆盖代码卫生、行为测试、桌面构建和 Web Preview 部署。
 
 ## 快速下载与安全校验
 
-| 平台 | 推荐下载 | 说明 |
-| --- | --- | --- |
-| 在线体验 | [PayDance Web Preview](https://masterbao66.github.io/PayDance/) | 浏览器中预览核心看板与配置流程 |
-| Windows 11 | [pay-dance.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe) | 便携版，下载后直接运行 |
-| GitHub Release | [最新正式版](https://github.com/MasterBao66/PayDance/releases/latest) | 查看更新说明、附件和校验文件 |
-| 源码 | [MasterBao66/PayDance](https://github.com/MasterBao66/PayDance) | Vue 3 + TypeScript + Tauri 2 |
+| 平台           | 推荐下载                                                                                        | 说明                           |
+| -------------- | ----------------------------------------------------------------------------------------------- | ------------------------------ |
+| 在线体验       | [PayDance Web Preview](https://masterbao66.github.io/PayDance/)                                 | 浏览器中预览核心看板与配置流程 |
+| Windows 11     | [pay-dance.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe) | 便携版，下载后直接运行         |
+| GitHub Release | [最新正式版](https://github.com/MasterBao66/PayDance/releases/latest)                           | 查看更新说明、附件和校验文件   |
+| 源码           | [MasterBao66/PayDance](https://github.com/MasterBao66/PayDance)                                 | Vue 3 + TypeScript + Tauri 2   |
 
 Web Preview 是产品橱窗，不替代桌面版。完整托盘、窗口置顶、开机自启动、原生透明窗口和系统级迷你悬浮请使用 Windows 桌面版。
 
@@ -87,15 +81,15 @@ Get-Content .\pay-dance.exe.sha256
 
 ## 技术架构与工程质量
 
-| 层级 | 技术与实践 |
-| --- | --- |
-| 桌面壳 | Tauri 2, Rust, Windows tray, frameless window |
-| 前端 | Vue 3, TypeScript, Vite |
-| Web Preview | Vite Web build, GitHub Pages, browser localStorage |
-| UI | Windows 11 风格、CSS Container Queries、@lucide/vue |
-| 本地存储 | `@tauri-apps/plugin-store`，配置写入本机应用数据目录 |
-| 测试 | Vitest, @vue/test-utils, happy-dom, vue-tsc, cargo fmt, cargo clippy, cargo check |
-| 工程治理 | 品牌与敏感信息扫描、版本一致性检查、GitHub Actions Release、[PRODUCT.md](PRODUCT.md)、[DESIGN.md](DESIGN.md)、[CHANGELOG.md](CHANGELOG.md) |
+| 层级        | 技术与实践                                                                                                                                 |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 桌面壳      | Tauri 2, Rust, Windows tray, frameless window                                                                                              |
+| 前端        | Vue 3, TypeScript, Vite                                                                                                                    |
+| Web Preview | Vite Web build, GitHub Pages, browser localStorage                                                                                         |
+| UI          | Windows 11 风格、CSS Container Queries、@lucide/vue                                                                                        |
+| 本地存储    | `@tauri-apps/plugin-store`，配置写入本机应用数据目录                                                                                       |
+| 测试        | Vitest, @vue/test-utils, happy-dom, vue-tsc, cargo fmt, cargo clippy, cargo check                                                          |
+| 工程治理    | 品牌与敏感信息扫描、版本一致性检查、GitHub Actions Release、[PRODUCT.md](PRODUCT.md)、[DESIGN.md](DESIGN.md)、[CHANGELOG.md](CHANGELOG.md) |
 
 项目采用 Vue 3 + TypeScript + Tauri 2 架构，核心薪资逻辑、状态模型和大部分前端界面具备迁移潜力。当前正式验证 Windows 11，并提供 Web Preview 作为线上橱窗；下一阶段桌面端战略方向是迁移并验证 macOS 版本。迁移到其他平台时，托盘、置顶、透明窗口、迷你悬浮和系统材质仍需要按平台重新设计与验证。
 

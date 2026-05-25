@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { ExternalLink } from "@lucide/vue";
-import { appName, repositoryUrl } from "./lib/app-meta";
+import productLogoUrl from "../src-tauri/icons/icon.png";
+import { appEnglishName, appName, appVersion, repositoryUrl } from "./lib/app-meta";
 import {
   defaultMiniOpacityPercent,
   fullWindowSize,
@@ -48,9 +49,11 @@ const miniOpacityPercent = ref(defaultMiniOpacityPercent);
 const showWebMiniOpacityPanel = ref(false);
 const miniPosition = ref({ x: 0, y: 0 });
 let clearMiniDrag: (() => void) | null = null;
-const previewStageHeight = 460;
+const miniStagePaddingX = 34;
+const miniStageHeight = 188;
+const miniStageTop = 52;
 
-const getPreviewStageWidth = () => Math.max(320, Math.min(window.innerWidth - 36, 480));
+const getMiniStageWidth = () => miniSize.value.width + miniStagePaddingX * 2;
 
 const { snapshot, startTicker, stopTicker } = useSalaryTicker(config);
 const { clearSaveStateTimer, loadWindowPreferences, saveStateNow, scheduleSaveState } =
@@ -121,6 +124,10 @@ const miniStyle = computed(() => ({
   top: `${miniPosition.value.y}px`,
   width: `${miniSize.value.width}px`,
 }));
+const miniLayerStyle = computed(() => ({
+  "--mini-stage-height": `${miniStageHeight}px`,
+  "--mini-stage-width": `${getMiniStageWidth()}px`,
+}));
 
 const updateMiniOpacityPercent = (value: number, options: { commit?: boolean } = {}) => {
   miniOpacityPercent.value = normalizeMiniOpacityPercent(value);
@@ -138,10 +145,10 @@ const toggleAlwaysOnTop = async () => {
 
 const resetMiniPosition = () => {
   const width = miniSize.value.width;
-  const previewWidth = getPreviewStageWidth();
+  const previewWidth = getMiniStageWidth();
   miniPosition.value = {
     x: Math.max(16, Math.round((previewWidth - width) / 2)),
-    y: 188,
+    y: miniStageTop,
   };
 };
 
@@ -153,7 +160,7 @@ const startWebMiniDrag = (event: PointerEvent) => {
   const startPosition = { ...miniPosition.value };
 
   const handleMove = (moveEvent: PointerEvent) => {
-    const previewWidth = getPreviewStageWidth();
+    const previewWidth = getMiniStageWidth();
     miniPosition.value = {
       x: Math.max(
         12,
@@ -165,7 +172,7 @@ const startWebMiniDrag = (event: PointerEvent) => {
       y: Math.max(
         18,
         Math.min(
-          previewStageHeight - miniSize.value.height - 18,
+          miniStageHeight - miniSize.value.height - 18,
           startPosition.y + moveEvent.clientY - startPoint.y,
         ),
       ),
@@ -215,13 +222,20 @@ onBeforeUnmount(() => {
 
 <template>
   <main class="web-preview" :class="shellClass">
+    <header class="web-preview__topbar" aria-label="产品信息">
+      <a class="web-preview__brand" :href="repositoryUrl">
+        <img :src="productLogoUrl" alt="" aria-hidden="true" />
+        <span>{{ appName }} {{ appEnglishName }}</span>
+      </a>
+      <span class="web-preview__version">v{{ appVersion }}</span>
+    </header>
+
     <section class="web-preview__hero" aria-label="PayDance Web Preview">
       <div class="web-preview__copy">
-        <p class="web-preview__eyebrow">薪跳 PayDance · Web Preview</p>
         <h1>看见每一秒的收入跳动。</h1>
         <p class="web-preview__lead">
-          先在网页里体验核心看板、首次配置和迷你悬浮手感。完整托盘、置顶、开机自启与原生透明窗口，请下载
-          Windows 桌面版。
+          配置薪资与作息，今日入账会在桌面上实时增长。网页端可预览核心体验，完整桌面能力请下载
+          Windows 版。
         </p>
 
         <nav class="web-preview__actions" aria-label="网页体验版操作">
@@ -232,32 +246,31 @@ onBeforeUnmount(() => {
             下载 Windows 版
             <ExternalLink :size="15" />
           </a>
-          <a class="web-preview__action" href="#paydance-preview">开始体验</a>
           <a class="web-preview__action web-preview__action--quiet" :href="repositoryUrl">
             GitHub
             <ExternalLink :size="15" />
           </a>
         </nav>
 
-        <dl class="web-preview__proofs" aria-label="产品核心优势">
-          <div>
+        <dl class="web-preview__chips" aria-label="产品核心优势">
+          <div class="web-preview__chip">
             <dt>实时入账</dt>
-            <dd>每一秒收入都能看见</dd>
+            <dd>金额随工作时间增长</dd>
           </div>
-          <div>
-            <dt>本地优先</dt>
-            <dd>无账号，无遥测，不上传薪资</dd>
+          <div class="web-preview__chip">
+            <dt>迷你悬浮</dt>
+            <dd>角落常驻，少打扰</dd>
           </div>
-          <div>
-            <dt>常驻不扰</dt>
-            <dd>主窗口完整，迷你窗口克制</dd>
+          <div class="web-preview__chip">
+            <dt>本地保存</dt>
+            <dd>无账号，无遥测</dd>
           </div>
         </dl>
       </div>
 
       <div id="paydance-preview" class="web-preview__showcase">
         <div class="web-preview__showcase-header">
-          <span>{{ appName }} PayDance</span>
+          <span>{{ appName }} {{ appEnglishName }}</span>
           <strong>网页体验版</strong>
         </div>
 
@@ -305,7 +318,7 @@ onBeforeUnmount(() => {
           />
         </div>
 
-        <div v-else class="web-preview__mini-layer">
+        <div v-else class="web-preview__mini-layer" :style="miniLayerStyle">
           <div class="web-preview__mini-window" :class="shellClass" :style="miniStyle">
             <MiniWindow
               :amount="earnedText"
@@ -356,8 +369,7 @@ onBeforeUnmount(() => {
         </div>
 
         <p class="web-preview__notice">
-          Web Preview 只用于预览核心体验；系统托盘、窗口置顶、开机自启和原生透明窗口请使用
-          Windows 桌面版。
+          Web Preview 只用于预览核心体验；完整桌面能力请使用 Windows 桌面版。
         </p>
       </div>
     </section>
@@ -366,83 +378,120 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .web-preview {
-  --web-page-bg: color-mix(in srgb, var(--panel) 94%, var(--income-accent) 6%);
-  --web-surface: color-mix(in srgb, var(--panel) 88%, transparent);
-  --web-surface-strong: color-mix(in srgb, var(--panel) 96%, var(--text) 4%);
-  --web-border: color-mix(in srgb, var(--line) 82%, transparent);
-  --web-shadow: 0 28px 86px rgb(15 23 42 / 0.14);
+  --web-page-bg: rgb(247 247 245);
+  --web-surface: rgb(255 255 255 / 0.72);
+  --web-surface-strong: rgb(255 255 255 / 0.92);
+  --web-border: rgb(24 24 27 / 0.11);
+  --web-shadow: 0 28px 84px rgb(24 24 27 / 0.13);
   min-height: 100%;
   overflow: auto;
   background:
     radial-gradient(
-      circle at 82% 18%,
-      color-mix(in srgb, var(--income-accent) 12%, transparent) 0,
-      transparent 34%
+      circle at 76% 26%,
+      color-mix(in srgb, var(--income-accent) 13%, transparent) 0,
+      transparent 30%
     ),
     linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--web-page-bg) 92%, white 8%) 0%,
+      145deg,
+      rgb(250 250 249) 0%,
       var(--web-page-bg) 48%,
-      color-mix(in srgb, var(--panel) 88%, var(--income-accent) 12%) 100%
+      rgb(239 238 234) 100%
     );
   color: var(--text);
-  padding: clamp(20px, 4vw, 48px);
+  padding: clamp(20px, 4vw, 44px);
 }
 
 .theme-dark.web-preview {
-  --web-page-bg: color-mix(in srgb, var(--panel) 92%, var(--income-accent) 8%);
-  --web-surface: color-mix(in srgb, var(--panel) 86%, white 4%);
-  --web-surface-strong: color-mix(in srgb, var(--panel) 92%, white 8%);
-  --web-border: color-mix(in srgb, var(--line) 70%, white 10%);
-  --web-shadow: 0 30px 88px rgb(0 0 0 / 0.34);
+  --web-page-bg: rgb(12 12 14);
+  --web-surface: rgb(24 24 27 / 0.72);
+  --web-surface-strong: rgb(32 32 36 / 0.92);
+  --web-border: rgb(255 255 255 / 0.11);
+  --web-shadow: 0 30px 88px rgb(0 0 0 / 0.38);
+  background:
+    radial-gradient(
+      circle at 75% 24%,
+      color-mix(in srgb, var(--income-accent) 9%, transparent) 0,
+      transparent 28%
+    ),
+    linear-gradient(145deg, rgb(13 13 15) 0%, var(--web-page-bg) 58%, rgb(19 18 17) 100%);
+}
+
+.web-preview__topbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  max-width: 1120px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0 auto clamp(34px, 6vw, 76px);
+}
+
+.web-preview__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 820;
+  text-decoration: none;
+}
+
+.web-preview__brand img {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgb(24 24 27 / 0.12);
+}
+
+.web-preview__version {
+  border: 1px solid var(--web-border);
+  border-radius: 999px;
+  background: var(--web-surface);
+  padding: 7px 12px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 760;
 }
 
 .web-preview__hero {
   display: grid;
-  min-height: calc(100vh - clamp(40px, 8vw, 96px));
-  max-width: 1160px;
-  align-items: center;
-  grid-template-columns: minmax(310px, 0.86fr) minmax(480px, 1fr);
-  gap: clamp(40px, 7vw, 88px);
+  min-height: calc(100vh - clamp(112px, 14vw, 176px));
+  max-width: 1120px;
+  align-items: start;
+  grid-template-columns: minmax(292px, 0.82fr) minmax(480px, 1fr);
+  gap: clamp(44px, 7vw, 92px);
   margin: 0 auto;
 }
 
 .web-preview__copy {
   display: grid;
-  align-content: center;
-  gap: clamp(16px, 2.8vw, 26px);
-}
-
-.web-preview__eyebrow {
-  margin: 0;
-  color: var(--income-accent);
-  font-size: 13px;
-  font-weight: 820;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  align-content: start;
+  gap: clamp(18px, 3vw, 28px);
+  padding-top: clamp(22px, 5vw, 54px);
 }
 
 .web-preview h1 {
-  max-width: 8.3em;
+  max-width: 7.8em;
   margin: 0;
   color: var(--text);
-  font-size: clamp(44px, 6.2vw, 72px);
-  font-weight: 840;
-  line-height: 1.02;
+  font-size: clamp(46px, 6.4vw, 78px);
+  font-weight: 850;
+  line-height: 1.01;
   letter-spacing: 0;
 }
 
 .web-preview__lead,
 .web-preview__notice,
-.web-preview__proofs dd {
+.web-preview__chips dd {
   color: var(--muted);
-  font-size: clamp(15px, 1.45vw, 17px);
+  font-size: clamp(15px, 1.4vw, 17px);
   font-weight: 520;
-  line-height: 1.78;
+  line-height: 1.7;
 }
 
 .web-preview__lead {
-  max-width: 530px;
+  max-width: 500px;
   margin: 0;
 }
 
@@ -455,7 +504,7 @@ onBeforeUnmount(() => {
 
 .web-preview__action {
   display: inline-flex;
-  height: 42px;
+  height: 44px;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -491,50 +540,54 @@ onBeforeUnmount(() => {
   color: var(--muted);
 }
 
-.web-preview__proofs {
-  display: grid;
-  max-width: 530px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin: 2px 0 0;
-}
-
-.web-preview__proofs div {
-  display: grid;
-  align-content: start;
-  gap: 6px;
-  border-top: 1px solid var(--web-border);
-  padding-top: 13px;
-}
-
-.web-preview__proofs dt {
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 780;
-}
-
-.web-preview__proofs dd {
+.web-preview__chips {
+  display: flex;
+  max-width: 560px;
+  flex-wrap: wrap;
+  gap: 10px;
   margin: 0;
+}
+
+.web-preview__chip {
+  display: grid;
+  min-width: 132px;
+  gap: 3px;
+  border: 1px solid var(--web-border);
+  border-radius: 16px;
+  background: var(--web-surface);
+  padding: 12px 14px;
+  backdrop-filter: blur(16px);
+}
+
+.web-preview__chips dt {
+  color: var(--text);
   font-size: 13px;
-  line-height: 1.55;
+  font-weight: 820;
+}
+
+.web-preview__chips dd {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .web-preview__showcase {
   position: relative;
   display: grid;
   justify-items: center;
-  gap: 15px;
+  gap: 14px;
+  padding-top: clamp(2px, 1vw, 10px);
 }
 
 .web-preview__showcase::before {
   position: absolute;
-  inset: 12% 0 auto;
-  width: min(420px, 66%);
-  height: 160px;
+  inset: 8% auto auto;
+  width: min(410px, 70%);
+  height: 150px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--income-accent) 9%, transparent);
+  background: color-mix(in srgb, var(--income-accent) 8%, transparent);
   content: "";
-  filter: blur(42px);
+  filter: blur(44px);
   pointer-events: none;
 }
 
@@ -562,18 +615,32 @@ onBeforeUnmount(() => {
   width: min(100%, 480px);
   height: 460px;
   border-radius: 28px;
+  background: var(--panel);
   box-shadow: var(--web-shadow);
+}
+
+.web-preview__frame :deep(.app-window) {
+  background: var(--panel);
+  backdrop-filter: none;
 }
 
 .web-preview__mini-layer {
   position: relative;
-  inset: 0;
   z-index: 1;
-  width: min(100%, 480px);
-  height: 460px;
-  border-radius: 22px;
-  background: color-mix(in srgb, var(--panel) 86%, transparent);
-  box-shadow: var(--web-shadow);
+  width: min(100%, var(--mini-stage-width));
+  height: var(--mini-stage-height);
+  overflow: visible;
+  border: 1px solid var(--web-border);
+  border-radius: 28px;
+  background:
+    radial-gradient(
+      circle at 50% 38%,
+      color-mix(in srgb, var(--income-accent) 8%, transparent),
+      transparent 58%
+    ),
+    color-mix(in srgb, var(--panel) 92%, transparent);
+  box-shadow: 0 24px 64px rgb(24 24 27 / 0.14);
+  backdrop-filter: blur(18px);
 }
 
 .web-preview__mini-window {
@@ -593,6 +660,14 @@ onBeforeUnmount(() => {
   box-shadow: 0 16px 40px rgb(15 23 42 / 0.16);
   padding: 12px;
   transform: translateX(-50%);
+}
+
+.web-preview__notice {
+  position: relative;
+  z-index: 1;
+  max-width: min(100%, 480px);
+  margin: 0;
+  text-align: left;
 }
 
 .web-mini-opacity__header {
@@ -633,7 +708,12 @@ onBeforeUnmount(() => {
     gap: 28px;
   }
 
-  .web-preview__proofs {
+  .web-preview__topbar {
+    margin-bottom: 30px;
+  }
+
+  .web-preview__chips {
+    display: grid;
     grid-template-columns: 1fr;
   }
 
@@ -651,7 +731,7 @@ onBeforeUnmount(() => {
   }
 
   .web-preview__mini-layer {
-    width: 100%;
+    width: min(100%, var(--mini-stage-width));
   }
 }
 </style>

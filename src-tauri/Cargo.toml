@@ -1,6 +1,6 @@
 [package]
 name = "pay-dance"
-version = "0.8.1"
+version = "0.8.2"
 description = "薪跳 · 桌面实时薪资仪表盘"
 authors = ["Mr.Baober"]
 license-file = "../LICENSE"
