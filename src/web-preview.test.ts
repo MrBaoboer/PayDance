@@ -45,16 +45,21 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("productLogoUrl");
     expect(webPreviewSource).toContain("appVersion");
     expect(webPreviewSource).toContain('class="web-preview__brand"');
-    expect(webPreviewSource).toContain('class="web-preview__brand-icon"');
+    expect(webPreviewSource).toContain('class="web-preview__brand-logo"');
+    expect(webPreviewSource).not.toContain("web-preview__brand-icon");
     expect(webPreviewSource).toContain('class="web-preview__version"');
+    expect(webPreviewSource).toContain("Web Preview");
+    expect(webPreviewSource).toContain('class="web-preview__version-dot"');
     expect(webPreviewSource).toContain("--brand-logo-size: 52px");
     expect(webPreviewSource).toContain("--brand-name-size: 24px");
-    expect(webPreviewSource).toContain("overflow: hidden");
+    expect(webPreviewSource).not.toContain(".web-preview__brand-icon");
     expect(webPreviewSource).not.toContain("clip-path: inset(7% round 15px)");
     expect(webPreviewSource).not.toContain("transform: scale(1.24)");
     expect(webPreviewSource).not.toContain("<strong>v{{ appVersion }}</strong>");
     expect(webPreviewSource).toContain("<strong>{{ appVersion }}</strong>");
-    expect(cssBlock(".web-preview__version")).toContain("border-radius: 999px");
+    expect(cssBlock(".web-preview__version")).not.toContain("border-radius: 999px");
+    expect(cssBlock(".web-preview__version")).not.toContain("background:");
+    expect(cssBlock(".web-preview__version")).not.toContain("box-shadow:");
   });
 
   it("uses a more expressive web typography system", () => {
@@ -88,13 +93,39 @@ describe("PayDance Web Preview", () => {
 
   it("keeps the web headline as two designed lines instead of narrow vertical wrapping", () => {
     expect(webPreviewSource).toContain(
-      "width: min(100%, calc(var(--headline-main-size) * 6))",
+      "width: min(100%, calc(var(--headline-accent-size) * 5.2))",
     );
-    expect(webPreviewSource).toContain(
+    expect(webPreviewSource).toContain("--headline-accent-size");
+    expect(webPreviewSource).toContain("font-size: var(--headline-accent-size)");
+    expect(webPreviewSource).not.toContain(
       "font-size: calc(var(--headline-main-size) * 1.5)",
     );
     expect(webPreviewSource).toContain("white-space: nowrap");
     expect(webPreviewSource).not.toContain("max-width: 7.6em");
+  });
+
+  it("keeps the web hero roomy while preserving the software preview on narrower windows", () => {
+    expect(cssBlock(".web-preview")).toContain("--web-max-width: 1180px");
+    expect(cssBlock(".web-preview__topbar")).toContain(
+      "width: min(100%, var(--web-max-width))",
+    );
+    expect(cssBlock(".web-preview__hero")).toContain(
+      "grid-template-columns: minmax(360px, 440px) minmax(430px, 480px)",
+    );
+    expect(cssBlock(".web-preview__hero")).toContain("gap: clamp(60px, 7vw, 104px)");
+    expect(webPreviewSource).toContain("@media (max-width: 1120px)");
+    expect(webPreviewSource).toContain(
+      "grid-template-columns: minmax(330px, 0.86fr) minmax(390px, 440px)",
+    );
+    expect(webPreviewSource).toContain("@media (max-width: 820px)");
+  });
+
+  it("uses a tighter single-line lead with more breathing room below the headline", () => {
+    expect(webPreviewSource).toContain("把今天已经挣到的钱，实时放在桌面上");
+    expect(webPreviewSource).not.toContain("<span>把今天已经挣到的钱</span>");
+    expect(cssBlock(".web-preview__lead")).toContain("margin: 6px 0 0");
+    expect(cssBlock(".web-preview__lead")).not.toContain("display: flex");
+    expect(cssBlock(".web-preview__lead")).not.toContain("gap:");
   });
 
   it("keeps storefront actions stable and recognizable on hover", () => {
@@ -174,6 +205,7 @@ describe("PayDance Web Preview", () => {
   });
 
   it("keeps the web preview window close to the desktop default size", () => {
+    expect(cssBlock(".web-preview__showcase")).toContain("width: min(100%, 480px)");
     expect(webPreviewSource).toContain("width: min(100%, 480px)");
     expect(webPreviewSource).toContain("height: 460px");
     expect(webPreviewSource).not.toContain("width: min(100%, 720px)");
