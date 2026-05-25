@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { ExternalLink } from "@lucide/vue";
+import { Download } from "@lucide/vue";
 import productLogoUrl from "../src-tauri/icons/icon.png";
-import { appEnglishName, appName, appVersion, repositoryUrl } from "./lib/app-meta";
+import {
+  appCopyright,
+  appEnglishName,
+  appName,
+  appVersion,
+  repositoryUrl,
+} from "./lib/app-meta";
 import {
   defaultMiniOpacityPercent,
   fullWindowSize,
@@ -232,48 +238,49 @@ onBeforeUnmount(() => {
 
     <section class="web-preview__hero" aria-label="PayDance Web Preview">
       <div class="web-preview__copy">
-        <h1>看见每一秒的收入跳动。</h1>
-        <p class="web-preview__lead">
-          配置薪资与作息，今日入账会在桌面上实时增长。网页端可预览核心体验，完整桌面能力请下载
-          Windows 版。
-        </p>
+        <h1>
+          <span class="web-preview__headline-main">看见每一秒的</span>
+          <span class="web-preview__headline-accent">收入跳动</span>
+        </h1>
+        <p class="web-preview__lead">把今天已经挣到的钱实时放在桌面上</p>
 
-        <nav class="web-preview__actions" aria-label="网页体验版操作">
+        <nav class="web-preview__actions" aria-label="网页端操作">
           <a
             class="web-preview__action web-preview__action--primary"
             href="https://github.com/MasterBao66/PayDance/releases/latest"
           >
             下载 Windows 版
-            <ExternalLink :size="15" />
+            <Download :size="16" />
           </a>
           <a class="web-preview__action web-preview__action--quiet" :href="repositoryUrl">
+            <svg class="github-mark" aria-hidden="true" viewBox="0 0 24 24">
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M12 2C6.48 2 2 6.59 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.89-.01-1.75-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.38 9.38 0 0 1 12 6.98c.85 0 1.7.12 2.5.35 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.59.69.49A10.24 10.24 0 0 0 22 12.25C22 6.59 17.52 2 12 2Z"
+              />
+            </svg>
             GitHub
-            <ExternalLink :size="15" />
           </a>
         </nav>
 
         <dl class="web-preview__chips" aria-label="产品核心优势">
           <div class="web-preview__chip">
-            <dt>实时入账</dt>
-            <dd>金额随工作时间增长</dd>
+            <dt>秒秒入账</dt>
+            <dd>今日收入实时跳动</dd>
           </div>
           <div class="web-preview__chip">
-            <dt>迷你悬浮</dt>
-            <dd>角落常驻，少打扰</dd>
+            <dt>角落常驻</dt>
+            <dd>只看金额少打扰</dd>
           </div>
           <div class="web-preview__chip">
-            <dt>本地保存</dt>
+            <dt>隐私安心</dt>
             <dd>无账号，无遥测</dd>
           </div>
         </dl>
       </div>
 
       <div id="paydance-preview" class="web-preview__showcase">
-        <div class="web-preview__showcase-header">
-          <span>{{ appName }} {{ appEnglishName }}</span>
-          <strong>网页体验版</strong>
-        </div>
-
         <div
           v-if="activeView !== 'mini'"
           class="app-shell web-preview__frame h-full w-full select-none p-0"
@@ -367,132 +374,165 @@ onBeforeUnmount(() => {
             </label>
           </section>
         </div>
-
-        <p class="web-preview__notice">
-          Web Preview 只用于预览核心体验；完整桌面能力请使用 Windows 桌面版。
-        </p>
       </div>
     </section>
+
+    <footer class="web-preview__footer" aria-label="作者归属">
+      <span>{{ appCopyright }}</span>
+      <span class="web-preview__footer-mark" aria-hidden="true"></span>
+      <span>{{ appName }} {{ appEnglishName }}</span>
+    </footer>
   </main>
 </template>
 
 <style scoped>
 .web-preview {
+  --brand-logo-size: 58px;
+  --brand-name-size: 26px;
+  --web-font-action:
+    "MiSans", "HarmonyOS Sans SC", "Microsoft YaHei UI", "PingFang SC", system-ui,
+    sans-serif;
+  --web-font-display:
+    "Alibaba PuHuiTi 3.0", "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei UI", system-ui,
+    sans-serif;
+  --web-font-ui:
+    "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei UI", "PingFang SC", system-ui,
+    sans-serif;
+  --web-max-width: 1210px;
   --web-page-bg: rgb(247 247 245);
-  --web-surface: rgb(255 255 255 / 0.72);
-  --web-surface-strong: rgb(255 255 255 / 0.92);
+  --web-stage-glow: rgb(217 119 6 / 0.1);
+  --web-stage-panel: rgb(255 255 255);
+  --web-stage-ring: rgb(24 24 27 / 0.08);
+  --web-surface: rgb(255 255 255 / 0.8);
+  --web-surface-strong: rgb(255 255 255 / 0.96);
   --web-border: rgb(24 24 27 / 0.11);
-  --web-shadow: 0 28px 84px rgb(24 24 27 / 0.13);
-  min-height: 100%;
+  --web-shadow: 0 32px 92px rgb(24 24 27 / 0.12);
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
   overflow: auto;
   background:
     radial-gradient(
-      circle at 76% 26%,
-      color-mix(in srgb, var(--income-accent) 13%, transparent) 0,
-      transparent 30%
+      circle at 79% 34%,
+      color-mix(in srgb, var(--income-accent) 11%, transparent) 0,
+      transparent 31%
     ),
     linear-gradient(
       145deg,
       rgb(250 250 249) 0%,
-      var(--web-page-bg) 48%,
-      rgb(239 238 234) 100%
+      var(--web-page-bg) 54%,
+      rgb(242 240 236) 100%
     );
   color: var(--text);
-  padding: clamp(20px, 4vw, 44px);
+  font-family: var(--web-font-ui);
+  padding: clamp(24px, 3.6vw, 54px) clamp(24px, 5vw, 74px) clamp(18px, 3vw, 34px);
 }
 
 .theme-dark.web-preview {
   --web-page-bg: rgb(12 12 14);
-  --web-surface: rgb(24 24 27 / 0.72);
-  --web-surface-strong: rgb(32 32 36 / 0.92);
+  --web-stage-glow: rgb(245 158 11 / 0.18);
+  --web-stage-panel: rgb(18 18 20);
+  --web-stage-ring: rgb(255 255 255 / 0.13);
+  --web-surface: rgb(24 24 27 / 0.78);
+  --web-surface-strong: rgb(34 34 38 / 0.94);
   --web-border: rgb(255 255 255 / 0.11);
   --web-shadow: 0 30px 88px rgb(0 0 0 / 0.38);
   background:
     radial-gradient(
-      circle at 75% 24%,
-      color-mix(in srgb, var(--income-accent) 9%, transparent) 0,
-      transparent 28%
+      circle at 78% 34%,
+      color-mix(in srgb, var(--income-accent) 13%, transparent) 0,
+      transparent 26%
     ),
-    linear-gradient(145deg, rgb(13 13 15) 0%, var(--web-page-bg) 58%, rgb(19 18 17) 100%);
+    radial-gradient(circle at 56% 46%, rgb(255 255 255 / 0.045) 0, transparent 34%),
+    linear-gradient(145deg, rgb(6 6 8) 0%, var(--web-page-bg) 58%, rgb(23 18 12) 100%);
 }
 
 .web-preview__topbar {
   position: relative;
   z-index: 2;
   display: flex;
-  max-width: 1120px;
+  width: min(100%, var(--web-max-width));
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  margin: 0 auto clamp(34px, 6vw, 76px);
+  gap: 20px;
+  margin: 0 auto;
 }
 
 .web-preview__brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 16px;
   color: var(--text);
-  font-size: 15px;
+  font-size: var(--brand-name-size);
   font-weight: 820;
   text-decoration: none;
 }
 
 .web-preview__brand img {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  box-shadow: 0 10px 24px rgb(24 24 27 / 0.12);
+  width: var(--brand-logo-size);
+  height: var(--brand-logo-size);
+  border-radius: 15px;
+  box-shadow: 0 18px 42px rgb(24 24 27 / 0.14);
 }
 
 .web-preview__version {
   border: 1px solid var(--web-border);
   border-radius: 999px;
   background: var(--web-surface);
-  padding: 7px 12px;
+  padding: 12px 18px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 17px;
   font-weight: 760;
 }
 
 .web-preview__hero {
   display: grid;
-  min-height: calc(100vh - clamp(112px, 14vw, 176px));
-  max-width: 1120px;
-  align-items: start;
-  grid-template-columns: minmax(292px, 0.82fr) minmax(480px, 1fr);
-  gap: clamp(44px, 7vw, 92px);
+  width: min(100%, var(--web-max-width));
+  flex: 1;
+  align-items: center;
+  grid-template-columns: minmax(390px, 0.92fr) minmax(480px, 520px);
+  gap: clamp(30px, 4.8vw, 68px);
   margin: 0 auto;
+  padding: clamp(34px, 6vh, 70px) 0 clamp(28px, 5vh, 56px);
 }
 
 .web-preview__copy {
   display: grid;
   align-content: start;
-  gap: clamp(18px, 3vw, 28px);
-  padding-top: clamp(22px, 5vw, 54px);
+  gap: clamp(18px, 2.6vw, 30px);
 }
 
 .web-preview h1 {
-  max-width: 7.8em;
+  display: grid;
+  max-width: 7.6em;
+  gap: clamp(11px, 1.15vw, 18px);
   margin: 0;
   color: var(--text);
-  font-size: clamp(46px, 6.4vw, 78px);
+  font-family: var(--web-font-display);
   font-weight: 850;
-  line-height: 1.01;
+  line-height: 0.94;
   letter-spacing: 0;
 }
 
-.web-preview__lead,
-.web-preview__notice,
-.web-preview__chips dd {
-  color: var(--muted);
-  font-size: clamp(15px, 1.4vw, 17px);
-  font-weight: 520;
-  line-height: 1.7;
+.web-preview__headline-main {
+  font-size: clamp(38px, 4vw, 62px);
+  font-weight: 760;
+}
+
+.web-preview__headline-accent {
+  color: var(--income-accent);
+  font-size: clamp(58px, 6vw, 92px);
+  font-weight: 880;
 }
 
 .web-preview__lead {
-  max-width: 500px;
+  max-width: 560px;
   margin: 0;
+  color: var(--muted);
+  font-size: clamp(18px, 1.38vw, 21px);
+  font-weight: 520;
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
 .web-preview__actions {
@@ -504,29 +544,28 @@ onBeforeUnmount(() => {
 
 .web-preview__action {
   display: inline-flex;
-  height: 44px;
+  height: 50px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   border: 1px solid var(--web-border);
   border-radius: 999px;
   background: var(--web-surface);
-  padding: 0 18px;
+  padding: 0 22px;
   color: var(--text);
-  font-size: 14px;
+  font-family: var(--web-font-action);
+  font-size: 15px;
   font-weight: 760;
   text-decoration: none;
   transition:
     background-color 180ms ease,
     border-color 180ms ease,
-    color 180ms ease,
-    transform 180ms ease;
+    box-shadow 180ms ease,
+    color 180ms ease;
 }
 
 .web-preview__action:hover {
-  border-color: color-mix(in srgb, var(--income-accent) 46%, var(--web-border));
-  background: var(--web-surface-strong);
-  transform: translateY(-1px);
+  text-decoration: none;
 }
 
 .web-preview__action--primary {
@@ -536,38 +575,62 @@ onBeforeUnmount(() => {
   box-shadow: 0 14px 32px color-mix(in srgb, var(--income-accent) 28%, transparent);
 }
 
+.web-preview__action--primary:hover {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--income-accent) 90%, rgb(255 255 255) 10%);
+  color: rgb(24 24 27);
+  box-shadow: 0 16px 34px color-mix(in srgb, var(--income-accent) 30%, transparent);
+}
+
 .web-preview__action--quiet {
+  background: color-mix(in srgb, var(--web-surface) 84%, transparent);
   color: var(--muted);
+}
+
+.web-preview__action--quiet:hover {
+  border-color: color-mix(in srgb, var(--text) 18%, var(--web-border));
+  background: var(--web-surface-strong);
+  color: var(--text);
+  box-shadow: 0 12px 28px rgb(24 24 27 / 0.08);
+}
+
+.github-mark {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
 }
 
 .web-preview__chips {
   display: flex;
-  max-width: 560px;
+  max-width: 600px;
   flex-wrap: wrap;
-  gap: 10px;
-  margin: 0;
+  gap: 12px;
+  margin: 2px 0 0;
 }
 
 .web-preview__chip {
   display: grid;
-  min-width: 132px;
-  gap: 3px;
+  min-width: 146px;
+  gap: 4px;
   border: 1px solid var(--web-border);
   border-radius: 16px;
-  background: var(--web-surface);
-  padding: 12px 14px;
-  backdrop-filter: blur(16px);
+  background: color-mix(in srgb, var(--web-surface) 86%, transparent);
+  padding: 13px 15px;
+  text-align: center;
 }
 
 .web-preview__chips dt {
   color: var(--text);
-  font-size: 13px;
+  font-family: var(--web-font-action);
+  font-size: 15px;
   font-weight: 820;
 }
 
 .web-preview__chips dd {
   margin: 0;
-  font-size: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 520;
   line-height: 1.45;
 }
 
@@ -575,8 +638,7 @@ onBeforeUnmount(() => {
   position: relative;
   display: grid;
   justify-items: center;
-  gap: 14px;
-  padding-top: clamp(2px, 1vw, 10px);
+  gap: 0;
 }
 
 .web-preview__showcase::before {
@@ -585,28 +647,10 @@ onBeforeUnmount(() => {
   width: min(410px, 70%);
   height: 150px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--income-accent) 8%, transparent);
+  background: var(--web-stage-glow);
   content: "";
   filter: blur(44px);
   pointer-events: none;
-}
-
-.web-preview__showcase-header {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  width: min(100%, 480px);
-  align-items: center;
-  justify-content: space-between;
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.web-preview__showcase-header strong {
-  color: var(--income-accent);
-  font-size: 12px;
-  font-weight: 820;
 }
 
 .web-preview__frame {
@@ -615,8 +659,16 @@ onBeforeUnmount(() => {
   width: min(100%, 480px);
   height: 460px;
   border-radius: 28px;
-  background: var(--panel);
+  border: 1px solid var(--web-stage-ring);
+  background: var(--web-stage-panel);
   box-shadow: var(--web-shadow);
+}
+
+.theme-dark.web-preview .web-preview__frame {
+  box-shadow:
+    0 36px 96px rgb(0 0 0 / 0.5),
+    0 0 0 1px rgb(255 255 255 / 0.02),
+    0 0 68px rgb(245 158 11 / 0.09);
 }
 
 .web-preview__frame :deep(.app-window) {
@@ -625,6 +677,7 @@ onBeforeUnmount(() => {
 }
 
 .web-preview__mini-layer {
+  --mini-preview-corner: 14px;
   position: relative;
   z-index: 1;
   width: min(100%, var(--mini-stage-width));
@@ -632,13 +685,7 @@ onBeforeUnmount(() => {
   overflow: visible;
   border: 1px solid var(--web-border);
   border-radius: 28px;
-  background:
-    radial-gradient(
-      circle at 50% 38%,
-      color-mix(in srgb, var(--income-accent) 8%, transparent),
-      transparent 58%
-    ),
-    color-mix(in srgb, var(--panel) 92%, transparent);
+  background: color-mix(in srgb, var(--web-stage-panel) 96%, transparent);
   box-shadow: 0 24px 64px rgb(24 24 27 / 0.14);
   backdrop-filter: blur(18px);
 }
@@ -646,6 +693,36 @@ onBeforeUnmount(() => {
 .web-preview__mini-window {
   position: absolute;
   z-index: 3;
+  overflow: hidden;
+  border-radius: var(--mini-preview-corner);
+  clip-path: inset(0 round var(--mini-preview-corner));
+}
+
+.web-preview__mini-window.theme-light {
+  --border: rgb(255 255 255 / 0.14);
+  --mini-panel-rgb: 18 18 20;
+  --text: rgb(250 250 250);
+}
+
+.web-preview__mini-window.theme-dark {
+  --border: rgb(24 24 27 / 0.12);
+  --mini-panel-rgb: 250 250 251;
+  --text: rgb(24 24 27);
+}
+
+.web-preview__mini-window :deep(.mini-window) {
+  overflow: hidden;
+  border-radius: var(--mini-preview-corner);
+  backdrop-filter: none;
+  clip-path: inset(0 round var(--mini-preview-corner));
+}
+
+.web-preview__mini-window :deep(.rolling-amount) {
+  color: var(--text);
+}
+
+.web-preview__mini-window :deep(.rolling-amount__currency) {
+  color: var(--text);
 }
 
 .web-mini-opacity {
@@ -660,14 +737,6 @@ onBeforeUnmount(() => {
   box-shadow: 0 16px 40px rgb(15 23 42 / 0.16);
   padding: 12px;
   transform: translateX(-50%);
-}
-
-.web-preview__notice {
-  position: relative;
-  z-index: 1;
-  max-width: min(100%, 480px);
-  margin: 0;
-  text-align: left;
 }
 
 .web-mini-opacity__header {
@@ -688,19 +757,49 @@ onBeforeUnmount(() => {
   accent-color: var(--income-accent);
 }
 
+.web-preview__footer {
+  display: flex;
+  width: min(100%, var(--web-max-width));
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 0 auto;
+  border-top: 1px solid color-mix(in srgb, var(--web-border) 72%, transparent);
+  padding-top: clamp(18px, 2.2vw, 24px);
+  color: var(--muted);
+  font-family: var(--web-font-ui);
+  font-size: 14px;
+  font-weight: 680;
+  text-align: center;
+}
+
+.web-preview__footer-mark {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--income-accent) 74%, var(--muted));
+}
+
 @media (max-width: 980px) {
   .web-preview__hero {
     min-height: auto;
     grid-template-columns: 1fr;
+    padding-top: clamp(38px, 7vw, 62px);
   }
 
   .web-preview h1 {
-    max-width: 11em;
+    max-width: 9em;
+  }
+
+  .web-preview__showcase {
+    justify-items: start;
   }
 }
 
 @media (max-width: 560px) {
   .web-preview {
+    --brand-logo-size: 46px;
+    --brand-name-size: 20px;
     padding: 18px;
   }
 
@@ -709,25 +808,25 @@ onBeforeUnmount(() => {
   }
 
   .web-preview__topbar {
-    margin-bottom: 30px;
+    align-items: flex-start;
   }
 
-  .web-preview__chips {
-    display: grid;
-    grid-template-columns: 1fr;
+  .web-preview__version {
+    padding: 9px 13px;
+    font-size: 14px;
   }
 
   .web-preview__actions {
     justify-content: flex-start;
   }
 
+  .web-preview__lead {
+    white-space: normal;
+  }
+
   .web-preview__frame {
     width: 100%;
     height: clamp(410px, 108vw, 460px);
-  }
-
-  .web-preview__showcase-header {
-    width: 100%;
   }
 
   .web-preview__mini-layer {
