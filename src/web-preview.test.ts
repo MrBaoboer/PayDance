@@ -7,6 +7,10 @@ import settingsStoreSource from "./platform/settings-store.ts?raw";
 
 const read = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+const cssBlock = (selector: string) =>
+  webPreviewSource.match(
+    new RegExp(`${selector.split(".").join("\\.")} \\{[\\s\\S]*?\\n\\}`),
+  )?.[0] ?? "";
 
 describe("PayDance Web Preview", () => {
   it("loads the web preview and desktop app from a runtime target selector", () => {
@@ -47,12 +51,23 @@ describe("PayDance Web Preview", () => {
   });
 
   it("uses a more expressive web typography system", () => {
+    expect(webPreviewSource).toContain(
+      '@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC',
+    );
     expect(webPreviewSource).toContain("--web-font-display");
     expect(webPreviewSource).toContain("--web-font-ui");
     expect(webPreviewSource).toContain("--web-font-action");
-    expect(webPreviewSource).toContain("Alibaba PuHuiTi 3.0");
-    expect(webPreviewSource).toContain("HarmonyOS Sans SC");
-    expect(webPreviewSource).toContain("MiSans");
+    expect(webPreviewSource).toContain("Noto Sans SC");
+    expect(webPreviewSource).toContain("Noto Serif SC");
+    expect(webPreviewSource).toContain(".web-preview__copy");
+    expect(webPreviewSource).toContain("font-family: var(--web-font-ui)");
+    expect(cssBlock(".web-preview")).not.toContain("font-family:");
+  });
+
+  it("keeps the web headline as two designed lines instead of narrow vertical wrapping", () => {
+    expect(webPreviewSource).toContain("width: min(100%, 640px)");
+    expect(webPreviewSource).toContain("white-space: nowrap");
+    expect(webPreviewSource).not.toContain("max-width: 7.6em");
   });
 
   it("keeps storefront actions stable and recognizable on hover", () => {
@@ -60,6 +75,7 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("github-mark");
     expect(webPreviewSource).toContain("Download");
     expect(webPreviewSource).not.toContain("translateY(-1px)");
+    expect(webPreviewSource).toContain(".web-preview__action--quiet {\n  gap: 7px;");
     expect(webPreviewSource).toContain(".web-preview__action--primary:hover");
     expect(webPreviewSource).toContain(".web-preview__action--quiet:hover");
   });
