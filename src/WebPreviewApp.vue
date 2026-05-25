@@ -386,18 +386,17 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500;600;700;800;900&family=Noto+Serif+SC:wght@700;900&display=swap");
+
 .web-preview {
   --brand-logo-size: 58px;
   --brand-name-size: 26px;
   --web-font-action:
-    "MiSans", "HarmonyOS Sans SC", "Microsoft YaHei UI", "PingFang SC", system-ui,
-    sans-serif;
+    "Noto Sans SC", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
   --web-font-display:
-    "Alibaba PuHuiTi 3.0", "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei UI", system-ui,
-    sans-serif;
+    "Noto Serif SC", "Noto Sans SC", "Microsoft YaHei UI", "PingFang SC", serif;
   --web-font-ui:
-    "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei UI", "PingFang SC", system-ui,
-    sans-serif;
+    "Noto Sans SC", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
   --web-max-width: 1210px;
   --web-page-bg: rgb(247 247 245);
   --web-stage-glow: rgb(217 119 6 / 0.1);
@@ -424,7 +423,6 @@ onBeforeUnmount(() => {
       rgb(242 240 236) 100%
     );
   color: var(--text);
-  font-family: var(--web-font-ui);
   padding: clamp(24px, 3.6vw, 54px) clamp(24px, 5vw, 74px) clamp(18px, 3vw, 34px);
 }
 
@@ -463,6 +461,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 16px;
   color: var(--text);
+  font-family: var(--web-font-ui);
   font-size: var(--brand-name-size);
   font-weight: 820;
   text-decoration: none;
@@ -481,6 +480,7 @@ onBeforeUnmount(() => {
   background: var(--web-surface);
   padding: 12px 18px;
   color: var(--muted);
+  font-family: var(--web-font-ui);
   font-size: 17px;
   font-weight: 760;
 }
@@ -500,12 +500,13 @@ onBeforeUnmount(() => {
   display: grid;
   align-content: start;
   gap: clamp(18px, 2.6vw, 30px);
+  font-family: var(--web-font-ui);
 }
 
 .web-preview h1 {
   display: grid;
-  max-width: 7.6em;
-  gap: clamp(11px, 1.15vw, 18px);
+  width: min(100%, 640px);
+  gap: clamp(14px, 1.3vw, 21px);
   margin: 0;
   color: var(--text);
   font-family: var(--web-font-display);
@@ -517,12 +518,14 @@ onBeforeUnmount(() => {
 .web-preview__headline-main {
   font-size: clamp(38px, 4vw, 62px);
   font-weight: 760;
+  white-space: nowrap;
 }
 
 .web-preview__headline-accent {
   color: var(--income-accent);
   font-size: clamp(58px, 6vw, 92px);
   font-weight: 880;
+  white-space: nowrap;
 }
 
 .web-preview__lead {
@@ -583,6 +586,7 @@ onBeforeUnmount(() => {
 }
 
 .web-preview__action--quiet {
+  gap: 7px;
   background: color-mix(in srgb, var(--web-surface) 84%, transparent);
   color: var(--muted);
 }
@@ -788,7 +792,7 @@ onBeforeUnmount(() => {
   }
 
   .web-preview h1 {
-    max-width: 9em;
+    width: min(100%, 640px);
   }
 
   .web-preview__showcase {
