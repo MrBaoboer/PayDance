@@ -158,7 +158,9 @@ onBeforeUnmount(() => {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
   transform-origin: center bottom;
-  transition: filter 220ms ease;
+  transition:
+    filter 220ms ease,
+    transform 220ms ease;
 }
 
 .rolling-amount__currency {
@@ -249,25 +251,11 @@ onBeforeUnmount(() => {
 }
 
 .rolling-amount--hero.is-ticking {
-  animation: hero-amount-pulse 220ms cubic-bezier(0.16, 0.84, 0.28, 1);
+  filter: drop-shadow(0 14px 30px var(--income-accent-glow));
 }
 
 .rolling-amount--hero.is-ticking .rolling-amount__currency {
   color: var(--income-accent);
-}
-
-@keyframes hero-amount-pulse {
-  0% {
-    filter: drop-shadow(0 6px 18px rgb(0 0 0 / 0));
-  }
-
-  42% {
-    filter: drop-shadow(0 18px 44px var(--amount-pulse-glow));
-  }
-
-  100% {
-    filter: drop-shadow(0 8px 20px rgb(0 0 0 / 0));
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -278,7 +266,6 @@ onBeforeUnmount(() => {
   }
 
   .rolling-amount--hero.is-ticking {
-    animation: none;
     filter: none;
   }
 }

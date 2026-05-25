@@ -19,30 +19,29 @@ describe("rolling amount", () => {
     expect(rollingAmountSource).not.toContain("font-family: var(--font-numeric)");
   });
 
-  it("uses a larger single-layer hero pulse without changing the 0.7.1 duration", () => {
-    const pulseBlock = rollingAmountSource.slice(
-      rollingAmountSource.indexOf("@keyframes hero-amount-pulse"),
-      rollingAmountSource.indexOf("@media (prefers-reduced-motion: reduce)"),
+  it("keeps the 0.7.9 hero pulse as a natural filter transition", () => {
+    const heroPulseBlock = rollingAmountSource.slice(
+      rollingAmountSource.indexOf(".rolling-amount--hero.is-ticking {"),
+      rollingAmountSource.indexOf(
+        ".rolling-amount--hero.is-ticking .rolling-amount__currency",
+      ),
     );
 
-    expect(rollingAmountSource).toContain("--amount-pulse-glow");
-    expect(rollingAmountSource).toContain("@keyframes hero-amount-pulse");
     expect(rollingAmountSource).toContain(
-      "animation: hero-amount-pulse 220ms cubic-bezier(0.16, 0.84, 0.28, 1)",
-    );
-    expect(rollingAmountSource).toContain(
-      "drop-shadow(0 18px 44px var(--amount-pulse-glow))",
+      "filter: drop-shadow(0 14px 30px var(--income-accent-glow));",
     );
     expect(rollingAmountSource).toContain("}, 220)");
     expect(rollingAmountSource).not.toContain(".rolling-amount--mini.is-ticking");
+    expect(rollingAmountSource).not.toContain("--amount-pulse-glow");
+    expect(rollingAmountSource).not.toContain("@keyframes hero-amount-pulse");
+    expect(rollingAmountSource).not.toContain("animation: hero-amount-pulse");
     expect(rollingAmountSource).not.toContain(
       "drop-shadow(0 0 18px var(--income-accent-ring))",
     );
     expect(rollingAmountSource).not.toContain("}, 320)");
-    expect(rollingAmountSource).toContain(".rolling-amount--hero.is-ticking {");
     expect(rollingAmountSource).toContain("filter: none;");
-    expect(pulseBlock).not.toContain("scale(");
-    expect(pulseBlock).not.toContain("translate3d(");
-    expect(rollingAmountSource).not.toContain("    transform 220ms ease");
+    expect(heroPulseBlock).not.toContain("scale(");
+    expect(heroPulseBlock).not.toContain("translate3d(");
+    expect(rollingAmountSource).toContain("    transform 220ms ease");
   });
 });
