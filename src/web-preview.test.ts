@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import appSource from "./App.vue?raw";
 import webPreviewSource from "./WebPreviewApp.vue?raw";
@@ -33,7 +33,7 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain('class="web-preview__headline-accent"');
     expect(webPreviewSource).toContain("收入跳动");
     expect(webPreviewSource).toContain("把今天已经挣到的钱");
-    expect(webPreviewSource).toContain("把今天已经挣到的钱 实时放在桌面上");
+    expect(webPreviewSource).toContain("实时放在桌面上");
     expect(webPreviewSource).toContain("下载 Windows 版");
     expect(webPreviewSource).not.toContain("开始体验");
     expect(webPreviewSource).toContain(':show-desktop-features="false"');
@@ -47,29 +47,52 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain('class="web-preview__brand"');
     expect(webPreviewSource).toContain('class="web-preview__brand-icon"');
     expect(webPreviewSource).toContain('class="web-preview__version"');
-    expect(webPreviewSource).toContain("--brand-logo-size: 62px");
-    expect(webPreviewSource).toContain("--brand-name-size: 28px");
+    expect(webPreviewSource).toContain("--brand-logo-size: 52px");
+    expect(webPreviewSource).toContain("--brand-name-size: 24px");
     expect(webPreviewSource).toContain("overflow: hidden");
-    expect(webPreviewSource).toContain("clip-path: inset(7% round 15px)");
-    expect(webPreviewSource).toContain("transform: scale(1.24)");
-    expect(webPreviewSource).toContain("Web Preview");
+    expect(webPreviewSource).not.toContain("clip-path: inset(7% round 15px)");
+    expect(webPreviewSource).not.toContain("transform: scale(1.24)");
+    expect(webPreviewSource).not.toContain("<strong>v{{ appVersion }}</strong>");
+    expect(webPreviewSource).toContain("<strong>{{ appVersion }}</strong>");
     expect(cssBlock(".web-preview__version")).toContain("border-radius: 999px");
   });
 
   it("uses a more expressive web typography system", () => {
     expect(webPreviewSource).not.toContain("fonts.googleapis.com");
+    expect(webPreviewSource).not.toContain("@fontsource");
+    expect(webPreviewSource).toContain('font-family: "PayDance Web Sans"');
+    expect(webPreviewSource).toContain('font-family: "PayDance Web Serif"');
+    expect(webPreviewSource).toContain("paydance-web-sans-subset.woff2");
+    expect(webPreviewSource).toContain("paydance-web-serif-subset.woff2");
     expect(webPreviewSource).toContain("--web-font-display");
     expect(webPreviewSource).toContain("--web-font-ui");
     expect(webPreviewSource).toContain("--web-font-action");
-    expect(webPreviewSource).toContain("MiSans");
-    expect(webPreviewSource).toContain("HarmonyOS Sans SC");
+    expect(webPreviewSource).toContain("PayDance Web Sans");
+    expect(webPreviewSource).toContain("PayDance Web Serif");
     expect(webPreviewSource).toContain(".web-preview__copy");
     expect(webPreviewSource).toContain("font-family: var(--web-font-ui)");
     expect(cssBlock(".web-preview")).not.toContain("font-family:");
   });
 
+  it("keeps bundled Chinese web fonts subsetted for the actual storefront copy", () => {
+    const sansFont = statSync(
+      new URL("./assets/fonts/paydance-web-sans-subset.woff2", import.meta.url),
+    );
+    const serifFont = statSync(
+      new URL("./assets/fonts/paydance-web-serif-subset.woff2", import.meta.url),
+    );
+
+    expect(sansFont.size).toBeLessThan(80_000);
+    expect(serifFont.size).toBeLessThan(90_000);
+  });
+
   it("keeps the web headline as two designed lines instead of narrow vertical wrapping", () => {
-    expect(webPreviewSource).toContain("width: min(100%, 640px)");
+    expect(webPreviewSource).toContain(
+      "width: min(100%, calc(var(--headline-main-size) * 6))",
+    );
+    expect(webPreviewSource).toContain(
+      "font-size: calc(var(--headline-main-size) * 1.5)",
+    );
     expect(webPreviewSource).toContain("white-space: nowrap");
     expect(webPreviewSource).not.toContain("max-width: 7.6em");
   });
@@ -79,7 +102,7 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("github-mark");
     expect(webPreviewSource).toContain("Download");
     expect(webPreviewSource).not.toContain("translateY(-1px)");
-    expect(webPreviewSource).toContain(".web-preview__action--quiet {\n  gap: 5px;");
+    expect(webPreviewSource).toContain(".web-preview__action--quiet {\n  gap: 3px;");
     expect(cssBlock(".web-preview__action")).toContain(
       "transition: box-shadow 160ms ease",
     );
@@ -124,7 +147,9 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).not.toContain("--mini-stage-contrast");
     expect(webPreviewSource).not.toContain("--mini-stage-merge");
     expect(webPreviewSource).not.toContain("--mini-opacity-percent");
-    expect(webPreviewSource).toContain("linear-gradient(145deg, rgb(229 230 233)");
+    expect(webPreviewSource).toContain("linear-gradient(145deg, rgb(233 234 237)");
+    expect(webPreviewSource).toContain("linear-gradient(145deg, rgb(39 40 45)");
+    expect(webPreviewSource).toContain(".web-preview__showcase.is-mini::before");
     expect(webPreviewSource).toContain("--mini-preview-corner: 14px");
     expect(webPreviewSource).toContain(
       "clip-path: inset(0 round var(--mini-preview-corner))",
@@ -159,9 +184,11 @@ describe("PayDance Web Preview", () => {
 
     expect(readmeSource).not.toContain("## 近期改进");
     expect(readmeSource).toContain('<font size="7">');
-    expect(readmeSource).toContain("看见每一秒的收入跳动");
-    expect(readmeSource).toContain("完整桌面能力请使用 Windows 版");
+    expect(readmeSource).toContain("打工人的桌面实时工资看板");
+    expect(readmeSource).toContain("把今天已经挣到的钱，实时放在桌面上");
+    expect(readmeSource).toContain("系统托盘、窗口置顶、开机自启动和透明迷你窗");
     expect(readmeSource).toContain("下载 Windows 便携版");
+    expect(readmeSource).not.toContain("actions/workflows/ci.yml/badge.svg");
     expect(readmeSource).not.toContain("Release</a>");
     expect(readmeSource).not.toContain("配置薪资与作息");
     expect(readmeSource).not.toContain("长期扫读");

@@ -1,12 +1,11 @@
-# 薪跳 PayDance
-
 <p align="center">
-  <img src="src-tauri/icons/icon.png" alt="薪跳 PayDance" width="84">
+  <img src="src-tauri/icons/icon.png" alt="薪跳 PayDance" width="88"><br>
+  <strong><font size="7">薪跳 PayDance</font></strong>
 </p>
 
 <p align="center">
-  <strong><font size="7">打工人的桌面实时工资看板</font></strong><br>
-  <font size="5">看见每一秒的收入跳动</font>
+  <strong><font size="6">打工人的桌面实时工资看板</font></strong><br><br>
+  <font size="5">把今天已经挣到的钱，实时放在桌面上</font>
 </p>
 
 <p align="center">
@@ -15,14 +14,7 @@
 </p>
 
 <p align="center">
-  <sub>网页端用于快速了解界面与配置流程；完整桌面能力请使用 Windows 版。</sub>
-</p>
-
-<p align="center">
-  <a href="https://github.com/MasterBao66/PayDance/actions/workflows/ci.yml"><img src="https://github.com/MasterBao66/PayDance/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/platform-Windows%2011-0078D4" alt="Windows 11">
-  <img src="https://img.shields.io/badge/built%20with-Tauri%202-24C8DB" alt="Built with Tauri 2">
-  <a href="#隐私声明作者与许可"><img src="https://img.shields.io/badge/privacy-local%20first-18181B" alt="Local first privacy"></a>
+  <sub>先在线感受核心界面；系统托盘、窗口置顶、开机自启动和透明迷你窗请使用 Windows 桌面版。</sub>
 </p>
 
 ## 产品简介与核心体验
@@ -64,12 +56,12 @@
 
 ## 快速下载与安全校验
 
-| 平台           | 推荐下载                                                                                        | 说明                           |
-| -------------- | ----------------------------------------------------------------------------------------------- | ------------------------------ |
-| 在线体验       | [PayDance Web Preview](https://masterbao66.github.io/PayDance/)                                 | 浏览器中预览核心看板与配置流程 |
-| Windows 11     | [pay-dance.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe) | 便携版，下载后直接运行         |
-| GitHub Release | [最新正式版](https://github.com/MasterBao66/PayDance/releases/latest)                           | 查看更新说明、附件和校验文件   |
-| 源码           | [MasterBao66/PayDance](https://github.com/MasterBao66/PayDance)                                 | Vue 3 + TypeScript + Tauri 2   |
+| 平台           | 推荐下载                                                                                        | 说明                         |
+| -------------- | ----------------------------------------------------------------------------------------------- | ---------------------------- |
+| 在线体验       | [PayDance Web Preview](https://masterbao66.github.io/PayDance/)                                 | 浏览器中快速感受核心界面     |
+| Windows 11     | [pay-dance.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe) | 便携版，下载后直接运行       |
+| GitHub Release | [最新正式版](https://github.com/MasterBao66/PayDance/releases/latest)                           | 查看更新说明、附件和校验文件 |
+| 源码           | [MasterBao66/PayDance](https://github.com/MasterBao66/PayDance)                                 | Vue 3 + TypeScript + Tauri 2 |
 
 Release 页面会同时提供 `pay-dance.exe` 与 `pay-dance.exe.sha256`。Windows 对未签名二进制可能展示发布者验证提示，建议以 GitHub Release 来源与 SHA256 校验作为下载后的完整性确认。
 

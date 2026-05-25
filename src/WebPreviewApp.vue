@@ -236,8 +236,7 @@ onBeforeUnmount(() => {
         <span>{{ appName }} {{ appEnglishName }}</span>
       </a>
       <span class="web-preview__version" :aria-label="`当前版本 ${appVersion}`">
-        <span>Web Preview</span>
-        <strong>v{{ appVersion }}</strong>
+        <strong>{{ appVersion }}</strong>
       </span>
     </header>
 
@@ -247,7 +246,10 @@ onBeforeUnmount(() => {
           <span class="web-preview__headline-main">看见每一秒的</span>
           <span class="web-preview__headline-accent">收入跳动</span>
         </h1>
-        <p class="web-preview__lead">把今天已经挣到的钱 实时放在桌面上</p>
+        <p class="web-preview__lead">
+          <span>把今天已经挣到的钱</span>
+          <span>实时放在桌面上</span>
+        </p>
 
         <nav class="web-preview__actions" aria-label="网页端操作">
           <a
@@ -285,7 +287,11 @@ onBeforeUnmount(() => {
         </dl>
       </div>
 
-      <div id="paydance-preview" class="web-preview__showcase">
+      <div
+        id="paydance-preview"
+        class="web-preview__showcase"
+        :class="{ 'is-mini': activeView === 'mini' }"
+      >
         <div
           v-if="activeView !== 'mini'"
           class="app-shell web-preview__frame h-full w-full select-none p-0"
@@ -391,21 +397,35 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+@font-face {
+  font-family: "PayDance Web Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("./assets/fonts/paydance-web-sans-subset.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "PayDance Web Serif";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("./assets/fonts/paydance-web-serif-subset.woff2") format("woff2");
+}
+
 .web-preview {
-  --brand-logo-size: 62px;
-  --brand-name-size: 28px;
+  --brand-logo-size: 52px;
+  --brand-name-size: 24px;
+  --headline-main-size: clamp(50px, 4.55vw, 74px);
   --web-font-action:
-    "MiSans", "HarmonyOS Sans SC", "Microsoft YaHei UI", "PingFang SC", system-ui,
-    sans-serif;
+    "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
   --web-font-display:
-    "MiSans Demibold", "HarmonyOS Sans SC", "Microsoft YaHei UI", "PingFang SC",
-    system-ui, sans-serif;
+    "PayDance Web Serif", "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", serif;
   --web-font-ui:
-    "MiSans", "HarmonyOS Sans SC", "Microsoft YaHei UI", "PingFang SC", system-ui,
-    sans-serif;
-  --web-max-width: 1120px;
+    "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
+  --web-max-width: 1040px;
   --web-page-bg: rgb(247 247 245);
-  --web-stage-glow: rgb(217 119 6 / 0.1);
+  --web-stage-glow: rgb(217 119 6 / 0.08);
   --web-stage-panel: rgb(255 255 255);
   --web-stage-ring: rgb(24 24 27 / 0.08);
   --web-surface: rgb(255 255 255 / 0.8);
@@ -413,9 +433,11 @@ onBeforeUnmount(() => {
   --web-border: rgb(24 24 27 / 0.11);
   --web-shadow: 0 32px 92px rgb(24 24 27 / 0.12);
   display: flex;
+  height: 100dvh;
   min-height: 100dvh;
   flex-direction: column;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   background:
     radial-gradient(
       circle at 79% 34%,
@@ -434,7 +456,7 @@ onBeforeUnmount(() => {
 
 .theme-dark.web-preview {
   --web-page-bg: rgb(12 12 14);
-  --web-stage-glow: rgb(245 158 11 / 0.18);
+  --web-stage-glow: rgb(245 158 11 / 0.11);
   --web-stage-panel: rgb(18 18 20);
   --web-stage-ring: rgb(255 255 255 / 0.13);
   --web-surface: rgb(24 24 27 / 0.78);
@@ -454,11 +476,11 @@ onBeforeUnmount(() => {
 .web-preview__topbar {
   position: relative;
   z-index: 2;
-  display: flex;
-  width: min(100%, var(--web-max-width));
+  display: grid;
+  width: min(100%, 900px);
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
+  grid-template-columns: auto minmax(96px, 1fr) auto;
+  gap: clamp(34px, 7vw, 168px);
   margin: 0 auto;
 }
 
@@ -479,41 +501,30 @@ onBeforeUnmount(() => {
   height: var(--brand-logo-size);
   overflow: hidden;
   place-items: center;
-  border-radius: 16px;
-  clip-path: inset(7% round 15px);
-  box-shadow: 0 18px 42px rgb(24 24 27 / 0.1);
+  border-radius: 14px;
+  box-shadow: 0 14px 32px rgb(24 24 27 / 0.08);
 }
 
 .web-preview__brand img {
   width: var(--brand-logo-size);
   height: var(--brand-logo-size);
-  transform: scale(1.24);
 }
 
 .web-preview__version {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
   border: 1px solid var(--web-border);
   border-radius: 999px;
   background: color-mix(in srgb, var(--web-surface) 86%, transparent);
   color: var(--text);
   font-family: var(--web-font-ui);
-  padding: 9px 14px;
+  padding: 10px 16px;
   box-shadow: 0 16px 38px rgb(24 24 27 / 0.08);
-}
-
-.web-preview__version span {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 760;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
 .web-preview__version strong {
   color: var(--text);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 820;
 }
 
@@ -522,9 +533,9 @@ onBeforeUnmount(() => {
   width: min(100%, var(--web-max-width));
   flex: 1;
   align-items: center;
-  grid-template-columns: minmax(410px, 500px) minmax(470px, 500px);
+  grid-template-columns: minmax(390px, 500px) minmax(450px, 480px);
   justify-content: center;
-  gap: clamp(16px, 2vw, 28px);
+  gap: clamp(8px, 1.4vw, 22px);
   margin: 0 auto;
   padding: clamp(34px, 6vh, 70px) 0 clamp(28px, 5vh, 56px);
 }
@@ -532,14 +543,15 @@ onBeforeUnmount(() => {
 .web-preview__copy {
   display: grid;
   align-content: start;
-  gap: clamp(18px, 2.6vw, 30px);
+  justify-items: center;
+  gap: clamp(18px, 2.4vw, 28px);
   font-family: var(--web-font-ui);
 }
 
 .web-preview h1 {
   display: grid;
-  width: min(100%, 590px);
-  gap: clamp(12px, 1.1vw, 18px);
+  width: min(100%, calc(var(--headline-main-size) * 6));
+  gap: clamp(16px, 1.5vw, 24px);
   margin: 0;
   color: var(--text);
   font-family: var(--web-font-display);
@@ -549,20 +561,27 @@ onBeforeUnmount(() => {
 }
 
 .web-preview__headline-main {
-  font-size: clamp(42px, 4.1vw, 64px);
-  font-weight: 800;
+  font-size: var(--headline-main-size);
+  font-weight: 850;
+  line-height: 0.95;
   white-space: nowrap;
 }
 
 .web-preview__headline-accent {
   color: var(--income-accent);
-  font-size: clamp(62px, 6.1vw, 94px);
+  font-size: calc(var(--headline-main-size) * 1.5);
   font-weight: 900;
+  line-height: 0.85;
   white-space: nowrap;
 }
 
 .web-preview__lead {
-  max-width: 560px;
+  display: flex;
+  max-width: 620px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: clamp(16px, 2vw, 28px);
+  justify-content: center;
   margin: 0;
   color: var(--muted);
   font-size: clamp(18px, 1.38vw, 21px);
@@ -575,7 +594,9 @@ onBeforeUnmount(() => {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 12px;
+  width: min(100%, 462px);
 }
 
 .web-preview__action {
@@ -583,7 +604,7 @@ onBeforeUnmount(() => {
   height: 50px;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   border: 1px solid var(--web-border);
   border-radius: 999px;
   background: var(--web-surface);
@@ -615,7 +636,7 @@ onBeforeUnmount(() => {
 }
 
 .web-preview__action--quiet {
-  gap: 5px;
+  gap: 3px;
   background: color-mix(in srgb, var(--web-surface) 84%, transparent);
   color: var(--muted);
 }
@@ -637,6 +658,7 @@ onBeforeUnmount(() => {
   display: flex;
   max-width: 600px;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
   margin: 2px 0 0;
 }
@@ -686,6 +708,10 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
+.web-preview__showcase.is-mini::before {
+  display: none;
+}
+
 .web-preview__frame {
   position: relative;
   z-index: 1;
@@ -719,16 +745,16 @@ onBeforeUnmount(() => {
   border: 1px solid var(--web-border);
   border-radius: 28px;
   background:
-    radial-gradient(circle at 50% 40%, rgb(255 255 255 / 0.62), transparent 58%),
-    linear-gradient(145deg, rgb(229 230 233), rgb(214 216 221));
+    radial-gradient(circle at 50% 42%, rgb(255 255 255 / 0.68), transparent 56%),
+    linear-gradient(145deg, rgb(233 234 237), rgb(219 221 226));
   box-shadow: 0 24px 64px rgb(24 24 27 / 0.14);
   backdrop-filter: blur(18px);
 }
 
 .theme-dark.web-preview .web-preview__mini-layer {
   background:
-    radial-gradient(circle at 50% 42%, rgb(255 255 255 / 0.09), transparent 58%),
-    linear-gradient(145deg, rgb(41 42 48), rgb(29 30 35));
+    radial-gradient(circle at 50% 40%, rgb(255 255 255 / 0.055), transparent 58%),
+    linear-gradient(145deg, rgb(39 40 45), rgb(28 29 33));
   box-shadow: 0 26px 72px rgb(0 0 0 / 0.44);
 }
 
@@ -737,6 +763,8 @@ onBeforeUnmount(() => {
   z-index: 3;
   overflow: hidden;
   border-radius: var(--mini-preview-corner);
+  background: transparent;
+  background-clip: padding-box;
   clip-path: inset(0 round var(--mini-preview-corner));
 }
 
@@ -756,6 +784,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   border-radius: var(--mini-preview-corner);
   backdrop-filter: none;
+  background-clip: padding-box;
   clip-path: inset(0 round var(--mini-preview-corner));
 }
 
@@ -826,23 +855,25 @@ onBeforeUnmount(() => {
   .web-preview__hero {
     min-height: auto;
     grid-template-columns: 1fr;
+    justify-items: center;
     padding-top: clamp(38px, 7vw, 62px);
   }
 
   .web-preview h1 {
-    width: min(100%, 640px);
+    width: min(100%, calc(var(--headline-main-size) * 6));
   }
 
   .web-preview__showcase {
-    justify-items: start;
+    justify-items: center;
   }
 }
 
 @media (max-width: 560px) {
   .web-preview {
-    --brand-logo-size: 46px;
-    --brand-name-size: 20px;
-    padding: 18px;
+    --brand-logo-size: 42px;
+    --brand-name-size: 19px;
+    --headline-main-size: clamp(35px, 10.5vw, 50px);
+    padding: 18px 16px;
   }
 
   .web-preview__hero {
@@ -850,15 +881,14 @@ onBeforeUnmount(() => {
   }
 
   .web-preview__topbar {
-    align-items: flex-start;
+    width: min(100%, 420px);
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    gap: 16px;
   }
 
   .web-preview__version {
-    gap: 7px;
-  }
-
-  .web-preview__version span {
-    display: none;
+    padding: 8px 12px;
   }
 
   .web-preview__version strong {
@@ -866,7 +896,7 @@ onBeforeUnmount(() => {
   }
 
   .web-preview__actions {
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   .web-preview__lead {
