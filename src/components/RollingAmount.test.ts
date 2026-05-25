@@ -20,6 +20,11 @@ describe("rolling amount", () => {
   });
 
   it("uses a larger single-layer hero pulse without changing the 0.7.1 duration", () => {
+    const pulseBlock = rollingAmountSource.slice(
+      rollingAmountSource.indexOf("@keyframes hero-amount-pulse"),
+      rollingAmountSource.indexOf("@media (prefers-reduced-motion: reduce)"),
+    );
+
     expect(rollingAmountSource).toContain("--amount-pulse-glow");
     expect(rollingAmountSource).toContain("@keyframes hero-amount-pulse");
     expect(rollingAmountSource).toContain(
@@ -36,5 +41,8 @@ describe("rolling amount", () => {
     expect(rollingAmountSource).not.toContain("}, 320)");
     expect(rollingAmountSource).toContain(".rolling-amount--hero.is-ticking {");
     expect(rollingAmountSource).toContain("filter: none;");
+    expect(pulseBlock).not.toContain("scale(");
+    expect(pulseBlock).not.toContain("translate3d(");
+    expect(rollingAmountSource).not.toContain("    transform 220ms ease");
   });
 });

@@ -4,6 +4,7 @@ import settingsGroupSource from "./ui/SettingsGroup.vue?raw";
 import switchRowSource from "./ui/SwitchRow.vue?raw";
 import lunchBreakFieldsSource from "./settings/LunchBreakFields.vue?raw";
 import salaryAmountFieldsSource from "./settings/SalaryAmountFields.vue?raw";
+import workTimeFieldsSource from "./settings/WorkTimeFields.vue?raw";
 
 describe("settings panel", () => {
   it("shows the about version as a plain number", () => {
@@ -91,13 +92,24 @@ describe("settings panel", () => {
   });
 
   it("keeps the attribution footer balanced in narrow settings sheets", () => {
-    expect(settingsPanelSource).toContain("flex: 1 1 clamp(180px, 50%, 260px)");
+    expect(settingsPanelSource).toContain("grid-template-columns: minmax(0, 1fr) auto");
+    expect(settingsPanelSource).toContain("min-width: clamp(96px, 20cqw, 112px)");
     expect(settingsPanelSource).toContain("min-width: clamp(92px, 20cqw, 112px)");
     expect(settingsPanelSource).toContain("width: clamp(92px, 20cqw, 108px)");
     expect(settingsPanelSource).toContain("box-shadow: 0 7px 18px rgb(15 23 42 / 0.08)");
     expect(settingsPanelSource).toContain("width: 20px");
-    expect(settingsPanelSource).toContain(
+    expect(settingsPanelSource).not.toContain("flex-wrap: wrap");
+    expect(settingsPanelSource).not.toContain(
       ".about-footer__identity {\n    text-align: center;",
+    );
+  });
+
+  it("keeps settings field groups in two columns at the minimum desktop width", () => {
+    [salaryAmountFieldsSource, workTimeFieldsSource, lunchBreakFieldsSource].forEach(
+      (source) => {
+        expect(source).toContain("grid-template-columns: repeat(2, minmax(0, 1fr))");
+        expect(source).not.toContain("@media (max-width: 460px)");
+      },
     );
   });
 

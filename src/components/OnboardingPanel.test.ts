@@ -4,6 +4,7 @@ import stepPreferencesSource from "./onboarding/StepPreferences.vue?raw";
 import stepWorkTimeSource from "./onboarding/StepWorkTime.vue?raw";
 import lunchBreakFieldsSource from "./settings/LunchBreakFields.vue?raw";
 import salaryAmountFieldsSource from "./settings/SalaryAmountFields.vue?raw";
+import workTimeFieldsSource from "./settings/WorkTimeFields.vue?raw";
 
 describe("onboarding panel", () => {
   it("renames the final setup step to usage preferences", () => {
@@ -42,5 +43,13 @@ describe("onboarding panel", () => {
     expect(salaryAmountFieldsSource).toContain("font-family: var(--font-dashboard)");
     expect(salaryAmountFieldsSource).toContain("font-variant-numeric: tabular-nums");
     expect(onboardingPanelSource).not.toContain("font-family: var(--font-mono)");
+  });
+
+  it("keeps first-run input digits at the same weight as settings inputs", () => {
+    [salaryAmountFieldsSource, workTimeFieldsSource, lunchBreakFieldsSource].forEach(
+      (source) => {
+        expect(source).toContain("font-weight: var(--field-value-weight)");
+      },
+    );
   });
 });

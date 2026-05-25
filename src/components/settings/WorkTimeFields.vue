@@ -61,6 +61,7 @@ const updateConfig = <Key extends keyof SalaryConfig>(
 <style scoped>
 .field-grid {
   display: grid;
+  --field-value-weight: 600;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -121,6 +122,7 @@ const updateConfig = <Key extends keyof SalaryConfig>(
   color: var(--text);
   font-family: var(--font-dashboard);
   font-size: var(--ui-font-sm, 14px);
+  font-weight: var(--field-value-weight);
   font-variant-numeric: tabular-nums;
   caret-color: var(--text);
   outline: none;
@@ -145,11 +147,5 @@ const updateConfig = <Key extends keyof SalaryConfig>(
 .field.is-invalid .field-input-wrap {
   border-color: rgb(245 158 11 / 0.68);
   box-shadow: 0 0 0 3px rgb(245 158 11 / 0.12);
-}
-
-@media (max-width: 460px) {
-  .field-grid--settings {
-    grid-template-columns: 1fr;
-  }
 }
 </style>
