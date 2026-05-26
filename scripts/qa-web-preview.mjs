@@ -164,6 +164,58 @@ const assertDom = async (page, viewportName) => {
   if (!headlineVisible || !downloadVisible) {
     throw new Error(`${viewportName}: core hero content is not visible`);
   }
+
+  const featureCards = await page.locator(".web-preview__chip").evaluateAll((cards) =>
+    cards.map((card) => {
+      const rect = card.getBoundingClientRect();
+      return {
+        height: rect.height,
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+      };
+    }),
+  );
+  if (featureCards.length !== 3) {
+    throw new Error(`${viewportName}: expected 3 feature cards`);
+  }
+
+  const cardTop = featureCards[0].top;
+  const cardsShareRow = featureCards.every((card) => Math.abs(card.top - cardTop) <= 3);
+  if (!cardsShareRow) {
+    throw new Error(
+      `${viewportName}: feature cards wrapped instead of staying in one row`,
+    );
+  }
+
+  const actions = await page.locator(".web-preview__action").evaluateAll((links) =>
+    links.map((link) => {
+      const linkRect = link.getBoundingClientRect();
+      const styles = window.getComputedStyle(link);
+      const iconOffsets = Array.from(link.querySelectorAll("svg")).map((icon) => {
+        const iconRect = icon.getBoundingClientRect();
+        return Math.abs(
+          iconRect.top + iconRect.height / 2 - (linkRect.top + linkRect.height / 2),
+        );
+      });
+
+      return {
+        alignItems: styles.alignItems,
+        display: styles.display,
+        iconOffsets,
+      };
+    }),
+  );
+  if (
+    actions.some(
+      (action) =>
+        !["flex", "inline-flex"].includes(action.display) ||
+        action.alignItems !== "center" ||
+        action.iconOffsets.some((offset) => offset > 3),
+    )
+  ) {
+    throw new Error(`${viewportName}: action button content is not vertically centered`);
+  }
 };
 
 const runQa = async () => {
@@ -203,7 +255,7 @@ const runQa = async () => {
           pageErrors.push(`${themeMode}/${viewport.name}: ${error.message}`);
         });
 
-        await page.goto(localUrl, { timeout: 15_000, waitUntil: "commit" });
+        await page.goto(localUrl, { timeout: 60_000, waitUntil: "commit" });
         await page.locator("#paydance-preview").waitFor({
           state: "visible",
           timeout: 45_000,

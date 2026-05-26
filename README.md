@@ -4,35 +4,21 @@
 </p>
 
 <p align="center">
-  <strong><font size="6">打工人的桌面实时工资看板</font></strong><br><br>
-  <font size="5">把今天已经挣到的钱，实时放在桌面上</font>
+  <strong><font size="6">桌面实时薪资仪表盘</font></strong>
 </p>
 
 <p align="center">
-  <a href="https://masterbao66.github.io/PayDance/"><img src="https://img.shields.io/badge/在线体验-打开网页端-18181B?style=for-the-badge" alt="在线体验"></a>
-  <a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe"><img src="https://img.shields.io/badge/下载-Windows%20便携版-EA8A00?style=for-the-badge" alt="下载 Windows 便携版"></a>
-</p>
-
-<p align="center">
-  <sub>先在线感受核心界面；系统托盘、窗口置顶、开机自启动和透明迷你窗请使用 Windows 桌面版。</sub>
+  <a href="https://masterbao66.github.io/PayDance/"><img src="https://img.shields.io/badge/优化完善在线体验-PayDance%20Web-18181B?style=for-the-badge&labelColor=18181B&color=EA8A00" alt="优化完善在线体验"></a>
+  <a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe"><img src="https://img.shields.io/badge/下载%20Windows%20便携版-pay--dance.exe-EA8A00?style=for-the-badge&labelColor=EA8A00&color=18181B" alt="下载 Windows 便携版"></a>
 </p>
 
 ## 产品简介与核心体验
 
-薪跳 PayDance 是一款面向 Windows 11 的桌面实时工资看板。配置薪资与上下班时间后，它会把“今天已经挣了多少钱”放在桌面上，随着工作时间实时增长。
+薪跳 PayDance 是一款面向 Windows 11 的桌面实时薪资仪表盘。配置薪资与上下班时间后，它会把今日入账放在桌面上，随着工作时间实时增长。
 
 主窗口展示今日入账、工作进度、剩余时间和今日预计；迷你悬浮窗口只保留金额，适合放在屏幕角落随时查看。
 
-## 产品预览
-
-<p align="center">
-  <img src="marketing-posters/poster-01-live-dashboard-v3.png" alt="薪跳 PayDance 实时收入看板" width="100%">
-</p>
-
-<p align="center">
-  <strong>实时收入看板</strong><br>
-  今日入账、工作进度、剩余时间和预计收入，一眼读懂。
-</p>
+## 界面体验
 
 <p align="center">
   <img src="marketing-posters/poster-02-three-step-setup-v3.png" alt="薪跳 PayDance 首次配置三步上手" width="100%">
@@ -56,12 +42,10 @@
 
 ## 快速下载与安全校验
 
-| 平台           | 推荐下载                                                                                        | 说明                         |
-| -------------- | ----------------------------------------------------------------------------------------------- | ---------------------------- |
-| 在线体验       | [PayDance Web Preview](https://masterbao66.github.io/PayDance/)                                 | 浏览器中快速感受核心界面     |
-| Windows 11     | [pay-dance.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe) | 便携版，下载后直接运行       |
-| GitHub Release | [最新正式版](https://github.com/MasterBao66/PayDance/releases/latest)                           | 查看更新说明、附件和校验文件 |
-| 源码           | [MasterBao66/PayDance](https://github.com/MasterBao66/PayDance)                                 | Vue 3 + TypeScript + Tauri 2 |
+| 平台 | 推荐下载 | 说明 |
+| --- | --- | --- |
+| 在线体验 | [PayDance Web](https://masterbao66.github.io/PayDance/) | 网页端，含所有核心功能 |
+| Windows 11 桌面端 | [pay-dance.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe) | 含开机自启动、窗口置顶、迷你悬浮模式、系统托盘等完整功能 |
 
 Release 页面会同时提供 `pay-dance.exe` 与 `pay-dance.exe.sha256`。Windows 对未签名二进制可能展示发布者验证提示，建议以 GitHub Release 来源与 SHA256 校验作为下载后的完整性确认。
 
@@ -82,9 +66,8 @@ Get-Content .\pay-dance.exe.sha256
 | UI          | Windows 11 风格、CSS Container Queries、@lucide/vue                                                                                        |
 | 本地存储    | `@tauri-apps/plugin-store`，配置写入本机应用数据目录                                                                                       |
 | 测试        | Vitest, @vue/test-utils, happy-dom, vue-tsc, cargo fmt, cargo clippy, cargo check                                                          |
-| 工程治理    | 品牌与敏感信息扫描、版本一致性检查、GitHub Actions Release、[PRODUCT.md](PRODUCT.md)、[DESIGN.md](DESIGN.md)、[CHANGELOG.md](CHANGELOG.md) |
 
-项目采用 Vue 3 + TypeScript + Tauri 2 架构，核心薪资逻辑、状态模型和大部分前端界面具备迁移潜力。当前正式验证 Windows 11，并提供 Web Preview 作为线上预览入口；下一阶段桌面端战略方向是迁移并验证 macOS 版本。迁移到其他平台时，托盘、置顶、透明窗口、迷你悬浮和系统材质仍需要按平台重新设计与验证。
+项目采用 Vue 3 + TypeScript + Tauri 2 架构，核心薪资逻辑、状态模型和前端界面服务于 Web Preview 与 Windows 桌面端。当前正式验证平台是 Windows 11，网页端用于在线体验与核心功能预览。
 
 ## 开发者指南
 

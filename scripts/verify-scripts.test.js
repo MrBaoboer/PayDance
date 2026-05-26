@@ -39,6 +39,11 @@ describe("verification scripts", () => {
     expect(qaScript).toContain("console");
     expect(qaScript).toContain("Web Preview");
     expect(qaScript).toContain("paydance-web-preview-qa-");
+    expect(qaScript).toContain(".web-preview__chip");
+    expect(qaScript).toContain(".web-preview__action");
+    expect(qaScript).toContain(
+      'page.goto(localUrl, { timeout: 60_000, waitUntil: "commit" })',
+    );
 
     const qaGuide = readRoot("docs/web-preview-qa.md");
     expect(qaGuide).toContain("本地服务 + 内置 Playwright + 多视口截图 + DOM/console 双校验");

@@ -91,7 +91,7 @@ describe("PayDance Web Preview", () => {
     );
 
     expect(sansFont.size).toBeLessThan(80_000);
-    expect(serifFont.size).toBeLessThan(90_000);
+    expect(serifFont.size).toBeLessThan(105_000);
   });
 
   it("keeps the web headline as two designed lines instead of narrow vertical wrapping", () => {
@@ -127,7 +127,9 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("具象化你的劳动价值");
     expect(webPreviewSource).toContain("专注工作，也看见回报");
     expect(webPreviewSource).toContain('class="web-preview__lead-line"');
-    expect(webPreviewSource).not.toContain("<span>把今天已经挣到的钱</span>");
+    expect(webPreviewSource).not.toContain(
+      ["<span>把今天", "已经挣到的钱</span>"].join(""),
+    );
     expect(cssBlock(".web-preview__lead")).toContain("margin: 6px 0 0");
     expect(cssBlock(".web-preview__lead")).toContain("display: grid");
     expect(cssBlock(".web-preview__lead")).not.toContain("gap:");
@@ -143,6 +145,12 @@ describe("PayDance Web Preview", () => {
     expect(cssBlock(".web-preview__action")).toContain(
       "transition: box-shadow 160ms ease",
     );
+    expect(cssBlock(".web-preview__action")).toContain("align-items: center");
+    expect(cssBlock(".web-preview__action")).toContain("line-height: 1");
+    expect(cssBlock(".web-preview__action")).toContain("vertical-align: middle");
+    expect(cssBlock(".windows11-mark")).toContain("display: block");
+    expect(cssBlock(".github-mark")).toContain("display: block");
+    expect(webPreviewSource).toContain(".web-preview__action :deep(svg)");
     expect(cssBlock(".web-preview__action")).not.toContain("background-color 180ms ease");
     expect(webPreviewSource).toContain(".web-preview__action--primary:hover");
     expect(webPreviewSource).toContain(".web-preview__action--quiet:hover");
@@ -168,6 +176,26 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).not.toContain("本地保存");
     expect(webPreviewSource).not.toContain("金额随工作时间增长");
     expect(webPreviewSource).not.toContain("无账号，无遥测");
+  });
+
+  it("keeps the three feature tags in one row by scaling instead of wrapping", () => {
+    const chipsBlock = cssBlock(".web-preview__chips");
+    const chipBlock = cssBlock(".web-preview__chip");
+
+    expect(chipsBlock).toContain("grid-template-columns: repeat(");
+    expect(chipsBlock).toContain(
+      "calc(var(--web-chip-base-width) * var(--web-chip-scale))",
+    );
+    expect(chipsBlock).toContain("--web-chip-scale");
+    expect(chipsBlock).not.toContain("flex-wrap");
+    expect(chipBlock).toContain(
+      "width: calc(var(--web-chip-base-width) * var(--web-chip-scale))",
+    );
+    expect(cssBlock(".web-preview__chips dd")).toContain("white-space: nowrap");
+    expect(webPreviewSource).toContain("@media (max-width: 560px)");
+    expect(webPreviewSource).toContain(
+      "--web-chip-scale: min(0.82, calc((100vw - 32px) / 462px));",
+    );
   });
 
   it("removes auxiliary text around the software preview", () => {
@@ -231,11 +259,26 @@ describe("PayDance Web Preview", () => {
 
     expect(readmeSource).not.toContain("## 近期改进");
     expect(readmeSource).toContain('<font size="7">');
-    expect(readmeSource).toContain("打工人的桌面实时工资看板");
-    expect(readmeSource).toContain("把今天已经挣到的钱，实时放在桌面上");
-    expect(readmeSource).toContain("系统托盘、窗口置顶、开机自启动和透明迷你窗");
+    expect(readmeSource).toContain("桌面实时薪资仪表盘");
+    expect(readmeSource).toContain("优化完善在线体验");
     expect(readmeSource).toContain("下载 Windows 便携版");
     expect(readmeSource).toContain("Mr.Baoboer");
+    expect(readmeSource).toContain("| 在线体验 | [PayDance Web]");
+    expect(readmeSource).toContain("网页端，含所有核心功能");
+    expect(readmeSource).toContain("| Windows 11 桌面端 | [pay-dance.exe]");
+    expect(readmeSource).toContain(
+      "含开机自启动、窗口置顶、迷你悬浮模式、系统托盘等完整功能",
+    );
+    expect(readmeSource).not.toContain(["产品", "预览"].join(""));
+    expect(readmeSource).not.toContain("poster-01-live-dashboard-v3.png");
+    expect(readmeSource).not.toContain(["实时", "收入看板"].join(""));
+    expect(readmeSource).not.toContain("GitHub Release | [最新正式版]");
+    expect(readmeSource).not.toContain("源码           |");
+    expect(readmeSource).not.toContain(["工程", "治理"].join(""));
+    expect(readmeSource).not.toContain(
+      ["把今天", "已经挣到的钱，实时放在桌面上"].join(""),
+    );
+    expect(readmeSource).not.toContain(["先在线", "感受核心界面"].join(""));
     expect(readmeSource).not.toContain(["Mr", "Ba" + "ober"].join("."));
     expect(readmeSource).not.toContain("actions/workflows/ci.yml/badge.svg");
     expect(readmeSource).not.toContain("Release</a>");

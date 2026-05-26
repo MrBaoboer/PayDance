@@ -262,9 +262,11 @@ const openRepository = async () => {
 .about-footer__copyright--centered {
   width: 100%;
   text-align: center;
+  transform: translateX(calc(var(--about-footer-nudge) * -1));
 }
 
 .about-footer__repo-card {
+  --about-footer-nudge: clamp(3px, 0.9cqw, 5px);
   display: grid;
   min-width: clamp(92px, 20cqw, 112px);
   align-content: center;

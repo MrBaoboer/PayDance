@@ -96,6 +96,12 @@ describe("settings panel", () => {
     expect(settingsPanelSource).toContain("min-width: clamp(96px, 20cqw, 112px)");
     expect(settingsPanelSource).toContain("min-width: clamp(92px, 20cqw, 112px)");
     expect(settingsPanelSource).toContain("width: clamp(92px, 20cqw, 108px)");
+    expect(settingsPanelSource).toContain(
+      "transform: translateX(calc(var(--about-footer-nudge) * -1))",
+    );
+    expect(settingsPanelSource).toContain(
+      "--about-footer-nudge: clamp(3px, 0.9cqw, 5px)",
+    );
     expect(settingsPanelSource).toContain("box-shadow: 0 7px 18px rgb(15 23 42 / 0.08)");
     expect(settingsPanelSource).toContain("width: 20px");
     expect(settingsPanelSource).not.toContain("flex-wrap: wrap");
