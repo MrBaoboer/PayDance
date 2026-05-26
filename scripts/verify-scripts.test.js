@@ -9,10 +9,28 @@ const readRoot = (path) => readFileSync(resolve(import.meta.dirname, "..", path)
 
 describe("verification scripts", () => {
   it("keeps fast and release verification paths explicit", () => {
+    expect(packageJson.scripts.dev).toContain("--mode desktop");
+    expect(packageJson.scripts.build).toBe("npm run build:desktop");
+    expect(packageJson.scripts["build:desktop"]).toContain("--mode desktop");
+    expect(packageJson.scripts["build:desktop"]).toContain(
+      "node scripts/assert-build-target.mjs desktop",
+    );
+    expect(packageJson.scripts["build:web"]).toContain("--mode web");
+    expect(packageJson.scripts["build:web"]).toContain(
+      "node scripts/assert-build-target.mjs web",
+    );
+
     expect(packageJson.scripts["verify:fast"]).toContain("npm run check:hygiene");
     expect(packageJson.scripts["verify:fast"]).toContain("npm run lint");
-    expect(packageJson.scripts["verify:fast"]).toContain("npm run build");
+    expect(packageJson.scripts["verify:fast"]).toContain("npm run build:desktop");
     expect(packageJson.scripts.verify).toBe("npm run verify:fast");
+
+    expect(readRoot("src-tauri/tauri.conf.json")).toContain(
+      '"beforeBuildCommand": "npm run build:desktop"',
+    );
+    expect(readRoot(".github/workflows/release.yml")).toContain(
+      "node scripts/assert-build-target.mjs desktop",
+    );
 
     expect(packageJson.scripts["verify:release"]).toContain("npm run version:check");
     expect(packageJson.scripts["verify:release"]).toContain("npm audit --omit=dev");

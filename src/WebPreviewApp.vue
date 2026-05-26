@@ -652,7 +652,7 @@ onBeforeUnmount(() => {
   align-items: center;
   grid-template-columns: minmax(420px, 520px) minmax(430px, 500px);
   justify-content: center;
-  column-gap: clamp(64px, 7vw, 112px);
+  column-gap: clamp(42px, 5vw, 76px);
   row-gap: clamp(40px, 6vh, 74px);
   margin: 0 auto;
   padding: clamp(34px, 6vh, 68px) 0 clamp(28px, 5vh, 56px);
@@ -1067,7 +1067,7 @@ onBeforeUnmount(() => {
   .web-preview__hero {
     min-height: auto;
     grid-template-columns: minmax(350px, 0.9fr) minmax(390px, 460px);
-    column-gap: clamp(34px, 5vw, 56px);
+    column-gap: clamp(28px, 4vw, 44px);
     row-gap: clamp(34px, 4vw, 48px);
     padding-top: clamp(34px, 6vw, 58px);
   }

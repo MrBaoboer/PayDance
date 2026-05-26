@@ -34,6 +34,7 @@ describe("main dashboard shell", () => {
   it("keeps DesktopApp.vue as a page shell under the 300-line architecture budget", () => {
     expect(desktopAppSource.split(/\r?\n/).length).toBeLessThanOrEqual(300);
     expect(desktopAppSource).not.toContain(':show-desktop-features="false"');
+    expect(desktopAppSource).toContain(':show-desktop-features="true"');
     expect(desktopAppSource).toContain("@toggle-always-on-top");
     expect(desktopAppSource).toContain("@toggle-mini-mode");
     expect(desktopAppSource).toContain("@update:autostart-enabled");

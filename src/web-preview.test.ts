@@ -116,7 +116,7 @@ describe("PayDance Web Preview", () => {
       "grid-template-columns: minmax(420px, 520px) minmax(430px, 500px)",
     );
     expect(cssBlock(".web-preview__hero")).toContain(
-      "column-gap: clamp(64px, 7vw, 112px)",
+      "column-gap: clamp(42px, 5vw, 76px)",
     );
     expect(cssBlock(".web-preview__copy")).toContain("gap: clamp(18px, 2.1vw, 28px)");
     expect(webPreviewSource).toContain("@media (max-width: 1120px)");
@@ -295,9 +295,28 @@ describe("PayDance Web Preview", () => {
     expect(readmeSource).toContain('<font size="7">');
     expect(readmeSource).toContain("桌面实时工资看板");
     expect(readmeSource).not.toContain(String.fromCodePoint(0x4eea, 0x8868, 0x76d8));
-    expect(readmeSource).toContain("优化完善在线体验");
-    expect(readmeSource).toContain("下载 Windows 便携版");
+    expect(readmeSource).toContain(">在线体验</");
+    expect(readmeSource).toContain(">Windows 11 桌面端</");
+    expect(readmeSource).not.toContain("shields.io");
+    expect(readmeSource).not.toContain("优化完善在线体验");
+    expect(readmeSource).not.toContain("下载 Windows 便携版");
     expect(readmeSource).toContain("Mr.Baoboer");
+    for (const heading of [
+      "## 产品简介",
+      "## 界面体验",
+      "## 核心特性",
+      "## 快速下载",
+      "## 技术架构",
+      "## 开发者指南",
+      "## 隐私声明",
+      "## 作者与许可",
+    ]) {
+      expect(readmeSource).toContain(heading);
+    }
+    expect(readmeSource).not.toContain("## 产品简介与核心体验");
+    expect(readmeSource).not.toContain("## 快速下载与安全校验");
+    expect(readmeSource).not.toContain("## 技术架构与工程质量");
+    expect(readmeSource).not.toContain("## 隐私声明、作者与许可");
     expect(readmeSource).toContain("| 在线体验 | [PayDance Web]");
     expect(readmeSource).toContain("网页端，含所有核心功能");
     expect(readmeSource).toContain("| Windows 11 桌面端 | [pay-dance.exe]");

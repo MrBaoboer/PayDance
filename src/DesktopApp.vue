@@ -270,6 +270,7 @@ onBeforeUnmount(() => {
       :middle-stat="middleStat"
       :salary-mode-label="salaryModeLabel"
       :should-show-onboarding="shouldShowOnboarding"
+      :show-desktop-features="true"
       :snapshot="snapshot"
       :status-text="statusText"
       :theme-mode="themeMode"

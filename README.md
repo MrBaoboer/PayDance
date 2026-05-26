@@ -8,11 +8,12 @@
 </p>
 
 <p align="center">
-  <a href="https://masterbao66.github.io/PayDance/"><img src="https://img.shields.io/badge/优化完善在线体验-PayDance%20Web-18181B?style=for-the-badge&labelColor=18181B&color=EA8A00" alt="优化完善在线体验"></a>
-  <a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe"><img src="https://img.shields.io/badge/下载%20Windows%20便携版-pay--dance.exe-EA8A00?style=for-the-badge&labelColor=EA8A00&color=18181B" alt="下载 Windows 便携版"></a>
+  <a href="https://masterbao66.github.io/PayDance/"><kbd><strong>在线体验</strong></kbd></a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe"><kbd><strong>Windows 11 桌面端</strong></kbd></a>
 </p>
 
-## 产品简介与核心体验
+## 产品简介
 
 薪跳 PayDance 是一款面向 Windows 11 的桌面实时工资看板。配置薪资与上下班时间后，它会把今日入账放在桌面上，随着工作时间实时增长。
 
@@ -40,7 +41,7 @@
 - **在线体验入口**：Web Preview 可在浏览器中预览核心看板、首次配置和迷你悬浮手感。
 - **发布可靠性**：Release 附带 SHA256 校验，CI 覆盖代码卫生、行为测试、桌面构建和 Web Preview 部署。
 
-## 快速下载与安全校验
+## 快速下载
 
 | 平台 | 推荐下载 | 说明 |
 | --- | --- | --- |
@@ -56,7 +57,7 @@ Get-Content .\pay-dance.exe.sha256
 
 若两者校验值一致，即可确认本地文件与 Release 附件匹配；若不一致，请不要运行该文件。
 
-## 技术架构与工程质量
+## 技术架构
 
 | 层级        | 技术与实践                                                                                                                                 |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -104,9 +105,11 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAct
 
 完整测试、代码卫生扫描、版本一致性检查与发布构建由 CI / Release workflow 自动执行。日常开发只需要关注核心启动与构建命令即可。
 
-## 隐私声明、作者与许可
+## 隐私声明
 
 薪跳 PayDance 坚持本地优先：不需要登录账号，不上传薪资数据，不包含遥测、远程同步或在线账户体系。应用配置通过 Tauri Store 保存在本机应用数据目录中的 `salary-settings.json`，主要包括薪资、工作时间、主题、置顶状态、迷你悬浮透明度、金额变换模式和首次配置状态。
+
+## 作者与许可
 
 薪跳 PayDance 由 Mr.Baoboer 设计与开发。当前仓库采用保留权利许可，具体见 [LICENSE](LICENSE)。代码可用于审阅与学习；未经作者许可，请勿二次发布、商用分发或移除作者归属信息。
 
