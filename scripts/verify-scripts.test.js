@@ -5,8 +5,7 @@ import { describe, expect, it } from "vitest";
 const packageJson = JSON.parse(
   readFileSync(resolve(import.meta.dirname, "..", "package.json"), "utf8"),
 );
-const readRoot = (path) =>
-  readFileSync(resolve(import.meta.dirname, "..", path), "utf8");
+const readRoot = (path) => readFileSync(resolve(import.meta.dirname, "..", path), "utf8");
 
 describe("verification scripts", () => {
   it("keeps fast and release verification paths explicit", () => {
@@ -24,9 +23,7 @@ describe("verification scripts", () => {
   });
 
   it("codifies Web Preview QA through the Codex Playwright workflow", () => {
-    expect(packageJson.scripts["qa:web-preview"]).toBe(
-      "node scripts/qa-web-preview.mjs",
-    );
+    expect(packageJson.scripts["qa:web-preview"]).toBe("node scripts/qa-web-preview.mjs");
 
     const qaScript = readRoot("scripts/qa-web-preview.mjs");
     expect(qaScript).toContain("playwright");
@@ -41,13 +38,21 @@ describe("verification scripts", () => {
     expect(qaScript).toContain("paydance-web-preview-qa-");
     expect(qaScript).toContain(".web-preview__chip");
     expect(qaScript).toContain(".web-preview__action");
+    expect(qaScript).toContain(".web-preview__action-label");
+    expect(qaScript).toContain("assertThemeToggleEdge");
+    expect(qaScript).toContain("切换到深色模式");
+    expect(qaScript).toContain("切换到浅色模式");
     expect(qaScript).toContain(
       'page.goto(localUrl, { timeout: 60_000, waitUntil: "commit" })',
     );
 
     const qaGuide = readRoot("docs/web-preview-qa.md");
-    expect(qaGuide).toContain("本地服务 + 内置 Playwright + 多视口截图 + DOM/console 双校验");
+    expect(qaGuide).toContain(
+      "本地服务 + 内置 Playwright + 多视口截图 + DOM/console 双校验",
+    );
     expect(qaGuide).toContain("不要使用 headless Chrome/CDP/CLI screenshot");
-    expect(qaGuide).toContain("C:\\Users\\mrbao\\AppData\\Local\\Temp\\paydance-web-preview-qa-{version}");
+    expect(qaGuide).toContain(
+      "C:\\Users\\mrbao\\AppData\\Local\\Temp\\paydance-web-preview-qa-{version}",
+    );
   });
 });

@@ -123,15 +123,14 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("@media (max-width: 820px)");
   });
 
-  it("uses a two-line lead with more breathing room below the headline", () => {
-    expect(webPreviewSource).toContain("具象化你的劳动价值");
-    expect(webPreviewSource).toContain("专注工作，也看见回报");
-    expect(webPreviewSource).toContain('class="web-preview__lead-line"');
+  it("uses the approved single-line lead without changing the hero structure", () => {
+    expect(webPreviewSource).toContain("具象化你的劳动价值，专注工作，也看见回报");
+    expect(webPreviewSource).not.toContain('class="web-preview__lead-line"');
     expect(webPreviewSource).not.toContain(
       ["<span>把今天", "已经挣到的钱</span>"].join(""),
     );
     expect(cssBlock(".web-preview__lead")).toContain("margin: 6px 0 0");
-    expect(cssBlock(".web-preview__lead")).toContain("display: grid");
+    expect(cssBlock(".web-preview__lead")).toContain("display: block");
     expect(cssBlock(".web-preview__lead")).not.toContain("gap:");
   });
 
@@ -140,7 +139,10 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("github-mark");
     expect(webPreviewSource).toContain("Download");
     expect(webPreviewSource).toContain("Windows11Mark");
-    expect(webPreviewSource).not.toContain("translateY(-1px)");
+    expect(webPreviewSource).toContain('class="web-preview__action-label"');
+    expect(cssBlock(".web-preview__action-label")).toContain(
+      "transform: translateY(-0.75px)",
+    );
     expect(webPreviewSource).toContain(".web-preview__action--quiet {\n  gap: 3px;");
     expect(cssBlock(".web-preview__action")).toContain(
       "transition: box-shadow 160ms ease",
@@ -169,7 +171,11 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("隐私优先");
     expect(webPreviewSource).toContain("所有数据本地处理");
     expect(webPreviewSource).toContain('class="web-preview__chip-icon"');
-    expect(webPreviewSource).toContain("text-align: center");
+    expect(webPreviewSource).toContain('class="web-preview__chip-copy"');
+    expect(cssBlock(".web-preview__chip")).toContain("grid-template-columns");
+    expect(cssBlock(".web-preview__chip")).toContain("text-align: left");
+    expect(cssBlock(".web-preview__chip")).not.toContain("border:");
+    expect(cssBlock(".web-preview__chip")).not.toContain("background:");
     expect(webPreviewSource).not.toContain("秒秒入账");
     expect(webPreviewSource).not.toContain("角落常驻");
     expect(webPreviewSource).not.toContain("隐私安心");
@@ -191,6 +197,7 @@ describe("PayDance Web Preview", () => {
     expect(chipBlock).toContain(
       "width: calc(var(--web-chip-base-width) * var(--web-chip-scale))",
     );
+    expect(chipBlock).toContain("align-items: center");
     expect(cssBlock(".web-preview__chips dd")).toContain("white-space: nowrap");
     expect(webPreviewSource).toContain("@media (max-width: 560px)");
     expect(webPreviewSource).toContain(
@@ -245,6 +252,20 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain(".web-preview__frame :deep(.app-window)");
     expect(webPreviewSource).toContain("background: var(--panel)");
     expect(webPreviewSource).toContain("backdrop-filter: none");
+  });
+
+  it("stabilizes the preview frame edge during theme switching", () => {
+    const frameBlock = cssBlock(".web-preview__frame");
+
+    expect(frameBlock).toContain("border: 0");
+    expect(frameBlock).toContain("background-clip: padding-box");
+    expect(frameBlock).toContain("contain: paint");
+    expect(frameBlock).toContain("inset 0 0 0 1px var(--web-stage-ring)");
+    expect(webPreviewSource).toContain(".web-preview__frame.is-theme-syncing");
+    expect(webPreviewSource).not.toContain("border: 1px solid var(--web-stage-ring)");
+    expect(cssBlock(".theme-dark.web-preview")).toContain(
+      "--web-stage-ring: rgb(255 255 255 / 0.08)",
+    );
   });
 
   it("keeps the web preview window close to the desktop default size", () => {

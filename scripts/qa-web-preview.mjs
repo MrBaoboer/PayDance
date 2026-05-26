@@ -198,11 +198,20 @@ const assertDom = async (page, viewportName) => {
           iconRect.top + iconRect.height / 2 - (linkRect.top + linkRect.height / 2),
         );
       });
+      const labelOffsets = Array.from(
+        link.querySelectorAll(".web-preview__action-label"),
+      ).map((label) => {
+        const labelRect = label.getBoundingClientRect();
+        return Math.abs(
+          labelRect.top + labelRect.height / 2 - (linkRect.top + linkRect.height / 2),
+        );
+      });
 
       return {
         alignItems: styles.alignItems,
         display: styles.display,
         iconOffsets,
+        labelOffsets,
       };
     }),
   );
@@ -211,10 +220,50 @@ const assertDom = async (page, viewportName) => {
       (action) =>
         !["flex", "inline-flex"].includes(action.display) ||
         action.alignItems !== "center" ||
-        action.iconOffsets.some((offset) => offset > 3),
+        action.iconOffsets.some((offset) => offset > 3) ||
+        action.labelOffsets.length !== 1 ||
+        action.labelOffsets.some((offset) => offset > 3),
     )
   ) {
     throw new Error(`${viewportName}: action button content is not vertically centered`);
+  }
+};
+
+const assertThemeToggleEdge = async (page, viewportName) => {
+  const themeToggleLabels = ["切换到深色模式", "切换到浅色模式"];
+  const themeToggleNamePattern = new RegExp(themeToggleLabels.join("|"));
+
+  for (let index = 0; index < 8; index += 1) {
+    await page.getByRole("button", { name: themeToggleNamePattern }).click();
+    await page.waitForTimeout(90);
+
+    const frameEdge = await page.locator(".web-preview__frame").evaluate((frame) => {
+      const styles = window.getComputedStyle(frame);
+      return {
+        borderBottomWidth: styles.borderBottomWidth,
+        borderLeftWidth: styles.borderLeftWidth,
+        borderRightWidth: styles.borderRightWidth,
+        borderTopWidth: styles.borderTopWidth,
+        boxShadow: styles.boxShadow,
+        visible: frame.getBoundingClientRect().width > 0,
+      };
+    });
+
+    const borderWidths = [
+      frameEdge.borderBottomWidth,
+      frameEdge.borderLeftWidth,
+      frameEdge.borderRightWidth,
+      frameEdge.borderTopWidth,
+    ];
+    if (
+      !frameEdge.visible ||
+      borderWidths.some((width) => width !== "0px") ||
+      !frameEdge.boxShadow.includes("inset")
+    ) {
+      throw new Error(
+        `${viewportName}: preview frame edge changed during theme switching`,
+      );
+    }
   }
 };
 
@@ -261,6 +310,7 @@ const runQa = async () => {
           timeout: 45_000,
         });
         await assertDom(page, `${themeMode}/${viewport.name}`);
+        await assertThemeToggleEdge(page, `${themeMode}/${viewport.name}`);
 
         const screenshotPath = join(
           qaDir,

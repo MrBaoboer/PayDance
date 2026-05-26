@@ -309,10 +309,7 @@ onBeforeUnmount(() => {
           <span class="web-preview__headline-main">看见每一秒的</span>
           <span class="web-preview__headline-accent">收入跳动</span>
         </h1>
-        <p class="web-preview__lead">
-          <span class="web-preview__lead-line">具象化你的劳动价值</span>
-          <span class="web-preview__lead-line">专注工作，也看见回报</span>
-        </p>
+        <p class="web-preview__lead">具象化你的劳动价值，专注工作，也看见回报</p>
 
         <nav class="web-preview__actions" aria-label="网页端操作">
           <a
@@ -320,7 +317,7 @@ onBeforeUnmount(() => {
             href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe"
           >
             <Windows11Mark />
-            下载 Windows 版
+            <span class="web-preview__action-label">下载 Windows 版</span>
             <Download :size="16" />
           </a>
           <a class="web-preview__action web-preview__action--quiet" :href="repositoryUrl">
@@ -331,7 +328,7 @@ onBeforeUnmount(() => {
                 d="M12 2C6.48 2 2 6.59 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49 0-.24-.01-.89-.01-1.75-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.38 9.38 0 0 1 12 6.98c.85 0 1.7.12 2.5.35 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.47-.01 2.81 0 .27.18.59.69.49A10.24 10.24 0 0 0 22 12.25C22 6.59 17.52 2 12 2Z"
               />
             </svg>
-            GitHub
+            <span class="web-preview__action-label">GitHub</span>
           </a>
         </nav>
 
@@ -340,21 +337,21 @@ onBeforeUnmount(() => {
             <span class="web-preview__chip-icon" aria-hidden="true">
               <Zap :size="18" :stroke-width="2.6" />
             </span>
-            <dt>毫秒级更新</dt>
+            <dt class="web-preview__chip-copy">毫秒级更新</dt>
             <dd>今日收入实时跳动</dd>
           </div>
           <div class="web-preview__chip">
             <span class="web-preview__chip-icon" aria-hidden="true">
               <Focus :size="18" :stroke-width="2.4" />
             </span>
-            <dt>安心专注</dt>
+            <dt class="web-preview__chip-copy">安心专注</dt>
             <dd>轻量窗口，静默运行</dd>
           </div>
           <div class="web-preview__chip">
             <span class="web-preview__chip-icon" aria-hidden="true">
               <ShieldCheck :size="18" :stroke-width="2.4" />
             </span>
-            <dt>隐私优先</dt>
+            <dt class="web-preview__chip-copy">隐私优先</dt>
             <dd>所有数据本地处理</dd>
           </div>
         </dl>
@@ -514,6 +511,7 @@ onBeforeUnmount(() => {
   overflow-x: hidden;
   overflow-y: auto;
   background:
+    radial-gradient(circle at 19% 78%, rgb(217 119 6 / 0.035) 0, transparent 27%),
     radial-gradient(
       circle at 79% 34%,
       color-mix(in srgb, var(--income-accent) 11%, transparent) 0,
@@ -530,23 +528,24 @@ onBeforeUnmount(() => {
 }
 
 .theme-dark.web-preview {
-  --web-orbit: rgb(245 158 11 / 0.16);
-  --web-page-bg: rgb(12 12 14);
-  --web-stage-glow: rgb(245 158 11 / 0.1);
+  --web-orbit: rgb(245 158 11 / 0.12);
+  --web-page-bg: rgb(10 10 11);
+  --web-stage-glow: rgb(245 158 11 / 0.08);
   --web-stage-panel: rgb(18 18 20);
-  --web-stage-ring: rgb(255 255 255 / 0.13);
+  --web-stage-ring: rgb(255 255 255 / 0.08);
   --web-surface: rgb(24 24 27 / 0.78);
   --web-surface-strong: rgb(34 34 38 / 0.94);
-  --web-border: rgb(255 255 255 / 0.11);
-  --web-shadow: 0 30px 88px rgb(0 0 0 / 0.38);
+  --web-border: rgb(255 255 255 / 0.1);
+  --web-shadow: 0 30px 88px rgb(0 0 0 / 0.42);
   background:
     radial-gradient(
       ellipse at 76% 36%,
-      color-mix(in srgb, var(--income-accent) 10%, transparent) 0,
+      color-mix(in srgb, var(--income-accent) 8%, transparent) 0,
       transparent 29%
     ),
-    radial-gradient(circle at 58% 48%, rgb(255 255 255 / 0.035) 0, transparent 32%),
-    linear-gradient(145deg, rgb(7 7 9) 0%, var(--web-page-bg) 60%, rgb(18 15 12) 100%);
+    radial-gradient(circle at 21% 72%, rgb(245 158 11 / 0.04) 0, transparent 30%),
+    radial-gradient(circle at 58% 48%, rgb(255 255 255 / 0.026) 0, transparent 32%),
+    linear-gradient(145deg, rgb(7 7 8) 0%, var(--web-page-bg) 60%, rgb(16 13 10) 100%);
 }
 
 .web-preview__topbar {
@@ -648,7 +647,7 @@ onBeforeUnmount(() => {
 }
 
 .web-preview__lead {
-  display: grid;
+  display: block;
   max-width: 540px;
   margin: 6px 0 0;
   color: var(--muted);
@@ -656,10 +655,6 @@ onBeforeUnmount(() => {
   font-weight: 520;
   line-height: 1.5;
   white-space: nowrap;
-}
-
-.web-preview__lead-line {
-  display: block;
 }
 
 .web-preview__actions {
@@ -697,6 +692,12 @@ onBeforeUnmount(() => {
 .web-preview__action :deep(svg) {
   display: block;
   flex: 0 0 auto;
+}
+
+.web-preview__action-label {
+  display: block;
+  line-height: 1;
+  transform: translateY(-0.75px);
 }
 
 .web-preview__action--primary {
@@ -762,24 +763,24 @@ onBeforeUnmount(() => {
   display: grid;
   width: calc(var(--web-chip-base-width) * var(--web-chip-scale));
   min-width: 0;
-  justify-items: center;
-  border: 1px solid var(--web-border);
-  border-radius: calc(16px * var(--web-chip-scale));
-  background: color-mix(in srgb, var(--web-surface) 86%, transparent);
-  padding: calc(18px * var(--web-chip-scale)) calc(16px * var(--web-chip-scale))
-    calc(17px * var(--web-chip-scale));
-  text-align: center;
+  align-items: center;
+  grid-template-columns: calc(30px * var(--web-chip-scale)) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: calc(10px * var(--web-chip-scale));
+  justify-items: start;
+  padding: 0;
+  text-align: left;
 }
 
 .web-preview__chip-icon {
   display: grid;
-  width: calc(36px * var(--web-chip-scale));
-  height: calc(36px * var(--web-chip-scale));
+  width: calc(30px * var(--web-chip-scale));
+  height: calc(30px * var(--web-chip-scale));
+  grid-row: 1 / span 2;
   place-items: center;
   border-radius: 999px;
   background: color-mix(in srgb, var(--income-accent) 11%, transparent);
   color: var(--income-accent);
-  margin-bottom: calc(12px * var(--web-chip-scale));
 }
 
 .web-preview__chip-icon svg {
@@ -856,17 +857,27 @@ onBeforeUnmount(() => {
   z-index: 1;
   width: min(100%, 480px);
   height: 460px;
+  contain: paint;
   border-radius: 28px;
-  border: 1px solid var(--web-stage-ring);
+  border: 0;
   background: var(--web-stage-panel);
-  box-shadow: var(--web-shadow);
+  background-clip: padding-box;
+  box-shadow:
+    inset 0 0 0 1px var(--web-stage-ring),
+    var(--web-shadow);
+}
+
+.web-preview__frame.is-theme-syncing {
+  box-shadow:
+    inset 0 0 0 1px var(--web-stage-ring),
+    var(--web-shadow);
 }
 
 .theme-dark.web-preview .web-preview__frame {
   box-shadow:
+    inset 0 0 0 1px var(--web-stage-ring),
     0 36px 96px rgb(0 0 0 / 0.5),
-    0 0 0 1px rgb(255 255 255 / 0.02),
-    0 0 68px rgb(245 158 11 / 0.09);
+    0 0 68px rgb(245 158 11 / 0.07);
 }
 
 .web-preview__frame :deep(.app-window) {
