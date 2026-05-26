@@ -47,7 +47,7 @@ pub fn run() {
 
             TrayIconBuilder::with_id("pay-dance-tray")
                 .icon(icon)
-                .tooltip("薪跳 · 桌面实时薪资仪表盘")
+                .tooltip("薪跳 · 桌面实时工资看板")
                 .menu(&menu)
                 .show_menu_on_left_click(false)
                 .on_tray_icon_event(|tray, event| {

@@ -331,30 +331,6 @@ onBeforeUnmount(() => {
             <span class="web-preview__action-label">GitHub</span>
           </a>
         </nav>
-
-        <dl class="web-preview__chips" aria-label="产品核心优势">
-          <div class="web-preview__chip">
-            <span class="web-preview__chip-icon" aria-hidden="true">
-              <Zap :size="18" :stroke-width="2.6" />
-            </span>
-            <dt class="web-preview__chip-copy">毫秒级更新</dt>
-            <dd>今日收入实时跳动</dd>
-          </div>
-          <div class="web-preview__chip">
-            <span class="web-preview__chip-icon" aria-hidden="true">
-              <Focus :size="18" :stroke-width="2.4" />
-            </span>
-            <dt class="web-preview__chip-copy">安心专注</dt>
-            <dd>轻量窗口，静默运行</dd>
-          </div>
-          <div class="web-preview__chip">
-            <span class="web-preview__chip-icon" aria-hidden="true">
-              <ShieldCheck :size="18" :stroke-width="2.4" />
-            </span>
-            <dt class="web-preview__chip-copy">隐私优先</dt>
-            <dd>所有数据本地处理</dd>
-          </div>
-        </dl>
       </div>
 
       <div
@@ -456,6 +432,32 @@ onBeforeUnmount(() => {
           </section>
         </div>
       </div>
+
+      <div class="web-preview__feature-strip">
+        <dl class="web-preview__chips" aria-label="产品核心优势">
+          <div class="web-preview__chip">
+            <span class="web-preview__chip-icon" aria-hidden="true">
+              <Zap :size="18" :stroke-width="2.6" />
+            </span>
+            <dt class="web-preview__chip-copy">毫秒级更新</dt>
+            <dd>今日收入实时跳动</dd>
+          </div>
+          <div class="web-preview__chip">
+            <span class="web-preview__chip-icon" aria-hidden="true">
+              <Focus :size="18" :stroke-width="2.4" />
+            </span>
+            <dt class="web-preview__chip-copy">安心专注</dt>
+            <dd>轻量窗口，静默运行</dd>
+          </div>
+          <div class="web-preview__chip">
+            <span class="web-preview__chip-icon" aria-hidden="true">
+              <ShieldCheck :size="18" :stroke-width="2.4" />
+            </span>
+            <dt class="web-preview__chip-copy">隐私优先</dt>
+            <dd>所有数据本地处理</dd>
+          </div>
+        </dl>
+      </div>
     </section>
 
     <footer class="web-preview__footer" aria-label="作者归属">
@@ -494,7 +496,7 @@ onBeforeUnmount(() => {
     "PayDance Web Serif", "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", serif;
   --web-font-ui:
     "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
-  --web-max-width: 1180px;
+  --web-max-width: 1280px;
   --web-orbit: rgb(217 119 6 / 0.18);
   --web-page-bg: rgb(247 247 245);
   --web-stage-glow: rgb(217 119 6 / 0.08);
@@ -504,6 +506,8 @@ onBeforeUnmount(() => {
   --web-surface-strong: rgb(255 255 255 / 0.96);
   --web-border: rgb(24 24 27 / 0.11);
   --web-shadow: 0 32px 92px rgb(24 24 27 / 0.12);
+  position: relative;
+  isolation: isolate;
   display: flex;
   height: 100dvh;
   min-height: 100dvh;
@@ -527,6 +531,36 @@ onBeforeUnmount(() => {
   padding: clamp(24px, 3.6vw, 54px) clamp(24px, 5vw, 74px) clamp(18px, 3vw, 34px);
 }
 
+.web-preview::before,
+.web-preview::after {
+  position: fixed;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+}
+
+.web-preview::before {
+  right: clamp(44px, 10vw, 168px);
+  bottom: clamp(90px, 14vh, 178px);
+  width: min(620px, 42vw);
+  height: min(420px, 34vw);
+  border: 1px solid color-mix(in srgb, var(--income-accent) 13%, transparent);
+  border-radius: 50%;
+  opacity: 0.46;
+  transform: rotate(-12deg);
+}
+
+.web-preview::after {
+  left: clamp(70px, 11vw, 180px);
+  bottom: clamp(86px, 12vh, 156px);
+  width: min(300px, 25vw);
+  height: 42px;
+  border-radius: 999px;
+  background: rgb(24 24 27 / 0.035);
+  filter: blur(22px);
+  opacity: 0.74;
+}
+
 .theme-dark.web-preview {
   --web-orbit: rgb(245 158 11 / 0.12);
   --web-page-bg: rgb(10 10 11);
@@ -546,6 +580,16 @@ onBeforeUnmount(() => {
     radial-gradient(circle at 21% 72%, rgb(245 158 11 / 0.04) 0, transparent 30%),
     radial-gradient(circle at 58% 48%, rgb(255 255 255 / 0.026) 0, transparent 32%),
     linear-gradient(145deg, rgb(7 7 8) 0%, var(--web-page-bg) 60%, rgb(16 13 10) 100%);
+}
+
+.theme-dark.web-preview::before {
+  border-color: color-mix(in srgb, var(--income-accent) 20%, transparent);
+  opacity: 0.34;
+}
+
+.theme-dark.web-preview::after {
+  background: rgb(0 0 0 / 0.32);
+  opacity: 0.82;
 }
 
 .web-preview__topbar {
@@ -600,13 +644,16 @@ onBeforeUnmount(() => {
 }
 
 .web-preview__hero {
+  position: relative;
+  z-index: 1;
   display: grid;
   width: min(100%, var(--web-max-width));
   flex: 1;
   align-items: center;
-  grid-template-columns: minmax(360px, 440px) minmax(430px, 480px);
+  grid-template-columns: minmax(420px, 520px) minmax(430px, 500px);
   justify-content: center;
-  gap: clamp(60px, 7vw, 104px);
+  column-gap: clamp(64px, 7vw, 112px);
+  row-gap: clamp(40px, 6vh, 74px);
   margin: 0 auto;
   padding: clamp(34px, 6vh, 68px) 0 clamp(28px, 5vh, 56px);
 }
@@ -615,7 +662,7 @@ onBeforeUnmount(() => {
   display: grid;
   align-content: start;
   justify-items: start;
-  gap: clamp(20px, 2.5vw, 32px);
+  gap: clamp(18px, 2.1vw, 28px);
   font-family: var(--web-font-ui);
 }
 
@@ -649,7 +696,7 @@ onBeforeUnmount(() => {
 .web-preview__lead {
   display: block;
   max-width: 540px;
-  margin: 6px 0 0;
+  margin: 2px 0 0;
   color: var(--muted);
   font-size: clamp(17px, 1.24vw, 20px);
   font-weight: 520;
@@ -663,18 +710,19 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: flex-start;
   gap: 12px;
+  margin-top: clamp(8px, 1.2vw, 16px);
 }
 
 .web-preview__action {
   display: inline-flex;
-  height: 50px;
+  height: 54px;
   align-items: center;
   justify-content: center;
   gap: 8px;
   border: 1px solid var(--web-border);
   border-radius: 999px;
   background: var(--web-surface);
-  padding: 0 22px;
+  padding: 0 24px;
   color: var(--text);
   font-family: var(--web-font-action);
   font-size: 15px;
@@ -742,21 +790,28 @@ onBeforeUnmount(() => {
   flex: 0 0 auto;
 }
 
+.web-preview__feature-strip {
+  display: flex;
+  width: 100%;
+  grid-column: 1 / -1;
+  justify-content: center;
+  margin-top: clamp(6px, 1.6vh, 18px);
+}
+
 .web-preview__chips {
-  --web-chip-base-width: 146px;
-  --web-chip-gap: 12px;
+  --web-chip-base-width: 188px;
+  --web-chip-gap: 0px;
   --web-chip-scale: 1;
   display: grid;
-  max-width: calc(
-    (var(--web-chip-base-width) * 3 + var(--web-chip-gap) * 2) * var(--web-chip-scale)
-  );
+  width: 100%;
+  max-width: min(100%, 860px);
   grid-template-columns: repeat(
     3,
     calc(var(--web-chip-base-width) * var(--web-chip-scale))
   );
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: calc(var(--web-chip-gap) * var(--web-chip-scale));
-  margin: 2px 0 0;
+  margin: 0;
 }
 
 .web-preview__chip {
@@ -764,9 +819,9 @@ onBeforeUnmount(() => {
   width: calc(var(--web-chip-base-width) * var(--web-chip-scale));
   min-width: 0;
   align-items: center;
-  grid-template-columns: calc(30px * var(--web-chip-scale)) minmax(0, 1fr);
+  grid-template-columns: calc(46px * var(--web-chip-scale)) minmax(0, 1fr);
   grid-template-rows: auto auto;
-  column-gap: calc(10px * var(--web-chip-scale));
+  column-gap: calc(14px * var(--web-chip-scale));
   justify-items: start;
   padding: 0;
   text-align: left;
@@ -774,38 +829,45 @@ onBeforeUnmount(() => {
 
 .web-preview__chip-icon {
   display: grid;
-  width: calc(30px * var(--web-chip-scale));
-  height: calc(30px * var(--web-chip-scale));
+  width: calc(46px * var(--web-chip-scale));
+  height: calc(46px * var(--web-chip-scale));
   grid-row: 1 / span 2;
   place-items: center;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--income-accent) 11%, transparent);
+  border: 1px solid color-mix(in srgb, var(--income-accent) 18%, transparent);
+  background: color-mix(in srgb, var(--income-accent) 9%, transparent);
   color: var(--income-accent);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.34);
 }
 
 .web-preview__chip-icon svg {
-  width: calc(18px * var(--web-chip-scale));
-  height: calc(18px * var(--web-chip-scale));
+  width: calc(24px * var(--web-chip-scale));
+  height: calc(24px * var(--web-chip-scale));
 }
 
 .theme-dark.web-preview .web-preview__chip-icon {
-  background: color-mix(in srgb, var(--income-accent) 16%, transparent);
+  border-color: color-mix(in srgb, var(--income-accent) 22%, transparent);
+  background: color-mix(in srgb, var(--income-accent) 12%, transparent);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.035),
+    0 0 32px rgb(245 158 11 / 0.1);
 }
 
 .web-preview__chips dt {
   color: var(--text);
   font-family: var(--web-font-action);
-  font-size: calc(15px * var(--web-chip-scale));
+  font-size: calc(17px * var(--web-chip-scale));
   font-weight: 820;
+  line-height: 1.1;
 }
 
 .web-preview__chips dd {
   margin: 0;
-  margin-top: calc(5px * var(--web-chip-scale));
+  margin-top: calc(7px * var(--web-chip-scale));
   color: var(--muted);
-  font-size: calc(13px * var(--web-chip-scale));
+  font-size: calc(14px * var(--web-chip-scale));
   font-weight: 520;
-  line-height: 1.45;
+  line-height: 1.36;
   white-space: nowrap;
 }
 
@@ -1004,8 +1066,9 @@ onBeforeUnmount(() => {
 @media (max-width: 1120px) {
   .web-preview__hero {
     min-height: auto;
-    grid-template-columns: minmax(330px, 0.86fr) minmax(390px, 440px);
-    gap: clamp(34px, 5vw, 56px);
+    grid-template-columns: minmax(350px, 0.9fr) minmax(390px, 460px);
+    column-gap: clamp(34px, 5vw, 56px);
+    row-gap: clamp(34px, 4vw, 48px);
     padding-top: clamp(34px, 6vw, 58px);
   }
 
@@ -1031,9 +1094,12 @@ onBeforeUnmount(() => {
     text-align: center;
   }
 
-  .web-preview__actions,
-  .web-preview__chips {
+  .web-preview__actions {
     justify-content: center;
+  }
+
+  .web-preview__feature-strip {
+    width: min(100%, 560px);
   }
 }
 
@@ -1070,7 +1136,7 @@ onBeforeUnmount(() => {
   }
 
   .web-preview__chips {
-    --web-chip-scale: min(0.82, calc((100vw - 32px) / 462px));
+    --web-chip-scale: min(0.78, calc((100vw - 32px) / 564px));
   }
 
   .web-preview__lead {

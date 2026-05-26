@@ -1,7 +1,7 @@
 [package]
 name = "pay-dance"
-version = "0.8.10"
-description = "薪跳 · 桌面实时薪资仪表盘"
+version = "0.8.11"
+description = "薪跳 · 桌面实时工资看板"
 authors = ["Mr.Baoboer"]
 license-file = "../LICENSE"
 repository = "https://github.com/MasterBao66/PayDance"
