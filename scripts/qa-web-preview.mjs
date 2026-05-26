@@ -135,6 +135,7 @@ const startServer = () => {
 };
 
 const assertDom = async (page, viewportName) => {
+  const viewport = page.viewportSize();
   const title = await page.title();
   if (title !== "薪跳 PayDance") {
     throw new Error(`${viewportName}: unexpected title "${title}"`);
@@ -169,8 +170,10 @@ const assertDom = async (page, viewportName) => {
     cards.map((card) => {
       const rect = card.getBoundingClientRect();
       return {
+        bottom: rect.bottom,
         height: rect.height,
         left: rect.left,
+        right: rect.right,
         top: rect.top,
         width: rect.width,
       };
@@ -186,6 +189,94 @@ const assertDom = async (page, viewportName) => {
     throw new Error(
       `${viewportName}: feature cards wrapped instead of staying in one row`,
     );
+  }
+
+  const sortedFeatureCards = [...featureCards].sort((a, b) => a.left - b.left);
+  for (let index = 0; index < sortedFeatureCards.length - 1; index += 1) {
+    const currentCard = sortedFeatureCards[index];
+    const nextCard = sortedFeatureCards[index + 1];
+    if (currentCard.right > nextCard.left + 1) {
+      throw new Error(`${viewportName}: feature cards overlap horizontally`);
+    }
+  }
+
+  if (viewportName.includes("mobile")) {
+    const [featureStripBox, footerBox, leadMetrics] = await Promise.all([
+      page.locator(".web-preview__feature-strip").boundingBox(),
+      page.locator(".web-preview__footer").boundingBox(),
+      page.locator(".web-preview__lead").evaluate((lead) => {
+        const rect = lead.getBoundingClientRect();
+        const styles = window.getComputedStyle(lead);
+        const headlineRect = document
+          .querySelector(".web-preview h1")
+          ?.getBoundingClientRect();
+
+        return {
+          fontSize: Number.parseFloat(styles.fontSize),
+          fontWeight: Number.parseFloat(styles.fontWeight),
+          gapFromHeadline: headlineRect ? rect.top - headlineRect.bottom : 0,
+          width: rect.width,
+        };
+      }),
+    ]);
+
+    if (!featureStripBox || !footerBox) {
+      throw new Error(`${viewportName}: feature strip or footer is missing`);
+    }
+
+    const footerGap = footerBox.y - (featureStripBox.y + featureStripBox.height);
+    if (footerGap < 16) {
+      throw new Error(`${viewportName}: feature strip is too close to the footer`);
+    }
+
+    if (
+      viewport &&
+      featureStripBox.y < viewport.height &&
+      featureStripBox.y + featureStripBox.height > viewport.height - 8
+    ) {
+      throw new Error(`${viewportName}: feature strip is clipped at viewport bottom`);
+    }
+
+    if (
+      leadMetrics.width > 330 ||
+      leadMetrics.fontSize > 16 ||
+      leadMetrics.fontWeight > 560 ||
+      leadMetrics.gapFromHeadline < 12
+    ) {
+      throw new Error(`${viewportName}: lead typography is too large or too tight`);
+    }
+  }
+
+  if (viewportName.startsWith("dark/")) {
+    const darkStage = await page.locator(".web-preview").evaluate((root) => {
+      const hero = root.querySelector(".web-preview__hero");
+      const frame = root.querySelector(".web-preview__frame");
+      const showcase = root.querySelector(".web-preview__showcase");
+      const rootStyles = window.getComputedStyle(root);
+      const heroFieldStyles = hero ? window.getComputedStyle(hero, "::before") : null;
+      const frameStyles = frame ? window.getComputedStyle(frame) : null;
+      const showcaseGlowStyles = showcase
+        ? window.getComputedStyle(showcase, "::before")
+        : null;
+
+      return {
+        frameShadow: frameStyles?.boxShadow ?? "",
+        heroFieldBackground: heroFieldStyles?.backgroundImage ?? "",
+        heroFieldOpacity: Number.parseFloat(heroFieldStyles?.opacity ?? "0"),
+        pageBackground: rootStyles.backgroundImage,
+        showcaseGlowBackground: showcaseGlowStyles?.backgroundColor ?? "",
+      };
+    });
+
+    if (
+      !darkStage.pageBackground.includes("repeating-linear-gradient") ||
+      !darkStage.heroFieldBackground.includes("repeating-linear-gradient") ||
+      darkStage.heroFieldOpacity < 0.6 ||
+      !darkStage.frameShadow.includes("245, 158, 11") ||
+      !darkStage.showcaseGlowBackground.includes("245, 158, 11")
+    ) {
+      throw new Error(`${viewportName}: dark stage decoration or separation is missing`);
+    }
   }
 
   const actions = await page.locator(".web-preview__action").evaluateAll((links) =>

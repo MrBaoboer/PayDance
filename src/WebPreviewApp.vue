@@ -1,14 +1,6 @@
 <script setup lang="ts">
-import {
-  computed,
-  defineComponent,
-  h,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-} from "vue";
-import { Download, Focus, ShieldCheck, Zap } from "@lucide/vue";
+import { defineComponent, h } from "vue";
+import { Download } from "@lucide/vue";
 import productLogoUrl from "../src-tauri/icons/icon.png";
 import {
   appCopyright,
@@ -17,55 +9,10 @@ import {
   appVersion,
   repositoryUrl,
 } from "./lib/app-meta";
-import {
-  defaultMiniOpacityPercent,
-  fullWindowSize,
-  miniDefaultSize,
-  normalizeMiniOpacityPercent,
-  resolveWindowPreferences,
-  type WindowSize,
-} from "./lib/window-mode";
-import { useAppShell } from "./composables/useAppShell";
-import { useDashboardModel } from "./composables/useDashboardModel";
-import { useSalarySettings } from "./composables/useSalarySettings";
-import { useSalaryTicker } from "./composables/useSalaryTicker";
-import { useThemeSync } from "./composables/useThemeSync";
-import { useWindowStatePersistence } from "./composables/useWindowStatePersistence";
 import AppWindow from "./components/AppWindow.vue";
 import MiniWindow from "./components/MiniWindow.vue";
-import { createBrowserSettingsStore } from "./platform/settings-store";
-
-const previewStore = createBrowserSettingsStore();
-const previewWindow = {
-  setFocus: async () => {},
-  setTheme: async () => {},
-  show: async () => {},
-};
-
-const {
-  amountMode,
-  alwaysOnTop,
-  config,
-  hasCompletedOnboarding,
-  isSettingsReady,
-  loadSettings,
-  saveSettings,
-  themeMode,
-} = useSalarySettings(() => Promise.resolve(previewStore));
-
-const isMiniMode = ref(false);
-const autostartEnabled = ref(false);
-const autostartError = ref("");
-const isAutostartUpdating = ref(false);
-const fullSize = ref<WindowSize>({ ...fullWindowSize });
-const miniSize = ref<WindowSize>({ ...miniDefaultSize });
-const miniOpacityPercent = ref(defaultMiniOpacityPercent);
-const showWebMiniOpacityPanel = ref(false);
-const miniPosition = ref({ x: 0, y: 0 });
-let clearMiniDrag: (() => void) | null = null;
-const miniStagePaddingX = 34;
-const miniStageHeight = 188;
-const miniStageTop = 52;
+import WebPreviewFeatureStrip from "./web-preview/WebPreviewFeatureStrip.vue";
+import { useWebPreviewState } from "./web-preview/useWebPreviewState";
 
 const Windows11Mark = defineComponent({
   name: "Windows11Mark",
@@ -117,171 +64,47 @@ const Windows11Mark = defineComponent({
   },
 });
 
-const getMiniStageWidth = () => miniSize.value.width + miniStagePaddingX * 2;
-
-const { snapshot, startTicker, stopTicker } = useSalaryTicker(config);
-const { clearSaveStateTimer, loadWindowPreferences, saveStateNow, scheduleSaveState } =
-  useWindowStatePersistence({
-    defaultWindowPreferences: resolveWindowPreferences({}),
-    fullSize,
-    isMiniMode,
-    isSettingsReady,
-    loadSettings,
-    miniOpacityPercent,
-    miniSize,
-    saveSettings,
-  });
-const { applyThemeMode, isThemeSwitching, setThemeMode, toggleTheme } = useThemeSync(
-  previewWindow,
-  themeMode,
-  saveStateNow,
-);
-const setAlwaysOnTop = async (value: boolean) => {
-  alwaysOnTop.value = value;
-};
-const applyWindowMode = async () => {};
 const {
   activeView,
-  completeOnboarding,
-  setMiniMode,
-  shouldShowOnboarding,
-  showSalaryInfo,
-  showSettings,
-  toggleMiniMode,
-} = useAppShell({
   alwaysOnTop,
-  appWindow: previewWindow,
-  applyThemeMode,
-  applyWindowMode,
-  fullSize,
-  hasCompletedOnboarding,
-  isMiniMode,
-  isOpacityPanelWindow: false,
-  isSettingsReady,
-  saveStateNow,
-  setAlwaysOnTop,
-  themeMode,
-});
-const {
+  amountMode,
+  autostartEnabled,
+  autostartError,
+  completeOnboarding,
+  config,
   dailyEarnText,
   earnedText,
   firstConfigIssue,
   hasConfigIssues,
   hasIssue,
+  isAutostartUpdating,
+  isThemeSwitching,
   middleStat,
+  miniLayerStyle,
+  miniOpacityPercent,
+  miniPosition,
+  miniSize,
+  miniStyle,
+  previewFrameClass,
   salaryModeLabel,
+  setMiniMode,
+  setThemeMode,
+  shellClass,
+  shouldShowOnboarding,
+  showMiniOpacityPanel,
+  showSalaryInfo,
+  showSettings,
+  showWebMiniOpacityPanel,
+  snapshot,
+  startWebMiniDrag,
   statusText,
+  themeMode,
+  toggleAlwaysOnTop,
+  toggleMiniMode,
+  toggleTheme,
+  updateMiniOpacityPercent,
   workedTimeText,
-} = useDashboardModel(config, snapshot);
-
-const shellClass = computed(() =>
-  themeMode.value === "dark" ? "theme-dark" : "theme-light",
-);
-const previewFrameClass = computed(() => [
-  shellClass.value,
-  activeView.value === "mini" ? "is-mini" : "",
-  { "is-theme-syncing": isThemeSwitching.value },
-]);
-const miniStyle = computed(() => ({
-  height: `${miniSize.value.height}px`,
-  left: `${miniPosition.value.x}px`,
-  top: `${miniPosition.value.y}px`,
-  width: `${miniSize.value.width}px`,
-}));
-const miniLayerStyle = computed(() => ({
-  "--mini-stage-height": `${miniStageHeight}px`,
-  "--mini-stage-width": `${getMiniStageWidth()}px`,
-}));
-
-const updateMiniOpacityPercent = (value: number, options: { commit?: boolean } = {}) => {
-  miniOpacityPercent.value = normalizeMiniOpacityPercent(value);
-  if (options.commit) {
-    void saveStateNow();
-    return;
-  }
-  scheduleSaveState();
-};
-
-const toggleAlwaysOnTop = async () => {
-  alwaysOnTop.value = !alwaysOnTop.value;
-  await saveStateNow();
-};
-
-const resetMiniPosition = () => {
-  const width = miniSize.value.width;
-  const previewWidth = getMiniStageWidth();
-  miniPosition.value = {
-    x: Math.max(16, Math.round((previewWidth - width) / 2)),
-    y: miniStageTop,
-  };
-};
-
-const startWebMiniDrag = (event: PointerEvent) => {
-  if (event.button !== 0) return;
-
-  showWebMiniOpacityPanel.value = false;
-  const startPoint = { x: event.clientX, y: event.clientY };
-  const startPosition = { ...miniPosition.value };
-
-  const handleMove = (moveEvent: PointerEvent) => {
-    const previewWidth = getMiniStageWidth();
-    miniPosition.value = {
-      x: Math.max(
-        12,
-        Math.min(
-          previewWidth - miniSize.value.width - 12,
-          startPosition.x + moveEvent.clientX - startPoint.x,
-        ),
-      ),
-      y: Math.max(
-        18,
-        Math.min(
-          miniStageHeight - miniSize.value.height - 18,
-          startPosition.y + moveEvent.clientY - startPoint.y,
-        ),
-      ),
-    };
-  };
-  const handleEnd = () => {
-    window.removeEventListener("pointermove", handleMove);
-    window.removeEventListener("pointerup", handleEnd);
-    clearMiniDrag = null;
-  };
-
-  clearMiniDrag = handleEnd;
-  window.addEventListener("pointermove", handleMove);
-  window.addEventListener("pointerup", handleEnd);
-};
-
-const showMiniOpacityPanel = () => {
-  showWebMiniOpacityPanel.value = true;
-};
-
-watch(config, scheduleSaveState, { deep: true });
-watch(isMiniMode, (value) => {
-  if (value) {
-    resetMiniPosition();
-  } else {
-    showWebMiniOpacityPanel.value = false;
-  }
-});
-
-onMounted(async () => {
-  const windowPreferences = await loadWindowPreferences();
-  isMiniMode.value = windowPreferences.isMiniMode;
-  fullSize.value = windowPreferences.fullSize;
-  miniSize.value = windowPreferences.miniSize;
-  miniOpacityPercent.value = windowPreferences.miniOpacityPercent;
-  await applyThemeMode(themeMode.value, { persist: false });
-  if (isMiniMode.value) resetMiniPosition();
-  startTicker();
-});
-
-onBeforeUnmount(() => {
-  stopTicker();
-  clearSaveStateTimer();
-  clearMiniDrag?.();
-});
+} = useWebPreviewState();
 </script>
 
 <template>
@@ -433,31 +256,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <div class="web-preview__feature-strip">
-        <dl class="web-preview__chips" aria-label="产品核心优势">
-          <div class="web-preview__chip">
-            <span class="web-preview__chip-icon" aria-hidden="true">
-              <Zap :size="18" :stroke-width="2.6" />
-            </span>
-            <dt class="web-preview__chip-copy">毫秒级更新</dt>
-            <dd>今日收入实时跳动</dd>
-          </div>
-          <div class="web-preview__chip">
-            <span class="web-preview__chip-icon" aria-hidden="true">
-              <Focus :size="18" :stroke-width="2.4" />
-            </span>
-            <dt class="web-preview__chip-copy">安心专注</dt>
-            <dd>轻量窗口，静默运行</dd>
-          </div>
-          <div class="web-preview__chip">
-            <span class="web-preview__chip-icon" aria-hidden="true">
-              <ShieldCheck :size="18" :stroke-width="2.4" />
-            </span>
-            <dt class="web-preview__chip-copy">隐私优先</dt>
-            <dd>所有数据本地处理</dd>
-          </div>
-        </dl>
-      </div>
+      <WebPreviewFeatureStrip />
     </section>
 
     <footer class="web-preview__footer" aria-label="作者归属">
@@ -497,9 +296,11 @@ onBeforeUnmount(() => {
   --web-font-ui:
     "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
   --web-max-width: 1280px;
+  --web-field: rgb(217 119 6 / 0.055);
+  --web-field-line: rgb(217 119 6 / 0.075);
   --web-orbit: rgb(217 119 6 / 0.18);
   --web-page-bg: rgb(247 247 245);
-  --web-stage-glow: rgb(217 119 6 / 0.08);
+  --web-stage-glow: rgb(217 119 6 / 0.105);
   --web-stage-panel: rgb(255 255 255);
   --web-stage-ring: rgb(24 24 27 / 0.08);
   --web-surface: rgb(255 255 255 / 0.8);
@@ -515,6 +316,12 @@ onBeforeUnmount(() => {
   overflow-x: hidden;
   overflow-y: auto;
   background:
+    repeating-linear-gradient(
+      116deg,
+      transparent 0 58px,
+      rgb(217 119 6 / 0.014) 59px 60px,
+      transparent 61px 118px
+    ),
     radial-gradient(circle at 19% 78%, rgb(217 119 6 / 0.035) 0, transparent 27%),
     radial-gradient(
       circle at 79% 34%,
@@ -562,24 +369,38 @@ onBeforeUnmount(() => {
 }
 
 .theme-dark.web-preview {
-  --web-orbit: rgb(245 158 11 / 0.12);
-  --web-page-bg: rgb(10 10 11);
-  --web-stage-glow: rgb(245 158 11 / 0.08);
+  --web-field: rgb(245 158 11 / 0.12);
+  --web-field-line: rgb(245 158 11 / 0.15);
+  --web-orbit: rgb(245 158 11 / 0.18);
+  --web-page-bg: rgb(9 9 10);
+  --web-stage-glow: rgb(245 158 11 / 0.16);
   --web-stage-panel: rgb(18 18 20);
-  --web-stage-ring: rgb(255 255 255 / 0.08);
-  --web-surface: rgb(24 24 27 / 0.78);
-  --web-surface-strong: rgb(34 34 38 / 0.94);
-  --web-border: rgb(255 255 255 / 0.1);
-  --web-shadow: 0 30px 88px rgb(0 0 0 / 0.42);
+  --web-stage-ring: rgb(255 255 255 / 0.115);
+  --web-surface: rgb(25 25 28 / 0.8);
+  --web-surface-strong: rgb(38 38 42 / 0.96);
+  --web-border: rgb(255 255 255 / 0.13);
+  --web-shadow: 0 40px 110px rgb(0 0 0 / 0.58), 0 0 94px rgb(245 158 11 / 0.075);
   background:
+    repeating-linear-gradient(
+      116deg,
+      transparent 0 52px,
+      rgb(245 158 11 / 0.026) 53px 54px,
+      transparent 55px 112px
+    ),
+    linear-gradient(
+      100deg,
+      transparent 0%,
+      transparent 42%,
+      rgb(245 158 11 / 0.07) 64%,
+      transparent 100%
+    ),
     radial-gradient(
       ellipse at 76% 36%,
-      color-mix(in srgb, var(--income-accent) 8%, transparent) 0,
+      color-mix(in srgb, var(--income-accent) 10%, transparent) 0,
       transparent 29%
     ),
-    radial-gradient(circle at 21% 72%, rgb(245 158 11 / 0.04) 0, transparent 30%),
-    radial-gradient(circle at 58% 48%, rgb(255 255 255 / 0.026) 0, transparent 32%),
-    linear-gradient(145deg, rgb(7 7 8) 0%, var(--web-page-bg) 60%, rgb(16 13 10) 100%);
+    radial-gradient(circle at 21% 72%, rgb(245 158 11 / 0.038) 0, transparent 30%),
+    linear-gradient(145deg, rgb(6 6 7) 0%, var(--web-page-bg) 54%, rgb(20 15 9) 100%);
 }
 
 .theme-dark.web-preview::before {
@@ -658,7 +479,57 @@ onBeforeUnmount(() => {
   padding: clamp(34px, 6vh, 68px) 0 clamp(28px, 5vh, 56px);
 }
 
+.web-preview__hero::before,
+.web-preview__hero::after {
+  position: absolute;
+  z-index: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.web-preview__hero::before {
+  right: clamp(-86px, -3.5vw, -28px);
+  top: 50%;
+  width: min(690px, 54vw);
+  height: min(560px, 66vh);
+  border: 1px solid color-mix(in srgb, var(--web-field-line) 52%, transparent);
+  border-radius: 46px;
+  background:
+    repeating-linear-gradient(
+      118deg,
+      transparent 0 44px,
+      color-mix(in srgb, var(--web-field-line) 62%, transparent) 45px 46px,
+      transparent 47px 92px
+    ),
+    linear-gradient(
+      108deg,
+      transparent 0%,
+      var(--web-field) 42%,
+      color-mix(in srgb, var(--web-field) 62%, transparent) 62%,
+      transparent 100%
+    );
+  mask-image: radial-gradient(ellipse at center, rgb(0 0 0) 0 55%, transparent 78%);
+  opacity: 0.86;
+  transform: translateY(-50%) rotate(-6deg);
+}
+
+.web-preview__hero::after {
+  right: clamp(18px, 5vw, 118px);
+  bottom: clamp(22px, 5vh, 72px);
+  width: min(620px, 56vw);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--web-field-line) 72%, transparent),
+    transparent
+  );
+  opacity: 0.9;
+}
+
 .web-preview__copy {
+  position: relative;
+  z-index: 1;
   display: grid;
   align-content: start;
   justify-items: start;
@@ -696,7 +567,7 @@ onBeforeUnmount(() => {
 .web-preview__lead {
   display: block;
   max-width: 540px;
-  margin: 2px 0 0;
+  margin: clamp(10px, 1.05vw, 16px) 0 0;
   color: var(--muted);
   font-size: clamp(17px, 1.24vw, 20px);
   font-weight: 520;
@@ -790,89 +661,9 @@ onBeforeUnmount(() => {
   flex: 0 0 auto;
 }
 
-.web-preview__feature-strip {
-  display: flex;
-  width: 100%;
-  grid-column: 1 / -1;
-  justify-content: center;
-  margin-top: clamp(6px, 1.6vh, 18px);
-}
-
-.web-preview__chips {
-  --web-chip-base-width: 188px;
-  --web-chip-gap: 0px;
-  --web-chip-scale: 1;
-  display: grid;
-  width: 100%;
-  max-width: min(100%, 860px);
-  grid-template-columns: repeat(
-    3,
-    calc(var(--web-chip-base-width) * var(--web-chip-scale))
-  );
-  justify-content: space-between;
-  gap: calc(var(--web-chip-gap) * var(--web-chip-scale));
-  margin: 0;
-}
-
-.web-preview__chip {
-  display: grid;
-  width: calc(var(--web-chip-base-width) * var(--web-chip-scale));
-  min-width: 0;
-  align-items: center;
-  grid-template-columns: calc(46px * var(--web-chip-scale)) minmax(0, 1fr);
-  grid-template-rows: auto auto;
-  column-gap: calc(14px * var(--web-chip-scale));
-  justify-items: start;
-  padding: 0;
-  text-align: left;
-}
-
-.web-preview__chip-icon {
-  display: grid;
-  width: calc(46px * var(--web-chip-scale));
-  height: calc(46px * var(--web-chip-scale));
-  grid-row: 1 / span 2;
-  place-items: center;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--income-accent) 18%, transparent);
-  background: color-mix(in srgb, var(--income-accent) 9%, transparent);
-  color: var(--income-accent);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.34);
-}
-
-.web-preview__chip-icon svg {
-  width: calc(24px * var(--web-chip-scale));
-  height: calc(24px * var(--web-chip-scale));
-}
-
-.theme-dark.web-preview .web-preview__chip-icon {
-  border-color: color-mix(in srgb, var(--income-accent) 22%, transparent);
-  background: color-mix(in srgb, var(--income-accent) 12%, transparent);
-  box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 0.035),
-    0 0 32px rgb(245 158 11 / 0.1);
-}
-
-.web-preview__chips dt {
-  color: var(--text);
-  font-family: var(--web-font-action);
-  font-size: calc(17px * var(--web-chip-scale));
-  font-weight: 820;
-  line-height: 1.1;
-}
-
-.web-preview__chips dd {
-  margin: 0;
-  margin-top: calc(7px * var(--web-chip-scale));
-  color: var(--muted);
-  font-size: calc(14px * var(--web-chip-scale));
-  font-weight: 520;
-  line-height: 1.36;
-  white-space: nowrap;
-}
-
 .web-preview__showcase {
   position: relative;
+  z-index: 1;
   display: grid;
   width: min(100%, 480px);
   justify-items: center;
@@ -882,13 +673,13 @@ onBeforeUnmount(() => {
 .web-preview__showcase::before {
   position: absolute;
   z-index: 0;
-  inset: 8% auto auto;
-  width: min(410px, 70%);
-  height: 150px;
+  inset: 3% auto auto;
+  width: min(500px, 86%);
+  height: 260px;
   border-radius: 999px;
   background: var(--web-stage-glow);
   content: "";
-  filter: blur(44px);
+  filter: blur(54px);
   pointer-events: none;
 }
 
@@ -906,7 +697,7 @@ onBeforeUnmount(() => {
 }
 
 .theme-dark.web-preview .web-preview__showcase::after {
-  opacity: 0.38;
+  opacity: 0.54;
 }
 
 .web-preview__showcase.is-mini::before,
@@ -938,8 +729,9 @@ onBeforeUnmount(() => {
 .theme-dark.web-preview .web-preview__frame {
   box-shadow:
     inset 0 0 0 1px var(--web-stage-ring),
-    0 36px 96px rgb(0 0 0 / 0.5),
-    0 0 68px rgb(245 158 11 / 0.07);
+    0 42px 118px rgb(0 0 0 / 0.68),
+    0 0 0 7px rgb(245 158 11 / 0.018),
+    0 0 98px rgb(245 158 11 / 0.105);
 }
 
 .web-preview__frame :deep(.app-window) {
@@ -1094,12 +886,24 @@ onBeforeUnmount(() => {
     text-align: center;
   }
 
-  .web-preview__actions {
-    justify-content: center;
+  .web-preview__hero::before {
+    right: 50%;
+    top: auto;
+    bottom: 184px;
+    width: min(520px, 112vw);
+    height: 420px;
+    transform: translateX(50%) rotate(-7deg);
   }
 
-  .web-preview__feature-strip {
-    width: min(100%, 560px);
+  .web-preview__hero::after {
+    right: 50%;
+    bottom: 138px;
+    width: min(420px, 92vw);
+    transform: translateX(50%);
+  }
+
+  .web-preview__actions {
+    justify-content: center;
   }
 }
 
@@ -1109,11 +913,24 @@ onBeforeUnmount(() => {
     --brand-name-size: 19px;
     --headline-main-size: clamp(34px, 10vw, 46px);
     --headline-accent-size: clamp(48px, 14.4vw, 62px);
-    padding: 18px 16px;
+    height: auto;
+    min-height: 100dvh;
+    padding: 18px 16px 26px;
   }
 
   .web-preview__hero {
-    gap: 28px;
+    flex: 0 0 auto;
+    gap: 30px;
+    padding-top: 30px;
+    padding-bottom: 34px;
+  }
+
+  .web-preview h1 {
+    gap: 12px;
+  }
+
+  .web-preview__copy {
+    gap: 18px;
   }
 
   .web-preview__topbar {
@@ -1133,13 +950,16 @@ onBeforeUnmount(() => {
 
   .web-preview__actions {
     justify-content: center;
-  }
-
-  .web-preview__chips {
-    --web-chip-scale: min(0.78, calc((100vw - 32px) / 564px));
+    margin-top: 2px;
   }
 
   .web-preview__lead {
+    width: min(100%, 318px);
+    max-width: 318px;
+    margin-top: 4px;
+    font-size: clamp(14px, 3.65vw, 15.5px);
+    font-weight: 500;
+    line-height: 1.62;
     white-space: normal;
   }
 
