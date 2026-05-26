@@ -45,7 +45,7 @@ const emit = defineEmits<{
     </button>
 
     <div class="hero-controls">
-      <section class="hero-dashboard" aria-label="今日收入仪表盘">
+      <section class="hero-dashboard" aria-label="今日收入看板">
         <StatsPanel
           :expected-earn="dailyEarnText"
           :middle-label="middleStat.label"

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import appSource from "./App.vue?raw";
 import desktopAppSource from "./DesktopApp.vue?raw";
+import runtimeSource from "./platform/runtime.ts?raw";
 import themeSyncSource from "./composables/useThemeSync.ts?raw";
 import dashboardModelSource from "./composables/useDashboardModel.ts?raw";
 import mainDashboardSource from "./components/MainDashboard.vue?raw";
@@ -22,10 +23,20 @@ describe("main dashboard shell", () => {
     expect(appSource.split(/\r?\n/).length).toBeLessThanOrEqual(300);
     expect(appSource).toContain("WebPreviewApp");
     expect(appSource).toContain("DesktopApp");
+    expect(runtimeSource).toContain('import.meta.env.MODE === "web"');
+    expect(runtimeSource).toContain('import.meta.env.VITE_PAYDANCE_TARGET === "web"');
+    expect(runtimeSource).toContain(': "desktop"');
+    expect(appSource).toContain(
+      'isWebPreview ? import("./WebPreviewApp.vue") : import("./DesktopApp.vue")',
+    );
   });
 
   it("keeps DesktopApp.vue as a page shell under the 300-line architecture budget", () => {
     expect(desktopAppSource.split(/\r?\n/).length).toBeLessThanOrEqual(300);
+    expect(desktopAppSource).not.toContain(':show-desktop-features="false"');
+    expect(desktopAppSource).toContain("@toggle-always-on-top");
+    expect(desktopAppSource).toContain("@toggle-mini-mode");
+    expect(desktopAppSource).toContain("@update:autostart-enabled");
   });
 
   it("removes the v0.6.0 pulse line from the main surface", () => {

@@ -108,17 +108,20 @@ describe("PayDance Web Preview", () => {
   });
 
   it("keeps the web hero roomy while preserving the software preview on narrower windows", () => {
-    expect(cssBlock(".web-preview")).toContain("--web-max-width: 1180px");
+    expect(cssBlock(".web-preview")).toContain("--web-max-width: 1280px");
     expect(cssBlock(".web-preview__topbar")).toContain(
       "width: min(100%, var(--web-max-width))",
     );
     expect(cssBlock(".web-preview__hero")).toContain(
-      "grid-template-columns: minmax(360px, 440px) minmax(430px, 480px)",
+      "grid-template-columns: minmax(420px, 520px) minmax(430px, 500px)",
     );
-    expect(cssBlock(".web-preview__hero")).toContain("gap: clamp(60px, 7vw, 104px)");
+    expect(cssBlock(".web-preview__hero")).toContain(
+      "column-gap: clamp(64px, 7vw, 112px)",
+    );
+    expect(cssBlock(".web-preview__copy")).toContain("gap: clamp(18px, 2.1vw, 28px)");
     expect(webPreviewSource).toContain("@media (max-width: 1120px)");
     expect(webPreviewSource).toContain(
-      "grid-template-columns: minmax(330px, 0.86fr) minmax(390px, 440px)",
+      "grid-template-columns: minmax(350px, 0.9fr) minmax(390px, 460px)",
     );
     expect(webPreviewSource).toContain("@media (max-width: 820px)");
   });
@@ -129,7 +132,7 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).not.toContain(
       ["<span>把今天", "已经挣到的钱</span>"].join(""),
     );
-    expect(cssBlock(".web-preview__lead")).toContain("margin: 6px 0 0");
+    expect(cssBlock(".web-preview__lead")).toContain("margin: 2px 0 0");
     expect(cssBlock(".web-preview__lead")).toContain("display: block");
     expect(cssBlock(".web-preview__lead")).not.toContain("gap:");
   });
@@ -159,6 +162,7 @@ describe("PayDance Web Preview", () => {
   });
 
   it("uses compact feature tags with short descriptions", () => {
+    expect(webPreviewSource).toContain('class="web-preview__feature-strip"');
     expect(webPreviewSource).toContain('class="web-preview__chips"');
     expect(webPreviewSource).toContain('class="web-preview__chip"');
     expect(webPreviewSource).toContain("Zap");
@@ -172,6 +176,13 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("所有数据本地处理");
     expect(webPreviewSource).toContain('class="web-preview__chip-icon"');
     expect(webPreviewSource).toContain('class="web-preview__chip-copy"');
+    expect(webPreviewSource.indexOf("毫秒级更新")).toBeLessThan(
+      webPreviewSource.indexOf("安心专注"),
+    );
+    expect(webPreviewSource.indexOf("安心专注")).toBeLessThan(
+      webPreviewSource.indexOf("隐私优先"),
+    );
+    expect(cssBlock(".web-preview__feature-strip")).toContain("grid-column: 1 / -1");
     expect(cssBlock(".web-preview__chip")).toContain("grid-template-columns");
     expect(cssBlock(".web-preview__chip")).toContain("text-align: left");
     expect(cssBlock(".web-preview__chip")).not.toContain("border:");
@@ -185,9 +196,11 @@ describe("PayDance Web Preview", () => {
   });
 
   it("keeps the three feature tags in one row by scaling instead of wrapping", () => {
+    const featureStripBlock = cssBlock(".web-preview__feature-strip");
     const chipsBlock = cssBlock(".web-preview__chips");
     const chipBlock = cssBlock(".web-preview__chip");
 
+    expect(featureStripBlock).toContain("width: 100%");
     expect(chipsBlock).toContain("grid-template-columns: repeat(");
     expect(chipsBlock).toContain(
       "calc(var(--web-chip-base-width) * var(--web-chip-scale))",
@@ -201,7 +214,7 @@ describe("PayDance Web Preview", () => {
     expect(cssBlock(".web-preview__chips dd")).toContain("white-space: nowrap");
     expect(webPreviewSource).toContain("@media (max-width: 560px)");
     expect(webPreviewSource).toContain(
-      "--web-chip-scale: min(0.82, calc((100vw - 32px) / 462px));",
+      "--web-chip-scale: min(0.78, calc((100vw - 32px) / 564px));",
     );
   });
 
@@ -280,7 +293,8 @@ describe("PayDance Web Preview", () => {
 
     expect(readmeSource).not.toContain("## 近期改进");
     expect(readmeSource).toContain('<font size="7">');
-    expect(readmeSource).toContain("桌面实时薪资仪表盘");
+    expect(readmeSource).toContain("桌面实时工资看板");
+    expect(readmeSource).not.toContain(String.fromCodePoint(0x4eea, 0x8868, 0x76d8));
     expect(readmeSource).toContain("优化完善在线体验");
     expect(readmeSource).toContain("下载 Windows 便携版");
     expect(readmeSource).toContain("Mr.Baoboer");
