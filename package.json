@@ -1,7 +1,7 @@
 {
   "name": "pay-dance",
   "private": true,
-  "version": "0.8.14",
+  "version": "0.8.15",
   "author": "Mr.Baoboer",
   "repository": "github:MasterBao66/PayDance",
   "type": "module",
@@ -9,8 +9,8 @@
     "dev": "vite --mode desktop",
     "dev:web": "vite --mode web",
     "build": "npm run build:desktop",
-    "build:desktop": "vue-tsc --noEmit && vite build --mode desktop --configLoader runner && node scripts/assert-build-target.mjs desktop",
-    "build:web": "vue-tsc --noEmit && vite build --mode web --configLoader runner && node scripts/assert-build-target.mjs web",
+    "build:desktop": "vue-tsc --noEmit && vite build --mode desktop --configLoader runner && node scripts/assert-build-target.mjs desktop && node scripts/assert-build-boundary.mjs desktop",
+    "build:web": "vue-tsc --noEmit && vite build --mode web --configLoader runner && node scripts/assert-build-target.mjs web && node scripts/assert-build-boundary.mjs web",
     "test": "vitest run",
     "lint": "eslint .",
     "format:check": "prettier --check \"src/**/*.{ts,vue,css}\" \"scripts/**/*.mjs\" \"src-tauri/**/*.{js,json}\" \".github/workflows/*.yml\" \"*.{json,html,js,ts}\"",
@@ -37,7 +37,7 @@
     "@tauri-apps/plugin-autostart": "^2.5.1",
     "@tauri-apps/plugin-opener": "^2.5.4",
     "@tauri-apps/plugin-store": "^2.0.0",
-    "vue": "^3.5.0"
+    "vue": "^3.5.35"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -55,9 +55,9 @@
     "prettier": "^3.8.3",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.4",
+    "typescript-eslint": "^8.60.0",
     "vite": "^8.0.14",
     "vitest": "^4.1.7",
-    "vue-tsc": "^3.3.1"
+    "vue-tsc": "^3.3.2"
   }
 }

@@ -1,10 +1,21 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import tailwindcss from "@tailwindcss/vite";
+import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig(({ mode }) => ({
   base: mode === "web" ? "/PayDance/" : "./",
   plugins: [vue(), tailwindcss()],
+  resolve: {
+    alias: {
+      "#runtime-app": fileURLToPath(
+        new URL(
+          mode === "web" ? "./src/WebPreviewApp.vue" : "./src/DesktopApp.vue",
+          import.meta.url,
+        ),
+      ),
+    },
+  },
   clearScreen: false,
   build: {
     rolldownOptions: {

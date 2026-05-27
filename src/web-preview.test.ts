@@ -1,27 +1,56 @@
 import { readFileSync, statSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import appSource from "./App.vue?raw";
-import webPreviewSource from "./WebPreviewApp.vue?raw";
+import webPreviewAppSource from "./WebPreviewApp.vue?raw";
 import webPreviewFeatureStripSource from "./web-preview/WebPreviewFeatureStrip.vue?raw";
+import gitHubMarkSource from "./web-preview/components/GitHubMark.vue?raw";
+import webMiniOpacityPanelSource from "./web-preview/components/WebMiniOpacityPanel.vue?raw";
+import webPreviewActionsSource from "./web-preview/components/WebPreviewActions.vue?raw";
+import webPreviewFooterSource from "./web-preview/components/WebPreviewFooter.vue?raw";
+import webPreviewHeroCopySource from "./web-preview/components/WebPreviewHeroCopy.vue?raw";
+import webPreviewMiniLayerSource from "./web-preview/components/WebPreviewMiniLayer.vue?raw";
+import webPreviewPageSource from "./web-preview/components/WebPreviewPage.vue?raw";
+import webPreviewShowcaseSource from "./web-preview/components/WebPreviewShowcase.vue?raw";
+import webPreviewTopbarSource from "./web-preview/components/WebPreviewTopbar.vue?raw";
+import windows11MarkSource from "./web-preview/components/Windows11Mark.vue?raw";
 import webPreviewStateSource from "./web-preview/useWebPreviewState.ts?raw";
 import runtimeSource from "./platform/runtime.ts?raw";
 import settingsStoreSource from "./platform/settings-store.ts?raw";
+import appMetaSource from "./lib/app-meta.ts?raw";
 
 const read = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+const webPreviewStyles = read("src/web-preview/web-preview.css");
 const cssBlockFrom = (source: string, selector: string) =>
   source.match(
     new RegExp(`${selector.split(".").join("\\.")} \\{[\\s\\S]*?\\n\\}`),
   )?.[0] ?? "";
-const cssBlock = (selector: string) => cssBlockFrom(webPreviewSource, selector);
+const webPreviewSource = [
+  webPreviewAppSource,
+  webPreviewPageSource,
+  webPreviewTopbarSource,
+  webPreviewHeroCopySource,
+  webPreviewActionsSource,
+  webPreviewShowcaseSource,
+  webPreviewMiniLayerSource,
+  webMiniOpacityPanelSource,
+  webPreviewFooterSource,
+  windows11MarkSource,
+  gitHubMarkSource,
+  webPreviewStyles,
+  appMetaSource,
+].join("\n");
+const cssBlock = (selector: string) => cssBlockFrom(webPreviewStyles, selector);
 const featureCssBlock = (selector: string) =>
   cssBlockFrom(webPreviewFeatureStripSource, selector);
 
 describe("PayDance Web Preview", () => {
-  it("loads the web preview and desktop app from a runtime target selector", () => {
+  it("loads exactly one runtime app at build time", () => {
     expect(runtimeSource).toContain('import.meta.env.MODE === "web"');
-    expect(appSource).toContain('import("./WebPreviewApp.vue")');
-    expect(appSource).toContain('import("./DesktopApp.vue")');
+    expect(appSource).toContain('from "#runtime-app"');
+    expect(appSource).not.toContain('import("./WebPreviewApp.vue")');
+    expect(appSource).not.toContain('import("./DesktopApp.vue")');
+    expect(read("vite.config.ts")).toContain("#runtime-app");
   });
 
   it("keeps browser preview storage local and separate from Tauri Store", () => {
@@ -40,9 +69,7 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("具象化你的劳动价值");
     expect(webPreviewSource).toContain("专注工作，也看见回报");
     expect(webPreviewSource).toContain("下载 Windows 版");
-    expect(webPreviewSource).toContain(
-      "https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe",
-    );
+    expect(webPreviewSource).toContain("pay-dance-v${appVersion}-windows-x64.exe");
     expect(webPreviewSource).not.toContain("开始体验");
     expect(webPreviewSource).toContain(':show-desktop-features="false"');
     expect(webPreviewSource).not.toContain("Web Preview 只用于预览核心体验");
@@ -197,7 +224,7 @@ describe("PayDance Web Preview", () => {
     expect(cssBlock(".web-preview__action")).toContain("vertical-align: middle");
     expect(cssBlock(".windows11-mark")).toContain("display: block");
     expect(cssBlock(".github-mark")).toContain("display: block");
-    expect(webPreviewSource).toContain(".web-preview__action :deep(svg)");
+    expect(webPreviewSource).toContain(".web-preview__action svg");
     expect(cssBlock(".web-preview__action")).not.toContain("background-color 180ms ease");
     expect(webPreviewSource).toContain(".web-preview__action--primary:hover");
     expect(webPreviewSource).toContain(".web-preview__action--quiet:hover");
@@ -266,14 +293,18 @@ describe("PayDance Web Preview", () => {
   });
 
   it("keeps web preview state isolated from the storefront layout component", () => {
-    const webPreviewLineCount = webPreviewSource.split("\n").length;
+    const webPreviewLineCount = webPreviewAppSource.split("\n").length;
 
-    expect(webPreviewSource).toContain("useWebPreviewState");
-    expect(webPreviewSource).not.toContain("createBrowserSettingsStore");
-    expect(webPreviewSource).not.toContain("useDashboardModel");
+    expect(webPreviewAppSource).not.toContain("useWebPreviewState");
+    expect(webPreviewAppSource).not.toContain("createBrowserSettingsStore");
+    expect(webPreviewAppSource).not.toContain("useDashboardModel");
     expect(webPreviewStateSource).toContain("createBrowserSettingsStore");
     expect(webPreviewStateSource).toContain("useDashboardModel");
-    expect(webPreviewLineCount).toBeLessThan(1_000);
+    expect(webPreviewSource).toContain("WebPreviewTopbar");
+    expect(webPreviewSource).toContain("WebPreviewHeroCopy");
+    expect(webPreviewSource).toContain("WebPreviewShowcase");
+    expect(webPreviewSource).toContain("WebPreviewFooter");
+    expect(webPreviewLineCount).toBeLessThanOrEqual(220);
   });
 
   it("removes auxiliary text around the software preview", () => {
@@ -321,7 +352,7 @@ describe("PayDance Web Preview", () => {
   });
 
   it("keeps the dark preview window opaque instead of leaking the page background", () => {
-    expect(webPreviewSource).toContain(".web-preview__frame :deep(.app-window)");
+    expect(webPreviewSource).toContain(".web-preview__frame .app-window");
     expect(webPreviewSource).toContain("background: var(--panel)");
     expect(webPreviewSource).toContain("backdrop-filter: none");
   });
@@ -378,7 +409,9 @@ describe("PayDance Web Preview", () => {
     expect(readmeSource).not.toContain("## 隐私声明、作者与许可");
     expect(readmeSource).toContain("| 在线体验 | [PayDance Web]");
     expect(readmeSource).toContain("网页端，含所有核心功能");
-    expect(readmeSource).toContain("| Windows 11 桌面端 | [pay-dance.exe]");
+    expect(readmeSource).toContain(
+      "| Windows 11 桌面端 | [pay-dance-v0.8.15-windows-x64.exe]",
+    );
     expect(readmeSource).toContain(
       "含开机自启动、窗口置顶、迷你悬浮模式、系统托盘等完整功能",
     );
