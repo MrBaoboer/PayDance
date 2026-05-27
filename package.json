@@ -1,7 +1,7 @@
 {
   "name": "pay-dance",
   "private": true,
-  "version": "0.8.13",
+  "version": "0.8.14",
   "author": "Mr.Baoboer",
   "repository": "github:MasterBao66/PayDance",
   "type": "module",

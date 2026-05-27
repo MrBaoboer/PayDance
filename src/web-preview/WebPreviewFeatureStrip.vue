@@ -32,6 +32,8 @@ import { Focus, ShieldCheck, Zap } from "@lucide/vue";
 
 <style scoped>
 .web-preview__feature-strip {
+  position: relative;
+  z-index: 2;
   display: flex;
   width: 100%;
   grid-column: 1 / -1;

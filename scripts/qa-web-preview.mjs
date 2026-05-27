@@ -141,9 +141,22 @@ const assertDom = async (page, viewportName) => {
     throw new Error(`${viewportName}: unexpected title "${title}"`);
   }
 
+  const faviconHref = await page.locator('link[rel="icon"]').getAttribute("href");
+  if (!faviconHref?.endsWith("/PayDance/favicon.png")) {
+    throw new Error(`${viewportName}: favicon link mismatch "${faviconHref}"`);
+  }
+
   const versionText = await page.locator(".web-preview__version").innerText();
   if (!versionText.includes("Web Preview") || !versionText.includes(version)) {
     throw new Error(`${viewportName}: version text mismatch "${versionText}"`);
+  }
+
+  const footerText = await page.locator(".web-preview__footer").innerText();
+  const legacyAuthor = ["Mr", "Ba" + "ober"].join(".");
+  if (!footerText.includes("Mr.Baoboer") || footerText.includes(legacyAuthor)) {
+    throw new Error(
+      `${viewportName}: footer author attribution mismatch "${footerText}"`,
+    );
   }
 
   const showcase = page.locator("#paydance-preview");
@@ -253,29 +266,48 @@ const assertDom = async (page, viewportName) => {
       const frame = root.querySelector(".web-preview__frame");
       const showcase = root.querySelector(".web-preview__showcase");
       const rootStyles = window.getComputedStyle(root);
-      const heroFieldStyles = hero ? window.getComputedStyle(hero, "::before") : null;
+      const heroMaterialStyles = hero ? window.getComputedStyle(hero, "::before") : null;
       const frameStyles = frame ? window.getComputedStyle(frame) : null;
-      const showcaseGlowStyles = showcase
+      const showcaseAuraStyles = showcase
         ? window.getComputedStyle(showcase, "::before")
+        : null;
+      const showcaseSurfaceStyles = showcase
+        ? window.getComputedStyle(showcase, "::after")
         : null;
 
       return {
         frameShadow: frameStyles?.boxShadow ?? "",
-        heroFieldBackground: heroFieldStyles?.backgroundImage ?? "",
-        heroFieldOpacity: Number.parseFloat(heroFieldStyles?.opacity ?? "0"),
+        heroMaterialBackground: heroMaterialStyles?.backgroundImage ?? "",
+        heroMaterialOpacity: Number.parseFloat(heroMaterialStyles?.opacity ?? "0"),
         pageBackground: rootStyles.backgroundImage,
-        showcaseGlowBackground: showcaseGlowStyles?.backgroundColor ?? "",
+        stageAura: rootStyles.getPropertyValue("--web-stage-aura").trim(),
+        stageReflection: rootStyles.getPropertyValue("--web-stage-reflection").trim(),
+        stageSurface: rootStyles.getPropertyValue("--web-stage-surface").trim(),
+        showcaseAuraBackground: showcaseAuraStyles?.backgroundImage ?? "",
+        showcaseSurfaceBackground: showcaseSurfaceStyles?.backgroundImage ?? "",
+        showcaseSurfaceOpacity: Number.parseFloat(showcaseSurfaceStyles?.opacity ?? "0"),
       };
     });
 
+    const hasLineDecoration = [
+      darkStage.pageBackground,
+      darkStage.heroMaterialBackground,
+      darkStage.showcaseAuraBackground,
+      darkStage.showcaseSurfaceBackground,
+    ].some((background) => background.includes("repeating-linear-gradient"));
+
     if (
-      !darkStage.pageBackground.includes("repeating-linear-gradient") ||
-      !darkStage.heroFieldBackground.includes("repeating-linear-gradient") ||
-      darkStage.heroFieldOpacity < 0.6 ||
+      hasLineDecoration ||
+      !darkStage.pageBackground.includes("linear-gradient") ||
+      !darkStage.heroMaterialBackground.includes("linear-gradient") ||
+      darkStage.heroMaterialOpacity < 0.42 ||
+      darkStage.showcaseSurfaceOpacity < 0.42 ||
       !darkStage.frameShadow.includes("245, 158, 11") ||
-      !darkStage.showcaseGlowBackground.includes("245, 158, 11")
+      !darkStage.stageAura.includes("245 158 11") ||
+      !darkStage.stageReflection.includes("245 158 11") ||
+      !darkStage.stageSurface.includes("linear-gradient")
     ) {
-      throw new Error(`${viewportName}: dark stage decoration or separation is missing`);
+      throw new Error(`${viewportName}: dark material stage separation is missing`);
     }
   }
 

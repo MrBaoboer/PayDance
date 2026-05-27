@@ -296,17 +296,26 @@ const {
   --web-font-ui:
     "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
   --web-max-width: 1280px;
-  --web-field: rgb(217 119 6 / 0.055);
-  --web-field-line: rgb(217 119 6 / 0.075);
-  --web-orbit: rgb(217 119 6 / 0.18);
+  --web-frame-lift: 0 34px 96px rgb(24 24 27 / 0.13), 0 0 0 1px rgb(255 255 255 / 0.64);
   --web-page-bg: rgb(247 247 245);
-  --web-stage-glow: rgb(217 119 6 / 0.105);
+  --web-page-depth: rgb(240 237 231);
+  --web-page-sheen: rgb(255 250 242 / 0.72);
+  --web-stage-aura: rgb(217 119 6 / 0.105);
   --web-stage-panel: rgb(255 255 255);
+  --web-stage-reflection: rgb(255 244 226 / 0.68);
   --web-stage-ring: rgb(24 24 27 / 0.08);
+  --web-stage-surface: linear-gradient(
+    145deg,
+    rgb(255 255 255 / 0.66) 0%,
+    rgb(255 248 236 / 0.28) 52%,
+    rgb(255 255 255 / 0) 100%
+  );
+  --web-stage-surface-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.54), 0 54px 140px rgb(24 24 27 / 0.08);
   --web-surface: rgb(255 255 255 / 0.8);
   --web-surface-strong: rgb(255 255 255 / 0.96);
   --web-border: rgb(24 24 27 / 0.11);
-  --web-shadow: 0 32px 92px rgb(24 24 27 / 0.12);
+  --web-shadow: var(--web-frame-lift);
   position: relative;
   isolation: isolate;
   display: flex;
@@ -316,23 +325,18 @@ const {
   overflow-x: hidden;
   overflow-y: auto;
   background:
-    repeating-linear-gradient(
-      116deg,
-      transparent 0 58px,
-      rgb(217 119 6 / 0.014) 59px 60px,
-      transparent 61px 118px
-    ),
-    radial-gradient(circle at 19% 78%, rgb(217 119 6 / 0.035) 0, transparent 27%),
-    radial-gradient(
-      circle at 79% 34%,
-      color-mix(in srgb, var(--income-accent) 11%, transparent) 0,
-      transparent 31%
+    linear-gradient(
+      104deg,
+      transparent 0%,
+      transparent 58%,
+      var(--web-page-sheen) 82%,
+      transparent 100%
     ),
     linear-gradient(
       145deg,
       rgb(250 250 249) 0%,
       var(--web-page-bg) 54%,
-      rgb(242 240 236) 100%
+      var(--web-page-depth) 100%
     );
   color: var(--text);
   padding: clamp(24px, 3.6vw, 54px) clamp(24px, 5vw, 74px) clamp(18px, 3vw, 34px);
@@ -340,77 +344,49 @@ const {
 
 .web-preview::before,
 .web-preview::after {
-  position: fixed;
-  z-index: -1;
-  content: "";
-  pointer-events: none;
-}
-
-.web-preview::before {
-  right: clamp(44px, 10vw, 168px);
-  bottom: clamp(90px, 14vh, 178px);
-  width: min(620px, 42vw);
-  height: min(420px, 34vw);
-  border: 1px solid color-mix(in srgb, var(--income-accent) 13%, transparent);
-  border-radius: 50%;
-  opacity: 0.46;
-  transform: rotate(-12deg);
-}
-
-.web-preview::after {
-  left: clamp(70px, 11vw, 180px);
-  bottom: clamp(86px, 12vh, 156px);
-  width: min(300px, 25vw);
-  height: 42px;
-  border-radius: 999px;
-  background: rgb(24 24 27 / 0.035);
-  filter: blur(22px);
-  opacity: 0.74;
+  display: none;
 }
 
 .theme-dark.web-preview {
-  --web-field: rgb(245 158 11 / 0.12);
-  --web-field-line: rgb(245 158 11 / 0.15);
-  --web-orbit: rgb(245 158 11 / 0.18);
+  --web-frame-lift: 0 44px 128px rgb(0 0 0 / 0.68), 0 0 78px rgb(245 158 11 / 0.058);
   --web-page-bg: rgb(9 9 10);
-  --web-stage-glow: rgb(245 158 11 / 0.16);
+  --web-page-depth: rgb(12 11 10);
+  --web-page-sheen: rgb(245 158 11 / 0.018);
+  --web-stage-aura: rgb(245 158 11 / 0.064);
   --web-stage-panel: rgb(18 18 20);
-  --web-stage-ring: rgb(255 255 255 / 0.115);
+  --web-stage-reflection: rgb(245 158 11 / 0.045);
+  --web-stage-ring: rgb(255 255 255 / 0.105);
+  --web-stage-surface: linear-gradient(
+    145deg,
+    rgb(255 255 255 / 0.05) 0%,
+    rgb(245 158 11 / 0.042) 48%,
+    rgb(255 255 255 / 0.015) 100%
+  );
+  --web-stage-surface-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.04), 0 66px 170px rgb(0 0 0 / 0.52);
   --web-surface: rgb(25 25 28 / 0.8);
   --web-surface-strong: rgb(38 38 42 / 0.96);
   --web-border: rgb(255 255 255 / 0.13);
-  --web-shadow: 0 40px 110px rgb(0 0 0 / 0.58), 0 0 94px rgb(245 158 11 / 0.075);
+  --web-shadow: var(--web-frame-lift);
   background:
-    repeating-linear-gradient(
-      116deg,
-      transparent 0 52px,
-      rgb(245 158 11 / 0.026) 53px 54px,
-      transparent 55px 112px
-    ),
     linear-gradient(
-      100deg,
+      104deg,
       transparent 0%,
-      transparent 42%,
-      rgb(245 158 11 / 0.07) 64%,
+      transparent 60%,
+      var(--web-page-sheen) 82%,
       transparent 100%
     ),
-    radial-gradient(
-      ellipse at 76% 36%,
-      color-mix(in srgb, var(--income-accent) 10%, transparent) 0,
-      transparent 29%
-    ),
-    radial-gradient(circle at 21% 72%, rgb(245 158 11 / 0.038) 0, transparent 30%),
-    linear-gradient(145deg, rgb(6 6 7) 0%, var(--web-page-bg) 54%, rgb(20 15 9) 100%);
+    linear-gradient(
+      145deg,
+      rgb(6 7 8) 0%,
+      var(--web-page-bg) 56%,
+      var(--web-page-depth) 100%
+    );
 }
 
-.theme-dark.web-preview::before {
-  border-color: color-mix(in srgb, var(--income-accent) 20%, transparent);
-  opacity: 0.34;
-}
-
+.theme-dark.web-preview::before,
 .theme-dark.web-preview::after {
-  background: rgb(0 0 0 / 0.32);
-  opacity: 0.82;
+  display: none;
 }
 
 .web-preview__topbar {
@@ -488,43 +464,20 @@ const {
 }
 
 .web-preview__hero::before {
-  right: clamp(-86px, -3.5vw, -28px);
-  top: 50%;
-  width: min(690px, 54vw);
-  height: min(560px, 66vh);
-  border: 1px solid color-mix(in srgb, var(--web-field-line) 52%, transparent);
-  border-radius: 46px;
-  background:
-    repeating-linear-gradient(
-      118deg,
-      transparent 0 44px,
-      color-mix(in srgb, var(--web-field-line) 62%, transparent) 45px 46px,
-      transparent 47px 92px
-    ),
-    linear-gradient(
-      108deg,
-      transparent 0%,
-      var(--web-field) 42%,
-      color-mix(in srgb, var(--web-field) 62%, transparent) 62%,
-      transparent 100%
-    );
-  mask-image: radial-gradient(ellipse at center, rgb(0 0 0) 0 55%, transparent 78%);
-  opacity: 0.86;
-  transform: translateY(-50%) rotate(-6deg);
+  right: clamp(-28px, 0vw, 22px);
+  top: 47%;
+  width: min(560px, 45vw);
+  height: min(430px, 54vh);
+  border-radius: 56px;
+  background: var(--web-stage-surface);
+  box-shadow: var(--web-stage-surface-shadow);
+  mask-image: radial-gradient(ellipse at center, rgb(0 0 0) 0 52%, transparent 79%);
+  opacity: 0.48;
+  transform: translateY(-50%) rotate(-1.5deg);
 }
 
 .web-preview__hero::after {
-  right: clamp(18px, 5vw, 118px);
-  bottom: clamp(22px, 5vh, 72px);
-  width: min(620px, 56vw);
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in srgb, var(--web-field-line) 72%, transparent),
-    transparent
-  );
-  opacity: 0.9;
+  display: none;
 }
 
 .web-preview__copy {
@@ -673,31 +626,35 @@ const {
 .web-preview__showcase::before {
   position: absolute;
   z-index: 0;
-  inset: 3% auto auto;
-  width: min(500px, 86%);
-  height: 260px;
-  border-radius: 999px;
-  background: var(--web-stage-glow);
+  inset: -8% auto auto;
+  width: min(540px, 104%);
+  height: 390px;
+  border-radius: 58px;
+  background: linear-gradient(150deg, var(--web-stage-aura) 0%, transparent 64%);
   content: "";
-  filter: blur(54px);
+  filter: blur(44px);
+  opacity: 0.54;
   pointer-events: none;
 }
 
 .web-preview__showcase::after {
   position: absolute;
   z-index: 0;
-  width: min(650px, 134vw);
-  height: 470px;
-  border: 1px dashed var(--web-orbit);
-  border-radius: 50%;
+  inset: -4% auto auto;
+  width: min(520px, 106%);
+  height: 420px;
+  border-radius: 62px;
+  background: var(--web-stage-surface);
+  box-shadow: var(--web-stage-surface-shadow);
   content: "";
-  opacity: 0.62;
+  opacity: 0.44;
   pointer-events: none;
-  transform: rotate(-18deg) translateY(8px);
+  transform: rotate(-1deg) translateY(4px);
+  mask-image: radial-gradient(ellipse at center, rgb(0 0 0) 0 54%, transparent 80%);
 }
 
 .theme-dark.web-preview .web-preview__showcase::after {
-  opacity: 0.54;
+  opacity: 0.5;
 }
 
 .web-preview__showcase.is-mini::before,
@@ -729,9 +686,7 @@ const {
 .theme-dark.web-preview .web-preview__frame {
   box-shadow:
     inset 0 0 0 1px var(--web-stage-ring),
-    0 42px 118px rgb(0 0 0 / 0.68),
-    0 0 0 7px rgb(245 158 11 / 0.018),
-    0 0 98px rgb(245 158 11 / 0.105);
+    var(--web-shadow);
 }
 
 .web-preview__frame :deep(.app-window) {

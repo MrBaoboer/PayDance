@@ -50,8 +50,14 @@ describe("PayDance Web Preview", () => {
   });
 
   it("brands the web storefront with the product logo and current version", () => {
+    const favicon = statSync(new URL("../public/favicon.png", import.meta.url));
+    const htmlSource = read("index.html");
+
     expect(webPreviewSource).toContain("productLogoUrl");
     expect(webPreviewSource).toContain("appVersion");
+    expect(htmlSource).toContain('rel="icon"');
+    expect(htmlSource).toContain("%BASE_URL%favicon.png");
+    expect(favicon.size).toBeGreaterThan(1_000);
     expect(webPreviewSource).toContain('class="web-preview__brand"');
     expect(webPreviewSource).toContain('class="web-preview__brand-logo"');
     expect(webPreviewSource).not.toContain("web-preview__brand-icon");
@@ -148,23 +154,28 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain("line-height: 1.62");
   });
 
-  it("separates the dark web background from the software preview with a quiet stage field", () => {
-    expect(cssBlock(".web-preview")).toContain("--web-field");
-    expect(cssBlock(".web-preview")).toContain("--web-field-line");
-    expect(cssBlock(".web-preview")).toContain("repeating-linear-gradient");
+  it("separates the dark web background from the software preview with quiet material layers", () => {
+    expect(webPreviewSource).not.toContain("repeating-linear-gradient");
+    expect(webPreviewSource).not.toContain("border: 1px dashed");
+    expect(cssBlock(".web-preview")).toContain("--web-frame-lift");
+    expect(cssBlock(".web-preview")).toContain("--web-page-sheen");
+    expect(cssBlock(".web-preview")).toContain("--web-stage-aura");
+    expect(cssBlock(".web-preview")).toContain("--web-stage-reflection");
+    expect(cssBlock(".web-preview")).toContain("--web-stage-surface");
     expect(cssBlock(".theme-dark.web-preview")).toContain(
-      "--web-stage-glow: rgb(245 158 11 / 0.16)",
+      "--web-stage-aura: rgb(245 158 11 / 0.064)",
     );
     expect(cssBlock(".theme-dark.web-preview")).toContain(
-      "--web-stage-ring: rgb(255 255 255 / 0.115)",
+      "--web-stage-ring: rgb(255 255 255 / 0.105)",
     );
     expect(cssBlock(".web-preview__hero::before")).toContain("mask-image");
-    expect(cssBlock(".web-preview__hero::before")).toContain("repeating-linear-gradient");
-    expect(webPreviewSource).toContain(
-      "color-mix(in srgb, var(--web-field-line) 72%, transparent)",
+    expect(cssBlock(".web-preview__hero::before")).toContain("var(--web-stage-surface)");
+    expect(cssBlock(".web-preview__showcase::after")).toContain(
+      "var(--web-stage-surface)",
     );
+    expect(featureCssBlock(".web-preview__feature-strip")).toContain("z-index: 2");
     expect(cssBlock(".theme-dark.web-preview .web-preview__frame")).toContain(
-      "0 0 98px rgb(245 158 11 / 0.105)",
+      "var(--web-shadow)",
     );
   });
 
@@ -304,7 +315,8 @@ describe("PayDance Web Preview", () => {
   it("separates the dark web stage from the dark software preview", () => {
     expect(webPreviewSource).toContain("--web-stage-panel");
     expect(webPreviewSource).toContain("--web-stage-ring");
-    expect(webPreviewSource).toContain("--web-stage-glow");
+    expect(webPreviewSource).toContain("--web-stage-aura");
+    expect(webPreviewSource).toContain("--web-stage-reflection");
     expect(webPreviewSource).toContain(".theme-dark.web-preview .web-preview__frame");
   });
 
@@ -324,7 +336,7 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain(".web-preview__frame.is-theme-syncing");
     expect(webPreviewSource).not.toContain("border: 1px solid var(--web-stage-ring)");
     expect(cssBlock(".theme-dark.web-preview")).toContain(
-      "--web-stage-ring: rgb(255 255 255 / 0.115)",
+      "--web-stage-ring: rgb(255 255 255 / 0.105)",
     );
   });
 
