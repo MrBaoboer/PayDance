@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import { isWebPreview } from "./platform/runtime";
-
-const RuntimeApp = defineAsyncComponent(() =>
-  isWebPreview ? import("./WebPreviewApp.vue") : import("./DesktopApp.vue"),
-);
+import RuntimeApp from "#runtime-app";
 </script>
 
 <template>

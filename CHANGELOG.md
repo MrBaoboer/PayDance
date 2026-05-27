@@ -4,6 +4,15 @@
 
 更多构建产物与校验文件请查看 [GitHub Releases](https://github.com/MasterBao66/PayDance/releases)。
 
+### v0.8.15
+
+- Release Windows 附件改为版本化命名，发布 `pay-dance-v0.8.15-windows-x64.exe` 与对应 SHA256 文件，降低用户本地下载文件混淆。
+- README Windows 下载链接同步指向版本化 Release asset，网页端下载入口共享同一版本化下载地址。
+- Web Preview 主入口拆分为页面、顶部品牌、首屏文案、操作按钮、软件展示区、迷你透明度面板和页脚组件，保留现有视觉方向不变。
+- Web / Desktop 构建改为构建期选择单一运行入口，并新增构建边界断言，防止互相产出对方的孤儿 chunk。
+- npm 与 Rust 锁文件依赖同步更新到当前可用补丁版本。
+- Issue 模板版本提示同步更新至 v0.8.15。
+
 ### v0.8.14
 
 - Web Preview 撤回 v0.8.13 的斜向细线和轨道装饰，重构为“静默钛黑 / 高端硬件橱窗”视觉方向，以材质、层次、空间和低频光感建立高级感。

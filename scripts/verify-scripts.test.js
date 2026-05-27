@@ -15,9 +15,15 @@ describe("verification scripts", () => {
     expect(packageJson.scripts["build:desktop"]).toContain(
       "node scripts/assert-build-target.mjs desktop",
     );
+    expect(packageJson.scripts["build:desktop"]).toContain(
+      "node scripts/assert-build-boundary.mjs desktop",
+    );
     expect(packageJson.scripts["build:web"]).toContain("--mode web");
     expect(packageJson.scripts["build:web"]).toContain(
       "node scripts/assert-build-target.mjs web",
+    );
+    expect(packageJson.scripts["build:web"]).toContain(
+      "node scripts/assert-build-boundary.mjs web",
     );
 
     expect(packageJson.scripts["verify:fast"]).toContain("npm run check:hygiene");
@@ -30,6 +36,9 @@ describe("verification scripts", () => {
     );
     expect(readRoot(".github/workflows/release.yml")).toContain(
       "node scripts/assert-build-target.mjs desktop",
+    );
+    expect(readRoot(".github/workflows/release.yml")).toContain(
+      "node scripts/assert-build-boundary.mjs desktop",
     );
 
     expect(packageJson.scripts["verify:release"]).toContain("npm run version:check");

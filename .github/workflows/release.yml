@@ -79,22 +79,26 @@ jobs:
         run: npm run build:exe
 
       - name: Assert desktop frontend target
-        run: node scripts/assert-build-target.mjs desktop
+        run: node scripts/assert-build-target.mjs desktop && node scripts/assert-build-boundary.mjs desktop
 
-      - name: Generate checksum
+      - name: Prepare versioned release assets
         shell: pwsh
         run: |
+          $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
           $exePath = "src-tauri/target/release/pay-dance.exe"
-          $hash = (Get-FileHash $exePath -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  pay-dance.exe" | Out-File -Encoding ascii "$exePath.sha256"
+          $assetName = "pay-dance-v$version-windows-x64.exe"
+          $assetPath = "src-tauri/target/release/$assetName"
+          Copy-Item $exePath $assetPath -Force
+          $hash = (Get-FileHash $assetPath -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $assetName" | Out-File -Encoding ascii "$assetPath.sha256"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
           name: pay-dance-windows-exe
           path: |
-            src-tauri/target/release/pay-dance.exe
-            src-tauri/target/release/pay-dance.exe.sha256
+            src-tauri/target/release/pay-dance-v*-windows-x64.exe
+            src-tauri/target/release/pay-dance-v*-windows-x64.exe.sha256
           if-no-files-found: error
 
       - name: Generate release notes
@@ -109,5 +113,5 @@ jobs:
           tag_name: ${{ env.RELEASE_TAG }}
           body_path: release-notes.md
           files: |
-            src-tauri/target/release/pay-dance.exe
-            src-tauri/target/release/pay-dance.exe.sha256
+            src-tauri/target/release/pay-dance-v*-windows-x64.exe
+            src-tauri/target/release/pay-dance-v*-windows-x64.exe.sha256

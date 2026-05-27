@@ -10,7 +10,7 @@
 <p align="center">
   <a href="https://masterbao66.github.io/PayDance/"><kbd><strong>在线体验</strong></kbd></a>
   &nbsp;&nbsp;
-  <a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe"><kbd><strong>Windows 11 桌面端</strong></kbd></a>
+  <a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.8.15-windows-x64.exe"><kbd><strong>Windows 11 桌面端</strong></kbd></a>
 </p>
 
 ## 产品简介
@@ -46,13 +46,13 @@
 | 平台 | 推荐下载 | 说明 |
 | --- | --- | --- |
 | 在线体验 | [PayDance Web](https://masterbao66.github.io/PayDance/) | 网页端，含所有核心功能 |
-| Windows 11 桌面端 | [pay-dance.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance.exe) | 含开机自启动、窗口置顶、迷你悬浮模式、系统托盘等完整功能 |
+| Windows 11 桌面端 | [pay-dance-v0.8.15-windows-x64.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.8.15-windows-x64.exe) | 含开机自启动、窗口置顶、迷你悬浮模式、系统托盘等完整功能 |
 
-Release 页面会同时提供 `pay-dance.exe` 与 `pay-dance.exe.sha256`。Windows 对未签名二进制可能展示发布者验证提示，建议以 GitHub Release 来源与 SHA256 校验作为下载后的完整性确认。
+Release 页面会同时提供 `pay-dance-v0.8.15-windows-x64.exe` 与 `pay-dance-v0.8.15-windows-x64.exe.sha256`。Windows 对未签名二进制可能展示发布者验证提示，建议以 GitHub Release 来源与 SHA256 校验作为下载后的完整性确认。
 
 ```powershell
-Get-FileHash .\pay-dance.exe -Algorithm SHA256
-Get-Content .\pay-dance.exe.sha256
+Get-FileHash .\pay-dance-v0.8.15-windows-x64.exe -Algorithm SHA256
+Get-Content .\pay-dance-v0.8.15-windows-x64.exe.sha256
 ```
 
 若两者校验值一致，即可确认本地文件与 Release 附件匹配；若不一致，请不要运行该文件。

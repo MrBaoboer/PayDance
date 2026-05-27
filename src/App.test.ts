@@ -21,14 +21,12 @@ const appShellSource = readFileSync(
 describe("main dashboard shell", () => {
   it("keeps App.vue as a runtime selector under the 300-line architecture budget", () => {
     expect(appSource.split(/\r?\n/).length).toBeLessThanOrEqual(300);
-    expect(appSource).toContain("WebPreviewApp");
-    expect(appSource).toContain("DesktopApp");
+    expect(appSource).toContain("#runtime-app");
     expect(runtimeSource).toContain('import.meta.env.MODE === "web"');
     expect(runtimeSource).toContain('import.meta.env.VITE_PAYDANCE_TARGET === "web"');
     expect(runtimeSource).toContain(': "desktop"');
-    expect(appSource).toContain(
-      'isWebPreview ? import("./WebPreviewApp.vue") : import("./DesktopApp.vue")',
-    );
+    expect(appSource).not.toContain("WebPreviewApp");
+    expect(appSource).not.toContain("DesktopApp");
   });
 
   it("keeps DesktopApp.vue as a page shell under the 300-line architecture budget", () => {

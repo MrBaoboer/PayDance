@@ -7,3 +7,5 @@ export const appVersion = packageMetadata.version;
 export const appAuthor = "Mr.Baoboer";
 export const appCopyright = "© 2026 Mr.Baoboer";
 export const repositoryUrl = "https://github.com/MasterBao66/PayDance";
+export const windowsDownloadAssetName = `pay-dance-v${appVersion}-windows-x64.exe`;
+export const windowsDownloadUrl = `${repositoryUrl}/releases/latest/download/${windowsDownloadAssetName}`;

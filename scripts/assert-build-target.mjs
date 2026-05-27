@@ -4,11 +4,13 @@ import { basename, resolve } from "node:path";
 const target = process.argv[2];
 const targets = {
   desktop: {
-    expected: "DesktopApp",
+    expected: "desktop",
+    marker: "tray-open-settings",
     unexpected: "WebPreviewApp",
   },
   web: {
-    expected: "WebPreviewApp",
+    expected: "web",
+    marker: "PayDance Web Preview",
     unexpected: "DesktopApp",
   },
 };
@@ -34,12 +36,13 @@ if (!existsSync(entryPath)) {
 }
 
 const entrySource = readFileSync(entryPath, "utf8");
-const { expected, unexpected } = targets[target];
-const expectedPattern = new RegExp(`${expected}-[\\w-]+\\.js`);
+const { expected, marker, unexpected } = targets[target];
 const unexpectedPattern = new RegExp(`${unexpected}-[\\w-]+\\.js`);
 
-if (!expectedPattern.test(entrySource)) {
-  throw new Error(`Expected ${target} build entry to load ${expected}.vue`);
+if (!entrySource.includes(marker)) {
+  throw new Error(
+    `Expected ${target} build entry to include the ${expected} runtime marker`,
+  );
 }
 
 if (unexpectedPattern.test(entrySource)) {
@@ -48,4 +51,4 @@ if (unexpectedPattern.test(entrySource)) {
   );
 }
 
-console.log(`[assert-build-target] ${target} build entry loads ${expected}.vue`);
+console.log(`[assert-build-target] ${target} build entry includes ${expected} runtime`);
