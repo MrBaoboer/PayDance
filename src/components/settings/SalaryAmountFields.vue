@@ -2,7 +2,10 @@
 import { computed, useId } from "vue";
 import { parseNumberInput } from "../../lib/number-input";
 import type { SalaryConfig, SalaryConfigIssue } from "../../lib/salary";
-import { getSalaryAmountLabel } from "../../lib/settings-form";
+import { createGetSalaryAmountLabel } from "../../lib/settings-form";
+import { useI18n } from "../../composables/useI18n";
+
+const { t } = useI18n();
 
 const props = defineProps<{
   config: SalaryConfig;
@@ -14,7 +17,9 @@ const emit = defineEmits<{
   "update:config": [config: SalaryConfig];
 }>();
 
-const salaryAmountLabel = computed(() => getSalaryAmountLabel(props.config.salaryType));
+const salaryAmountLabel = computed(() =>
+  createGetSalaryAmountLabel(t.value)(props.config.salaryType),
+);
 const idPrefix = useId();
 
 const updateConfig = <Key extends keyof SalaryConfig>(
@@ -49,7 +54,7 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(key: Key, event: Eve
           type="number"
           @input="updateNumberConfig('monthlySalary', $event)"
         />
-        <span class="field-unit">元</span>
+        <span class="field-unit">{{ t("salaryAmount.unitYuan") }}</span>
       </span>
     </label>
     <label
@@ -68,7 +73,7 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(key: Key, event: Eve
           type="number"
           @input="updateNumberConfig('dailySalary', $event)"
         />
-        <span class="field-unit">元</span>
+        <span class="field-unit">{{ t("salaryAmount.unitYuan") }}</span>
       </span>
     </label>
     <label
@@ -87,7 +92,7 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(key: Key, event: Eve
           type="number"
           @input="updateNumberConfig('hourlyRate', $event)"
         />
-        <span class="field-unit">元</span>
+        <span class="field-unit">{{ t("salaryAmount.unitYuan") }}</span>
       </span>
     </label>
     <label
@@ -96,7 +101,7 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(key: Key, event: Eve
       :for="`${idPrefix}-work-days-per-month`"
       :class="{ 'is-invalid': hasIssue('workDaysPerMonth') }"
     >
-      <span>每月工作天数</span>
+      <span>{{ t("salaryAmount.workDaysPerMonth") }}</span>
       <span class="field-input-wrap">
         <input
           :id="`${idPrefix}-work-days-per-month`"
@@ -106,7 +111,7 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(key: Key, event: Eve
           type="number"
           @input="updateNumberConfig('workDaysPerMonth', $event)"
         />
-        <span class="field-unit">天</span>
+        <span class="field-unit">{{ t("salaryAmount.unitDays") }}</span>
       </span>
     </label>
   </div>

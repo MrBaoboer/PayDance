@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from "../composables/useI18n";
+
+const { t } = useI18n();
+
 defineProps<{
   expectedEarn: string;
   middleLabel: string;
@@ -25,10 +29,10 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
 </script>
 
 <template>
-  <div class="stats-panel" aria-label="今日工资统计">
+  <div class="stats-panel" :aria-label="t('dashboard.statsLabel')">
     <div class="stats-panel__grid">
       <article class="stat-item">
-        <span class="stat-item__label">已工作</span>
+        <span class="stat-item__label">{{ t("stats.worked") }}</span>
         <strong class="stat-item__value">
           <span
             v-for="(segment, index) in formatMetricSegments(workedTime)"
@@ -50,7 +54,7 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
         </strong>
       </article>
       <article class="stat-item">
-        <span class="stat-item__label">今日预计</span>
+        <span class="stat-item__label">{{ t("stats.estimated") }}</span>
         <strong class="stat-item__value stat-item__value--money">
           <span
             v-for="(segment, index) in formatMetricSegments(`¥${expectedEarn}`)"

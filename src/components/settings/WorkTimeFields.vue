@@ -2,6 +2,9 @@
 import { useId } from "vue";
 import type { SalaryConfig, SalaryConfigIssue } from "../../lib/salary";
 import { readInputText } from "../../lib/settings-form";
+import { useI18n } from "../../composables/useI18n";
+
+const { t } = useI18n();
 
 const props = defineProps<{
   config: SalaryConfig;
@@ -30,7 +33,7 @@ const updateConfig = <Key extends keyof SalaryConfig>(
       :for="`${idPrefix}-start-time`"
       :class="{ 'is-invalid': hasIssue('startTime') || hasIssue('workTime') }"
     >
-      <span>上班</span>
+      <span>{{ t("workTime.start") }}</span>
       <span class="field-input-wrap field-input-wrap--time">
         <input
           :id="`${idPrefix}-start-time`"
@@ -45,7 +48,7 @@ const updateConfig = <Key extends keyof SalaryConfig>(
       :for="`${idPrefix}-end-time`"
       :class="{ 'is-invalid': hasIssue('endTime') || hasIssue('workTime') }"
     >
-      <span>下班</span>
+      <span>{{ t("workTime.end") }}</span>
       <span class="field-input-wrap field-input-wrap--time">
         <input
           :id="`${idPrefix}-end-time`"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
+import { ArrowBigUp } from "@lucide/vue";
 import {
   appAuthor,
   appCopyright,
@@ -9,6 +10,13 @@ import {
   repositoryUrl,
 } from "../lib/app-meta";
 import type { SalaryConfig, SalaryConfigIssue } from "../lib/salary";
+import {
+  useI18n,
+  type Locale,
+  localeLabels,
+  supportedLocales,
+} from "../composables/useI18n";
+import { downloadAndInstall, type UpdaterStatus } from "../platform/updater";
 import { openExternalUrl } from "../platform/opener";
 import LunchBreakFields from "./settings/LunchBreakFields.vue";
 import SalaryAmountFields from "./settings/SalaryAmountFields.vue";
@@ -18,6 +26,9 @@ import WorkTimeFields from "./settings/WorkTimeFields.vue";
 import SegmentedControl from "./ui/SegmentedControl.vue";
 import SettingsGroup from "./ui/SettingsGroup.vue";
 import SwitchRow from "./ui/SwitchRow.vue";
+
+const { locale, setLocale, t } = useI18n();
+const isDownloading = ref(false);
 
 const props = withDefaults(
   defineProps<{
@@ -29,6 +40,7 @@ const props = withDefaults(
     hasIssue: (field: SalaryConfigIssue["field"]) => boolean;
     isAutostartUpdating: boolean;
     showDesktopFeatures?: boolean;
+    updateStatus: UpdaterStatus;
   }>(),
   {
     showDesktopFeatures: true,
@@ -39,12 +51,39 @@ const emit = defineEmits<{
   "update:autostartEnabled": [enabled: boolean];
   "update:amountMode": [mode: "rolling" | "plain"];
   "update:config": [config: SalaryConfig];
+  "update:locale": [locale: Locale];
 }>();
 
-const amountModeOptions = [
-  { label: "滚动变换", value: "rolling" },
-  { label: "直接变换", value: "plain" },
-] as const;
+const downloadUpdate = async () => {
+  if (isDownloading.value) return;
+  isDownloading.value = true;
+  try {
+    await downloadAndInstall();
+  } finally {
+    isDownloading.value = false;
+  }
+};
+
+const amountModeOptions = computed(
+  () =>
+    [
+      { label: t.value("amountMode.rolling"), value: "rolling" },
+      { label: t.value("amountMode.plain"), value: "plain" },
+    ] as const,
+);
+
+const langOptions = computed(() =>
+  supportedLocales.map((loc) => ({
+    label: localeLabels[loc],
+    value: loc,
+  })),
+);
+
+const updateLocale = (val: string) => {
+  const next = val as Locale;
+  setLocale(next);
+  emit("update:locale", next);
+};
 
 const updateAmountMode = (mode: string) => {
   emit("update:amountMode", mode as "rolling" | "plain");
@@ -70,7 +109,7 @@ const openRepository = async () => {
     await openExternalUrl(repositoryUrl);
   } catch (error) {
     console.error("Failed to open repository", error);
-    repositoryError.value = "无法打开 GitHub 仓库，请稍后重试。";
+    repositoryError.value = t.value("about.repoError");
   } finally {
     isOpeningRepository.value = false;
   }
@@ -83,7 +122,7 @@ const openRepository = async () => {
       {{ firstIssue }}
     </div>
 
-    <SettingsGroup title="薪资模式">
+    <SettingsGroup :title="t('settings.salaryMode')">
       <SalaryModeControl
         density="settings"
         :invalid="hasIssue('salaryType')"
@@ -92,7 +131,7 @@ const openRepository = async () => {
       />
     </SettingsGroup>
 
-    <SettingsGroup title="薪资">
+    <SettingsGroup :title="t('settings.salary')">
       <SalaryAmountFields
         density="settings"
         :config="config"
@@ -101,7 +140,7 @@ const openRepository = async () => {
       />
     </SettingsGroup>
 
-    <SettingsGroup title="每周工作日">
+    <SettingsGroup :title="t('settings.workdays')">
       <WorkdayPicker
         density="settings"
         :invalid="hasIssue('workdays')"
@@ -110,7 +149,7 @@ const openRepository = async () => {
       />
     </SettingsGroup>
 
-    <SettingsGroup title="工作时间">
+    <SettingsGroup :title="t('settings.workTime')">
       <WorkTimeFields
         density="settings"
         :config="config"
@@ -129,20 +168,30 @@ const openRepository = async () => {
       />
     </SettingsGroup>
 
-    <SettingsGroup title="金额变换">
+    <SettingsGroup :title="t('settings.amountAnimation')">
       <SegmentedControl
         :columns="2"
-        label="金额数字变化方式"
+        :label="t('settings.amountAnimationDesc')"
         :model-value="amountMode"
         :options="amountModeOptions"
         @update:model-value="updateAmountMode"
       />
     </SettingsGroup>
 
-    <SettingsGroup v-if="showDesktopFeatures" title="启动">
+    <SettingsGroup :title="t('settings.language')">
+      <SegmentedControl
+        :columns="2"
+        :label="t('settings.language')"
+        :model-value="locale"
+        :options="langOptions"
+        @update:model-value="updateLocale"
+      />
+    </SettingsGroup>
+
+    <SettingsGroup v-if="showDesktopFeatures" :title="t('settings.startup')">
       <template #action>
         <SwitchRow
-          label="开机自动启动"
+          :label="t('settings.autostart')"
           title-action
           :disabled="isAutostartUpdating"
           :model-value="autostartEnabled"
@@ -154,18 +203,27 @@ const openRepository = async () => {
       </p>
     </SettingsGroup>
 
-    <footer class="about-footer" aria-label="软件归属">
+    <footer class="about-footer" :aria-label="t('about.openRepo')">
       <div class="about-footer__identity">
         <strong>{{ appName }} {{ appEnglishName }}</strong>
-        <span>版本：{{ appVersion }}</span>
-        <span>作者：{{ appAuthor }}</span>
+        <span>
+          {{ t("about.appVersion") }}：{{ appVersion }}
+          <ArrowBigUp
+            v-if="updateStatus.kind === 'updateAvailable'"
+            class="update-badge"
+            :size="14"
+            :title="`${t('updater.newVersion')} ${updateStatus.version} — ${t('updater.clickToDownload')}`"
+            @click.stop="downloadUpdate"
+          />
+        </span>
+        <span>{{ t("about.appAuthor") }}：{{ appAuthor }}</span>
       </div>
       <div class="about-footer__repo-card">
         <button
           class="repository-button"
           aria-label="打开 GitHub 仓库"
           :disabled="isOpeningRepository"
-          :title="`打开 GitHub 仓库：${repositoryUrl}`"
+          :title="`${t('about.openRepo')}：${repositoryUrl}`"
           type="button"
           @click="openRepository"
         >
@@ -216,6 +274,22 @@ const openRepository = async () => {
   font-size: var(--ui-font-xs, 12px);
   font-weight: 600;
   text-align: left;
+}
+
+.update-badge {
+  display: inline;
+  vertical-align: text-bottom;
+  color: var(--income-accent);
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
+  margin-left: 4px;
+}
+
+.update-badge:hover {
+  color: var(--income-accent-bright);
+  transform: scale(1.15);
 }
 
 .about-footer {

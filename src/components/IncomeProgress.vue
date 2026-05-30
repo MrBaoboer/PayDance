@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { useI18n } from "../composables/useI18n";
+
+const { t } = useI18n();
 
 const props = defineProps<{
   progress: number;
@@ -9,7 +12,9 @@ const props = defineProps<{
 const clampedProgress = computed(() => Math.min(Math.max(props.progress, 0), 1));
 const progressNumber = computed(() => Math.round(clampedProgress.value * 100));
 const progressPercent = computed(() => `${(clampedProgress.value * 100).toFixed(4)}%`);
-const progressTooltip = computed(() => `今日进度 ${progressNumber.value}%`);
+const progressTooltip = computed(
+  () => `${t.value("stats.progress")} ${progressNumber.value}%`,
+);
 const trackRef = ref<HTMLElement | null>(null);
 const trackWidth = ref(0);
 let resizeObserver: ResizeObserver | undefined;

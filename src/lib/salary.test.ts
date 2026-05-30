@@ -7,6 +7,26 @@ import {
   type SalaryConfig,
 } from "./salary";
 
+const vt = (key: string) => {
+  const map: Record<string, string> = {
+    "validation.salaryTypeError": "薪资模式错误",
+    "validation.monthlyPositive": "月薪需大于 0",
+    "validation.dailyPositive": "日薪需大于 0",
+    "validation.hourlyPositive": "时薪需大于 0",
+    "validation.workDaysPositive": "工作天数需大于 0",
+    "validation.workdaysMinOne": "至少选 1 天",
+    "validation.workdaysError": "工作日错误",
+    "validation.startTimeError": "上班时间错误",
+    "validation.endTimeError": "下班时间错误",
+    "validation.timeSameError": "时间不能相同",
+    "validation.lunchStartError": "午休开始错误",
+    "validation.lunchEndError": "午休结束错误",
+    "validation.nightLunchOutside": "夜班午休需在工时内",
+    "validation.lunchOutside": "午休需在工时内",
+  };
+  return map[key] ?? key;
+};
+
 const at = (time: string) => new Date(`2026-05-11T${time}:00`);
 
 const config: SalaryConfig = {
@@ -352,18 +372,21 @@ describe("validateSalaryConfig", () => {
   });
 
   it("accepts the default configuration", () => {
-    expect(validateSalaryConfig(defaultSalaryConfig)).toHaveLength(0);
+    expect(validateSalaryConfig(defaultSalaryConfig, vt)).toHaveLength(0);
   });
 
   it("reports invalid monthly salary, work days, and work time", () => {
-    const issues = validateSalaryConfig({
-      ...config,
-      salaryType: "monthly",
-      monthlySalary: 0,
-      workDaysPerMonth: 0,
-      startTime: "18:00",
-      endTime: "18:00",
-    });
+    const issues = validateSalaryConfig(
+      {
+        ...config,
+        salaryType: "monthly",
+        monthlySalary: 0,
+        workDaysPerMonth: 0,
+        startTime: "18:00",
+        endTime: "18:00",
+      },
+      vt,
+    );
 
     expect(issues.map((issue) => issue.field)).toEqual([
       "monthlySalary",
@@ -374,37 +397,46 @@ describe("validateSalaryConfig", () => {
 
   it("accepts overnight work time and lunch inside the overnight shift", () => {
     expect(
-      validateSalaryConfig({
-        ...config,
-        startTime: "22:00",
-        endTime: "06:00",
-        lunchStart: "01:00",
-        lunchEnd: "02:00",
-        enableLunchBreak: true,
-      }),
+      validateSalaryConfig(
+        {
+          ...config,
+          startTime: "22:00",
+          endTime: "06:00",
+          lunchStart: "01:00",
+          lunchEnd: "02:00",
+          enableLunchBreak: true,
+        },
+        vt,
+      ),
     ).toHaveLength(0);
   });
 
   it("reports invalid daily salary only in daily mode", () => {
     expect(
-      validateSalaryConfig({
-        ...config,
-        salaryType: "daily",
-        dailySalary: 0,
-        monthlySalary: 1000,
-      }),
+      validateSalaryConfig(
+        {
+          ...config,
+          salaryType: "daily",
+          dailySalary: 0,
+          monthlySalary: 1000,
+        },
+        vt,
+      ),
     ).toContainEqual({
       field: "dailySalary",
       message: "日薪需大于 0",
     });
 
     expect(
-      validateSalaryConfig({
-        ...config,
-        salaryType: "monthly",
-        dailySalary: 0,
-        monthlySalary: 1000,
-      }),
+      validateSalaryConfig(
+        {
+          ...config,
+          salaryType: "monthly",
+          dailySalary: 0,
+          monthlySalary: 1000,
+        },
+        vt,
+      ),
     ).not.toContainEqual({
       field: "dailySalary",
       message: "日薪需大于 0",
@@ -413,12 +445,15 @@ describe("validateSalaryConfig", () => {
 
   it("reports invalid hourly salary only in hourly mode", () => {
     expect(
-      validateSalaryConfig({
-        ...config,
-        salaryType: "hourly",
-        hourlyRate: 0,
-        monthlySalary: 1000,
-      }),
+      validateSalaryConfig(
+        {
+          ...config,
+          salaryType: "hourly",
+          hourlyRate: 0,
+          monthlySalary: 1000,
+        },
+        vt,
+      ),
     ).toContainEqual({
       field: "hourlyRate",
       message: "时薪需大于 0",
@@ -426,7 +461,7 @@ describe("validateSalaryConfig", () => {
   });
 
   it("reports missing workdays", () => {
-    expect(validateSalaryConfig({ ...config, workdays: [] })).toContainEqual({
+    expect(validateSalaryConfig({ ...config, workdays: [] }, vt)).toContainEqual({
       field: "workdays",
       message: "至少选 1 天",
     });
@@ -439,25 +474,28 @@ describe("validateSalaryConfig", () => {
       lunchEnd: "08:30",
     };
 
-    expect(validateSalaryConfig(invalidLunch)).toContainEqual({
+    expect(validateSalaryConfig(invalidLunch, vt)).toContainEqual({
       field: "workTime",
       message: "午休需在工时内",
     });
 
     expect(
-      validateSalaryConfig({ ...invalidLunch, enableLunchBreak: false }),
+      validateSalaryConfig({ ...invalidLunch, enableLunchBreak: false }, vt),
     ).toHaveLength(0);
   });
 
   it("uses concise messages for invalid monthly salary and same work time", () => {
-    const issues = validateSalaryConfig({
-      ...config,
-      salaryType: "monthly",
-      monthlySalary: 0,
-      workDaysPerMonth: 0,
-      startTime: "18:00",
-      endTime: "18:00",
-    });
+    const issues = validateSalaryConfig(
+      {
+        ...config,
+        salaryType: "monthly",
+        monthlySalary: 0,
+        workDaysPerMonth: 0,
+        startTime: "18:00",
+        endTime: "18:00",
+      },
+      vt,
+    );
 
     expect(issues).toContainEqual({
       field: "monthlySalary",
@@ -475,14 +513,17 @@ describe("validateSalaryConfig", () => {
 
   it("uses a concise overnight lunch message", () => {
     expect(
-      validateSalaryConfig({
-        ...config,
-        startTime: "22:00",
-        endTime: "06:00",
-        lunchStart: "20:00",
-        lunchEnd: "21:00",
-        enableLunchBreak: true,
-      }),
+      validateSalaryConfig(
+        {
+          ...config,
+          startTime: "22:00",
+          endTime: "06:00",
+          lunchStart: "20:00",
+          lunchEnd: "21:00",
+          enableLunchBreak: true,
+        },
+        vt,
+      ),
     ).toContainEqual({
       field: "workTime",
       message: "夜班午休需在工时内",

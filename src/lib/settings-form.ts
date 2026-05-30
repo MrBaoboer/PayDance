@@ -1,26 +1,38 @@
 import type { SalaryConfig, SalaryType } from "./salary";
+import type { Messages } from "../i18n/types";
 
-export const salaryTypeOptions: Array<{ value: SalaryType; label: string }> = [
-  { value: "monthly", label: "月薪" },
-  { value: "daily", label: "日薪" },
-  { value: "hourly", label: "时薪" },
-];
+export type SettingsFormT = (
+  key: keyof Messages,
+  params?: Record<string, string | number>,
+) => string;
 
-export const weekdayOptions = [
-  { value: 1, label: "一" },
-  { value: 2, label: "二" },
-  { value: 3, label: "三" },
-  { value: 4, label: "四" },
-  { value: 5, label: "五" },
-  { value: 6, label: "六" },
-  { value: 0, label: "日" },
-];
+export function createSalaryTypeOptions(t: SettingsFormT) {
+  return [
+    { value: "monthly" as SalaryType, label: t("salaryMode.monthly") },
+    { value: "daily" as SalaryType, label: t("salaryMode.daily") },
+    { value: "hourly" as SalaryType, label: t("salaryMode.hourly") },
+  ];
+}
 
-export const getSalaryAmountLabel = (salaryType: SalaryType) => {
-  if (salaryType === "daily") return "日薪";
-  if (salaryType === "hourly") return "时薪";
-  return "月薪";
-};
+export function createWeekdayOptions(t: SettingsFormT) {
+  return [
+    { value: 1, label: t("workdays.mon") },
+    { value: 2, label: t("workdays.tue") },
+    { value: 3, label: t("workdays.wed") },
+    { value: 4, label: t("workdays.thu") },
+    { value: 5, label: t("workdays.fri") },
+    { value: 6, label: t("workdays.sat") },
+    { value: 0, label: t("workdays.sun") },
+  ];
+}
+
+export function createGetSalaryAmountLabel(t: SettingsFormT) {
+  return (salaryType: SalaryType) => {
+    if (salaryType === "daily") return t("salaryAmount.dailySalary");
+    if (salaryType === "hourly") return t("salaryAmount.hourlyRate");
+    return t("salaryAmount.monthlySalary");
+  };
+}
 
 export const toggleWorkdayValue = (workdays: SalaryConfig["workdays"], day: number) =>
   (workdays.includes(day)

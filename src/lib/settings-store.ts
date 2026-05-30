@@ -9,6 +9,7 @@ export const settingsStoreKeys = {
   isMiniMode: "isMiniMode",
   miniOpacityPercent: "miniOpacityPercent",
   miniSize: "miniSize",
+  locale: "locale",
   settingsVersion: "settingsVersion",
   themeMode: "themeMode",
 } as const;

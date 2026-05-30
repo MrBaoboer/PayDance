@@ -2,7 +2,10 @@
 import { useId } from "vue";
 import type { SalaryConfig, SalaryConfigIssue } from "../../lib/salary";
 import { readInputText } from "../../lib/settings-form";
+import { useI18n } from "../../composables/useI18n";
 import SwitchRow from "../ui/SwitchRow.vue";
+
+const { t } = useI18n();
 
 const props = defineProps<{
   config: SalaryConfig;
@@ -29,9 +32,9 @@ const updateConfig = <Key extends keyof SalaryConfig>(
   <div class="lunch-break-fields" :class="`lunch-break-fields--${variant}`">
     <template v-if="variant === 'settings'">
       <div class="group-title group-title--split">
-        <strong>午休</strong>
+        <strong>{{ t("lunchBreak.heading") }}</strong>
         <SwitchRow
-          label="剔除"
+          :label="t('lunchBreak.toggle')"
           title-action
           :model-value="config.enableLunchBreak"
           @update:model-value="updateConfig('enableLunchBreak', $event)"
@@ -43,7 +46,7 @@ const updateConfig = <Key extends keyof SalaryConfig>(
           :for="`${idPrefix}-settings-lunch-start`"
           :class="{ 'is-invalid': hasIssue('lunchStart') || hasIssue('workTime') }"
         >
-          <span>开始</span>
+          <span>{{ t("lunchBreak.start") }}</span>
           <span class="field-input-wrap field-input-wrap--time">
             <input
               :id="`${idPrefix}-settings-lunch-start`"
@@ -59,7 +62,7 @@ const updateConfig = <Key extends keyof SalaryConfig>(
           :for="`${idPrefix}-settings-lunch-end`"
           :class="{ 'is-invalid': hasIssue('lunchEnd') || hasIssue('workTime') }"
         >
-          <span>结束</span>
+          <span>{{ t("lunchBreak.end") }}</span>
           <span class="field-input-wrap field-input-wrap--time">
             <input
               :id="`${idPrefix}-settings-lunch-end`"
@@ -75,7 +78,7 @@ const updateConfig = <Key extends keyof SalaryConfig>(
 
     <template v-else>
       <SwitchRow
-        label="剔除午休"
+        :label="t('lunchBreak.toggleOnboarding')"
         :model-value="config.enableLunchBreak"
         @update:model-value="updateConfig('enableLunchBreak', $event)"
       />
@@ -90,7 +93,7 @@ const updateConfig = <Key extends keyof SalaryConfig>(
           :for="`${idPrefix}-onboarding-lunch-start`"
           :class="{ 'is-invalid': hasIssue('lunchStart') || hasIssue('workTime') }"
         >
-          <span>开始</span>
+          <span>{{ t("lunchBreak.start") }}</span>
           <span class="field-input-wrap field-input-wrap--time">
             <input
               :id="`${idPrefix}-onboarding-lunch-start`"
@@ -105,7 +108,7 @@ const updateConfig = <Key extends keyof SalaryConfig>(
           :for="`${idPrefix}-onboarding-lunch-end`"
           :class="{ 'is-invalid': hasIssue('lunchEnd') || hasIssue('workTime') }"
         >
-          <span>结束</span>
+          <span>{{ t("lunchBreak.end") }}</span>
           <span class="field-input-wrap field-input-wrap--time">
             <input
               :id="`${idPrefix}-onboarding-lunch-end`"

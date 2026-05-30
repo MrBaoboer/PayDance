@@ -38,6 +38,7 @@ export async function setAutostartEnabled(
   adapter: AutostartAdapter,
   enabled: boolean,
   previousEnabled: boolean,
+  errorMessage: string,
 ): Promise<AutostartResult> {
   try {
     if (enabled) {
@@ -54,7 +55,7 @@ export async function setAutostartEnabled(
     console.error("Failed to update autostart state", error);
     return {
       enabled: previousEnabled,
-      error: "自启动设置失败",
+      error: errorMessage,
     };
   }
 }

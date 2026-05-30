@@ -13,6 +13,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 concurrency:
   group: release-${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
@@ -91,6 +93,13 @@ jobs:
           Copy-Item $exePath $assetPath -Force
           $hash = (Get-FileHash $assetPath -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  $assetName" | Out-File -Encoding ascii "$assetPath.sha256"
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            src-tauri/target/release/pay-dance-v*-windows-x64.exe
+            src-tauri/target/release/pay-dance-v*-windows-x64.exe.sha256
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v7

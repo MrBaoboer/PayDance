@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useI18n } from "../../composables/useI18n";
+
+const { t } = useI18n();
 defineProps<{
   appCopyright: string;
   appEnglishName: string;
@@ -7,7 +10,7 @@ defineProps<{
 </script>
 
 <template>
-  <footer class="web-preview__footer" aria-label="作者归属">
+  <footer class="web-preview__footer" :aria-label="t('web.footerAriaLabel')">
     <span>{{ appCopyright }}</span>
     <span class="web-preview__footer-mark" aria-hidden="true"></span>
     <span>{{ appName }} {{ appEnglishName }}</span>

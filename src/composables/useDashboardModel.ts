@@ -5,9 +5,11 @@ import {
   type SalaryConfigIssue,
   type SalarySnapshot,
 } from "../lib/salary";
-import { getStatusText } from "../lib/shift-display";
+import type { ValidateT } from "../lib/salary/validation";
+import { getStatusText, type TFunc } from "../lib/shift-display";
 import { formatDashboardDuration } from "../lib/duration-format";
 import { formatYuan } from "../lib/money-format";
+import type { Locale } from "./useI18n";
 
 export type DashboardMiddleStat = {
   label: string;
@@ -17,15 +19,19 @@ export type DashboardMiddleStat = {
 export function useDashboardModel(
   config: Ref<SalaryConfig>,
   snapshot: Ref<SalarySnapshot>,
+  t: TFunc,
+  locale: Ref<Locale>,
 ) {
-  const earnedText = computed(() => formatYuan(snapshot.value.earnedToday));
-  const dailyEarnText = computed(() => formatYuan(snapshot.value.dailySalary));
+  const earnedText = computed(() => formatYuan(snapshot.value.earnedToday, locale.value));
+  const dailyEarnText = computed(() =>
+    formatYuan(snapshot.value.dailySalary, locale.value),
+  );
   const salaryModeLabel = computed(() => {
-    if (config.value.salaryType === "daily") return "日薪模式";
-    if (config.value.salaryType === "hourly") return "时薪模式";
-    return "月薪模式";
+    if (config.value.salaryType === "daily") return t("salaryMode.dailyLong");
+    if (config.value.salaryType === "hourly") return t("salaryMode.hourlyLong");
+    return t("salaryMode.monthlyLong");
   });
-  const configIssues = computed(() => validateSalaryConfig(config.value));
+  const configIssues = computed(() => validateSalaryConfig(config.value, t as ValidateT));
   const firstConfigIssue = computed(() => configIssues.value[0]?.message ?? "");
   const hasConfigIssues = computed(() => configIssues.value.length > 0);
   const statusText = computed(() =>
@@ -33,6 +39,7 @@ export function useDashboardModel(
       snapshot.value.status,
       snapshot.value.isNightWork,
       hasConfigIssues.value,
+      t,
     ),
   );
   const workedTimeText = computed(() =>
@@ -40,36 +47,38 @@ export function useDashboardModel(
   );
   const middleStat = computed<DashboardMiddleStat>(() => {
     if (hasConfigIssues.value) {
-      return { label: "配置待修正", value: "--" };
+      return { label: t("status.invalidConfig"), value: "--" };
     }
 
     if (snapshot.value.status === "rest-day") {
-      return { label: "今日休息", value: "0m" };
+      return { label: t("status.restDay"), value: "0m" };
     }
 
     if (snapshot.value.status === "before-work") {
       return {
-        label: "距离上班",
+        label: t("stats.untilWork"),
         value: formatDashboardDuration(snapshot.value.nextTransitionMs),
       };
     }
 
     if (snapshot.value.status === "lunch-break") {
       return {
-        label: "距离复工",
+        label: t("stats.untilResume"),
         value: formatDashboardDuration(snapshot.value.nextTransitionMs),
       };
     }
 
     if (snapshot.value.status === "after-work") {
-      return { label: "今日完成", value: "100%" };
+      return { label: t("stats.todayDone"), value: "100%" };
     }
 
     return {
-      label: "距离下班",
+      label: t("stats.untilOff"),
       value: formatDashboardDuration(snapshot.value.nextTransitionMs),
     };
   });
+
+  const isWorkingStatus = computed(() => snapshot.value.status === "working");
 
   const hasIssue = (field: SalaryConfigIssue["field"]) =>
     configIssues.value.some((issue) => issue.field === field);
@@ -80,6 +89,7 @@ export function useDashboardModel(
     firstConfigIssue,
     hasConfigIssues,
     hasIssue,
+    isWorkingStatus,
     middleStat,
     salaryModeLabel,
     statusText,

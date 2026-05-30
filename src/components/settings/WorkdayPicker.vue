@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { SalaryConfig } from "../../lib/salary";
-import { toggleWorkdayValue, weekdayOptions } from "../../lib/settings-form";
+import { createWeekdayOptions, toggleWorkdayValue } from "../../lib/settings-form";
+import { useI18n } from "../../composables/useI18n";
+
+const { t } = useI18n();
 
 const props = defineProps<{
   density: "settings" | "onboarding";
@@ -22,10 +25,10 @@ const toggleWorkday = (day: number) => {
     class="weekday-control"
     :class="[`weekday-control--${density}`, { 'is-invalid': invalid }]"
     role="group"
-    aria-label="每周工作日"
+    :aria-label="t('workdays.label')"
   >
     <button
-      v-for="day in weekdayOptions"
+      v-for="day in createWeekdayOptions(t)"
       :key="day.value"
       :aria-pressed="workdays.includes(day.value)"
       :class="{ 'is-active': workdays.includes(day.value) }"

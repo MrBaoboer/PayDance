@@ -4,7 +4,9 @@ import type { AmountMode } from "../composables/useSalarySettings";
 import type { DashboardMiddleStat } from "../composables/useDashboardModel";
 import type { SalaryConfig, SalaryConfigIssue, SalarySnapshot } from "../lib/salary";
 import type { ThemeMode } from "../lib/window-mode";
+import type { UpdaterStatus } from "../platform/updater";
 import MainDashboard from "./MainDashboard.vue";
+import { useI18n } from "../composables/useI18n";
 import OnboardingPanel from "./OnboardingPanel.vue";
 import SalaryInfoSheet from "./SalaryInfoSheet.vue";
 import SettingsPanel from "./SettingsPanel.vue";
@@ -20,6 +22,8 @@ type ResizeDirection =
   | "SouthWest"
   | "West";
 
+const { t } = useI18n();
+
 defineProps<{
   alwaysOnTop: boolean;
   amountMode: AmountMode;
@@ -34,6 +38,7 @@ defineProps<{
   hasIssue: (field: SalaryConfigIssue["field"]) => boolean;
   isAutostartUpdating: boolean;
   isThemeSwitching: boolean;
+  isWorkingStatus?: boolean;
   middleStat: DashboardMiddleStat;
   salaryModeLabel: string;
   shouldShowOnboarding: boolean;
@@ -43,6 +48,7 @@ defineProps<{
   snapshot: SalarySnapshot;
   statusText: string;
   themeMode: ThemeMode;
+  updateStatus: UpdaterStatus;
   workedTimeText: string;
 }>();
 
@@ -73,6 +79,7 @@ const emit = defineEmits<{
     <WindowTitlebar
       :always-on-top="alwaysOnTop"
       :has-config-issues="hasConfigIssues"
+      :is-working-status="isWorkingStatus"
       :show-desktop-actions="showDesktopFeatures"
       :status-text="statusText"
       :theme-mode="themeMode"
@@ -104,17 +111,20 @@ const emit = defineEmits<{
         @click.self="emit('update:showSettings', false)"
         @mousedown.left.self="emit('dragStart', $event)"
       >
-        <section class="settings-sheet settings-sheet--top" aria-label="设置中心">
+        <section
+          class="settings-sheet settings-sheet--top"
+          :aria-label="t('settings.title')"
+        >
           <header
             class="settings-sheet__header"
             @mousedown.left="emit('dragStart', $event)"
           >
             <div>
-              <strong>设置</strong>
+              <strong>{{ t("settings.title") }}</strong>
             </div>
             <button
               class="sheet-close-button"
-              title="关闭设置"
+              :title="t('settings.close')"
               type="button"
               @click="emit('update:showSettings', false)"
               @mousedown.left.stop
@@ -132,6 +142,7 @@ const emit = defineEmits<{
               :has-issue="hasIssue"
               :is-autostart-updating="isAutostartUpdating"
               :show-desktop-features="showDesktopFeatures"
+              :update-status="updateStatus"
               @update:amount-mode="emit('update:amountMode', $event)"
               @update:autostart-enabled="emit('update:autostartEnabled', $event)"
               @update:config="emit('update:config', $event)"

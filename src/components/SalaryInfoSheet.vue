@@ -2,6 +2,9 @@
 import { computed } from "vue";
 import { Banknote, CircleDollarSign, Clock3, TimerReset, X } from "@lucide/vue";
 import type { SalarySnapshot } from "../lib/salary";
+import { useI18n } from "../composables/useI18n";
+
+const { t } = useI18n();
 
 const props = defineProps<{
   modeLabel: string;
@@ -19,22 +22,22 @@ defineEmits<{
 const salaryItems = computed(() => [
   {
     icon: CircleDollarSign,
-    label: "日薪",
+    label: t.value("salaryInfo.dailyRate"),
     value: props.snapshot.dailySalary.toFixed(2),
   },
   {
     icon: Banknote,
-    label: "时薪",
+    label: t.value("salaryInfo.hourlyRate"),
     value: props.snapshot.hourlyRate.toFixed(2),
   },
   {
     icon: Clock3,
-    label: "分薪",
+    label: t.value("salaryInfo.minuteRate"),
     value: props.snapshot.minuteRate.toFixed(2),
   },
   {
     icon: TimerReset,
-    label: "秒薪",
+    label: t.value("salaryInfo.secondRate"),
     value: props.snapshot.secondRate.toFixed(4),
   },
 ]);
@@ -42,18 +45,18 @@ const salaryItems = computed(() => [
 
 <template>
   <!-- eslint-disable vuejs-accessibility/no-static-element-interactions -->
-  <section class="settings-sheet salary-info-sheet" aria-label="薪资说明">
+  <section class="settings-sheet salary-info-sheet" :aria-label="t('salaryInfo.title')">
     <header
       class="salary-info-sheet__header"
       @mousedown.left="$emit('dragStart', $event)"
     >
       <div>
-        <strong>薪资说明</strong>
-        <span>{{ modeLabel }}换算</span>
+        <strong>{{ t("salaryInfo.title") }}</strong>
+        <span>{{ modeLabel }}{{ t("salaryInfo.subtitleSuffix") }}</span>
       </div>
       <button
         class="sheet-close-button"
-        title="关闭薪资说明"
+        :title="t('salaryInfo.close')"
         @click="$emit('close')"
         @mousedown.left.stop
       >

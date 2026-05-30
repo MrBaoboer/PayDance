@@ -1,30 +1,33 @@
 <script setup lang="ts">
 import { Focus, ShieldCheck, Zap } from "@lucide/vue";
+import { useI18n } from "../composables/useI18n";
+
+const { t } = useI18n();
 </script>
 
 <template>
   <div class="web-preview__feature-strip">
-    <dl class="web-preview__chips" aria-label="产品核心优势">
+    <dl class="web-preview__chips" :aria-label="t('web.featureAriaLabel')">
       <div class="web-preview__chip">
         <span class="web-preview__chip-icon" aria-hidden="true">
           <Zap :size="18" :stroke-width="2.6" />
         </span>
-        <dt class="web-preview__chip-copy">毫秒级更新</dt>
-        <dd>今日收入实时跳动</dd>
+        <dt class="web-preview__chip-copy">{{ t("web.featureRealtime") }}</dt>
+        <dd>{{ t("web.featureRealtimeDesc") }}</dd>
       </div>
       <div class="web-preview__chip">
         <span class="web-preview__chip-icon" aria-hidden="true">
           <Focus :size="18" :stroke-width="2.4" />
         </span>
-        <dt class="web-preview__chip-copy">安心专注</dt>
-        <dd>轻量窗口，静默运行</dd>
+        <dt class="web-preview__chip-copy">{{ t("web.featureFocus") }}</dt>
+        <dd>{{ t("web.featureFocusDesc") }}</dd>
       </div>
       <div class="web-preview__chip">
         <span class="web-preview__chip-icon" aria-hidden="true">
           <ShieldCheck :size="18" :stroke-width="2.4" />
         </span>
-        <dt class="web-preview__chip-copy">隐私优先</dt>
-        <dd>所有数据本地处理</dd>
+        <dt class="web-preview__chip-copy">{{ t("web.featurePrivacy") }}</dt>
+        <dd>{{ t("web.featurePrivacyDesc") }}</dd>
       </div>
     </dl>
   </div>

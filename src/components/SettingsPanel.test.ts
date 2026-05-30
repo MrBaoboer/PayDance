@@ -19,12 +19,18 @@ describe("settings panel", () => {
   });
 
   it("returns settings cards to the v0.5.10 structure", () => {
-    ["薪资模式", "薪资", "每周工作日", "工作时间", "金额变换"].forEach((title) => {
-      expect(settingsPanelSource).toContain(`<SettingsGroup title="${title}">`);
+    [
+      "t('settings.salaryMode')",
+      "t('settings.salary')",
+      "t('settings.workdays')",
+      "t('settings.workTime')",
+      "t('settings.amountAnimation')",
+    ].forEach((key) => {
+      expect(settingsPanelSource).toContain(`:title="${key}"`);
     });
 
     expect(settingsPanelSource).toContain("<LunchBreakFields");
-    expect(lunchBreakFieldsSource).toContain("<strong>午休</strong>");
+    expect(lunchBreakFieldsSource).toContain('t("lunchBreak.heading")');
     expect(settingsPanelSource).not.toContain("data-settings-card");
     expect(settingsPanelSource).not.toContain("<strong>显示</strong>");
     expect(settingsPanelSource).not.toContain("<strong>休息扣除</strong>");
@@ -47,8 +53,8 @@ describe("settings panel", () => {
 
   it("keeps the v0.5.10 lunch card interaction", () => {
     expect(settingsPanelSource).toContain("<LunchBreakFields");
-    expect(lunchBreakFieldsSource).toContain("<strong>午休</strong>");
-    expect(lunchBreakFieldsSource).toContain('label="剔除"');
+    expect(lunchBreakFieldsSource).toContain('t("lunchBreak.heading")');
+    expect(lunchBreakFieldsSource).toContain("t('lunchBreak.toggle')");
     expect(lunchBreakFieldsSource).toContain(':disabled="!config.enableLunchBreak"');
     expect(lunchBreakFieldsSource).not.toContain("休息扣除");
     expect(lunchBreakFieldsSource).not.toContain("从工作时长中扣除固定休息段");
@@ -67,16 +73,16 @@ describe("settings panel", () => {
 
   it("adds a lightweight autostart card without unrelated desktop controls", () => {
     const startupSection = settingsPanelSource.slice(
-      settingsPanelSource.indexOf('title="启动"'),
+      settingsPanelSource.indexOf("t('settings.startup')"),
       settingsPanelSource.indexOf("settings-inline-error"),
     );
 
-    expect(settingsPanelSource).toContain('title="启动"');
-    expect(settingsPanelSource).toContain("开机自动启动");
+    expect(settingsPanelSource).toContain("t('settings.startup')");
+    expect(settingsPanelSource).toContain("t('settings.autostart')");
     expect(settingsPanelSource).toContain("autostartEnabled");
     expect(startupSection).toContain("<SwitchRow");
     expect(startupSection).toContain("title-action");
-    expect(startupSection).toContain("开机自动启动");
+    expect(startupSection).toContain("t('settings.autostart')");
     expect(switchRowSource).toContain(".switch-row--title-action");
     expect(switchRowSource).toContain("justify-content: flex-end");
     expect(settingsPanelSource).not.toContain("margin-right: clamp(3px, 0.9cqw, 5px)");

@@ -5,6 +5,7 @@ import {
   normalizeWorkEnd,
   parseTimeToMinutes,
 } from "./time";
+import type { Messages } from "../../i18n/types";
 
 const salaryTypes: SalaryType[] = ["monthly", "daily", "hourly"];
 
@@ -19,48 +20,59 @@ export function isOvernightWorkConfig(config: SalaryConfig) {
   return Number.isFinite(start) && Number.isFinite(end) && end < start;
 }
 
-export function validateSalaryConfig(config: SalaryConfig): SalaryConfigIssue[] {
+export type ValidateT = (
+  key: keyof Messages,
+  params?: Record<string, string | number>,
+) => string;
+
+export function validateSalaryConfig(
+  config: SalaryConfig,
+  t: ValidateT,
+): SalaryConfigIssue[] {
   const issues: SalaryConfigIssue[] = [];
   const start = parseTimeToMinutes(config.startTime);
   const end = parseTimeToMinutes(config.endTime);
   const salaryType = config.salaryType ?? "monthly";
 
   if (!salaryTypes.includes(salaryType)) {
-    issues.push({ field: "salaryType", message: "薪资模式错误" });
+    issues.push({ field: "salaryType", message: t("validation.salaryTypeError") });
   }
 
   if (salaryType === "monthly" && !hasPositiveNumber(config.monthlySalary)) {
-    issues.push({ field: "monthlySalary", message: "月薪需大于 0" });
+    issues.push({ field: "monthlySalary", message: t("validation.monthlyPositive") });
   }
 
   if (salaryType === "daily" && !hasPositiveNumber(config.dailySalary)) {
-    issues.push({ field: "dailySalary", message: "日薪需大于 0" });
+    issues.push({ field: "dailySalary", message: t("validation.dailyPositive") });
   }
 
   if (salaryType === "hourly" && !hasPositiveNumber(config.hourlyRate)) {
-    issues.push({ field: "hourlyRate", message: "时薪需大于 0" });
+    issues.push({ field: "hourlyRate", message: t("validation.hourlyPositive") });
   }
 
   if (salaryType === "monthly" && !hasPositiveNumber(config.workDaysPerMonth)) {
-    issues.push({ field: "workDaysPerMonth", message: "工作天数需大于 0" });
+    issues.push({
+      field: "workDaysPerMonth",
+      message: t("validation.workDaysPositive"),
+    });
   }
 
   if (!Array.isArray(config.workdays) || config.workdays.length <= 0) {
-    issues.push({ field: "workdays", message: "至少选 1 天" });
+    issues.push({ field: "workdays", message: t("validation.workdaysMinOne") });
   } else if (!config.workdays.every(isValidWorkday)) {
-    issues.push({ field: "workdays", message: "工作日错误" });
+    issues.push({ field: "workdays", message: t("validation.workdaysError") });
   }
 
   if (!Number.isFinite(start)) {
-    issues.push({ field: "startTime", message: "上班时间错误" });
+    issues.push({ field: "startTime", message: t("validation.startTimeError") });
   }
 
   if (!Number.isFinite(end)) {
-    issues.push({ field: "endTime", message: "下班时间错误" });
+    issues.push({ field: "endTime", message: t("validation.endTimeError") });
   }
 
   if (Number.isFinite(start) && Number.isFinite(end) && start === end) {
-    issues.push({ field: "workTime", message: "时间不能相同" });
+    issues.push({ field: "workTime", message: t("validation.timeSameError") });
   }
 
   if (!config.enableLunchBreak) {
@@ -71,11 +83,11 @@ export function validateSalaryConfig(config: SalaryConfig): SalaryConfigIssue[] 
   const lunchEnd = parseTimeToMinutes(config.lunchEnd);
 
   if (!Number.isFinite(lunchStart)) {
-    issues.push({ field: "lunchStart", message: "午休开始错误" });
+    issues.push({ field: "lunchStart", message: t("validation.lunchStartError") });
   }
 
   if (!Number.isFinite(lunchEnd)) {
-    issues.push({ field: "lunchEnd", message: "午休结束错误" });
+    issues.push({ field: "lunchEnd", message: t("validation.lunchEndError") });
   }
 
   if (
@@ -98,7 +110,9 @@ export function validateSalaryConfig(config: SalaryConfig): SalaryConfigIssue[] 
     ) {
       issues.push({
         field: "workTime",
-        message: end < start ? "夜班午休需在工时内" : "午休需在工时内",
+        message: t(
+          end < start ? "validation.nightLunchOutside" : "validation.lunchOutside",
+        ),
       });
     }
   }

@@ -2,9 +2,12 @@
 import type { AmountMode } from "../composables/useSalarySettings";
 import type { DashboardMiddleStat } from "../composables/useDashboardModel";
 import type { SalarySnapshot } from "../lib/salary";
+import { useI18n } from "../composables/useI18n";
 import IncomeProgress from "./IncomeProgress.vue";
 import RollingAmount from "./RollingAmount.vue";
 import StatsPanel from "./StatsPanel.vue";
+
+const { t } = useI18n();
 
 defineProps<{
   amountMode: AmountMode;
@@ -25,13 +28,13 @@ const emit = defineEmits<{
 <template>
   <section class="hero-panel">
     <div class="hero-meta">
-      <p>今日入账</p>
+      <p>{{ t("dashboard.todayEarnings") }}</p>
     </div>
 
     <button
       class="amount-display"
-      aria-label="今日入账金额，双击或按 Enter 进入迷你悬浮模式"
-      title="双击进入迷你悬浮模式"
+      :aria-label="t('dashboard.tapToMini')"
+      :title="t('dashboard.doubleClickMini')"
       type="button"
       @dblclick="emit('setMiniMode', true)"
       @keydown.enter.prevent="emit('setMiniMode', true)"
@@ -45,7 +48,7 @@ const emit = defineEmits<{
     </button>
 
     <div class="hero-controls">
-      <section class="hero-dashboard" aria-label="今日收入看板">
+      <section class="hero-dashboard" :aria-label="t('dashboard.statsLabel')">
         <StatsPanel
           :expected-earn="dailyEarnText"
           :middle-label="middleStat.label"
@@ -61,7 +64,7 @@ const emit = defineEmits<{
         type="button"
         @click="emit('openSalaryInfo')"
       >
-        薪资说明
+        {{ t("dashboard.salaryInfo") }}
       </button>
     </div>
   </section>

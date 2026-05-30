@@ -3,12 +3,15 @@ import { computed } from "vue";
 import RollingAmount from "./RollingAmount.vue";
 import { maxMiniOpacityPercent, normalizeMiniOpacityPercent } from "../lib/window-mode";
 import type { MiniOpacityPanelAnchor } from "../lib/mini-opacity-position";
+import { useI18n } from "../composables/useI18n";
 
 const props = defineProps<{
   amount: string;
   amountMode: "rolling" | "plain";
   opacityPercent: number;
 }>();
+
+const { t } = useI18n();
 
 const emit = defineEmits<{
   restore: [];
@@ -56,10 +59,10 @@ const handleOpacityMenu = (event: MouseEvent) => {
     class="mini-window"
     :class="{ 'is-opaque': isOpaque }"
     :style="panelStyle"
-    aria-label="迷你悬浮金额，按 Enter 恢复完整窗口，右键调整透明度"
+    :aria-label="t('mini.ariaLabel')"
     role="button"
     tabindex="0"
-    title="双击恢复完整窗口"
+    :title="t('mini.restoreTitle')"
     @contextmenu.prevent.stop="handleOpacityMenu"
     @pointerdown="$emit('dragStart', $event)"
     @dblclick="$emit('restore')"

@@ -1,3 +1,4 @@
+
 <p align="center">
   <img src="src-tauri/icons/icon.png" alt="薪跳 PayDance" width="88"><br>
   <strong><font size="7">薪跳 PayDance</font></strong>
@@ -8,9 +9,11 @@
 </p>
 
 <p align="center">
-  <a href="https://masterbao66.github.io/PayDance/"><kbd><strong>在线体验</strong></kbd></a>
-  &nbsp;&nbsp;
-  <a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.8.15-windows-x64.exe"><kbd><strong>Windows 11 桌面端</strong></kbd></a>
+  <font size="5"><strong><a href="https://masterbao66.github.io/PayDance/">在线体验</a></strong></font>
+  &nbsp;&nbsp;&nbsp;
+  <font size="5"><strong><a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.0-windows-x64.exe">Windows 桌面端</a></strong></font>
+  &nbsp;&nbsp;&nbsp;
+  <a href="README_EN.md"><strong>English</strong></a>
 </p>
 
 ## 产品简介
@@ -46,13 +49,13 @@
 | 平台 | 推荐下载 | 说明 |
 | --- | --- | --- |
 | 在线体验 | [PayDance Web](https://masterbao66.github.io/PayDance/) | 网页端，含所有核心功能 |
-| Windows 11 桌面端 | [pay-dance-v0.8.15-windows-x64.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.8.15-windows-x64.exe) | 含开机自启动、窗口置顶、迷你悬浮模式、系统托盘等完整功能 |
+| Windows 11 桌面端 | [pay-dance-v0.9.0-windows-x64.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.0-windows-x64.exe) | 含开机自启动、窗口置顶、迷你悬浮模式、系统托盘等完整功能 |
 
-Release 页面会同时提供 `pay-dance-v0.8.15-windows-x64.exe` 与 `pay-dance-v0.8.15-windows-x64.exe.sha256`。Windows 对未签名二进制可能展示发布者验证提示，建议以 GitHub Release 来源与 SHA256 校验作为下载后的完整性确认。
+Release 页面会同时提供 `pay-dance-v0.9.0-windows-x64.exe` 与 `pay-dance-v0.9.0-windows-x64.exe.sha256`。Windows 对未签名二进制可能展示发布者验证提示，建议以 GitHub Release 来源与 SHA256 校验作为下载后的完整性确认。
 
 ```powershell
-Get-FileHash .\pay-dance-v0.8.15-windows-x64.exe -Algorithm SHA256
-Get-Content .\pay-dance-v0.8.15-windows-x64.exe.sha256
+Get-FileHash .\pay-dance-v0.9.0-windows-x64.exe -Algorithm SHA256
+Get-Content .\pay-dance-v0.9.0-windows-x64.exe.sha256
 ```
 
 若两者校验值一致，即可确认本地文件与 Release 附件匹配；若不一致，请不要运行该文件。
@@ -111,6 +114,12 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAct
 
 ## 作者与许可
 
-薪跳 PayDance 由 Mr.Baoboer 设计与开发。当前仓库采用保留权利许可，具体见 [LICENSE](LICENSE)。代码可用于审阅与学习；未经作者许可，请勿二次发布、商用分发或移除作者归属信息。
+薪跳 PayDance 由 Mr.Baoboer 设计与开发。
+
+- **代码**：采用 [GNU General Public License v3.0 (GPL-3.0)](LICENSE) — 可自由使用、学习、修改、再分发，但所有副本和修改版本必须保留原始版权声明并以相同许可开源。如需闭源商用授权，请联系作者。
+- **名称与标识**："薪跳" 和 "PayDance" 为作者商标。未经许可，不得使用上述名称发布衍生产品。
+- **文档**（README、PRODUCT、DESIGN、CHANGELOG）：采用 [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) — 可自由分享、改编，但需保留 Mr.Baoboer 署名。
 
 完整版本记录请查看 [CHANGELOG.md](CHANGELOG.md)，构建产物与校验文件请查看 [Releases](https://github.com/MasterBao66/PayDance/releases)。
+
+> [English version of this README →](README_EN.md)

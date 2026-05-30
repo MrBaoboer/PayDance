@@ -1,6 +1,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useAppShell } from "../composables/useAppShell";
 import { useDashboardModel } from "../composables/useDashboardModel";
+import { provideI18n } from "../composables/useI18n";
 import { useSalarySettings } from "../composables/useSalarySettings";
 import { useSalaryTicker } from "../composables/useSalaryTicker";
 import { useThemeSync } from "../composables/useThemeSync";
@@ -37,6 +38,9 @@ export function useWebPreviewState() {
     saveSettings,
     themeMode,
   } = useSalarySettings(() => Promise.resolve(previewStore));
+
+  const { locale } = useSalarySettings(() => Promise.resolve(previewStore));
+  const { t } = provideI18n(locale);
 
   const isMiniMode = ref(false);
   const autostartEnabled = ref(false);
@@ -104,8 +108,9 @@ export function useWebPreviewState() {
     middleStat,
     salaryModeLabel,
     statusText,
+    isWorkingStatus,
     workedTimeText,
-  } = useDashboardModel(config, snapshot);
+  } = useDashboardModel(config, snapshot, t.value, locale);
 
   const shellClass = computed(() =>
     themeMode.value === "dark" ? "theme-dark" : "theme-light",
@@ -234,6 +239,7 @@ export function useWebPreviewState() {
     hasIssue,
     isAutostartUpdating,
     isThemeSwitching,
+    isWorkingStatus,
     middleStat,
     miniLayerStyle,
     miniOpacityPercent,

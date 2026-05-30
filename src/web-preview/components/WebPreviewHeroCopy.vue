@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useI18n } from "../../composables/useI18n";
+
+const { t } = useI18n();
 import WebPreviewActions from "./WebPreviewActions.vue";
 
 defineProps<{
@@ -10,10 +13,10 @@ defineProps<{
 <template>
   <div class="web-preview__copy">
     <h1>
-      <span class="web-preview__headline-main">看见每一秒的</span>
-      <span class="web-preview__headline-accent">收入跳动</span>
+      <span class="web-preview__headline-main">{{ t("web.heroHeadline1") }}</span>
+      <span class="web-preview__headline-accent">{{ t("web.heroHeadline2") }}</span>
     </h1>
-    <p class="web-preview__lead">具象化你的劳动价值，专注工作，也看见回报</p>
+    <p class="web-preview__lead">{{ t("web.heroLead") }}</p>
 
     <WebPreviewActions
       :repository-url="repositoryUrl"

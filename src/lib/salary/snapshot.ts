@@ -6,8 +6,9 @@ import {
 } from "./config";
 import { isWithinNightWorkWindow, spansTouchNightWorkWindow } from "./night-shift";
 import { clamp } from "./time";
-import { validateSalaryConfig } from "./validation";
+import { validateSalaryConfig, type ValidateT } from "./validation";
 import { resolveWorkSpans, type WorkSpan } from "./work-spans";
+import type { Messages } from "../../i18n/types";
 
 function getDailySalary(config: SalaryConfig, totalWorkMs: number) {
   const workHours = totalWorkMs / 3_600_000;
@@ -67,8 +68,14 @@ function getNextTransitionMs(
   return 0;
 }
 
-export function calculateSalarySnapshot(now: Date, config: SalaryConfig): SalarySnapshot {
-  const issues = validateSalaryConfig(config);
+const fallbackT: ValidateT = (key: keyof Messages) => key;
+
+export function calculateSalarySnapshot(
+  now: Date,
+  config: SalaryConfig,
+  t: ValidateT = fallbackT,
+): SalarySnapshot {
+  const issues = validateSalaryConfig(config, t);
   if (issues.length > 0) {
     return { ...emptySnapshot, status: "invalid-config" };
   }

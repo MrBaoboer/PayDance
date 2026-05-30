@@ -8,9 +8,8 @@ import workTimeFieldsSource from "./settings/WorkTimeFields.vue?raw";
 
 describe("onboarding panel", () => {
   it("renames the final setup step to usage preferences", () => {
-    expect(onboardingPanelSource).toContain(
-      'const stepTitles = ["薪资模式", "工作时间", "使用偏好"]',
-    );
+    expect(onboardingPanelSource).toContain('t.value("onboarding.stepSalaryMode")');
+    expect(onboardingPanelSource).toContain('t.value("onboarding.stepPreferences")');
     expect(onboardingPanelSource).not.toContain(
       'const stepTitles = ["薪资模式", "工作时间", "外观风格"]',
     );
@@ -21,7 +20,7 @@ describe("onboarding panel", () => {
     expect(onboardingPanelSource).toContain(
       '"update:autostartEnabled": [value: boolean]',
     );
-    expect(stepPreferencesSource).toContain("开机自动启动");
+    expect(stepPreferencesSource).toContain("t('preferences.autostart')");
     expect(stepPreferencesSource).toContain(':model-value="autostartEnabled"');
   });
 

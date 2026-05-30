@@ -19,6 +19,7 @@ import {
   createSettingsStore,
   type SettingsStoreAdapter,
 } from "../platform/settings-store";
+import { detectLocale, type Locale } from "./useI18n";
 
 export type AmountMode = "rolling" | "plain";
 
@@ -32,13 +33,21 @@ export type PersistedWindowState = {
 const serializeSalaryConfig = (config: SalaryConfig) =>
   JSON.stringify({ ...config, workdays: [...config.workdays] });
 
+import type { Messages } from "../i18n/types";
+
+type TFunc = (key: keyof Messages, params?: Record<string, string | number>) => string;
+
+const fallbackT: TFunc = (key) => key;
+
 export function useSalarySettings(
   storeLoader = () => createSettingsStore(settingsStoreFileName),
+  getT: () => TFunc = () => fallbackT,
 ) {
   const config = ref<SalaryConfig>({ ...defaultSalaryConfig });
   const alwaysOnTop = ref(true);
   const themeMode = ref<ThemeMode>("light");
   const amountMode = ref<AmountMode>("rolling");
+  const locale = ref<Locale>("zh-CN");
   const hasCompletedOnboarding = ref(false);
   const isSettingsReady = ref(false);
   let storePromise: Promise<SettingsStoreAdapter> | null = null;
@@ -56,6 +65,7 @@ export function useSalarySettings(
     alwaysOnTop.value = true;
     themeMode.value = "light";
     amountMode.value = "rolling";
+    locale.value = "zh-CN";
     hasCompletedOnboarding.value = false;
   };
 
@@ -99,6 +109,9 @@ export function useSalarySettings(
         amountMode.value = savedAmountMode;
       }
 
+      const savedLocale = await store.get<string>(settingsStoreKeys.locale);
+      locale.value = detectLocale(savedLocale);
+
       return resolveWindowPreferences({
         savedIsMiniMode,
         savedFullSize,
@@ -125,7 +138,7 @@ export function useSalarySettings(
 
     try {
       const store = await getStore();
-      const configIssues = validateSalaryConfig(config.value);
+      const configIssues = validateSalaryConfig(config.value, getT());
       const shouldPersistSalaryConfig = configIssues.length <= 0;
       if (shouldPersistSalaryConfig) {
         await store.set(settingsStoreKeys.config, config.value);
@@ -138,6 +151,7 @@ export function useSalarySettings(
       await store.set(settingsStoreKeys.isMiniMode, isMiniMode);
       await store.set(settingsStoreKeys.themeMode, themeMode.value);
       await store.set(settingsStoreKeys.amountMode, amountMode.value);
+      await store.set(settingsStoreKeys.locale, locale.value);
       await store.set(settingsStoreKeys.miniSize, miniSize);
       await store.set(settingsStoreKeys.miniOpacityPercent, miniOpacityPercent);
       await store.set(
@@ -170,6 +184,7 @@ export function useSalarySettings(
     hasCompletedOnboarding,
     isSettingsReady,
     loadSettings,
+    locale,
     saveSettings,
     themeMode,
   };

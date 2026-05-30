@@ -8,6 +8,7 @@ import {
 } from "../lib/salary";
 import { getOnboardingStepIssues } from "../lib/onboarding-validation";
 import type { ResizeDirection } from "../lib/resize-handles";
+import { useI18n } from "../composables/useI18n";
 import ResizeHandles from "./onboarding/ResizeHandles.vue";
 import StepPreferences from "./onboarding/StepPreferences.vue";
 import StepSalaryMode from "./onboarding/StepSalaryMode.vue";
@@ -36,16 +37,22 @@ const emit = defineEmits<{
   "update:themeMode": [mode: "light" | "dark"];
 }>();
 
+const { t } = useI18n();
+
 const step = ref(0);
 const startInMiniMode = ref(false);
 
-const stepTitles = ["薪资模式", "工作时间", "使用偏好"];
-const issues = computed(() => validateSalaryConfig(props.config));
+const stepTitles = computed(() => [
+  t.value("onboarding.stepSalaryMode"),
+  t.value("onboarding.stepWorkTime"),
+  t.value("onboarding.stepPreferences"),
+]);
+const issues = computed(() => validateSalaryConfig(props.config, t.value));
 const currentStepIssues = computed(() =>
   getOnboardingStepIssues(step.value, props.config, issues.value),
 );
 const firstIssue = computed(() => currentStepIssues.value[0]?.message ?? "");
-const isLastStep = computed(() => step.value === stepTitles.length - 1);
+const isLastStep = computed(() => step.value === stepTitles.value.length - 1);
 const canContinue = computed(() => currentStepIssues.value.length === 0);
 
 const hasIssue = (field: SalaryConfigIssue["field"]) =>
@@ -69,7 +76,7 @@ const goBack = () => {
   <!-- eslint-disable vuejs-accessibility/no-static-element-interactions -->
   <div class="onboarding-overlay" @mousedown.left.self="emit('dragStart', $event)">
     <ResizeHandles @resize-start="emit('resizeStart', $event)" />
-    <section class="onboarding-panel" aria-label="首次配置">
+    <section class="onboarding-panel" :aria-label="t('onboarding.ariaLabel')">
       <header class="onboarding-header">
         <div>
           <strong>{{ stepTitles[step] }}</strong>
@@ -123,7 +130,7 @@ const goBack = () => {
           @click="goBack"
         >
           <ChevronLeft :size="16" />
-          <span>上一步</span>
+          <span>{{ t("onboarding.back") }}</span>
         </button>
         <button
           class="primary-button"
@@ -131,7 +138,7 @@ const goBack = () => {
           type="button"
           @click="goNext"
         >
-          <span>{{ isLastStep ? "开始" : "下一步" }}</span>
+          <span>{{ isLastStep ? t("onboarding.start") : t("onboarding.next") }}</span>
           <Check v-if="isLastStep" :size="16" />
           <ChevronRight v-else :size="16" />
         </button>
@@ -159,7 +166,7 @@ const goBack = () => {
   position: relative;
   width: min(100%, clamp(370px, 88cqw, 440px));
   max-height: 100%;
-  overflow: hidden;
+  overflow: hidden auto;
   border: 1px solid var(--onboarding-border, var(--border));
   border-radius: clamp(16px, 4cqw, 20px);
   background: var(--onboarding-panel, var(--panel));

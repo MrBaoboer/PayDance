@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { SalaryType } from "../../lib/salary";
-import { salaryTypeOptions } from "../../lib/settings-form";
+import { createSalaryTypeOptions } from "../../lib/settings-form";
 import SegmentedControl from "../ui/SegmentedControl.vue";
+import { useI18n } from "../../composables/useI18n";
+
+const { t } = useI18n();
 
 defineProps<{
   density: "settings" | "onboarding";
@@ -23,9 +26,9 @@ const updateSalaryType = (value: string) => {
     :columns="3"
     :density="density"
     :invalid="invalid"
-    label="薪资输入方式"
+    :label="t('salaryMode.label')"
     :model-value="modelValue"
-    :options="salaryTypeOptions"
+    :options="createSalaryTypeOptions(t)"
     @update:model-value="updateSalaryType"
   />
 </template>

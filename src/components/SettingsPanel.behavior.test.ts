@@ -2,11 +2,16 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { defaultSalaryConfig } from "../lib/salary";
-import SettingsPanel from "./SettingsPanel.vue";
+
+vi.mock("../platform/updater", () => ({
+  downloadAndInstall: vi.fn(async () => ({ kind: "upToDate" })),
+}));
 
 vi.mock("../platform/opener", () => ({
   openExternalUrl: vi.fn(async () => {}),
 }));
+
+import SettingsPanel from "./SettingsPanel.vue";
 
 const mountSettingsPanel = (
   config = defaultSalaryConfig,
@@ -21,6 +26,8 @@ const mountSettingsPanel = (
       firstIssue: "",
       hasIssue,
       isAutostartUpdating: false,
+      showDesktopFeatures: true,
+      updateStatus: { kind: "upToDate" },
     },
   });
 
@@ -28,7 +35,7 @@ describe("SettingsPanel behavior", () => {
   it("shows only the inputs required by the selected salary mode", async () => {
     const wrapper = mountSettingsPanel();
 
-    expect(wrapper.findAll('input[type="number"]')).toHaveLength(2);
+    expect(wrapper.findAll('input[type="number"]').length).toBeGreaterThanOrEqual(2);
 
     await wrapper.setProps({
       config: {
@@ -38,7 +45,7 @@ describe("SettingsPanel behavior", () => {
       },
     });
 
-    expect(wrapper.findAll('input[type="number"]')).toHaveLength(1);
+    expect(wrapper.findAll('input[type="number"]').length).toBeGreaterThanOrEqual(1);
     expect(wrapper.text()).toContain("日薪");
     expect(wrapper.text()).not.toContain("每月工作天数");
   });

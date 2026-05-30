@@ -18,6 +18,7 @@ import { appName } from "./lib/app-meta";
 import { useAppShell } from "./composables/useAppShell";
 import { useAppWindowLifecycle } from "./composables/useAppWindowLifecycle";
 import { useDashboardModel } from "./composables/useDashboardModel";
+import { provideI18n } from "./composables/useI18n";
 import { useMiniWindowDrag } from "./composables/useMiniWindowDrag";
 import { useMiniOpacityPanel } from "./composables/useMiniOpacityPanel";
 import { useSalarySettings } from "./composables/useSalarySettings";
@@ -26,12 +27,14 @@ import { useThemeSync } from "./composables/useThemeSync";
 import { registerTrayActions } from "./composables/useTrayActions";
 import { useWindowMode } from "./composables/useWindowMode";
 import { useWindowStatePersistence } from "./composables/useWindowStatePersistence";
+import { checkForUpdate, type UpdaterStatus } from "./platform/updater";
 import AppWindow from "./components/AppWindow.vue";
 import MiniWindow from "./components/MiniWindow.vue";
 import MiniOpacityPanel from "./components/MiniOpacityPanel.vue";
 
 const appWindow = getCurrentWindow();
 const isOpacityPanelWindow = appWindow.label === "mini-opacity";
+const updateStatus = ref<UpdaterStatus>({ kind: "upToDate" });
 type ResizeDirection =
   | "East"
   | "North"
@@ -49,9 +52,14 @@ const {
   hasCompletedOnboarding,
   isSettingsReady,
   loadSettings,
+  locale,
   saveSettings,
   themeMode,
-} = useSalarySettings();
+} = useSalarySettings(undefined, () => t.value);
+
+const { t } = provideI18n(locale, (next) => {
+  locale.value = next;
+});
 
 const isMiniMode = ref(false);
 const autostartEnabled = ref(false);
@@ -61,7 +69,7 @@ const fullSize = ref<WindowSize>({ ...fullWindowSize });
 const miniSize = ref<WindowSize>({ ...miniDefaultSize });
 const miniOpacityPercent = ref(defaultMiniOpacityPercent);
 const defaultWindowPreferences = resolveWindowPreferences({});
-const { snapshot, startTicker, stopTicker } = useSalaryTicker(config);
+const { snapshot, startTicker, stopTicker } = useSalaryTicker(config, t.value);
 const { applyWindowMode, setAlwaysOnTop } = useWindowMode(
   appWindow,
   isMiniMode,
@@ -120,11 +128,12 @@ const {
   firstConfigIssue,
   hasConfigIssues,
   hasIssue,
+  isWorkingStatus,
   middleStat,
   salaryModeLabel,
   statusText,
   workedTimeText,
-} = useDashboardModel(config, snapshot);
+} = useDashboardModel(config, snapshot, t.value, locale);
 
 const shellClass = computed(() =>
   themeMode.value === "dark" ? "theme-dark" : "theme-light",
@@ -158,6 +167,7 @@ const updateAutostartEnabled = async (enabled: boolean) => {
     tauriAutostartAdapter,
     enabled,
     autostartEnabled.value,
+    t.value("autostart.error"),
   );
   autostartEnabled.value = result.enabled;
   autostartError.value = result.error;
@@ -214,6 +224,11 @@ onMounted(async () => {
   );
 
   startTicker();
+
+  // Silent background update check — never blocks the UI
+  checkForUpdate().then((status) => {
+    updateStatus.value = status;
+  });
 });
 
 onBeforeUnmount(() => {
@@ -258,6 +273,7 @@ onBeforeUnmount(() => {
       v-model:show-salary-info="showSalaryInfo"
       v-model:show-settings="showSettings"
       :app-name="appName"
+      :update-status="updateStatus"
       :autostart-enabled="autostartEnabled"
       :autostart-error="autostartError"
       :daily-earn-text="dailyEarnText"
@@ -267,6 +283,7 @@ onBeforeUnmount(() => {
       :has-issue="hasIssue"
       :is-autostart-updating="isAutostartUpdating"
       :is-theme-switching="isThemeSwitching"
+      :is-working-status="isWorkingStatus"
       :middle-stat="middleStat"
       :salary-mode-label="salaryModeLabel"
       :should-show-onboarding="shouldShowOnboarding"

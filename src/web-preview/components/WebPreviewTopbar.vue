@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useI18n } from "../../composables/useI18n";
+
+const { t } = useI18n();
 defineProps<{
   appEnglishName: string;
   appName: string;
@@ -9,7 +12,7 @@ defineProps<{
 </script>
 
 <template>
-  <header class="web-preview__topbar" aria-label="产品信息">
+  <header class="web-preview__topbar" :aria-label="t('web.topbarAriaLabel')">
     <a class="web-preview__brand" :href="repositoryUrl">
       <img
         class="web-preview__brand-logo"
@@ -19,7 +22,10 @@ defineProps<{
       />
       <span>{{ appName }} {{ appEnglishName }}</span>
     </a>
-    <span class="web-preview__version" :aria-label="`当前版本 ${appVersion}`">
+    <span
+      class="web-preview__version"
+      :aria-label="t('web.versionLabel') + ' ' + appVersion"
+    >
       <span>Web Preview</span>
       <span class="web-preview__version-dot" aria-hidden="true">·</span>
       <strong>{{ appVersion }}</strong>

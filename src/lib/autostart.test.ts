@@ -32,7 +32,9 @@ describe("autostart", () => {
   it("enables autostart through the adapter", async () => {
     const adapter = createAdapter(false);
 
-    await expect(setAutostartEnabled(adapter, true, false)).resolves.toEqual({
+    await expect(
+      setAutostartEnabled(adapter, true, false, "自启动设置失败"),
+    ).resolves.toEqual({
       enabled: true,
       error: "",
     });
@@ -43,7 +45,9 @@ describe("autostart", () => {
   it("disables autostart through the adapter", async () => {
     const adapter = createAdapter(true);
 
-    await expect(setAutostartEnabled(adapter, false, true)).resolves.toEqual({
+    await expect(
+      setAutostartEnabled(adapter, false, true, "自启动设置失败"),
+    ).resolves.toEqual({
       enabled: false,
       error: "",
     });
@@ -55,7 +59,9 @@ describe("autostart", () => {
     const adapter = createAdapter(false);
     vi.mocked(adapter.enable).mockRejectedValue(new Error("blocked"));
 
-    await expect(setAutostartEnabled(adapter, true, false)).resolves.toEqual({
+    await expect(
+      setAutostartEnabled(adapter, true, false, "自启动设置失败"),
+    ).resolves.toEqual({
       enabled: false,
       error: "自启动设置失败",
     });

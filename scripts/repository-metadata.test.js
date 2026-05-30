@@ -71,8 +71,8 @@ describe("repository metadata", () => {
   it("keeps issue template version hints aligned with the current release line", () => {
     expect(read(".github/ISSUE_TEMPLATE.md")).not.toContain("v0.8.14");
     expect(read(".github/ISSUE_TEMPLATE/bug_report.yml")).not.toContain("v0.8.14");
-    expect(read(".github/ISSUE_TEMPLATE.md")).toContain("v0.8.15");
-    expect(read(".github/ISSUE_TEMPLATE/bug_report.yml")).toContain("v0.8.15");
+    expect(read(".github/ISSUE_TEMPLATE.md")).toContain("v0.9.0");
+    expect(read(".github/ISSUE_TEMPLATE/bug_report.yml")).toContain("v0.9.0");
   });
 
   it("removes legacy audience and desktop migration wording from product text", () => {

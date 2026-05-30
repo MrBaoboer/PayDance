@@ -86,6 +86,7 @@ watch(shellClass, (value) => emit("shellClassChange", value), { immediate: true 
         :salary-mode-label="salaryModeLabel"
         :should-show-onboarding="shouldShowOnboarding"
         :show-desktop-features="false"
+        :update-status="{ kind: 'unavailable' }"
         :snapshot="snapshot"
         :status-text="statusText"
         :theme-mode="themeMode"

@@ -28,13 +28,13 @@ describe("app metadata", () => {
   });
 
   it("exposes the current app version for about surfaces", () => {
-    expect(appVersion).toBe("0.8.15");
+    expect(appVersion).toBe("0.9.0");
   });
 
   it("exposes the versioned Windows release download", () => {
-    expect(windowsDownloadAssetName).toBe("pay-dance-v0.8.15-windows-x64.exe");
+    expect(windowsDownloadAssetName).toBe("pay-dance-v0.9.0-windows-x64.exe");
     expect(windowsDownloadUrl).toBe(
-      "https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.8.15-windows-x64.exe",
+      "https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.0-windows-x64.exe",
     );
   });
 });

@@ -63,12 +63,10 @@ describe("PayDance Web Preview", () => {
   it("presents web preview as a bounded online experience", () => {
     expect(webPreviewSource).toContain("PayDance Web Preview");
     expect(webPreviewSource).toContain('class="web-preview__headline-main"');
-    expect(webPreviewSource).toContain("看见每一秒的");
-    expect(webPreviewSource).toContain('class="web-preview__headline-accent"');
-    expect(webPreviewSource).toContain("收入跳动");
-    expect(webPreviewSource).toContain("具象化你的劳动价值");
-    expect(webPreviewSource).toContain("专注工作，也看见回报");
-    expect(webPreviewSource).toContain("下载 Windows 版");
+    expect(webPreviewSource).toContain('t("web.heroHeadline1")');
+    expect(webPreviewSource).toContain('t("web.heroHeadline2")');
+    expect(webPreviewSource).toContain('t("web.heroLead")');
+    expect(webPreviewSource).toContain('t("web.downloadWindows")');
     expect(webPreviewSource).toContain("pay-dance-v${appVersion}-windows-x64.exe");
     expect(webPreviewSource).not.toContain("开始体验");
     expect(webPreviewSource).toContain(':show-desktop-features="false"');
@@ -165,7 +163,7 @@ describe("PayDance Web Preview", () => {
   });
 
   it("uses the approved single-line lead without changing the hero structure", () => {
-    expect(webPreviewSource).toContain("具象化你的劳动价值，专注工作，也看见回报");
+    expect(webPreviewSource).toContain('t("web.heroLead")');
     expect(webPreviewSource).not.toContain('class="web-preview__lead-line"');
     expect(webPreviewSource).not.toContain(
       ["<span>把今天", "已经挣到的钱</span>"].join(""),
@@ -238,19 +236,19 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewFeatureStripSource).toContain("Zap");
     expect(webPreviewFeatureStripSource).toContain("Focus");
     expect(webPreviewFeatureStripSource).toContain("ShieldCheck");
-    expect(webPreviewFeatureStripSource).toContain("毫秒级更新");
-    expect(webPreviewFeatureStripSource).toContain("今日收入实时跳动");
-    expect(webPreviewFeatureStripSource).toContain("安心专注");
-    expect(webPreviewFeatureStripSource).toContain("轻量窗口，静默运行");
-    expect(webPreviewFeatureStripSource).toContain("隐私优先");
-    expect(webPreviewFeatureStripSource).toContain("所有数据本地处理");
+    expect(webPreviewFeatureStripSource).toContain('t("web.featureRealtime")');
+    expect(webPreviewFeatureStripSource).toContain('t("web.featureRealtimeDesc")');
+    expect(webPreviewFeatureStripSource).toContain('t("web.featureFocus")');
+    expect(webPreviewFeatureStripSource).toContain('t("web.featureFocusDesc")');
+    expect(webPreviewFeatureStripSource).toContain('t("web.featurePrivacy")');
+    expect(webPreviewFeatureStripSource).toContain('t("web.featurePrivacyDesc")');
     expect(webPreviewFeatureStripSource).toContain('class="web-preview__chip-icon"');
     expect(webPreviewFeatureStripSource).toContain('class="web-preview__chip-copy"');
-    expect(webPreviewFeatureStripSource.indexOf("毫秒级更新")).toBeLessThan(
-      webPreviewFeatureStripSource.indexOf("安心专注"),
+    expect(webPreviewFeatureStripSource.indexOf('t("web.featureRealtime")')).toBeLessThan(
+      webPreviewFeatureStripSource.indexOf('t("web.featureFocus")'),
     );
-    expect(webPreviewFeatureStripSource.indexOf("安心专注")).toBeLessThan(
-      webPreviewFeatureStripSource.indexOf("隐私优先"),
+    expect(webPreviewFeatureStripSource.indexOf('t("web.featureFocus")')).toBeLessThan(
+      webPreviewFeatureStripSource.indexOf('t("web.featurePrivacy")'),
     );
     expect(featureCssBlock(".web-preview__feature-strip")).toContain(
       "grid-column: 1 / -1",
@@ -385,8 +383,8 @@ describe("PayDance Web Preview", () => {
     expect(readmeSource).toContain('<font size="7">');
     expect(readmeSource).toContain("桌面实时工资看板");
     expect(readmeSource).not.toContain(String.fromCodePoint(0x4eea, 0x8868, 0x76d8));
-    expect(readmeSource).toContain(">在线体验</");
-    expect(readmeSource).toContain(">Windows 11 桌面端</");
+    expect(readmeSource).toContain("在线体验</");
+    expect(readmeSource).toContain("Windows 桌面端</");
     expect(readmeSource).not.toContain("shields.io");
     expect(readmeSource).not.toContain("优化完善在线体验");
     expect(readmeSource).not.toContain("下载 Windows 便携版");
@@ -410,7 +408,7 @@ describe("PayDance Web Preview", () => {
     expect(readmeSource).toContain("| 在线体验 | [PayDance Web]");
     expect(readmeSource).toContain("网页端，含所有核心功能");
     expect(readmeSource).toContain(
-      "| Windows 11 桌面端 | [pay-dance-v0.8.15-windows-x64.exe]",
+      "| Windows 11 桌面端 | [pay-dance-v0.9.0-windows-x64.exe]",
     );
     expect(readmeSource).toContain(
       "含开机自启动、窗口置顶、迷你悬浮模式、系统托盘等完整功能",

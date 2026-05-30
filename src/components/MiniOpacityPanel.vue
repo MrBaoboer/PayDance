@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { emitTo } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { useI18n } from "../composables/useI18n";
 import {
   defaultMiniOpacityPercent,
   maxMiniOpacityPercent,
@@ -15,6 +16,7 @@ type MiniOpacityPanelPayload = {
   themeMode?: ThemeMode;
 };
 
+const { t } = useI18n();
 const appWindow = getCurrentWindow();
 const opacityPercent = ref(defaultMiniOpacityPercent);
 const themeMode = ref<ThemeMode>("light");
@@ -84,12 +86,12 @@ onBeforeUnmount(() => {
     @contextmenu.prevent
   >
     <header class="mini-opacity-panel__meta">
-      <strong>透明度</strong>
+      <strong>{{ t("opacity.header") }}</strong>
       <span>{{ opacityPercent }}%</span>
     </header>
     <input
-      aria-label="迷你悬浮透明度"
-      :aria-valuetext="`迷你悬浮透明度 ${opacityPercent}%`"
+      :aria-label="t('opacity.ariaLabel')"
+      :aria-valuetext="`${t('opacity.ariaLabel')} ${opacityPercent}%`"
       :max="maxMiniOpacityPercent"
       :min="minMiniOpacityPercent"
       :value="opacityPercent"

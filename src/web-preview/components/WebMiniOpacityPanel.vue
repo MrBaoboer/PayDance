@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useI18n } from "../../composables/useI18n";
+
+const { t } = useI18n();
 defineProps<{
   left: number;
   miniOpacityPercent: number;
@@ -18,14 +21,14 @@ const readRangeValue = (event: Event) => Number((event.target as HTMLInputElemen
     class="web-mini-opacity"
     :class="shellClass"
     :style="{ left: `${left}px`, top: `${top}px` }"
-    aria-label="迷你悬浮透明度"
+    :aria-label="t('web.opacityAriaLabel')"
   >
     <div class="web-mini-opacity__header">
-      <span>透明度</span>
+      <span>{{ t("web.opacityLabel") }}</span>
       <strong>{{ miniOpacityPercent }}%</strong>
     </div>
     <label class="web-mini-opacity__slider" for="web-mini-opacity-range">
-      <span class="sr-only">迷你悬浮透明度</span>
+      <span class="sr-only">{{ t("web.opacityAriaLabel") }}</span>
       <input
         id="web-mini-opacity-range"
         max="100"

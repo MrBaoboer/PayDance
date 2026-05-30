@@ -6,7 +6,7 @@ describe("mini opacity panel", () => {
     expect(miniOpacityPanelSource).toContain('type="range"');
     expect(miniOpacityPanelSource).toContain(':min="minMiniOpacityPercent"');
     expect(miniOpacityPanelSource).toContain(':max="maxMiniOpacityPercent"');
-    expect(miniOpacityPanelSource).toContain('aria-label="迷你悬浮透明度"');
+    expect(miniOpacityPanelSource).toContain("t('opacity.ariaLabel')");
     expect(miniOpacityPanelSource).toContain(":aria-valuetext");
   });
 

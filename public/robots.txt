@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://masterbao66.github.io/PayDance/sitemap.xml

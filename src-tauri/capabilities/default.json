@@ -35,6 +35,8 @@
     "store:allow-get-store",
     "store:allow-load",
     "store:allow-save",
-    "store:allow-set"
+    "store:allow-set",
+    "updater:allow-check",
+    "updater:allow-download-and-install"
   ]
 }

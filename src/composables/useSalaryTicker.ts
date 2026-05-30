@@ -4,6 +4,7 @@ import {
   type SalaryConfig,
   type SalarySnapshot,
 } from "../lib/salary";
+import type { ValidateT } from "../lib/salary/validation";
 import { createMonotonicWallClock } from "../lib/monotonic-clock";
 
 const minTickerIntervalMs = 120;
@@ -44,8 +45,15 @@ const resolveNextTickDelay = (snapshot: SalarySnapshot) => {
   return activeDelay;
 };
 
-export function useSalaryTicker(config: Ref<SalaryConfig>) {
-  const snapshot = ref<SalarySnapshot>(calculateSalarySnapshot(new Date(), config.value));
+const fallbackValidateT: ValidateT = (key) => key;
+
+export function useSalaryTicker(
+  config: Ref<SalaryConfig>,
+  t: ValidateT = fallbackValidateT,
+) {
+  const snapshot = ref<SalarySnapshot>(
+    calculateSalarySnapshot(new Date(), config.value, t),
+  );
 
   let timerId = 0;
   let isRunning = false;
@@ -63,7 +71,7 @@ export function useSalaryTicker(config: Ref<SalaryConfig>) {
         monotonicMs: performance.now(),
         wallTimeMs: Date.now(),
       });
-      snapshot.value = calculateSalarySnapshot(now, config.value);
+      snapshot.value = calculateSalarySnapshot(now, config.value, t);
       timerId = window.setTimeout(tick, resolveNextTickDelay(snapshot.value));
     };
 

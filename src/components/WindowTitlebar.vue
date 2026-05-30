@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { Minus, Moon, Pin, Settings2, Shrink, Sun, X } from "@lucide/vue";
+import { useI18n } from "../composables/useI18n";
+
+const { t } = useI18n();
 
 withDefaults(
   defineProps<{
     alwaysOnTop: boolean;
     hasConfigIssues: boolean;
+    isWorkingStatus?: boolean;
     showDesktopActions?: boolean;
     statusText: string;
     themeMode: "light" | "dark";
   }>(),
   {
+    isWorkingStatus: false,
     showDesktopActions: true,
   },
 );
@@ -34,7 +39,7 @@ defineEmits<{
         :class="
           hasConfigIssues
             ? 'status-dot--warning'
-            : statusText === '正在上班' || statusText === '正在夜班'
+            : isWorkingStatus
               ? 'status-dot--working'
               : 'status-dot--idle'
         "
@@ -45,8 +50,8 @@ defineEmits<{
     <div class="window-actions">
       <button
         class="icon-button"
-        aria-label="打开设置"
-        title="设置"
+        :aria-label="t('titlebar.openSettings')"
+        :title="t('titlebar.settings')"
         type="button"
         @click="$emit('toggleSettings')"
       >
@@ -54,8 +59,8 @@ defineEmits<{
       </button>
       <button
         class="icon-button"
-        aria-label="切换迷你悬浮模式"
-        title="迷你悬浮模式"
+        :aria-label="t('titlebar.toggleMini')"
+        :title="t('titlebar.miniMode')"
         type="button"
         @click="$emit('toggleMiniMode')"
       >
@@ -63,8 +68,10 @@ defineEmits<{
       </button>
       <button
         class="icon-button"
-        :aria-label="themeMode === 'dark' ? '切换到浅色模式' : '切换到深色模式'"
-        :title="themeMode === 'dark' ? '浅色模式' : '深色模式'"
+        :aria-label="
+          themeMode === 'dark' ? t('titlebar.switchToLight') : t('titlebar.switchToDark')
+        "
+        :title="themeMode === 'dark' ? t('titlebar.lightMode') : t('titlebar.darkMode')"
         type="button"
         @click="$emit('toggleTheme')"
       >
@@ -74,8 +81,10 @@ defineEmits<{
       <button
         v-if="showDesktopActions"
         class="icon-button"
-        :aria-label="alwaysOnTop ? '取消窗口置顶' : '窗口置顶'"
-        :title="alwaysOnTop ? '取消置顶' : '窗口置顶'"
+        :aria-label="alwaysOnTop ? t('titlebar.cancelTop') : t('titlebar.alwaysOnTop')"
+        :title="
+          alwaysOnTop ? t('titlebar.cancelTopTitle') : t('titlebar.alwaysOnTopTitle')
+        "
         type="button"
         @click="$emit('toggleAlwaysOnTop')"
       >
@@ -84,8 +93,8 @@ defineEmits<{
       <button
         v-if="showDesktopActions"
         class="icon-button"
-        aria-label="最小化窗口"
-        title="最小化"
+        :aria-label="t('titlebar.minimize')"
+        :title="t('titlebar.minimizeTitle')"
         type="button"
         @click="$emit('minimize')"
       >
@@ -94,8 +103,8 @@ defineEmits<{
       <button
         v-if="showDesktopActions"
         class="icon-button danger"
-        aria-label="关闭到托盘"
-        title="关闭到托盘"
+        :aria-label="t('titlebar.closeToTray')"
+        :title="t('titlebar.closeToTray')"
         type="button"
         @click="$emit('close')"
       >

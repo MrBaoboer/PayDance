@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useI18n } from "../../composables/useI18n";
+
+const { t } = useI18n();
 import { Download } from "@lucide/vue";
 import GitHubMark from "./GitHubMark.vue";
 import Windows11Mark from "./Windows11Mark.vue";
@@ -10,13 +13,13 @@ defineProps<{
 </script>
 
 <template>
-  <nav class="web-preview__actions" aria-label="网页端操作">
+  <nav class="web-preview__actions" :aria-label="t('web.actionsAriaLabel')">
     <a
       class="web-preview__action web-preview__action--primary"
       :href="windowsDownloadUrl"
     >
       <Windows11Mark />
-      <span class="web-preview__action-label">下载 Windows 版</span>
+      <span class="web-preview__action-label">{{ t("web.downloadWindows") }}</span>
       <Download :size="16" />
     </a>
     <a class="web-preview__action web-preview__action--quiet" :href="repositoryUrl">

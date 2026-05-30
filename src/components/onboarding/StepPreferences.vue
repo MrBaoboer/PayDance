@@ -1,6 +1,15 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import SegmentedControl from "../ui/SegmentedControl.vue";
 import SwitchRow from "../ui/SwitchRow.vue";
+import {
+  useI18n,
+  supportedLocales,
+  localeLabels,
+  type Locale,
+} from "../../composables/useI18n";
+
+const { locale, setLocale, t } = useI18n();
 
 type ThemeMode = "light" | "dark";
 
@@ -24,10 +33,17 @@ const emit = defineEmits<{
   "update:themeMode": [mode: ThemeMode];
 }>();
 
-const themeOptions = [
-  { label: "浅色", value: "light" },
-  { label: "深色", value: "dark" },
-] as const;
+const langOptions = computed(() =>
+  supportedLocales.map((loc) => ({
+    label: localeLabels[loc],
+    value: loc,
+  })),
+);
+
+const themeOptions = computed(() => [
+  { label: t.value("preferences.light"), value: "light" } as const,
+  { label: t.value("preferences.dark"), value: "dark" } as const,
+]);
 
 const updateThemeMode = (value: string) => {
   emit("update:themeMode", value as ThemeMode);
@@ -39,7 +55,16 @@ const updateThemeMode = (value: string) => {
     <SegmentedControl
       :columns="2"
       density="onboarding"
-      label="主题"
+      :label="t('preferences.language')"
+      :model-value="locale"
+      :options="langOptions"
+      @update:model-value="setLocale($event as Locale)"
+    />
+
+    <SegmentedControl
+      :columns="2"
+      density="onboarding"
+      :label="t('preferences.theme')"
       :model-value="themeMode"
       :options="themeOptions"
       @update:model-value="updateThemeMode"
@@ -47,7 +72,7 @@ const updateThemeMode = (value: string) => {
 
     <SwitchRow
       v-if="showDesktopFeatures"
-      label="开机自动启动"
+      :label="t('preferences.autostart')"
       panel
       :model-value="autostartEnabled"
       @update:model-value="emit('update:autostartEnabled', $event)"
@@ -55,14 +80,14 @@ const updateThemeMode = (value: string) => {
 
     <SwitchRow
       v-if="showDesktopFeatures"
-      label="窗口始终置顶"
+      :label="t('preferences.alwaysOnTop')"
       panel
       :model-value="alwaysOnTop"
       @update:model-value="emit('update:alwaysOnTop', $event)"
     />
 
     <SwitchRow
-      label="进入迷你悬浮模式"
+      :label="t('preferences.startInMini')"
       panel
       :model-value="startInMiniMode"
       @update:model-value="emit('update:startInMiniMode', $event)"

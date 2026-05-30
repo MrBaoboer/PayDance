@@ -1,8 +1,9 @@
 {
   "name": "pay-dance",
   "private": true,
-  "version": "0.8.15",
+  "version": "0.9.0",
   "author": "Mr.Baoboer",
+  "license": "GPL-3.0-only",
   "repository": "github:MasterBao66/PayDance",
   "type": "module",
   "scripts": {
@@ -36,7 +37,9 @@
     "@tauri-apps/api": "^2.0.0",
     "@tauri-apps/plugin-autostart": "^2.5.1",
     "@tauri-apps/plugin-opener": "^2.5.4",
+    "@tauri-apps/plugin-process": "^2.3.1",
     "@tauri-apps/plugin-store": "^2.0.0",
+    "@tauri-apps/plugin-updater": "^2.10.1",
     "vue": "^3.5.35"
   },
   "devDependencies": {
