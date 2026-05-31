@@ -4,6 +4,15 @@
 
 更多构建产物与校验文件请查看 [GitHub Releases](https://github.com/MasterBao66/PayDance/releases)。
 
+### v0.9.2
+
+- **分享卡片补全**：`index.html` 新增 `og:image:alt`、`twitter:image:alt`，JSON-LD 结构化数据补充 `softwareVersion`、`downloadUrl`、`license`、`isAccessibleForFree`、`dateModified` 字段。
+- **供应链安全加固**：CI 新增 gitleaks（Git 历史密钥扫描）、`cargo audit`（Rust 依赖漏洞）和 `cargo deny check`（许可证合规与来源校验）三个检查步骤。
+- **治理文档体系**：新增或重写 `SECURITY.md`、`CONTRIBUTING.md`、`TRADEMARK.md`、`ROADMAP.md`、`SUPPORT.md` 及其英文版，共 10 个文件，均以中文为主版本并含英文双向链接。
+- **README 刷新**：中英文核心特性均加入"中英文双语界面""静默自动更新""NSIS 安装包"描述，反映 v0.9.0 以来实际能力。
+- **官网语言切换器优化**：从右下角移至右上角 Topbar 版本号左侧，暗色模式下边框、背景与文字颜色适配。
+- **发布流程修复**：移除偶发 404 失败的 `attest-build-provenance` 步骤，Release workflow 可靠性提升。
+
 ### v0.9.1
 
 - **更新系统闭环**：生成真实 Tauri updater 签名密钥对，`tauri.conf.json` 写入公钥，Release workflow 构建 NSIS 安装包并生成 `.sig` 签名文件与 `latest.json` 更新清单，实现完整自动更新链路。

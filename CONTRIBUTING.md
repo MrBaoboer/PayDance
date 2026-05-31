@@ -1,85 +1,87 @@
-# Contributing to PayDance
+# 参与贡献
 
-Thanks for your interest! PayDance is a focused desktop tool — please read the guidelines below before submitting anything.
+感谢你的关注！薪跳 PayDance 是一款聚焦的桌面工具——提交前请阅读以下指引。
 
-## Environment
+## 开发环境
 
-- **OS**: Windows 11 (primary target; Web Preview works cross-platform)
-- **Runtime**: Node.js 22, Rust (latest stable)
-- **Package manager**: npm
+- **操作系统**：Windows 11（主要目标平台；Web Preview 可跨平台）
+- **运行时**：Node.js 22、Rust（最新稳定版）
+- **包管理器**：npm
 
-## Getting Started
+## 快速开始
 
 ```powershell
 npm install
-npm run tauri dev       # Desktop app
-npm run dev:web         # Web Preview in browser
+npm run tauri dev       # 桌面应用
+npm run dev:web         # 浏览器 Web Preview
 ```
 
-## Before Submitting
+## 提交前必做
 
-Run these commands locally. CI will run them too, and PRs that fail won't be merged.
+在本地运行以下命令。CI 也会运行它们，未通过的 PR 不会被合并。
 
 ```powershell
-npm test                # All unit/component tests
+npm test                # 全部单元/组件测试
 npm run lint            # ESLint
 npm run format:check    # Prettier
-npm run check:hygiene   # Brand + secret hygiene
-npm run build:desktop   # Type-check + Vite build
-npm run build:web       # Web Preview build
-cargo fmt --all -- --check   # (in src-tauri/)
+npm run check:hygiene   # 品牌 + 密钥卫生
+npm run build:desktop   # 类型检查 + Vite 构建
+npm run build:web       # Web Preview 构建
+cargo fmt --all -- --check        # （在 src-tauri/ 中执行）
 cargo clippy --all-targets -- -D warnings
 ```
 
-## What We Accept
+## 我们接受
 
-PayDance is a **desktop real-time salary dashboard**. Contributions should align with the product boundaries documented in `PRODUCT.md`.
+薪跳 PayDance 是一款**桌面实时工资看板**。所有贡献必须符合 `PRODUCT.md` 中记载的产品边界。
 
-**Welcome:**
-- Bug fixes with reproduction steps
-- Desktop reliability improvements (window management, tray, auto-start)
-- Windows 11 UI polish (theming, accessibility, DPI)
-- Performance improvements for the salary ticker
-- Test coverage for edge cases (clock changes, config migration, night shifts)
-- i18n corrections for Chinese and English
+**欢迎：**
+- 附带复现步骤的 Bug 修复
+- 桌面端可靠性改进（窗口管理、托盘、自启动）
+- Windows 11 UI 打磨（主题、无障碍、DPI）
+- 薪资计时器的性能优化
+- 边界场景测试覆盖（时钟变化、配置迁移、夜班）
+- 中英文 i18n 勘误
 
-## What We Don't Accept
+## 我们不接受
 
-PayDance is intentionally NOT:
-- A time tracker or timesheet tool
-- A personal finance manager
-- A payroll or HR system
-- A task/project management app
+薪跳 PayDance 不是：
+- 时间追踪或工时统计工具
+- 个人财务管理工具
+- 薪酬或人力资源系统
+- 任务或项目管理应用
 
-**We will not accept contributions that add:**
-- Keyboard shortcuts or hotkey systems
-- Reminders, notifications, or alerts
-- Segmented time axes or historical charts
-- Multi-currency support
-- Cloud sync, accounts, or online services
-- Pomodoro timers or productivity features
-- Complex animation systems or "fun" visual effects
-- Any feature that sends data off-device
+**以下贡献不会被合并：**
+- 快捷键或热键系统
+- 提醒、通知或弹窗
+- 分段历史时间轴或图表
+- 多币种支持
+- 云端同步、账号系统或在线服务
+- 番茄钟或生产力功能
+- 复杂动画系统或"趣味"视觉效果
+- 任何将数据发送到设备外部的功能
 
-These boundaries keep PayDance simple and maintainable. If you're unsure whether something fits, open an Issue to discuss first.
+这些边界保持 PayDance 简单且可维护。如果不确定某项功能是否符合，请先开 Issue 讨论。
 
-## PR Guidelines
+## PR 规范
 
-1. **One change per PR.** Don't mix a bug fix with a refactor.
-2. **Write tests.** New behavior needs test coverage. Bug fixes should include a regression test.
-3. **Follow existing code style.** The codebase has established patterns — match them.
-4. **Update CHANGELOG.md** under the `## Unreleased` section.
-5. **Screenshots required** for UI changes (light + dark mode, Chinese + English).
-6. **Use conventional commits:** `feat:`, `fix:`, `docs:`, `test:`, `chore:`, `refactor:`.
+1. **一个 PR 只做一件事。** 不要将 Bug 修复和重构混在一起。
+2. **写测试。** 新行为必须有测试覆盖。Bug 修复应包含回归测试。
+3. **遵循现有代码风格。** 代码库已有成熟的模式——与之保持一致。
+4. **更新 CHANGELOG.md**（在 `## Unreleased` 区段下）。
+5. **UI 改动必须附截图**（浅色 + 深色、中文 + 英文）。
+6. **使用约定式提交：** `feat:`、`fix:`、`docs:`、`test:`、`chore:`、`refactor:`。
 
-## i18n
+## 国际化
 
-All user-facing strings must be in `src/i18n/locales/zh-CN.ts` and `src/i18n/locales/en.ts`, with a type definition in `src/i18n/types.ts`. Never hardcode Chinese or English strings in Vue components or TypeScript.
+所有面向用户的文案必须同时出现在 `src/i18n/locales/zh-CN.ts` 和 `src/i18n/locales/en.ts` 中，并在 `src/i18n/types.ts` 中定义类型。禁止在 Vue 组件或 TypeScript 中硬编码中英文文案。
 
-## Versioning
+## 版本管理
 
-PayDance follows [Semantic Versioning](https://semver.org/). Release versions are managed by the project author. Do not bump the version number in your PR.
+薪跳 PayDance 遵循[语义化版本](https://semver.org/lang/zh-CN/)。版本号由项目作者管理。请勿在 PR 中自行提升版本号。
 
-## License
+## 许可
 
-By contributing, you agree that your contributions will be licensed under the same GPL-3.0 license that covers the project. See `LICENSE` and `TRADEMARK.md`.
+提交贡献即表示你同意将你的贡献以项目所采用的 GPL-3.0 许可进行授权。详见 `LICENSE` 和 `TRADEMARK.md`。
+
+> [English version of this Contributing Guide →](CONTRIBUTING_EN.md)

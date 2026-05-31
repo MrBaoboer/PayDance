@@ -10,7 +10,7 @@
 <p align="center">
   <font size="5"><strong><a href="https://masterbao66.github.io/PayDance/">Live Preview</a></strong></font>
   &nbsp;&nbsp;&nbsp;
-  <font size="5"><strong><a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.1-windows-x64.exe">Windows Desktop</a></strong></font>
+  <font size="5"><strong><a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.2-windows-x64.exe">Windows Desktop</a></strong></font>
   &nbsp;&nbsp;&nbsp;
   <a href="README.md"><strong>中文</strong></a>
 </p>
@@ -35,26 +35,27 @@ The main window shows today's earnings, work progress, remaining time, and daily
 ## Core Features
 
 - **Real-time earnings ticker**: Continuously calculates today's earnings based on the current time, precise to 2 decimal places. Watch your income grow in real time.
+- **Bilingual UI**: Full Chinese (简体中文) and English support — switch languages in settings. Tray menu, validation messages, and all UI copy are fully translated.
 - **Multiple salary modes**: Supports monthly, daily, and hourly salary, with automatic conversion to per-day, per-hour, per-minute, and per-second rates.
 - **Realistic time modeling**: Working days per month, workdays per week, start/end times, lunch break deduction, and overnight shifts across midnight.
 - **Mini floating mode**: Shows only the core amount. Supports drag, double-click to restore the main window, always-on-top, and 10%–100% transparency.
-- **Windows 11 desktop experience**: Frameless window, rounded corners, light/dark themes, system tray, always-on-top, and auto-start with Windows.
+- **Windows 11 desktop experience**: Frameless window, rounded corners, light/dark themes, system tray, always-on-top, auto-start, and silent background auto-update.
 - **Local-first privacy**: No account required. Salary data stays on your machine. No telemetry, remote sync, or online accounts.
 - **Web preview**: Try the core dashboard, setup wizard, and mini floating mode in your browser before downloading.
-- **Release reliability**: SHA256 checksums for every release. CI covers code hygiene, behavioral tests, desktop and web builds.
+- **Release reliability**: Every release includes both a portable EXE and an NSIS installer, with SHA256 checksums and digital signatures. CI covers code hygiene, behavioral tests, desktop and web builds.
 
 ## Quick Download
 
 | Platform | Download | Notes |
 | --- | --- | --- |
 | Web Preview | [PayDance Web](https://masterbao66.github.io/PayDance/) | Browser-based, all core features |
-| Windows 11 Desktop | [pay-dance-v0.9.1-windows-x64.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.1-windows-x64.exe) | Full desktop experience: auto-start, always-on-top, mini floating mode, system tray |
+| Windows 11 Desktop | [pay-dance-v0.9.2-windows-x64.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.2-windows-x64.exe) | Full desktop experience: auto-start, always-on-top, mini floating mode, system tray |
 
-Each release includes `pay-dance-v0.9.1-windows-x64.exe` and its `pay-dance-v0.9.1-windows-x64.exe.sha256`. On Windows, unsigned binaries may trigger a publisher verification prompt. Verify integrity using the SHA256 checksum:
+Each release includes `pay-dance-v0.9.2-windows-x64.exe` and its `pay-dance-v0.9.2-windows-x64.exe.sha256`. On Windows, unsigned binaries may trigger a publisher verification prompt. Verify integrity using the SHA256 checksum:
 
 ```powershell
-Get-FileHash .\pay-dance-v0.9.1-windows-x64.exe -Algorithm SHA256
-Get-Content .\pay-dance-v0.9.1-windows-x64.exe.sha256
+Get-FileHash .\pay-dance-v0.9.2-windows-x64.exe -Algorithm SHA256
+Get-Content .\pay-dance-v0.9.2-windows-x64.exe.sha256
 ```
 
 If the values match, your local file is identical to the release asset. If not, do not run it.

@@ -1,50 +1,52 @@
-# Security Policy
+# 安全策略
 
-## Supported Versions
+## 受支持的版本
 
-Only the latest release receives security fixes. Older versions are not supported.
+仅最新正式版接受安全修复。旧版本不受支持。
 
-| Version | Supported          |
-| ------- | ------------------ |
-| latest  | :white_check_mark: |
-| < latest | :x:              |
+| 版本     | 支持状态               |
+| -------- | ---------------------- |
+| 最新版   | :white_check_mark: |
+| 旧版本   | :x:                |
 
-## Reporting a Vulnerability
+## 报告漏洞
 
-**Do NOT report security vulnerabilities through public GitHub Issues.**
+**请勿通过公开 GitHub Issue 报告安全漏洞。**
 
-Instead, please report them via email to the project author. You can find contact information in the commit history and release signatures.
+请通过项目作者的电子邮件私下报告。联系方式可在提交历史与 Release 签名中找到。
 
-### What to Include
+### 报告中应包含
 
-- Description of the vulnerability
-- Steps to reproduce
-- Affected version(s)
-- Any potential mitigations you've identified
+- 漏洞描述
+- 复现步骤
+- 受影响版本
+- 你已发现的任何缓解措施
 
-### What to Expect
+### 预期流程
 
-- **Acknowledgment**: Within 72 hours
-- **Assessment**: Within 5 business days
-- **Fix timeline**: Depends on severity; critical issues will be patched as quickly as possible
-- **Disclosure**: After a fix is released and users have had reasonable time to update
+- **确认**：72 小时内
+- **评估**：5 个工作日内
+- **修复时间**：取决于严重程度；高危漏洞将尽快修复
+- **披露**：修复版本发布并给用户留出合理更新时间后
 
-## Sensitive Information
+## 敏感信息
 
-- **Never** paste salary data, configuration files, or log files into public Issues
-- **Never** include private keys, signing keys, or secrets in any public channel
-- PayDance stores salary configuration locally in `salary-settings.json` within the app data directory — this file contains personal information and should not be shared
+- **切勿**在公开 Issue 中粘贴薪资数据、配置文件或日志
+- **切勿**在任何公开渠道中泄露私钥、签名密钥或其它凭据
+- 薪跳 PayDance 将薪资配置保存在本机应用数据目录下的 `salary-settings.json`，该文件含有个人信息，不应分享
 
-## Signing Key Compromise
+## 签名密钥泄露
 
-If the Tauri updater signing key is compromised:
+若 Tauri 更新签名密钥发生泄露：
 
-1. Immediately revoke the compromised key
-2. Generate a new key pair
-3. Update `tauri.conf.json` with the new public key
-4. Issue a new release signed with the new key
-5. Previous releases will no longer be updatable — users must download manually
+1. 立即撤销已泄露的密钥
+2. 生成新的密钥对
+3. 用新公钥更新 `tauri.conf.json`
+4. 发布用新密钥签名的版本
+5. 旧版本将无法再通过自动更新升级——用户需手动下载
 
-## Local Data
+## 本地数据
 
-PayDance is a local-first application. Salary data, work schedules, and preferences are stored only on your device. No data is sent to remote servers. If you discover a vulnerability that could expose local configuration to unauthorized access, please report it immediately.
+薪跳 PayDance 是一款本地优先应用。薪资数据、工作时间和偏好设置仅保存在你的设备上，不会发送到任何远程服务器。如果你发现可能导致本地配置遭到未授权访问的漏洞，请立即报告。
+
+> [English version of this Security Policy →](SECURITY_EN.md)

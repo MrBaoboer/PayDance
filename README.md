@@ -11,7 +11,7 @@
 <p align="center">
   <font size="5"><strong><a href="https://masterbao66.github.io/PayDance/">在线体验</a></strong></font>
   &nbsp;&nbsp;&nbsp;
-  <font size="5"><strong><a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.1-windows-x64.exe">Windows 桌面端</a></strong></font>
+  <font size="5"><strong><a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.2-windows-x64.exe">Windows 桌面端</a></strong></font>
   &nbsp;&nbsp;&nbsp;
   <a href="README_EN.md"><strong>English</strong></a>
 </p>
@@ -36,26 +36,27 @@
 ## 核心特性
 
 - **实时收入跳动**：根据当前时间持续计算今日入账，金额精确到小数点后 2 位，让收入增长变得可见。
+- **中英文双语界面**：完整支持简体中文与 English，设置中心一键切换，托盘菜单、校验提示同步双语覆盖。
 - **多薪资模式**：支持月薪、日薪、时薪，并自动换算日薪、时薪、分薪和秒薪。
 - **真实时间建模**：支持每月工作天数、每周工作日、上下班时间、午休剔除和跨零点夜班。
 - **迷你悬浮模式**：只显示核心金额，支持拖拽、双击恢复主窗口、默认置顶和 `10% - 100%` 透明度调节。
-- **Windows 11 桌面体验**：无边框窗口、圆角、亮色/暗色主题、托盘常驻、窗口置顶和开机自启动。
+- **Windows 11 桌面体验**：无边框窗口、圆角、亮色/暗色主题、托盘常驻、窗口置顶、开机自启动和静默后台自动更新。
 - **本地优先隐私**：薪资与上下班时间配置保存在本机，不需要账号，不上传数据，不包含遥测。
 - **在线体验入口**：Web Preview 可在浏览器中预览核心看板、首次配置和迷你悬浮手感。
-- **发布可靠性**：Release 附带 SHA256 校验，CI 覆盖代码卫生、行为测试、桌面构建和 Web Preview 部署。
+- **发布可靠性**：Release 同时提供便携版与 NSIS 安装包，附带 SHA256 校验与数字签名，CI 覆盖代码卫生、行为测试、桌面构建和 Web Preview 部署。
 
 ## 快速下载
 
 | 平台 | 推荐下载 | 说明 |
 | --- | --- | --- |
 | 在线体验 | [PayDance Web](https://masterbao66.github.io/PayDance/) | 网页端，含所有核心功能 |
-| Windows 11 桌面端 | [pay-dance-v0.9.1-windows-x64.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.1-windows-x64.exe) | 含开机自启动、窗口置顶、迷你悬浮模式、系统托盘等完整功能 |
+| Windows 11 桌面端 | [pay-dance-v0.9.2-windows-x64.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.2-windows-x64.exe) | 含开机自启动、窗口置顶、迷你悬浮模式、系统托盘等完整功能 |
 
-Release 页面会同时提供 `pay-dance-v0.9.1-windows-x64.exe` 与 `pay-dance-v0.9.1-windows-x64.exe.sha256`。Windows 对未签名二进制可能展示发布者验证提示，建议以 GitHub Release 来源与 SHA256 校验作为下载后的完整性确认。
+Release 页面会同时提供 `pay-dance-v0.9.2-windows-x64.exe` 与 `pay-dance-v0.9.2-windows-x64.exe.sha256`。Windows 对未签名二进制可能展示发布者验证提示，建议以 GitHub Release 来源与 SHA256 校验作为下载后的完整性确认。
 
 ```powershell
-Get-FileHash .\pay-dance-v0.9.1-windows-x64.exe -Algorithm SHA256
-Get-Content .\pay-dance-v0.9.1-windows-x64.exe.sha256
+Get-FileHash .\pay-dance-v0.9.2-windows-x64.exe -Algorithm SHA256
+Get-Content .\pay-dance-v0.9.2-windows-x64.exe.sha256
 ```
 
 若两者校验值一致，即可确认本地文件与 Release 附件匹配；若不一致，请不要运行该文件。

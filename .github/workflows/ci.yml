@@ -75,5 +75,26 @@ jobs:
         run: cargo clippy --all-targets -- -D warnings
         working-directory: src-tauri
 
+      - name: Run gitleaks (detect secrets in git history)
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          config-path: .gitleaks.toml
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+        working-directory: src-tauri
+
+      - name: Audit Rust dependencies
+        run: cargo audit
+        working-directory: src-tauri
+
+      - name: Install cargo-deny
+        run: cargo install cargo-deny --locked
+        working-directory: src-tauri
+
+      - name: Check Rust dependency licenses and sources
+        run: cargo deny check
+        working-directory: src-tauri
+
       - name: Audit production dependencies
         run: npm audit --omit=dev
