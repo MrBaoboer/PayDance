@@ -2,68 +2,76 @@
 
 > [中文版 →](TRADEMARK.md)
 
-## Protected Marks
+This policy protects "薪跳 PayDance" as an official independent product and helps prevent users from confusing modified, rebranded, or third-party distributions with the official release. This policy does not change the code rights granted by `LICENSE`.
 
-The following are trademarks or source-identifying marks of the project author
-(Mr.Baoboer):
+## Protected marks
 
-- **"薪跳"** (Chinese name)
-- **"PayDance"** (English name)
-- **"薪跳 PayDance"** (combined Chinese-English name)
-- PayDance application icon and logo (`src-tauri/icons/icon.png`)
-- Tray icon
-- Official marketing posters
-- Official website visual identity
-- Complete visual composition of official screenshots
+The following names, marks, and source-identifying elements are reserved by the project author, Mr.Baoboer:
 
-## Permitted uses without prior written permission
+- **"薪跳"**
+- **"PayDance"**
+- **"薪跳 PayDance"**
+- PayDance logo, application icon, and tray icon
+- Official marketing posters, social preview images, and website visual identity
+- Complete product visual composition visible in official screenshots
+- Official GitHub repository, GitHub Pages website, Release download channels, update endpoints, and signed release chain
+- Application identifiers, package metadata, and official release asset names that identify official versions
 
-You may:
+## Permitted factual uses
 
-- Accurately state that your project is based on or derived from PayDance
-  (nominative fair use)
-- Link to the official PayDance repository
-- Use the name "PayDance" in factual discussion, reviews, tutorials, and news
-- Reproduce the name where necessary to preserve copyright and license notices
+You may, without prior written permission:
+
+- Accurately state that your project is "based on PayDance", "forked from PayDance", or "compatible with PayDance"
+- Link to the official repository, website, or Release page
+- Refer to "薪跳" or "PayDance" in discussions, reviews, tutorials, news, academic materials, or security reports
+- Reproduce the names where necessary to preserve license, copyright, and source notices
+
+These uses must be clear and accurate, and must not imply official endorsement, partnership, or certification.
 
 ## Uses requiring prior written permission
 
-You may not, without prior written permission:
+Without explicit prior written permission, you may not:
 
-- Publish a modified product under the names "薪跳", "PayDance", or confusingly
-  similar names
-- Use the official PayDance logo, icon, or marketing artwork as the identity of
-  a modified product
-- State or imply that a modified version is official, approved, sponsored, or
-  endorsed by Mr.Baoboer
-- Use PayDance branding to market an unrelated product or service
+- Publish a modified version or derivative product under "薪跳", "PayDance", "薪跳 PayDance", or confusingly similar names
+- Use the official logo, application icon, tray icon, posters, or website visuals as the identity of a modified product
+- Use official release channels, update endpoints, signing chains, or release asset naming to distribute modified versions
+- State or imply that a modified version is produced, approved, sponsored, certified, or endorsed by Mr.Baoboer or the PayDance project
+- Use PayDance branding to market unrelated products, services, courses, communities, or commercial activities
 
-## Naming derivatives
+## Minimum distinction requirements for modified versions and forks
 
-Modified distributions must adopt a clearly distinguishable product name,
-application identifier, icon, website, update endpoint, and package metadata.
+If you distribute a modified version, binary build, installer, portable executable, or hosted version, ordinary users must be able to clearly distinguish it from official PayDance. In practice, you should replace or modify at least:
 
-Acceptable naming examples:
-- "MySalary (based on PayDance)"
-- "工资助手 (forked from PayDance)"
+- Product name
+- Application icon and tray icon
+- Application identifier, package name, window title, and package metadata
+- Website, download page, update endpoint, and signing public key
+- Release asset names, installer names, and updater manifests
+- Any official-status wording in the README, About view, and legal notices
 
-Unacceptable naming examples:
-- "PayDance Plus"
-- "薪跳 Pro"
-- "PayDance CE"
+Acceptable examples:
 
-## Brand authorization
+- `MySalary (based on PayDance)`
+- `工资助手 (forked from PayDance)`
+- `Acme Wage Board, based on PayDance`
 
-To request permission to use the PayDance name or branding for any purpose
-beyond nominative fair use, contact the project author. Authorization is
-granted on a case-by-case basis.
+Unacceptable examples:
+
+- `PayDance Plus`
+- `薪跳 Pro`
+- `PayDance CE`
+- A modified version that keeps the official PayDance icon and only adds a tiny disclaimer
+
+## Official version statement
+
+Unless otherwise announced, only the `MasterBao66/PayDance` repository, that repository's GitHub Releases, and the `masterbao66.github.io/PayDance` website represent official PayDance release channels.
+
+## Authorization
+
+To use the PayDance name, logo, icon, visual assets, or official release channels beyond factual reference, contact Mr.Baoboer for written permission. Authorization is granted case by case and may include limits on scope, term, territory, and presentation.
 
 ## Rationale
 
-AGPL-3.0-only guarantees software freedom: anyone can use, study, modify, and
-share the code. Trademark protection ensures that the names "PayDance" and
-"薪跳" always refer to the authentic release from the original author. This
-prevents confusion and protects users who rely on official builds.
+AGPL-3.0-only protects software freedom: anyone can use, study, modify, and share the code. This trademark policy protects source clarity: when users see "薪跳" or "PayDance", they should be able to trust that it points to the official product maintained by the original author.
 
-See also: `LICENSE` (AGPL-3.0-only), `ADDITIONAL_TERMS_EN.md`, `BRAND-ASSETS_EN.md`.
-
+See also: `LICENSE`, `ADDITIONAL_TERMS_EN.md`, `BRAND-ASSETS_EN.md`.

@@ -86,9 +86,9 @@ The project code is released under [AGPL-3.0-only](LICENSE) with [additional ter
 By submitting a code contribution, you confirm that:
 
 - You are legally entitled to make the contribution and it is your original work (or you have the necessary permissions);
-- You accept the terms of the [Contributor License Agreement (CLA)](legal/CLA.md);
+- You agree that your contribution is incorporated into the project under AGPL-3.0-only and the project's additional terms;
 - You include a `Signed-off-by:` line (DCO) with your submission, confirming its lawful origin.
 
-> The project is currently a solo effort. The CLA text is in place, and the signing process will be activated before external PRs are merged. Opening an Issue or suggestion does not require signing the CLA.
+> The project is currently a solo effort. Ordinary contributions enter the project under the open-source terms above. If the maintainer needs to include a contribution in commercial, OEM, or white-label licensing, the contributor will be asked to explicitly sign the [Contributor License Agreement (CLA)](legal/CLA.md) before merge. Opening an Issue, suggestion, or security report does not require signing the CLA.
 
-See `LICENSE`, `ADDITIONAL_TERMS.md`, and `TRADEMARK.md` for details.
+See `LICENSE`, `legal/ADDITIONAL_TERMS.md`, `legal/TRADEMARK.md`, and `legal/BRAND-ASSETS.md` for details.

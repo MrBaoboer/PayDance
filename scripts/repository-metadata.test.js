@@ -63,6 +63,28 @@ describe("repository metadata", () => {
     expect(readme).not.toContain("masterbao66.github.io/PayDance/pay-dance.exe");
   });
 
+  it("keeps the root LICENSE recognizable as canonical AGPL-3.0", () => {
+    const license = read("LICENSE");
+    const normalizedLicense = license.replace(/\s+/g, " ");
+
+    expect(license).toContain("GNU AFFERO GENERAL PUBLIC LICENSE");
+    expect(license).toContain("Version 3, 19 November 2007");
+    expect(license).toContain(
+      "The GNU Affero General Public License is a free, copyleft license",
+    );
+    expect(normalizedLicense).toContain(
+      "specifically designed to ensure cooperation with the community in the case of network server software",
+    );
+    expect(license).not.toContain("Version 3, 29 June 2007");
+    expect(license).not.toContain(
+      "The GNU General Public License is a free, copyleft license",
+    );
+    expect(license).not.toContain(
+      "The GNU Affero General Public License does not permit incorporating your program into proprietary programs",
+    );
+    expect(read(".gitattributes")).toContain("LICENSE text eol=lf");
+  });
+
   it("publishes versioned Windows release assets from the release workflow", () => {
     const releaseWorkflow = read(".github/workflows/release.yml");
 

@@ -115,7 +115,13 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAct
 
 ## 作者与许可
 
-薪跳 PayDance 由 Mr.Baoboer 设计与开发。代码、文档与品牌资产的完整许可信息、商标政策与商业授权条款请参阅 **[许可导引](legal/LEGAL.md)**。
+薪跳 PayDance 由 Mr.Baoboer 设计与开发。
+
+- 代码采用 **AGPL-3.0-only**，并附带 AGPL 第 7 条允许的署名、修改标注、反误导与商标保留条款。
+- "薪跳"、`PayDance`、Logo、图标、官网视觉、官方截图与发布渠道不随代码许可证授权，修改版必须使用可清楚区分的名称、图标、应用标识符和更新渠道。
+- 合规商业使用是允许的；闭源集成、OEM、白标或官方品牌授权需要单独商业许可。
+
+完整许可信息、商标政策与商业授权条款请参阅 **[许可导引](legal/LEGAL.md)**。
 
 ---
 

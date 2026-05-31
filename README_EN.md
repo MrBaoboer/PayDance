@@ -114,7 +114,13 @@ PayDance is local-first: no login, no salary data uploads, no telemetry, no remo
 
 ## Author & License
 
-Designed and developed by Mr.Baoboer. For full license information, trademark policy, and commercial licensing terms covering code, documentation, and brand assets, see the **[Legal Guide](legal/LEGAL_EN.md)**.
+Designed and developed by Mr.Baoboer.
+
+- Code is licensed under **AGPL-3.0-only**, with additional terms permitted by AGPL Section 7 for attribution, modification notices, anti-misrepresentation, and trademark reservation.
+- "薪跳", `PayDance`, the logo, icons, website visuals, official screenshots, and release channels are not licensed with the code. Modified versions must use clearly distinguishable names, icons, application identifiers, and update channels.
+- Compliant commercial use is allowed. Closed-source integration, OEM, white-label, or official brand licensing requires a separate commercial license.
+
+For full license information, trademark policy, and commercial licensing terms, see the **[Legal Guide](legal/LEGAL_EN.md)**.
 
 ---
 

@@ -1,11 +1,12 @@
 # Contributor License Agreement
 
-This Contributor License Agreement ("CLA") applies to code contributions
-submitted to the PayDance project (the "Project"), maintained by Mr.Baoboer.
+This Contributor License Agreement ("CLA") applies to contributions explicitly
+submitted under this agreement to the PayDance project (the "Project"),
+maintained by Mr.Baoboer.
 
-By submitting a contribution (including but not limited to source code,
-documentation, translations, tests, graphics, or other materials) to the
-Project, you confirm and agree that:
+By signing this CLA and submitting a contribution (including but not limited to
+source code, documentation, translations, tests, graphics, or other materials)
+to the Project, you confirm and agree that:
 
 ## 1. Grant of license
 
@@ -49,6 +50,8 @@ have in your contribution for the purposes described in this CLA.
 
 ---
 
-> **Note:** This CLA is currently in effect but signing is not yet automated.
-> For now, by opening a Pull Request with a `Signed-off-by:` line (DCO), you
-> confirm your acceptance of these terms.
+> **Note:** Ordinary Pull Requests enter the project under AGPL-3.0-only and
+> the project's additional terms by default. A `Signed-off-by:` line is used
+> for DCO source confirmation and does not by itself sign this CLA. This CLA
+> applies to a contribution only when the maintainer explicitly requests it and
+> the contributor separately confirms acceptance.

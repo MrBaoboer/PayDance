@@ -86,9 +86,9 @@ cargo clippy --all-targets -- -D warnings
 提交代码贡献即表示你确认：
 
 - 你有权提交该代码，且贡献为你的原创作品（或已获得必要授权）；
-- 你接受 [贡献者许可协议（CLA）](legal/CLA.md) 的条款；
+- 你同意你的贡献以 AGPL-3.0-only 及本项目附加条款并入项目；
 - 提交时包含 `Signed-off-by:` 行（DCO），确认你的贡献来源合法。
 
-> 当前项目为单人开发。CLA 文本已就位，外部 PR 合并前将启用签署流程。仅提 Issue 或建议无需签署 CLA。
+> 当前项目为单人开发。普通贡献默认按上述开源授权进入项目；如果维护者需要将某项贡献纳入商业授权、OEM 或白标授权范围，会在合并前另行要求贡献者明确签署 [贡献者许可协议（CLA）](legal/CLA.md)。仅提 Issue、建议或安全报告无需签署 CLA。
 
-详见 `LICENSE`、`ADDITIONAL_TERMS.md` 和 `TRADEMARK.md`。
+详见 `LICENSE`、`legal/ADDITIONAL_TERMS.md`、`legal/TRADEMARK.md` 和 `legal/BRAND-ASSETS.md`。
