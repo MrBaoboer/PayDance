@@ -1,0 +1,75 @@
+name: Post-Release Smoke
+
+on:
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Verify release assets
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Fetch latest release info
+        run: |
+          echo "=== Latest Release ==="
+          gh release view --repo ${{ github.repository }} --json tagName,name,publishedAt,assets | tee latest-release.json
+
+      - name: Verify latest release resolves to current tag
+        run: |
+          TAG=$(gh release view --repo ${{ github.repository }} --json tagName -q '.tagName')
+          echo "Latest release tag: $TAG"
+          if [ -z "$TAG" ]; then
+            echo "ERROR: No release found"
+            exit 1
+          fi
+
+      - name: Verify download assets exist
+        run: |
+          ASSETS=$(gh release view --repo ${{ github.repository }} --json assets -q '.assets[].name')
+          echo "Release assets:"
+          echo "$ASSETS"
+
+          echo "$ASSETS" | grep -q "x64-setup.exe" || echo "WARN: No NSIS installer found"
+          echo "$ASSETS" | grep -q "windows-x64.exe" || { echo "ERROR: No portable EXE found"; exit 1; }
+          echo "$ASSETS" | grep -q ".sha256" || echo "WARN: No SHA256 checksum found"
+          echo "$ASSETS" | grep -q "latest.json" || echo "WARN: No latest.json found"
+
+      - name: Verify latest.json is valid and accessible
+        run: |
+          LATEST_URL=$(gh release view --repo ${{ github.repository }} --json assets -q '.assets[] | select(.name == "latest.json") | .url')
+          if [ -n "$LATEST_URL" ]; then
+            curl -fsSL "$LATEST_URL" -o /dev/null && echo "latest.json accessible" || echo "WARN: latest.json not accessible"
+          fi
+
+      - name: Verify README download link
+        run: |
+          VERSION=$(gh release view --repo ${{ github.repository }} --json tagName -q '.tagName' | sed 's/^v//')
+          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/latest/download/pay-dance-v${VERSION}-windows-x64.exe"
+          echo "Checking: $DOWNLOAD_URL"
+          HTTP_CODE=$(curl -sL -o /dev/null -w "%{http_code}" "$DOWNLOAD_URL")
+          if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 302 ]; then
+            echo "Download link accessible (HTTP $HTTP_CODE)"
+          else
+            echo "WARN: Download link returned HTTP $HTTP_CODE"
+          fi

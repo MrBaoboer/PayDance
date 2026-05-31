@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { ArrowBigUp } from "@lucide/vue";
+import { AlertCircle, ArrowBigUp, Loader } from "@lucide/vue";
 import {
   appAuthor,
   appCopyright,
@@ -29,6 +29,7 @@ import SwitchRow from "./ui/SwitchRow.vue";
 
 const { locale, setLocale, t } = useI18n();
 const isDownloading = ref(false);
+const updateError = ref("");
 
 const props = withDefaults(
   defineProps<{
@@ -57,8 +58,12 @@ const emit = defineEmits<{
 const downloadUpdate = async () => {
   if (isDownloading.value) return;
   isDownloading.value = true;
+  updateError.value = "";
   try {
-    await downloadAndInstall();
+    const result = await downloadAndInstall();
+    if (result.kind === "error") {
+      updateError.value = result.message;
+    }
   } finally {
     isDownloading.value = false;
   }
@@ -208,8 +213,21 @@ const openRepository = async () => {
         <strong>{{ appName }} {{ appEnglishName }}</strong>
         <span>
           {{ t("about.appVersion") }}：{{ appVersion }}
+          <Loader
+            v-if="isDownloading"
+            class="update-badge update-badge--spinning"
+            :size="14"
+            :title="t('updater.downloading')"
+          />
+          <AlertCircle
+            v-else-if="updateError"
+            class="update-badge update-badge--error"
+            :size="14"
+            :title="`${t('updater.failed')}: ${updateError} — ${t('updater.retry')}`"
+            @click.stop="downloadUpdate"
+          />
           <ArrowBigUp
-            v-if="updateStatus.kind === 'updateAvailable'"
+            v-else-if="updateStatus.kind === 'updateAvailable'"
             class="update-badge"
             :size="14"
             :title="`${t('updater.newVersion')} ${updateStatus.version} — ${t('updater.clickToDownload')}`"
@@ -221,7 +239,7 @@ const openRepository = async () => {
       <div class="about-footer__repo-card">
         <button
           class="repository-button"
-          aria-label="打开 GitHub 仓库"
+          :aria-label="t('about.openRepo')"
           :disabled="isOpeningRepository"
           :title="`${t('about.openRepo')}：${repositoryUrl}`"
           type="button"
@@ -290,6 +308,24 @@ const openRepository = async () => {
 .update-badge:hover {
   color: var(--income-accent-bright);
   transform: scale(1.15);
+}
+
+.update-badge--error {
+  color: var(--danger, #e74c3c);
+}
+
+.update-badge--error:hover {
+  color: var(--danger-bright, #ff5c4a);
+}
+
+.update-badge--spinning {
+  animation: update-spin 1s linear infinite;
+}
+
+@keyframes update-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .about-footer {

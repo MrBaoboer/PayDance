@@ -5,6 +5,11 @@ export type WindowSize = {
   height: number;
 };
 
+export type WindowPosition = {
+  x: number;
+  y: number;
+};
+
 export const windowSettingsSchemaVersion = 2;
 export const currentSettingsSchemaVersion = windowSettingsSchemaVersion;
 
@@ -54,6 +59,8 @@ export type StoredWindowPreferences = {
   savedMiniSize?: Partial<WindowSize> | null;
   savedFullSize?: Partial<WindowSize> | null;
   savedMiniOpacityPercent?: number;
+  savedMainPosition?: WindowPosition;
+  savedMiniPosition?: WindowPosition;
   savedSettingsVersion?: number;
 };
 
@@ -62,12 +69,16 @@ export function resolveWindowPreferences({
   savedMiniSize,
   savedFullSize,
   savedMiniOpacityPercent,
+  savedMainPosition,
+  savedMiniPosition,
   savedSettingsVersion,
 }: StoredWindowPreferences): {
   isMiniMode: boolean;
   miniSize: WindowSize;
   fullSize: WindowSize;
   miniOpacityPercent: number;
+  mainPosition?: WindowPosition;
+  miniPosition?: WindowPosition;
 } {
   const isCompatibleSchema =
     typeof savedSettingsVersion === "number" &&
@@ -80,5 +91,7 @@ export function resolveWindowPreferences({
     miniOpacityPercent: isCompatibleSchema
       ? normalizeMiniOpacityPercent(savedMiniOpacityPercent)
       : defaultMiniOpacityPercent,
+    mainPosition: savedMainPosition,
+    miniPosition: savedMiniPosition,
   };
 }

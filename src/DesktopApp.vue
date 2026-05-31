@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { LogicalPosition } from "@tauri-apps/api/dpi";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   readAutostartEnabled,
@@ -12,6 +13,7 @@ import {
   defaultMiniOpacityPercent,
   normalizeMiniOpacityPercent,
   resolveWindowPreferences,
+  type WindowPosition,
   type WindowSize,
 } from "./lib/window-mode";
 import { appName } from "./lib/app-meta";
@@ -59,6 +61,7 @@ const {
 
 const { t } = provideI18n(locale, (next) => {
   locale.value = next;
+  void appWindow.emit("locale-changed", next);
 });
 
 const isMiniMode = ref(false);
@@ -68,6 +71,8 @@ const isAutostartUpdating = ref(false);
 const fullSize = ref<WindowSize>({ ...fullWindowSize });
 const miniSize = ref<WindowSize>({ ...miniDefaultSize });
 const miniOpacityPercent = ref(defaultMiniOpacityPercent);
+const mainPosition = ref<WindowPosition | undefined>(undefined);
+const miniPosition = ref<WindowPosition | undefined>(undefined);
 const defaultWindowPreferences = resolveWindowPreferences({});
 const { snapshot, startTicker, stopTicker } = useSalaryTicker(config, t.value);
 const { applyWindowMode, setAlwaysOnTop } = useWindowMode(
@@ -84,7 +89,9 @@ const { clearSaveStateTimer, loadWindowPreferences, saveStateNow, scheduleSaveSt
     isMiniMode,
     isSettingsReady,
     loadSettings,
+    mainPosition,
     miniOpacityPercent,
+    miniPosition,
     miniSize,
     saveSettings,
   });
@@ -208,13 +215,37 @@ onMounted(async () => {
   fullSize.value = windowPreferences.fullSize;
   miniSize.value = windowPreferences.miniSize;
   miniOpacityPercent.value = windowPreferences.miniOpacityPercent;
+  mainPosition.value = windowPreferences.mainPosition;
+  miniPosition.value = windowPreferences.miniPosition;
   showSettings.value = false;
+
+  // Restore saved window position if available
+  if (mainPosition.value) {
+    try {
+      await appWindow.setPosition(
+        new LogicalPosition(mainPosition.value.x, mainPosition.value.y),
+      );
+    } catch {
+      // Ignore — window manager may reject the position
+    }
+  }
 
   await refreshAutostart();
   await applyThemeMode(themeMode.value, { persist: false });
   await applyWindowMode();
 
   unlisteners.push(
+    // Flush state before the process exits (triggered by tray "quit" menu)
+    await appWindow.listen("before-app-exit", async () => {
+      await saveStateNow();
+    }),
+    // Persist window position after dragging ends
+    await appWindow.onMoved(() => {
+      void appWindow.outerPosition().then((pos) => {
+        mainPosition.value = { x: pos.x, y: pos.y };
+        scheduleSaveState();
+      });
+    }),
     ...(await registerWindowLifecycle()),
     ...(await registerTrayActions(appWindow, {
       openSettings,

@@ -169,8 +169,10 @@ const en: Messages = {
 
   // ── Updater ────────────────────────────────────────────────────────────
   "updater.newVersion": "New version available",
+  "updater.downloading": "Downloading…",
   "updater.failed": "Update failed",
   "updater.clickToDownload": "Click to download",
+  "updater.retry": "Click to retry",
   "updater.installPrompt": "A new version has been downloaded. Restart now to install?",
 
   // ── Web Preview ────────────────────────────────────────────────────────

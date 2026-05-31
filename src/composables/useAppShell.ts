@@ -87,16 +87,10 @@ export function useAppShell({
     await saveStateNow();
   };
 
-  const completeOnboarding = async (preferences: { startInMiniMode: boolean }) => {
+  const completeOnboarding = async () => {
     hasCompletedOnboarding.value = true;
     await applyThemeMode(themeMode.value, { persist: false });
     await setAlwaysOnTop(alwaysOnTop.value);
-
-    if (preferences.startInMiniMode) {
-      await setMiniMode(true);
-      return;
-    }
-
     await saveStateNow();
   };
 

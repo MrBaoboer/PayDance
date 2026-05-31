@@ -2,6 +2,7 @@ import { ref } from "vue";
 import {
   resolveWindowPreferences,
   type ThemeMode,
+  type WindowPosition,
   type WindowSize,
 } from "../lib/window-mode";
 import {
@@ -28,6 +29,8 @@ export type PersistedWindowState = {
   fullSize: WindowSize;
   miniSize: WindowSize;
   miniOpacityPercent: number;
+  mainPosition?: WindowPosition;
+  miniPosition?: WindowPosition;
 };
 
 const serializeSalaryConfig = (config: SalaryConfig) =>
@@ -84,6 +87,12 @@ export function useSalarySettings(
       const savedMiniOpacityPercent = await store.get<number>(
         settingsStoreKeys.miniOpacityPercent,
       );
+      const savedMainPosition = await store.get<WindowPosition>(
+        settingsStoreKeys.mainPosition,
+      );
+      const savedMiniPosition = await store.get<WindowPosition>(
+        settingsStoreKeys.miniPosition,
+      );
       const savedSettingsVersion = await store.get<number>(
         settingsStoreKeys.settingsVersion,
       );
@@ -117,6 +126,8 @@ export function useSalarySettings(
         savedFullSize,
         savedMiniSize,
         savedMiniOpacityPercent,
+        savedMainPosition,
+        savedMiniPosition,
         savedSettingsVersion,
       });
     } catch (error) {
@@ -133,6 +144,8 @@ export function useSalarySettings(
     fullSize,
     miniSize,
     miniOpacityPercent,
+    mainPosition,
+    miniPosition,
   }: PersistedWindowState) => {
     if (!isSettingsReady.value) return;
 
@@ -154,6 +167,12 @@ export function useSalarySettings(
       await store.set(settingsStoreKeys.locale, locale.value);
       await store.set(settingsStoreKeys.miniSize, miniSize);
       await store.set(settingsStoreKeys.miniOpacityPercent, miniOpacityPercent);
+      if (mainPosition) {
+        await store.set(settingsStoreKeys.mainPosition, mainPosition);
+      }
+      if (miniPosition) {
+        await store.set(settingsStoreKeys.miniPosition, miniPosition);
+      }
       await store.set(
         settingsStoreKeys.hasCompletedOnboarding,
         hasCompletedOnboarding.value,

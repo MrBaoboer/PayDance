@@ -407,8 +407,9 @@ describe("PayDance Web Preview", () => {
     expect(readmeSource).not.toContain("## 隐私声明、作者与许可");
     expect(readmeSource).toContain("| 在线体验 | [PayDance Web]");
     expect(readmeSource).toContain("网页端，含所有核心功能");
+    const readmeVersion = JSON.parse(readFileSync("package.json", "utf8")).version;
     expect(readmeSource).toContain(
-      "| Windows 11 桌面端 | [pay-dance-v0.9.0-windows-x64.exe]",
+      `| Windows 11 桌面端 | [pay-dance-v${readmeVersion}-windows-x64.exe]`,
     );
     expect(readmeSource).toContain(
       "含开机自启动、窗口置顶、迷你悬浮模式、系统托盘等完整功能",

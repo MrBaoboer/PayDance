@@ -4,6 +4,21 @@
 
 更多构建产物与校验文件请查看 [GitHub Releases](https://github.com/MasterBao66/PayDance/releases)。
 
+### v0.9.1
+
+- **更新系统闭环**：生成真实 Tauri updater 签名密钥对，`tauri.conf.json` 写入公钥，Release workflow 构建 NSIS 安装包并生成 `.sig` 签名文件与 `latest.json` 更新清单，实现完整自动更新链路。
+- **更新角标状态机**：角标新增下载中（旋转 Loader）和失败（红色 AlertCircle + 错误信息 + 点击重试）两个交互状态，解决点击后无反馈的问题。
+- **退出前状态保存**：托盘"退出"改为先向前端发射 `before-app-exit` 事件，前端 flush 持久化队列后再退出，避免防抖窗口期内丢失最后修改。
+- **系统托盘国际化**：前端语言切换后向 Rust 发 `locale-changed` 事件，Rust 重建托盘菜单与 tooltip，中英文完整覆盖。
+- **首次启动向导精简**：第三步移除"窗口始终置顶"和"进入迷你悬浮模式"两个开关，为语言和主题选项添加表头标签，面板高度与前两步保持一致。
+- **窗口位置持久化**：主窗口位置在拖拽后自动保存，启动时恢复；多显示器断开后安全回退，DPI 变化不丢失坐标。
+- **Web Preview 语言切换器**：官网右下角新增固定定位的语言切换按钮（中 / EN），一屏切换中英文浏览体验。
+- **Web Preview 发布门禁**：部署改为 `workflow_run`（CI 通过后才触发），避免测试/构建失败导致不完整的网站被部署。
+- **发布后冒烟 workflow**：新增 `post-release-smoke.yml`，Release 发布后自动验证 latest release 指向正确、README 下载链接可达、`latest.json` 存在。
+- **补齐 `tauri-plugin-process`**：Rust 侧加入 process 插件初始化与 `process:allow-restart` 权限，修复更新后自动重启断链问题。
+- **治理文档**：新增 `SECURITY.md`（安全报告渠道与流程）、`CONTRIBUTING.md`（开发环境、产品边界、PR 规范）、`TRADEMARK.md`（品牌保护与衍生命名规则）。
+- **代码卫生**：`SettingsPanel` GitHub 按钮 `aria-label` i18n 化，`repository-metadata.test` 与 `window-chrome.test` 测试断言随结构重构更新。
+
 ### v0.9.0
 
 - **多语言支持**：新增完整 i18n 基础设施（`vue-i18n` 轻量自主方案），支持简体中文与英文切换。设置中心新增语言选择器，所有 UI 文案、状态提示、校验错误均实现双语覆盖。

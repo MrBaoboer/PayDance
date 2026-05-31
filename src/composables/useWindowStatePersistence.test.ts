@@ -26,6 +26,8 @@ describe("useWindowStatePersistence", () => {
     const miniSize = ref({ height: 82, width: 210 });
     const isMiniMode = ref(false);
     const miniOpacityPercent = ref(100);
+    const mainPosition = ref(undefined);
+    const miniPosition = ref(undefined);
     const firstWrite = createDeferred();
     const savedStates: PersistedWindowState[] = [];
     const saveSettings = vi.fn((state: PersistedWindowState) => {
@@ -39,7 +41,9 @@ describe("useWindowStatePersistence", () => {
       isMiniMode,
       isSettingsReady: ref(true),
       loadSettings: vi.fn(),
+      mainPosition,
       miniOpacityPercent,
+      miniPosition,
       miniSize,
       saveSettings,
     });

@@ -2,6 +2,7 @@
 import { watch } from "vue";
 import { appName } from "../../lib/app-meta";
 import AppWindow from "../../components/AppWindow.vue";
+import LanguageSwitcher from "./LanguageSwitcher.vue";
 import WebPreviewMiniLayer from "./WebPreviewMiniLayer.vue";
 import { useWebPreviewState } from "../useWebPreviewState";
 
@@ -122,4 +123,6 @@ watch(shellClass, (value) => emit("shellClassChange", value), { immediate: true 
       @update-opacity="updateMiniOpacityPercent"
     />
   </div>
+
+  <LanguageSwitcher />
 </template>

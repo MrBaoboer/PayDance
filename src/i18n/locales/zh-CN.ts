@@ -167,8 +167,10 @@ const zhCN: Messages = {
 
   // ── Updater ────────────────────────────────────────────────────────────
   "updater.newVersion": "发现新版本",
+  "updater.downloading": "下载中…",
   "updater.failed": "更新失败",
   "updater.clickToDownload": "点击下载",
+  "updater.retry": "点击重试",
   "updater.installPrompt": "新版本已下载，是否立即重启安装？",
 
   // ── Web Preview ────────────────────────────────────────────────────────

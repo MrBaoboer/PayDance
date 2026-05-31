@@ -16,7 +16,6 @@ import StepWorkTime from "./onboarding/StepWorkTime.vue";
 
 const props = withDefaults(
   defineProps<{
-    alwaysOnTop: boolean;
     autostartEnabled: boolean;
     config: SalaryConfig;
     showDesktopFeatures?: boolean;
@@ -28,10 +27,9 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  complete: [preferences: { startInMiniMode: boolean }];
+  complete: [];
   dragStart: [event: MouseEvent];
   resizeStart: [direction: ResizeDirection];
-  "update:alwaysOnTop": [value: boolean];
   "update:autostartEnabled": [value: boolean];
   "update:config": [config: SalaryConfig];
   "update:themeMode": [mode: "light" | "dark"];
@@ -40,7 +38,6 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 const step = ref(0);
-const startInMiniMode = ref(false);
 
 const stepTitles = computed(() => [
   t.value("onboarding.stepSalaryMode"),
@@ -60,7 +57,7 @@ const hasIssue = (field: SalaryConfigIssue["field"]) =>
 
 const goNext = () => {
   if (isLastStep.value) {
-    emit("complete", { startInMiniMode: startInMiniMode.value });
+    emit("complete");
     return;
   }
 
@@ -107,12 +104,9 @@ const goBack = () => {
 
         <StepPreferences
           v-else
-          v-model:start-in-mini-mode="startInMiniMode"
-          :always-on-top="alwaysOnTop"
           :autostart-enabled="autostartEnabled"
           :show-desktop-features="showDesktopFeatures"
           :theme-mode="themeMode"
-          @update:always-on-top="emit('update:alwaysOnTop', $event)"
           @update:autostart-enabled="emit('update:autostartEnabled', $event)"
           @update:theme-mode="emit('update:themeMode', $event)"
         />

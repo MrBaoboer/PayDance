@@ -1,6 +1,6 @@
 import type { Ref } from "vue";
 import type { PersistedWindowState } from "./useSalarySettings";
-import type { WindowSize } from "../lib/window-mode";
+import type { WindowPosition, WindowSize } from "../lib/window-mode";
 
 type WindowPreferences = PersistedWindowState;
 
@@ -12,7 +12,9 @@ export function useWindowStatePersistence({
   isMiniMode,
   isSettingsReady,
   loadSettings,
+  mainPosition,
   miniOpacityPercent,
+  miniPosition,
   miniSize,
   saveSettings,
 }: {
@@ -21,7 +23,9 @@ export function useWindowStatePersistence({
   isMiniMode: Ref<boolean>;
   isSettingsReady: Ref<boolean>;
   loadSettings: () => Promise<WindowPreferences>;
+  mainPosition: Ref<WindowPosition | undefined>;
   miniOpacityPercent: Ref<number>;
+  miniPosition: Ref<WindowPosition | undefined>;
   miniSize: Ref<WindowSize>;
   saveSettings: (state: PersistedWindowState) => Promise<void>;
 }) {
@@ -32,8 +36,10 @@ export function useWindowStatePersistence({
   const readCurrentState = (): PersistedWindowState => ({
     fullSize: fullSize.value,
     isMiniMode: isMiniMode.value,
-    miniSize: miniSize.value,
+    mainPosition: mainPosition.value,
     miniOpacityPercent: miniOpacityPercent.value,
+    miniPosition: miniPosition.value,
+    miniSize: miniSize.value,
   });
 
   const drainSaveQueue = async () => {

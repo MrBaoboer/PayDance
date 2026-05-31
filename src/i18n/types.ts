@@ -172,8 +172,10 @@ export interface Messages {
 
   // ── Updater ────────────────────────────────────────────────────────────
   "updater.newVersion": string;
+  "updater.downloading": string;
   "updater.failed": string;
   "updater.clickToDownload": string;
+  "updater.retry": string;
   "updater.installPrompt": string;
 
   // ── Web Preview ────────────────────────────────────────────────────────

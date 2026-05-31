@@ -15,10 +15,8 @@ type ThemeMode = "light" | "dark";
 
 withDefaults(
   defineProps<{
-    alwaysOnTop: boolean;
     autostartEnabled: boolean;
     showDesktopFeatures?: boolean;
-    startInMiniMode: boolean;
     themeMode: ThemeMode;
   }>(),
   {
@@ -27,9 +25,7 @@ withDefaults(
 );
 
 const emit = defineEmits<{
-  "update:alwaysOnTop": [value: boolean];
   "update:autostartEnabled": [value: boolean];
-  "update:startInMiniMode": [value: boolean];
   "update:themeMode": [mode: ThemeMode];
 }>();
 
@@ -52,6 +48,9 @@ const updateThemeMode = (value: string) => {
 
 <template>
   <section class="onboarding-step">
+    <div class="onboarding-section-label">
+      <strong>{{ t("preferences.language") }}</strong>
+    </div>
     <SegmentedControl
       :columns="2"
       density="onboarding"
@@ -61,6 +60,9 @@ const updateThemeMode = (value: string) => {
       @update:model-value="setLocale($event as Locale)"
     />
 
+    <div class="onboarding-section-label">
+      <strong>{{ t("preferences.theme") }}</strong>
+    </div>
     <SegmentedControl
       :columns="2"
       density="onboarding"
@@ -77,21 +79,6 @@ const updateThemeMode = (value: string) => {
       :model-value="autostartEnabled"
       @update:model-value="emit('update:autostartEnabled', $event)"
     />
-
-    <SwitchRow
-      v-if="showDesktopFeatures"
-      :label="t('preferences.alwaysOnTop')"
-      panel
-      :model-value="alwaysOnTop"
-      @update:model-value="emit('update:alwaysOnTop', $event)"
-    />
-
-    <SwitchRow
-      :label="t('preferences.startInMini')"
-      panel
-      :model-value="startInMiniMode"
-      @update:model-value="emit('update:startInMiniMode', $event)"
-    />
   </section>
 </template>
 
@@ -99,5 +86,17 @@ const updateThemeMode = (value: string) => {
 .onboarding-step {
   display: grid;
   gap: clamp(16px, 3.6cqh, 20px);
+}
+
+.onboarding-section-label {
+  min-height: clamp(22px, 5.2cqh, 28px);
+  display: flex;
+  align-items: center;
+}
+
+.onboarding-section-label strong {
+  color: var(--text);
+  font-size: var(--ui-font-sm, 15px);
+  font-weight: 700;
 }
 </style>

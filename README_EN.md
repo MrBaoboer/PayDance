@@ -10,7 +10,7 @@
 <p align="center">
   <font size="5"><strong><a href="https://masterbao66.github.io/PayDance/">Live Preview</a></strong></font>
   &nbsp;&nbsp;&nbsp;
-  <font size="5"><strong><a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.0-windows-x64.exe">Windows Desktop</a></strong></font>
+  <font size="5"><strong><a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.1-windows-x64.exe">Windows Desktop</a></strong></font>
   &nbsp;&nbsp;&nbsp;
   <a href="README.md"><strong>中文</strong></a>
 </p>
@@ -48,13 +48,13 @@ The main window shows today's earnings, work progress, remaining time, and daily
 | Platform | Download | Notes |
 | --- | --- | --- |
 | Web Preview | [PayDance Web](https://masterbao66.github.io/PayDance/) | Browser-based, all core features |
-| Windows 11 Desktop | [pay-dance-v0.9.0-windows-x64.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.0-windows-x64.exe) | Full desktop experience: auto-start, always-on-top, mini floating mode, system tray |
+| Windows 11 Desktop | [pay-dance-v0.9.1-windows-x64.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.1-windows-x64.exe) | Full desktop experience: auto-start, always-on-top, mini floating mode, system tray |
 
-Each release includes `pay-dance-v0.9.0-windows-x64.exe` and its `pay-dance-v0.9.0-windows-x64.exe.sha256`. On Windows, unsigned binaries may trigger a publisher verification prompt. Verify integrity using the SHA256 checksum:
+Each release includes `pay-dance-v0.9.1-windows-x64.exe` and its `pay-dance-v0.9.1-windows-x64.exe.sha256`. On Windows, unsigned binaries may trigger a publisher verification prompt. Verify integrity using the SHA256 checksum:
 
 ```powershell
-Get-FileHash .\pay-dance-v0.9.0-windows-x64.exe -Algorithm SHA256
-Get-Content .\pay-dance-v0.9.0-windows-x64.exe.sha256
+Get-FileHash .\pay-dance-v0.9.1-windows-x64.exe -Algorithm SHA256
+Get-Content .\pay-dance-v0.9.1-windows-x64.exe.sha256
 ```
 
 If the values match, your local file is identical to the release asset. If not, do not run it.

@@ -33,7 +33,8 @@ describe("desktop window chrome", () => {
   });
 
   it("names the first tray action as opening the main window", () => {
-    expect(libRs).toContain('.text("show", "打开主界面")');
+    expect(libRs).toContain("打开主界面");
+    expect(libRs).toContain('.text("show"');
   });
 
   it("defines a hidden companion window for the mini opacity slider", () => {

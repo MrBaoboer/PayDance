@@ -12,6 +12,7 @@ import {
   miniDefaultSize,
   normalizeMiniOpacityPercent,
   resolveWindowPreferences,
+  type WindowPosition,
   type WindowSize,
 } from "../lib/window-mode";
 import { createBrowserSettingsStore } from "../platform/settings-store";
@@ -49,6 +50,8 @@ export function useWebPreviewState() {
   const fullSize = ref<WindowSize>({ ...fullWindowSize });
   const miniSize = ref<WindowSize>({ ...miniDefaultSize });
   const miniOpacityPercent = ref(defaultMiniOpacityPercent);
+  const mainPosition = ref<WindowPosition | undefined>(undefined);
+  const persistedMiniPosition = ref<WindowPosition | undefined>(undefined);
   const showWebMiniOpacityPanel = ref(false);
   const miniPosition = ref({ x: 0, y: 0 });
   let clearMiniDrag: (() => void) | null = null;
@@ -63,7 +66,9 @@ export function useWebPreviewState() {
       isMiniMode,
       isSettingsReady,
       loadSettings,
+      mainPosition,
       miniOpacityPercent,
+      miniPosition: persistedMiniPosition,
       miniSize,
       saveSettings,
     });

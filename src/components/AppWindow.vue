@@ -54,7 +54,7 @@ defineProps<{
 
 const emit = defineEmits<{
   close: [];
-  completeOnboarding: [preferences: { startInMiniMode: boolean }];
+  completeOnboarding: [];
   dragStart: [event: MouseEvent];
   minimize: [];
   resizeStart: [direction: ResizeDirection];
@@ -170,15 +170,13 @@ const emit = defineEmits<{
 
     <OnboardingPanel
       v-if="shouldShowOnboarding"
-      :always-on-top="alwaysOnTop"
       :autostart-enabled="autostartEnabled"
       :config="config"
       :show-desktop-features="showDesktopFeatures"
       :theme-mode="themeMode"
-      @complete="emit('completeOnboarding', $event)"
+      @complete="emit('completeOnboarding')"
       @drag-start="emit('dragStart', $event)"
       @resize-start="emit('resizeStart', $event)"
-      @update:always-on-top="emit('update:alwaysOnTop', $event)"
       @update:autostart-enabled="emit('update:autostartEnabled', $event)"
       @update:config="emit('update:config', $event)"
       @update:theme-mode="emit('update:themeMode', $event)"

@@ -1,7 +1,10 @@
 name: Web Preview
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
     branches:
       - main
   workflow_dispatch:
@@ -18,6 +21,7 @@ concurrency:
 jobs:
   deploy:
     name: Build and deploy Web Preview
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
