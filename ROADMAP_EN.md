@@ -4,7 +4,7 @@ This document describes the development direction for PayDance. No release dates
 
 ## Now
 
-- Complete auto-update system (real signing, NSIS installer, `latest.json`)
+- Complete auto-update system (real signing, portable self-update, `latest.json`)
 - Window position memory with multi-monitor recovery
 - System clock calibration (sleep resume, timezone change, day crossing)
 - Explicit config migration version chain
@@ -25,6 +25,7 @@ This document describes the development direction for PayDance. No release dates
 - Accessibility auto-check (axe-core)
 - Windows native integration smoke tests
 - Community contribution task labels
+- Multi-currency support
 
 ## Never
 
@@ -35,8 +36,6 @@ These features are explicitly excluded. Related PRs will not be accepted:
 - Historical timeline / charts / trends
 - Clock-in / attendance / timesheet tracking
 - Cloud sync / accounts / online services
-- Multi-currency
-- Pomodoro or productivity features
 
 See `PRODUCT.md` and `CONTRIBUTING.md` for details.
 

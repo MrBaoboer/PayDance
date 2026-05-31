@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Mr.Baoboer // SPDX-License-Identifier: AGPL-3.0-only // //
+Additional terms: see /ADDITIONAL_TERMS.md
+
 <script setup lang="ts">
 import { computed, useId } from "vue";
 import { parseNumberInput } from "../../lib/number-input";

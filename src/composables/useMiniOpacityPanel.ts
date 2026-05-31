@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2026 Mr.Baoboer
+// SPDX-License-Identifier: AGPL-3.0-only
+//
+// Additional terms: see /ADDITIONAL_TERMS.md
+
 import { LogicalSize, PhysicalPosition } from "@tauri-apps/api/dpi";
 import { currentMonitor } from "@tauri-apps/api/window";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";

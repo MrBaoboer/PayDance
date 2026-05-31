@@ -11,12 +11,12 @@ title = "PayDance gitleaks config"
     "src-tauri/target/",
     "node_modules/",
     # Exclude test fixtures with fake keys
-    "**/*.test.ts",
-    "**/*.test.js",
-    "**/*.snap",
+    "\\.test\\.ts$",
+    "\\.test\\.js$",
+    "\\.snap$",
     # Lock files
-    "package-lock.json",
-    "Cargo.lock",
+    "package-lock\\.json$",
+    "Cargo\\.lock$",
     # Mock files
     "src/__mocks__/",
   ]

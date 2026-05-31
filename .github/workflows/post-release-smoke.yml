@@ -50,8 +50,8 @@ jobs:
           echo "Release assets:"
           echo "$ASSETS"
 
-          echo "$ASSETS" | grep -q "x64-setup.exe" || echo "WARN: No NSIS installer found"
           echo "$ASSETS" | grep -q "windows-x64.exe" || { echo "ERROR: No portable EXE found"; exit 1; }
+          echo "$ASSETS" | grep -q "windows-x64.exe.sig" || echo "WARN: No updater signature found"
           echo "$ASSETS" | grep -q ".sha256" || echo "WARN: No SHA256 checksum found"
           echo "$ASSETS" | grep -q "latest.json" || echo "WARN: No latest.json found"
 

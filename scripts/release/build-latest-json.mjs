@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2026 Mr.Baoboer
+// SPDX-License-Identifier: AGPL-3.0-only
+//
+// Additional terms: see /ADDITIONAL_TERMS.md
+
 // ---------------------------------------------------------------------------
 // Build latest.json for the Tauri updater static endpoint.
 //
@@ -41,9 +46,9 @@ if (sigFile) {
   }
 }
 
-const installerUrl =
-  getArg("--installer-url") ??
-  `https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance_${version}_x64-setup.exe`;
+const portableUrl =
+  getArg("--url") ??
+  `https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v${version}-windows-x64.exe`;
 
 const latestJson = {
   version: `v${version}`,
@@ -52,7 +57,7 @@ const latestJson = {
   platforms: {
     "windows-x86_64": {
       signature,
-      url: installerUrl,
+      url: portableUrl,
     },
   },
 };

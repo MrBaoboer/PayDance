@@ -75,10 +75,11 @@ jobs:
         run: cargo clippy --all-targets -- -D warnings
         working-directory: src-tauri
 
+      - name: Install gitleaks
+        run: choco install gitleaks -y --no-progress
+
       - name: Run gitleaks (detect secrets in git history)
-        uses: gitleaks/gitleaks-action@v2
-        with:
-          config-path: .gitleaks.toml
+        run: gitleaks detect --config .gitleaks.toml --verbose
 
       - name: Install cargo-audit
         run: cargo install cargo-audit --locked

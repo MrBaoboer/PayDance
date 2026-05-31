@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2026 Mr.Baoboer
+// SPDX-License-Identifier: AGPL-3.0-only
+//
+// Additional terms: see /ADDITIONAL_TERMS.md
+
 import { execFileSync, spawn } from "node:child_process";
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";

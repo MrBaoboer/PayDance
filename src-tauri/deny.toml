@@ -2,15 +2,16 @@
 # https://embarkstudios.github.io/cargo-deny/
 
 [advisories]
-vulnerability = "deny"
-unmaintained = "warn"
+version = 2
 yanked = "deny"
-notice = "warn"
+unmaintained = "all"
+unsound = "workspace"
 ignore = []
 
 [licenses]
-# GPL-3.0-only is the project license; allow compatible licenses
+# AGPL-3.0-only is the project license; allow compatible licenses
 allow = [
+  "AGPL-3.0-only",
   "GPL-3.0-only",
   "GPL-3.0-or-later",
   "MIT",

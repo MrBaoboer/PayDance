@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2026 Mr.Baoboer
+// SPDX-License-Identifier: AGPL-3.0-only
+//
+// Additional terms: see /ADDITIONAL_TERMS.md
+
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import appSource from "./App.vue?raw";
@@ -29,8 +34,8 @@ describe("main dashboard shell", () => {
     expect(appSource).not.toContain("DesktopApp");
   });
 
-  it("keeps DesktopApp.vue as a page shell under the 345-line architecture budget", () => {
-    expect(desktopAppSource.split(/\r?\n/).length).toBeLessThanOrEqual(345);
+  it("keeps DesktopApp.vue as a page shell under the 350-line architecture budget", () => {
+    expect(desktopAppSource.split(/\r?\n/).length).toBeLessThanOrEqual(350);
     expect(desktopAppSource).not.toContain(':show-desktop-features="false"');
     expect(desktopAppSource).toContain(':show-desktop-features="true"');
     expect(desktopAppSource).toContain("@toggle-always-on-top");

@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2026 Mr.Baoboer
+// SPDX-License-Identifier: AGPL-3.0-only
+//
+// Additional terms: see /ADDITIONAL_TERMS.md
+
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { extname, resolve } from "node:path";
@@ -63,7 +68,7 @@ describe("repository metadata", () => {
 
     expect(releaseWorkflow).toContain("pay-dance-v$version-windows-x64.exe");
     expect(releaseWorkflow).toContain("portableName");
-    expect(releaseWorkflow).toContain("x64-setup.exe.sha256");
+    expect(releaseWorkflow).toContain("windows-x64.exe.sig");
     expect(releaseWorkflow).toContain("pay-dance-v");
     expect(releaseWorkflow).toContain("windows-x64");
     expect(releaseWorkflow).not.toContain("pay-dance.exe.sha256");

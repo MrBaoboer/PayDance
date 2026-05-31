@@ -2,45 +2,67 @@
 
 ## Protected Marks
 
+The following are trademarks or source-identifying marks of the project author
+(Mr.Baoboer):
+
 - **"薪跳"** (Chinese name)
 - **"PayDance"** (English name)
-- The PayDance icon and logo (`src-tauri/icons/icon.png`)
+- **"薪跳 PayDance"** (combined Chinese-English name)
+- PayDance application icon and logo (`src-tauri/icons/icon.png`)
+- Tray icon
+- Official marketing posters
+- Official website visual identity
+- Complete visual composition of official screenshots
 
-These names and logos are trademarks of the project author (Mr.Baoboer).
+## Permitted uses without prior written permission
 
-## What You Can Do
+You may:
 
-- **Fork** the repository under the terms of GPL-3.0
-- **Modify** the source code for personal use
-- **Distribute** modified versions under GPL-3.0
-- **Use** the name "PayDance" to refer to the original project (nominative fair use)
+- Accurately state that your project is based on or derived from PayDance
+  (nominative fair use)
+- Link to the official PayDance repository
+- Use the name "PayDance" in factual discussion, reviews, tutorials, and news
+- Reproduce the name where necessary to preserve copyright and license notices
 
-## What You Cannot Do
+## Uses requiring prior written permission
 
-- **Use** "薪跳", "PayDance", or the PayDance logo as the name or branding of your modified distribution without permission
-- **Suggest** that your fork or derivative is officially affiliated with or endorsed by the original project
-- **Register** domain names, social media handles, or app store listings using "PayDance" or "薪跳"
+You may not, without prior written permission:
 
-## Naming Derivatives
+- Publish a modified product under the names "薪跳", "PayDance", or confusingly
+  similar names
+- Use the official PayDance logo, icon, or marketing artwork as the identity of
+  a modified product
+- State or imply that a modified version is official, approved, sponsored, or
+  endorsed by Mr.Baoboer
+- Use PayDance branding to market an unrelated product or service
 
-If you distribute a modified version (which GPL-3.0 permits), you must:
+## Naming derivatives
 
-1. Use a different name that does not include "薪跳" or "PayDance"
-2. Clearly state that your version is a modified fork
-3. Replace the application icon with your own
+Modified distributions must adopt a clearly distinguishable product name,
+application identifier, icon, website, update endpoint, and package metadata.
 
 Acceptable naming examples:
 - "MySalary (based on PayDance)"
 - "工资助手 (forked from PayDance)"
 
-## Brand Authorization
+Unacceptable naming examples:
+- "PayDance Plus"
+- "薪跳 Pro"
+- "PayDance CE"
 
-To request permission to use the PayDance name or branding for any purpose beyond fair use, contact the project author. Authorization is granted on a case-by-case basis.
+## Brand authorization
+
+To request permission to use the PayDance name or branding for any purpose
+beyond nominative fair use, contact the project author. Authorization is
+granted on a case-by-case basis.
 
 ## Rationale
 
-GPL-3.0 guarantees software freedom: anyone can use, study, modify, and share the code. Trademark protection ensures that the name "PayDance" and "薪跳" always refer to the authentic release from the original author. This prevents confusion and protects users who rely on the official builds.
+AGPL-3.0-only guarantees software freedom: anyone can use, study, modify, and
+share the code. Trademark protection ensures that the names "PayDance" and
+"薪跳" always refer to the authentic release from the original author. This
+prevents confusion and protects users who rely on official builds.
 
-See also: `LICENSE` (GPL-3.0), `README.md` (license section).
+See also: `LICENSE` (AGPL-3.0-only), `ADDITIONAL_TERMS.md`, `ASSET-LICENSE.md`.
 
 > [中文版商标政策 →](TRADEMARK.md)

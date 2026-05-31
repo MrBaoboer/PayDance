@@ -1,9 +1,9 @@
 {
   "name": "pay-dance",
   "private": true,
-  "version": "0.9.2",
+  "version": "0.9.3",
   "author": "Mr.Baoboer",
-  "license": "GPL-3.0-only",
+  "license": "AGPL-3.0-only",
   "repository": "github:MasterBao66/PayDance",
   "type": "module",
   "scripts": {
@@ -27,9 +27,7 @@
     "version:check": "node scripts/ensure-version-consistency.mjs",
     "release:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ensure-release-unlocked.ps1",
     "prebuild:exe": "npm run release:check && npm run version:check",
-    "build:exe": "tauri build --no-bundle",
-    "prebuild:installer": "npm run release:check && npm run version:check",
-    "build:installer": "tauri build",
+    "build:exe": "tauri build",
     "tauri": "tauri"
   },
   "dependencies": {

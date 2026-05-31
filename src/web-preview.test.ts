@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2026 Mr.Baoboer
+// SPDX-License-Identifier: AGPL-3.0-only
+//
+// Additional terms: see /ADDITIONAL_TERMS.md
+
 import { readFileSync, statSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import appSource from "./App.vue?raw";
@@ -397,7 +402,7 @@ describe("PayDance Web Preview", () => {
       "## 技术架构",
       "## 开发者指南",
       "## 隐私声明",
-      "## 作者与许可",
+      "## 作者、开源许可与品牌说明",
     ]) {
       expect(readmeSource).toContain(heading);
     }

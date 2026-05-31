@@ -13,7 +13,10 @@ Only the latest release receives security fixes. Older versions are not supporte
 
 **Do NOT report security vulnerabilities through public GitHub Issues.**
 
-Please report them via email to the project author. Contact information can be found in commit history and release signatures.
+Please report via either of the following private channels:
+
+- **GitHub Security Advisory** (recommended): submit at [Security Advisories](https://github.com/MasterBao66/PayDance/security/advisories/new)
+- **Email**: see the email listed on the [author's GitHub profile](https://github.com/MasterBao66) (include `[SECURITY]` in the subject line)
 
 ### What to Include
 

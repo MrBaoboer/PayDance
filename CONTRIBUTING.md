@@ -55,10 +55,7 @@ cargo clippy --all-targets -- -D warnings
 - 快捷键或热键系统
 - 提醒、通知或弹窗
 - 分段历史时间轴或图表
-- 多币种支持
 - 云端同步、账号系统或在线服务
-- 番茄钟或生产力功能
-- 复杂动画系统或"趣味"视觉效果
 - 任何将数据发送到设备外部的功能
 
 这些边界保持 PayDance 简单且可维护。如果不确定某项功能是否符合，请先开 Issue 讨论。
@@ -82,6 +79,16 @@ cargo clippy --all-targets -- -D warnings
 
 ## 许可
 
-提交贡献即表示你同意将你的贡献以项目所采用的 GPL-3.0 许可进行授权。详见 `LICENSE` 和 `TRADEMARK.md`。
+本项目代码采用 [AGPL-3.0-only](LICENSE) 发布，另有 [AGPL 第 7 条附加条款](ADDITIONAL_TERMS.md)。
+
+提交代码贡献即表示你确认：
+
+- 你有权提交该代码，且贡献为你的原创作品（或已获得必要授权）；
+- 你接受 [贡献者许可协议（CLA）](CLA.md) 的条款；
+- 提交时包含 `Signed-off-by:` 行（DCO），确认你的贡献来源合法。
+
+> 当前项目为单人开发。CLA 文本已就位，外部 PR 合并前将启用签署流程。仅提 Issue 或建议无需签署 CLA。
+
+详见 `LICENSE`、`ADDITIONAL_TERMS.md` 和 `TRADEMARK.md`。
 
 > [English version of this Contributing Guide →](CONTRIBUTING_EN.md)

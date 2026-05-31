@@ -10,7 +10,7 @@
 <p align="center">
   <font size="5"><strong><a href="https://masterbao66.github.io/PayDance/">Live Preview</a></strong></font>
   &nbsp;&nbsp;&nbsp;
-  <font size="5"><strong><a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.2-windows-x64.exe">Windows Desktop</a></strong></font>
+  <font size="5"><strong><a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.3-windows-x64.exe">Windows Desktop</a></strong></font>
   &nbsp;&nbsp;&nbsp;
   <a href="README.md"><strong>中文</strong></a>
 </p>
@@ -42,20 +42,20 @@ The main window shows today's earnings, work progress, remaining time, and daily
 - **Windows 11 desktop experience**: Frameless window, rounded corners, light/dark themes, system tray, always-on-top, auto-start, and silent background auto-update.
 - **Local-first privacy**: No account required. Salary data stays on your machine. No telemetry, remote sync, or online accounts.
 - **Web preview**: Try the core dashboard, setup wizard, and mini floating mode in your browser before downloading.
-- **Release reliability**: Every release includes both a portable EXE and an NSIS installer, with SHA256 checksums and digital signatures. CI covers code hygiene, behavioral tests, desktop and web builds.
+- **Release reliability**: Every release includes a portable EXE with SHA256 checksums and digital signatures. CI covers code hygiene, behavioral tests, desktop and web builds.
 
 ## Quick Download
 
 | Platform | Download | Notes |
 | --- | --- | --- |
 | Web Preview | [PayDance Web](https://masterbao66.github.io/PayDance/) | Browser-based, all core features |
-| Windows 11 Desktop | [pay-dance-v0.9.2-windows-x64.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.2-windows-x64.exe) | Full desktop experience: auto-start, always-on-top, mini floating mode, system tray |
+| Windows 11 Desktop | [pay-dance-v0.9.3-windows-x64.exe](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.3-windows-x64.exe) | Full desktop experience: auto-start, always-on-top, mini floating mode, system tray |
 
-Each release includes `pay-dance-v0.9.2-windows-x64.exe` and its `pay-dance-v0.9.2-windows-x64.exe.sha256`. On Windows, unsigned binaries may trigger a publisher verification prompt. Verify integrity using the SHA256 checksum:
+Each release includes `pay-dance-v0.9.3-windows-x64.exe` and its `pay-dance-v0.9.3-windows-x64.exe.sha256`. On Windows, unsigned binaries may trigger a publisher verification prompt. Verify integrity using the SHA256 checksum:
 
 ```powershell
-Get-FileHash .\pay-dance-v0.9.2-windows-x64.exe -Algorithm SHA256
-Get-Content .\pay-dance-v0.9.2-windows-x64.exe.sha256
+Get-FileHash .\pay-dance-v0.9.3-windows-x64.exe -Algorithm SHA256
+Get-Content .\pay-dance-v0.9.3-windows-x64.exe.sha256
 ```
 
 If the values match, your local file is identical to the release asset. If not, do not run it.
@@ -112,13 +112,33 @@ Full testing, code hygiene, version consistency, and release builds are handled 
 
 PayDance is local-first: no login, no salary data uploads, no telemetry, no remote sync, no online accounts. Configuration is saved via Tauri Store to `salary-settings.json` in the local app data directory, including salary settings, work hours, theme, always-on-top state, mini window opacity, amount animation mode, and onboarding state.
 
-## Author & License
+## Author, Open-Source License & Brand
 
 Designed and developed by Mr.Baoboer.
 
-- **Code**: [GNU General Public License v3.0 (GPL-3.0)](LICENSE) — free to use, study, modify, and redistribute, provided that all copies and modifications remain under the same license and retain original copyright notices. For closed-source commercial licensing, contact the author.
-- **Name & Logo**: "薪跳" and "PayDance" are trademarks of the author. You may not use these names to distribute derivative works without permission.
-- **Documentation** (README, PRODUCT, DESIGN, CHANGELOG): [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) — share and adapt freely, with attribution to Mr.Baoboer.
+### Software Code
+
+The project source code is released under the [GNU Affero General Public License v3.0 only](LICENSE) (AGPL-3.0-only).
+
+You may use, study, modify, and redistribute the code, including for commercial purposes, provided you comply with the license terms. When distributing a modified version, or publicly operating a modified version that supports remote network interaction, you must make the Corresponding Source available under AGPL-3.0-only and preserve reasonable legal notices.
+
+Additional terms permitted under AGPL Section 7 apply — see [`ADDITIONAL_TERMS.md`](ADDITIONAL_TERMS.md).
+
+### Documentation
+
+Original documentation content in README, PRODUCT, DESIGN, CHANGELOG, and governance documents is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), unless otherwise noted.
+
+### Brand & Official Assets
+
+"薪跳", `PayDance`, the product logo, application icons, official promotional artwork, and other brand assets are **not** covered by the AGPL-3.0-only or CC BY-SA 4.0 licenses.
+
+Modified versions and derivative works must use clearly distinguishable names, icons, and brand visuals, and must not imply official status or endorsement by the author. See [`TRADEMARK.md`](TRADEMARK.md) and [`ASSET-LICENSE.md`](ASSET-LICENSE.md).
+
+### Commercial Licensing
+
+For closed-source integration, OEM, white-label, or brand licensing, please contact the author.
+
+---
 
 Full version history in [CHANGELOG.md](CHANGELOG.md). Build artifacts and checksums on [Releases](https://github.com/MasterBao66/PayDance/releases).
 

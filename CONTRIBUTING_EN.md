@@ -55,10 +55,7 @@ PayDance is intentionally NOT:
 - Keyboard shortcuts or hotkey systems
 - Reminders, notifications, or alerts
 - Segmented time axes or historical charts
-- Multi-currency support
 - Cloud sync, accounts, or online services
-- Pomodoro timers or productivity features
-- Complex animation systems or "fun" visual effects
 - Any feature that sends data off-device
 
 These boundaries keep PayDance simple and maintainable. If you're unsure whether something fits, open an Issue to discuss first.
@@ -82,6 +79,16 @@ PayDance follows [Semantic Versioning](https://semver.org/). Release versions ar
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the same GPL-3.0 license that covers the project. See `LICENSE` and `TRADEMARK.md`.
+The project code is released under [AGPL-3.0-only](LICENSE) with [additional terms under AGPL Section 7](ADDITIONAL_TERMS.md).
+
+By submitting a code contribution, you confirm that:
+
+- You are legally entitled to make the contribution and it is your original work (or you have the necessary permissions);
+- You accept the terms of the [Contributor License Agreement (CLA)](CLA.md);
+- You include a `Signed-off-by:` line (DCO) with your submission, confirming its lawful origin.
+
+> The project is currently a solo effort. The CLA text is in place, and the signing process will be activated before external PRs are merged. Opening an Issue or suggestion does not require signing the CLA.
+
+See `LICENSE`, `ADDITIONAL_TERMS.md`, and `TRADEMARK.md` for details.
 
 > [中文版贡献指南 →](CONTRIBUTING.md)

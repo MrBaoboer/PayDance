@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2026 Mr.Baoboer
+// SPDX-License-Identifier: AGPL-3.0-only
+//
+// Additional terms: see /ADDITIONAL_TERMS.md
+
 import { computed, ref, type Ref } from "vue";
 import { resolveAppView, type AppViewState } from "../lib/app-view";
 import type { ThemeMode, WindowSize } from "../lib/window-mode";

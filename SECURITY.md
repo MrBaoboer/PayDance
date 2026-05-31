@@ -13,7 +13,10 @@
 
 **请勿通过公开 GitHub Issue 报告安全漏洞。**
 
-请通过项目作者的电子邮件私下报告。联系方式可在提交历史与 Release 签名中找到。
+请通过以下任一方式私下报告：
+
+- **GitHub 安全通告**（推荐）：访问 [Security Advisories](https://github.com/MasterBao66/PayDance/security/advisories/new) 提交
+- **电子邮件**：查看 [作者 GitHub 首页](https://github.com/MasterBao66) 上公示的邮箱（请在主题中注明 `[SECURITY]`）
 
 ### 报告中应包含
 

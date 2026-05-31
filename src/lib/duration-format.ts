@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2026 Mr.Baoboer
+// SPDX-License-Identifier: AGPL-3.0-only
+//
+// Additional terms: see /ADDITIONAL_TERMS.md
+
 export function formatDashboardDuration(ms: number) {
   if (!Number.isFinite(ms) || ms <= 0) return "0m";
 
