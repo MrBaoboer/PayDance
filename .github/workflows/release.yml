@@ -81,6 +81,7 @@ jobs:
         run: npm run build:installer
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_UPDATER_PRIVKEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_UPDATER_PRIVKEY_PASSWORD }}
 
       - name: Assert desktop frontend target
         run: node scripts/assert-build-target.mjs desktop && node scripts/assert-build-boundary.mjs desktop
