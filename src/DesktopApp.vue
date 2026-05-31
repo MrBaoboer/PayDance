@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { LogicalPosition } from "@tauri-apps/api/dpi";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   readAutostartEnabled,
@@ -221,7 +222,6 @@ onMounted(async () => {
   // Restore saved window position if available
   if (mainPosition.value) {
     try {
-      const { LogicalPosition } = await import("@tauri-apps/api/dpi");
       await appWindow.setPosition(
         new LogicalPosition(mainPosition.value.x, mainPosition.value.y),
       );
