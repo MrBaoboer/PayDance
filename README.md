@@ -25,7 +25,7 @@
 ## 界面体验
 
 <p align="center">
-  <img src="marketing-posters/poster-02-three-step-setup-v3.png" alt="薪跳 PayDance 首次配置三步上手" width="100%">
+  <img src="docs/posters/poster-02-three-step-setup-v3.png" alt="薪跳 PayDance 首次配置三步上手" width="100%">
 </p>
 
 <p align="center">

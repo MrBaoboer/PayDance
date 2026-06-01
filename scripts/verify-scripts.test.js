@@ -81,8 +81,8 @@ describe("verification scripts", () => {
     expect(pushWorkflow).toContain('watchWorkflow("CI"');
     expect(pushWorkflow).toContain('watchWorkflow("Web Preview"');
 
-    expect(readRoot("CONTRIBUTING.md")).toContain("npm run push:main");
-    expect(readRoot("CONTRIBUTING_EN.md")).toContain("npm run push:main");
+    expect(readRoot(".github/CONTRIBUTING.md")).toContain("npm run push:main");
+    expect(readRoot("docs/CONTRIBUTING_EN.md")).toContain("npm run push:main");
   });
 
   it("codifies Web Preview QA through the Codex Playwright workflow", () => {

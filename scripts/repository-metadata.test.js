@@ -26,9 +26,9 @@ const textFiles = [
   ".github/ISSUE_TEMPLATE.md",
   ".github/ISSUE_TEMPLATE/bug_report.yml",
   "CHANGELOG.md",
-  "DESIGN.md",
+  "docs/DESIGN.md",
   "LICENSE",
-  "PRODUCT.md",
+  "docs/PRODUCT.md",
   "README.md",
   "package.json",
   "scripts/repository-metadata.test.js",
@@ -152,7 +152,7 @@ describe("repository metadata", () => {
     const positioning = "桌面实时工资看板";
 
     expect(read("README.md")).toContain(positioning);
-    expect(read("PRODUCT.md")).toContain(positioning);
+    expect(read("docs/PRODUCT.md")).toContain(positioning);
     expect(read("src/lib/app-meta.ts")).toContain(positioning);
     expect(read("src-tauri/Cargo.toml")).toContain(positioning);
     expect(read("src-tauri/src/lib.rs")).toContain(positioning);

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src-tauri/icons/icon.png" alt="PayDance" width="88"><br>
+  <img src="../src-tauri/icons/icon.png" alt="PayDance" width="88"><br>
   <strong><font size="7">薪跳 PayDance</font></strong>
 </p>
 
@@ -24,7 +24,7 @@ The main window shows today's earnings, work progress, remaining time, and daily
 ## Interface
 
 <p align="center">
-  <img src="marketing-posters/poster-02-three-step-setup-v3.png" alt="PayDance three-step setup" width="100%">
+  <img src="posters/poster-02-three-step-setup-v3.png" alt="PayDance three-step setup" width="100%">
 </p>
 
 <p align="center">
