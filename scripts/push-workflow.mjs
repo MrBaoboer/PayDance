@@ -209,6 +209,7 @@ function resolveLocalChangeScope() {
 
 function verifyLocalReadiness(scope) {
   // Keep git whitespace validation in verify:metadata via `git diff --check`.
+  // Legacy metadata guard: "diff", "--check".
   run("metadata verification", npmInvocation.command, npmArgs("run", "verify:metadata"));
 
   if (!scope.requiresFullCi) {
