@@ -20,9 +20,10 @@ npm run dev:web         # 浏览器 Web Preview
 
 ## 提交前必做
 
-在本地运行以下命令。CI 也会运行它们，未通过的 PR 不会被合并。
+在本地运行以下命令。CI 会根据改动路径自动选择轻量验证或完整验证，未通过的 PR 不会被合并。
 
 ```powershell
+npm run verify:metadata # 文档 / 法务 / 品牌类改动的轻量验证
 npm test                # 全部单元/组件测试
 npm run lint            # ESLint
 npm run format:check    # Prettier
@@ -41,7 +42,15 @@ cargo clippy --all-targets -- -D warnings
 npm run push:main
 ```
 
-该命令会串行执行版本一致性、品牌与密钥卫生、lint、格式检查、测试、桌面构建、Web Preview 构建、`npm audit --omit=dev`、`cargo fmt`、`cargo check`、`cargo clippy`、`cargo audit`、`cargo deny check` 和 `git diff --check`。通过后，它会拒绝脏工作区或非 `main` 分支，检查默认分支是否仍有 open Dependabot alert，推送 `origin/main`，并等待 GitHub Actions 中的 CI 与 Web Preview 工作流完成。
+该命令会先对将要推送的文件做路径感知分类。若所有改动都属于文档、法务、品牌素材或社区模板路径，它只运行版本一致性、品牌与密钥卫生、格式检查、仓库元数据测试和 `git diff --check`；若包含 `src/**`、`src-tauri/**`、`package*.json`、`scripts/**`、`.github/workflows/**`、构建配置或未知路径，则自动升级为完整验证，继续运行 lint、测试、桌面构建、Web Preview 构建、`npm audit --omit=dev`、`cargo fmt`、`cargo check`、`cargo clippy`、`cargo audit` 和 `cargo deny check`。
+
+轻量路径包括：
+
+- `docs/**`、`legal/**`、`marketing-posters/**`
+- `README*`、`LICENSE*`、`SECURITY*`、`CONTRIBUTING*`、`CHANGELOG*`、`PRODUCT*`、`DESIGN*`
+- `.github/ISSUE_TEMPLATE.md`、`.github/ISSUE_TEMPLATE/**`、`.github/PULL_REQUEST_TEMPLATE.md`
+
+推送前它会拒绝脏工作区或非 `main` 分支，检查默认分支是否仍有 open Dependabot alert，推送 `origin/main`，并等待 GitHub Actions 的 CI 完成。只有当变更影响 Web Preview 时，才等待 Web Preview 部署工作流；远端也只会在 `main` 的 CI 成功且变更需要部署时发布 GitHub Pages。
 
 如果只想在提交前跑推送前验证，不执行 `git push`：
 
@@ -64,6 +73,7 @@ gh auth login
 薪跳 PayDance 是一款**桌面实时工资看板**。所有贡献必须符合 `PRODUCT.md` 中记载的产品边界。
 
 **欢迎：**
+
 - 附带复现步骤的 Bug 修复
 - 桌面端可靠性改进（窗口管理、托盘、自启动）
 - Windows 11 UI 打磨（主题、无障碍、DPI）
@@ -74,12 +84,14 @@ gh auth login
 ## 我们不接受
 
 薪跳 PayDance 不是：
+
 - 时间追踪或工时统计工具
 - 个人财务管理工具
 - 薪酬或人力资源系统
 - 任务或项目管理应用
 
 **以下贡献不会被合并：**
+
 - 快捷键或热键系统
 - 提醒、通知或弹窗
 - 分段历史时间轴或图表

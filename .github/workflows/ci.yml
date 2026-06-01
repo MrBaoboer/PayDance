@@ -16,8 +16,72 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect change scope
+    runs-on: ubuntu-latest
+    outputs:
+      scope: ${{ steps.scope.outputs.scope }}
+      is_lightweight: ${{ steps.scope.outputs.is_lightweight }}
+      requires_full_ci: ${{ steps.scope.outputs.requires_full_ci }}
+      requires_windows_build: ${{ steps.scope.outputs.requires_windows_build }}
+      deploy_web_preview: ${{ steps.scope.outputs.deploy_web_preview }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Detect change scope
+        id: scope
+        run: |
+          base="${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}"
+          head="${{ github.sha }}"
+          node scripts/ci-change-scope.mjs \
+            --base "$base" \
+            --head "$head" \
+            --github-output "$GITHUB_OUTPUT" \
+            --json-file ci-change-scope.json
+
+      - name: Upload change scope artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-change-scope
+          path: ci-change-scope.json
+          if-no-files-found: error
+
+  metadata:
+    name: Metadata, format, and hygiene
+    needs: changes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Run metadata verification
+        run: npm run verify:metadata
+
   verify:
     name: Test and build
+    needs:
+      - changes
+      - metadata
+    if: needs.changes.outputs.requires_full_ci == 'true'
     runs-on: windows-2022
 
     steps:
@@ -42,17 +106,8 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Check version consistency
-        run: npm run version:check
-
-      - name: Check repository hygiene
-        run: npm run check:hygiene
-
       - name: Run lint
         run: npm run lint
-
-      - name: Check formatting
-        run: npm run format:check
 
       - name: Run unit tests
         run: npm test
@@ -76,6 +131,10 @@ jobs:
 
   security:
     name: Security audit
+    needs:
+      - changes
+      - metadata
+    if: needs.changes.outputs.requires_full_ci == 'true'
     runs-on: ubuntu-latest
 
     steps:

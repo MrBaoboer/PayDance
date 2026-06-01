@@ -8,6 +8,8 @@ import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 
+import { classifyChangedFiles } from "./ci-change-scope.mjs";
+
 const rootDir = resolve(import.meta.dirname, "..");
 const tauriDir = resolve(rootDir, "src-tauri");
 const args = new Set(process.argv.slice(2));
@@ -120,6 +122,10 @@ function captureJson(command, commandArgs, options = {}) {
   }
 }
 
+function splitLines(output) {
+  return output.split(/\r?\n/).filter(Boolean);
+}
+
 function ensureCargoSubcommand(name, installHint) {
   const result = spawnSync("cargo", [name, "--version"], {
     cwd: tauriDir,
@@ -178,25 +184,45 @@ function assertNotBehindRemote() {
   }
 }
 
-function verifyLocalReadiness() {
+function localChangedFiles() {
+  const remoteRef = `origin/${mainBranch}`;
+
+  return [
+    ...splitLines(capture("git", ["diff", "--name-only", `${remoteRef}..HEAD`, "--"])),
+    ...splitLines(capture("git", ["diff", "--name-only", "--cached", "--"])),
+    ...splitLines(capture("git", ["diff", "--name-only", "--"])),
+    ...splitLines(capture("git", ["ls-files", "--others", "--exclude-standard"])),
+  ];
+}
+
+function resolveLocalChangeScope() {
+  const scope = classifyChangedFiles(localChangedFiles());
+
+  console.log(`\n[push-workflow] Local change scope: ${scope.scope}`);
+  console.log(`[push-workflow] Changed files: ${scope.changedFiles.length}`);
+  for (const reason of scope.reasons) {
+    console.log(`[push-workflow] ${reason}`);
+  }
+
+  return scope;
+}
+
+function verifyLocalReadiness(scope) {
+  // Keep git whitespace validation in verify:metadata via `git diff --check`.
+  run("metadata verification", npmInvocation.command, npmArgs("run", "verify:metadata"));
+
+  if (!scope.requiresFullCi) {
+    console.log(
+      "\n[push-workflow] Lightweight change detected; skipping desktop, Web Preview, Rust, and audit builds locally.",
+    );
+    return;
+  }
+
   ensureCargoSubcommand("audit", "cargo install cargo-audit --locked");
   ensureCargoSubcommand("deny", "cargo install cargo-deny --version 0.19.8 --locked");
 
   const steps = [
-    [
-      "version consistency",
-      npmInvocation.command,
-      npmArgs("run", "version:check"),
-      rootDir,
-    ],
-    [
-      "repository hygiene",
-      npmInvocation.command,
-      npmArgs("run", "check:hygiene"),
-      rootDir,
-    ],
     ["lint", npmInvocation.command, npmArgs("run", "lint"), rootDir],
-    ["format check", npmInvocation.command, npmArgs("run", "format:check"), rootDir],
     ["unit tests", npmInvocation.command, npmArgs("test"), rootDir],
     ["desktop build", npmInvocation.command, npmArgs("run", "build:desktop"), rootDir],
     ["web preview build", npmInvocation.command, npmArgs("run", "build:web"), rootDir],
@@ -216,7 +242,6 @@ function verifyLocalReadiness() {
     ],
     ["Rust security audit", "cargo", ["audit"], tauriDir],
     ["Rust dependency policy", "cargo", ["deny", "check"], tauriDir],
-    ["Git whitespace check", "git", ["diff", "--check"], rootDir],
   ];
 
   for (const [label, command, commandArgs, cwd] of steps) {
@@ -290,16 +315,22 @@ async function watchWorkflow(workflowName, headSha) {
 }
 
 async function main() {
+  if (!options.verifyOnly) {
+    assertCleanWorktree();
+    assertMainBranch();
+  }
+
+  assertNotBehindRemote();
+  const scope = resolveLocalChangeScope();
+
   if (!options.skipVerify) {
-    verifyLocalReadiness();
+    verifyLocalReadiness(scope);
   }
 
   if (options.verifyOnly) {
     console.log("\n[push-workflow] Local push-readiness verification finished.");
     return;
   }
-
-  assertCleanWorktree();
 
   if (!options.noPush || !options.noWatch || !options.skipDependabot) {
     ensureGhAvailable();
@@ -310,8 +341,6 @@ async function main() {
   }
 
   if (!options.noPush) {
-    assertMainBranch();
-    assertNotBehindRemote();
     run("push origin/main", "git", ["push", "origin", mainBranch]);
   }
 
@@ -319,7 +348,13 @@ async function main() {
 
   if (!options.noWatch) {
     await watchWorkflow("CI", headSha);
-    await watchWorkflow("Web Preview", headSha);
+    if (scope.deployWebPreview) {
+      await watchWorkflow("Web Preview", headSha);
+    } else {
+      console.log(
+        "\n[push-workflow] Skipping Web Preview watch because this change scope does not deploy it.",
+      );
+    }
   }
 
   if (!options.skipDependabot) {

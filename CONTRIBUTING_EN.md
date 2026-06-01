@@ -20,9 +20,10 @@ npm run dev:web         # Web Preview in browser
 
 ## Before Submitting
 
-Run these commands locally. CI will run them too, and PRs that fail won't be merged.
+Run these commands locally. CI automatically chooses lightweight or full verification based on changed paths, and PRs that fail won't be merged.
 
 ```powershell
+npm run verify:metadata # Lightweight verification for docs/legal/brand changes
 npm test                # All unit/component tests
 npm run lint            # ESLint
 npm run format:check    # Prettier
@@ -41,7 +42,15 @@ Maintainers should use one command to run local verification, push, and confirm 
 npm run push:main
 ```
 
-This command runs version consistency, brand and secret hygiene, linting, formatting, tests, desktop build, Web Preview build, `npm audit --omit=dev`, `cargo fmt`, `cargo check`, `cargo clippy`, `cargo audit`, `cargo deny check`, and `git diff --check` in sequence. After the local checks pass, it refuses dirty working trees or non-`main` branches, checks that the default branch has no open Dependabot alerts, pushes `origin/main`, and waits for the GitHub Actions CI and Web Preview workflows to finish.
+This command first classifies the files that are about to be pushed. If every change is limited to documentation, legal, brand asset, or community-template paths, it runs only version consistency, brand and secret hygiene, formatting, repository metadata tests, and `git diff --check`. If the change touches `src/**`, `src-tauri/**`, `package*.json`, `scripts/**`, `.github/workflows/**`, build configuration, or an unknown path, it automatically upgrades to full verification and also runs linting, tests, desktop build, Web Preview build, `npm audit --omit=dev`, `cargo fmt`, `cargo check`, `cargo clippy`, `cargo audit`, and `cargo deny check`.
+
+Lightweight paths include:
+
+- `docs/**`, `legal/**`, `marketing-posters/**`
+- `README*`, `LICENSE*`, `SECURITY*`, `CONTRIBUTING*`, `CHANGELOG*`, `PRODUCT*`, `DESIGN*`
+- `.github/ISSUE_TEMPLATE.md`, `.github/ISSUE_TEMPLATE/**`, `.github/PULL_REQUEST_TEMPLATE.md`
+
+Before pushing, it refuses dirty working trees or non-`main` branches, checks that the default branch has no open Dependabot alerts, pushes `origin/main`, and waits for GitHub Actions CI to finish. It waits for Web Preview only when the change affects Web Preview; remote deployment also runs only after a successful `main` CI run whose change scope requires deployment.
 
 To run push-readiness checks before committing without running `git push`:
 
@@ -64,6 +73,7 @@ Do not run `npm run build:desktop` and `npm run build:web` in parallel because b
 PayDance is a **desktop real-time salary dashboard**. Contributions should align with the product boundaries documented in `PRODUCT.md`.
 
 **Welcome:**
+
 - Bug fixes with reproduction steps
 - Desktop reliability improvements (window management, tray, auto-start)
 - Windows 11 UI polish (theming, accessibility, DPI)
@@ -74,12 +84,14 @@ PayDance is a **desktop real-time salary dashboard**. Contributions should align
 ## What We Don't Accept
 
 PayDance is intentionally NOT:
+
 - A time tracker or timesheet tool
 - A personal finance manager
 - A payroll or HR system
 - A task/project management app
 
 **We will not accept contributions that add:**
+
 - Keyboard shortcuts or hotkey systems
 - Reminders, notifications, or alerts
 - Segmented time axes or historical charts
