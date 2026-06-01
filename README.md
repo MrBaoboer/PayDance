@@ -13,7 +13,7 @@
   &nbsp;&nbsp;&nbsp;
   <font size="5"><strong><a href="https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.3-windows-x64.exe">Windows 桌面端</a></strong></font>
   &nbsp;&nbsp;&nbsp;
-  <a href="README_EN.md"><strong>English</strong></a>
+  <a href="README_EN.md"><strong>English Version</strong></a>
 </p>
 
 ## 产品简介
@@ -113,31 +113,11 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json" -ErrorAct
 
 薪跳 PayDance 坚持本地优先：不需要登录账号，不上传薪资数据，不包含遥测、远程同步或在线账户体系。应用配置通过 Tauri Store 保存在本机应用数据目录中的 `salary-settings.json`，主要包括薪资、工作时间、主题、置顶状态、迷你悬浮透明度、金额变换模式和首次配置状态。
 
-## 作者、开源许可与品牌说明
+## 作者与许可
 
 薪跳 PayDance 由 Mr.Baoboer 设计与开发。
 
-### 软件代码
-
-项目源代码采用 [GNU Affero General Public License v3.0 only](LICENSE)（AGPL-3.0-only）发布。
-
-你可以使用、研究、修改和再分发代码，也可以在遵守许可证的前提下进行商业使用。分发修改版或公开运行支持网络交互的修改版时，需要按照 AGPL-3.0-only 提供对应源代码，并保留合理的法律通知。
-
-项目另有 AGPL 第 7 条允许的附加条款，请参阅 [`ADDITIONAL_TERMS.md`](ADDITIONAL_TERMS.md)。
-
-### 文档
-
-README、PRODUCT、DESIGN、CHANGELOG 与治理文档中的原创内容采用 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) 发布，另有说明的文件除外。
-
-### 品牌与官方素材
-
-"薪跳"、`PayDance`、产品 Logo、应用图标、官方宣传图和其他品牌资产**不包含**在 AGPL-3.0-only 或 CC BY-SA 4.0 授权中。
-
-修改版和衍生产品必须使用可清楚区分的名称、图标和品牌视觉，不得暗示其属于官方版本或获得作者背书。请参阅 [`TRADEMARK.md`](TRADEMARK.md) 和 [`ASSET-LICENSE.md`](ASSET-LICENSE.md)。
-
-### 商业授权
-
-需要闭源集成、OEM、白标或品牌授权时，请联系作者获取单独商业许可。
+完整许可信息、商标政策与商业授权条款请参阅 **[许可导引](legal/LEGAL.md)**。
 
 ---
 

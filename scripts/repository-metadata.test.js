@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Mr.Baoboer
 // SPDX-License-Identifier: AGPL-3.0-only
 //
-// Additional terms: see /ADDITIONAL_TERMS.md
+// Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -20,6 +20,7 @@ const blockedAudienceTerms = [
 ];
 const macOsName = ["mac", "OS"].join("");
 const blockedDashboardTerm = String.fromCodePoint(0x4eea, 0x8868, 0x76d8);
+const legacyAdditionalTermsReference = `see /${["ADDITIONAL_TERMS", "md"].join(".")}`;
 const binaryExtensions = new Set([".ico", ".png", ".woff2"]);
 const textFiles = [
   ".github/ISSUE_TEMPLATE.md",
@@ -63,16 +64,69 @@ describe("repository metadata", () => {
     expect(readme).not.toContain("masterbao66.github.io/PayDance/pay-dance.exe");
   });
 
+  it("keeps the root LICENSE recognizable as canonical AGPL-3.0", () => {
+    const license = read("LICENSE");
+    const normalizedLicense = license.replace(/\s+/g, " ");
+
+    expect(license).toContain("GNU AFFERO GENERAL PUBLIC LICENSE");
+    expect(license).toContain("Version 3, 19 November 2007");
+    expect(license).toContain(
+      "The GNU Affero General Public License is a free, copyleft license",
+    );
+    expect(normalizedLicense).toContain(
+      "specifically designed to ensure cooperation with the community in the case of network server software",
+    );
+    expect(license).not.toContain("Version 3, 29 June 2007");
+    expect(license).not.toContain(
+      "The GNU General Public License is a free, copyleft license",
+    );
+    expect(license).not.toContain(
+      "The GNU Affero General Public License does not permit incorporating your program into proprietary programs",
+    );
+    expect(read(".gitattributes")).toContain("LICENSE text eol=lf");
+  });
+
+  it("keeps additional terms scoped to AGPL code materials under legal/", () => {
+    expect(read("legal/ADDITIONAL_TERMS.md")).toContain(
+      "适用于 Mr.Baoboer 拥有版权并以 AGPL-3.0-only 发布的 PayDance 软件代码材料。",
+    );
+    expect(read("legal/ADDITIONAL_TERMS.md")).not.toContain("代码与相关材料");
+    expect(read("legal/ADDITIONAL_TERMS_EN.md")).toContain(
+      "They apply to PayDance software code materials copyrighted by Mr.Baoboer and released under AGPL-3.0-only.",
+    );
+    expect(read("legal/ADDITIONAL_TERMS_EN.md")).not.toContain(
+      "code and related materials",
+    );
+
+    for (const file of trackedTextFiles()) {
+      expect(read(file), file).not.toContain(legacyAdditionalTermsReference);
+    }
+  });
+
   it("publishes versioned Windows release assets from the release workflow", () => {
     const releaseWorkflow = read(".github/workflows/release.yml");
+    const postReleaseSmoke = read(".github/workflows/post-release-smoke.yml");
 
     expect(releaseWorkflow).toContain("pay-dance-v$version-windows-x64.exe");
     expect(releaseWorkflow).toContain("portableName");
+    expect(releaseWorkflow).toContain("allow_missing_ci_for_repair");
+    expect(releaseWorkflow).toContain("ALLOW_MISSING_CI_FOR_REPAIR");
+    expect(releaseWorkflow).toContain("Skipping CI gate for existing release repair");
+    expect(releaseWorkflow).toContain("npx tauri signer sign");
     expect(releaseWorkflow).toContain("windows-x64.exe.sig");
+    expect(releaseWorkflow).toContain("TAURI_SIGNING_PRIVATE_KEY");
     expect(releaseWorkflow).toContain("pay-dance-v");
     expect(releaseWorkflow).toContain("windows-x64");
     expect(releaseWorkflow).not.toContain("pay-dance.exe.sha256");
     expect(releaseWorkflow).toContain("latest.json");
+    expect(releaseWorkflow).toContain("fail_on_unmatched_files: true");
+    expect(releaseWorkflow).not.toContain(
+      '$sigArg = if (Test-Path $sigFile) { "--sig-file $sigFile" } else { "" }',
+    );
+
+    expect(postReleaseSmoke).toContain(
+      'jq -e \'.platforms["windows-x86_64"].signature | type == "string" and length > 0\' latest.json',
+    );
   });
 
   it("keeps issue template version hints aligned with the current release line", () => {

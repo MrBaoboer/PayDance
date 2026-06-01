@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Mr.Baoboer
 // SPDX-License-Identifier: AGPL-3.0-only
 //
-// Additional terms: see /ADDITIONAL_TERMS.md
+// Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 import type { Messages } from "../types";
 
@@ -181,17 +181,16 @@ const en: Messages = {
   "updater.installPrompt": "A new version has been downloaded. Restart now to install?",
 
   // ── Web Preview ────────────────────────────────────────────────────────
-  "web.heroHeadline1": "Watch Every Second of",
-  "web.heroHeadline2": "Your Income",
-  "web.heroLead":
-    "Materialize the value of your labor. Stay focused, and see the return.",
+  "web.heroHeadline1": "See your pay",
+  "web.heroHeadline2": "tick up live",
+  "web.heroLead": "A wage board that tracks today’s earnings.",
   "web.downloadWindows": "Download for Windows",
-  "web.featureRealtime": "Real-time Updates",
-  "web.featureRealtimeDesc": "Earnings ticker updated continuously",
-  "web.featureFocus": "Stay Focused",
-  "web.featureFocusDesc": "Lightweight window, silent companion",
-  "web.featurePrivacy": "Privacy First",
-  "web.featurePrivacyDesc": "All data stays on your device",
+  "web.featureRealtime": "Today’s pay",
+  "web.featureRealtimeDesc": "Ticks up as you work",
+  "web.featureFocus": "Mini window",
+  "web.featureFocusDesc": "Made for the corner",
+  "web.featurePrivacy": "Local data",
+  "web.featurePrivacyDesc": "Saved on this device",
   "web.featureAriaLabel": "Key features",
   "web.topbarAriaLabel": "Product info",
   "web.versionLabel": "Current version",

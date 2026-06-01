@@ -112,31 +112,15 @@ Full testing, code hygiene, version consistency, and release builds are handled 
 
 PayDance is local-first: no login, no salary data uploads, no telemetry, no remote sync, no online accounts. Configuration is saved via Tauri Store to `salary-settings.json` in the local app data directory, including salary settings, work hours, theme, always-on-top state, mini window opacity, amount animation mode, and onboarding state.
 
-## Author, Open-Source License & Brand
+## Author & License
 
 Designed and developed by Mr.Baoboer.
 
-### Software Code
+- Code is licensed under **AGPL-3.0-only**, with additional terms permitted by AGPL Section 7 for attribution, modification notices, anti-misrepresentation, and trademark reservation.
+- "薪跳", `PayDance`, the logo, icons, website visuals, official screenshots, and release channels are not licensed with the code. Modified versions must use clearly distinguishable names, icons, application identifiers, and update channels.
+- Compliant commercial use is allowed. Closed-source integration, OEM, white-label, or official brand licensing requires a separate commercial license.
 
-The project source code is released under the [GNU Affero General Public License v3.0 only](LICENSE) (AGPL-3.0-only).
-
-You may use, study, modify, and redistribute the code, including for commercial purposes, provided you comply with the license terms. When distributing a modified version, or publicly operating a modified version that supports remote network interaction, you must make the Corresponding Source available under AGPL-3.0-only and preserve reasonable legal notices.
-
-Additional terms permitted under AGPL Section 7 apply — see [`ADDITIONAL_TERMS.md`](ADDITIONAL_TERMS.md).
-
-### Documentation
-
-Original documentation content in README, PRODUCT, DESIGN, CHANGELOG, and governance documents is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), unless otherwise noted.
-
-### Brand & Official Assets
-
-"薪跳", `PayDance`, the product logo, application icons, official promotional artwork, and other brand assets are **not** covered by the AGPL-3.0-only or CC BY-SA 4.0 licenses.
-
-Modified versions and derivative works must use clearly distinguishable names, icons, and brand visuals, and must not imply official status or endorsement by the author. See [`TRADEMARK.md`](TRADEMARK.md) and [`ASSET-LICENSE.md`](ASSET-LICENSE.md).
-
-### Commercial Licensing
-
-For closed-source integration, OEM, white-label, or brand licensing, please contact the author.
+For full license information, trademark policy, and commercial licensing terms, see the **[Legal Guide](legal/LEGAL_EN.md)**.
 
 ---
 

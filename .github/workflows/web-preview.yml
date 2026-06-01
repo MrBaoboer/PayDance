@@ -10,6 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
   id-token: write
   pages: write
@@ -19,17 +20,48 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  scope:
+    name: Read CI change scope
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      deploy_web_preview: ${{ steps.scope.outputs.deploy_web_preview }}
+
+    steps:
+      - name: Download CI change scope
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v7
+        with:
+          name: ci-change-scope
+          path: ci-change-scope
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Read CI change scope
+        id: scope
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "deploy_web_preview=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          deploy="$(node -e "const scope = require('./ci-change-scope/ci-change-scope.json'); console.log(scope.deployWebPreview === true ? 'true' : 'false');")"
+          echo "deploy_web_preview=${deploy}" >> "$GITHUB_OUTPUT"
+
   deploy:
     name: Build and deploy Web Preview
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    needs: scope
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && needs.scope.outputs.deploy_web_preview == 'true')
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Checkout
+      - name: Checkout validated commit
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6

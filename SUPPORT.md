@@ -1,5 +1,7 @@
 # 获取帮助
 
+> [English version →](SUPPORT_EN.md)
+
 ## 使用问题
 
 - 查阅 [README.md](README.md) 了解功能概述与快速下载
@@ -18,4 +20,3 @@
 
 项目由 Mr.Baoboer 独立开发与维护。可通过提交历史中的邮箱联系，或在 Issue 中 at 作者。
 
-> [English version of this Support Guide →](SUPPORT_EN.md)

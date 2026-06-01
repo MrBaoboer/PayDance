@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Mr.Baoboer
 // SPDX-License-Identifier: AGPL-3.0-only
 //
-// Additional terms: see /ADDITIONAL_TERMS.md
+// Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
@@ -22,6 +22,9 @@ export default defineConfig(({ mode }) => ({
     },
   },
   clearScreen: false,
+  optimizeDeps: {
+    entries: ["index.html"],
+  },
   build: {
     rolldownOptions: {
       checks: {
@@ -33,5 +36,8 @@ export default defineConfig(({ mode }) => ({
     strictPort: true,
     port: 1420,
     host: "127.0.0.1",
+    watch: {
+      ignored: ["**/src-tauri/target/**"],
+    },
   },
 }));

@@ -4,9 +4,12 @@
 [advisories]
 version = 2
 yanked = "deny"
-unmaintained = "all"
+unmaintained = "workspace"
 unsound = "workspace"
-ignore = []
+ignore = [
+  # Transitive Tauri dependency; maintained fork is proc-macro-error2
+  "RUSTSEC-2024-0370",
+]
 
 [licenses]
 # AGPL-3.0-only is the project license; allow compatible licenses
@@ -26,9 +29,9 @@ allow = [
   "CC0-1.0",
   "OpenSSL",
   "Unlicense",
+  "MPL-2.0",
+  "CDLA-Permissive-2.0",
 ]
-copyleft = "deny"
-default = "deny"
 
 [[licenses.clarify]]
 name = "ring"

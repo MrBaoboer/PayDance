@@ -3,7 +3,7 @@ name = "pay-dance"
 version = "0.9.3"
 description = "薪跳 · 桌面实时工资看板"
 authors = ["Mr.Baoboer"]
-license-file = "../LICENSE"
+license = "AGPL-3.0-only"
 repository = "https://github.com/MasterBao66/PayDance"
 edition = "2021"
 

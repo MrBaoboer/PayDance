@@ -6,7 +6,7 @@
 
 ### v0.9.3
 
-- **许可证架构重组**：代码许可切换至 AGPL-3.0-only；新增 AGPL §7 附加条款（`ADDITIONAL_TERMS.md`，含署名保留、修改标注、反冒充、商标保留）；重写商标政策（`TRADEMARK.md`）；新增品牌资产许可（`ASSET-LICENSE.md`）、项目说明（`NOTICE.md`）、第三方声明（`THIRD_PARTY_NOTICES.md`）、贡献者许可协议（`CLA.md`）；文档许可从 CC BY 4.0 切换至 CC BY-SA 4.0；README 许可证章节重写为四段式（代码/文档/品牌/商业授权）。
+- **许可证架构重组**：代码许可切换至 AGPL-3.0-only；新增 AGPL §7 附加条款（`ADDITIONAL_TERMS.md`，含署名保留、修改标注、反冒充、商标保留）；重写商标政策（`TRADEMARK.md`）；新增品牌资产许可（`BRAND-ASSETS.md`）、项目说明（`NOTICE.md`）、第三方声明（`THIRD_PARTY_NOTICES.md`）、贡献者许可协议（`CLA.md`）；文档许可从 CC BY 4.0 切换至 CC BY-SA 4.0；README 许可证章节重写为四段式（代码/文档/品牌/商业授权）。
 - **砍掉 NSIS 安装包**：移除 `bundle.targets: ["nsis"]`，Release 仅发布便携版 EXE + SHA256 + `.sig` 签名。`latest.json` 更新清单指向便携版直链。清理 README、ROADMAP、CHANGELOG 等全部文档中的 NSIS/安装包表述。
 - **CI 修复**：gitleaks 从失效的 `gitleaks/gitleaks-action@v2` 切换至 `choco install gitleaks` 命令行调用，解决 Windows runner 二进制 404 与 API 不兼容问题。
 

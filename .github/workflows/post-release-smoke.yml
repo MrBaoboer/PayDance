@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: smoke-${{ github.ref }}
@@ -35,7 +36,7 @@ jobs:
           echo "=== Latest Release ==="
           gh release view --repo ${{ github.repository }} --json tagName,name,publishedAt,assets | tee latest-release.json
 
-      - name: Verify latest release resolves to current tag
+      - name: Verify latest release exists
         run: |
           TAG=$(gh release view --repo ${{ github.repository }} --json tagName -q '.tagName')
           echo "Latest release tag: $TAG"
@@ -44,23 +45,75 @@ jobs:
             exit 1
           fi
 
-      - name: Verify download assets exist
+      - name: Verify critical assets exist
         run: |
           ASSETS=$(gh release view --repo ${{ github.repository }} --json assets -q '.assets[].name')
           echo "Release assets:"
           echo "$ASSETS"
 
-          echo "$ASSETS" | grep -q "windows-x64.exe" || { echo "ERROR: No portable EXE found"; exit 1; }
-          echo "$ASSETS" | grep -q "windows-x64.exe.sig" || echo "WARN: No updater signature found"
-          echo "$ASSETS" | grep -q ".sha256" || echo "WARN: No SHA256 checksum found"
-          echo "$ASSETS" | grep -q "latest.json" || echo "WARN: No latest.json found"
+          echo "$ASSETS" | grep -q "windows-x64.exe$" \
+            || { echo "ERROR: portable EXE is missing"; exit 1; }
 
-      - name: Verify latest.json is valid and accessible
+          echo "$ASSETS" | grep -q "windows-x64.exe.sig$" \
+            || { echo "ERROR: updater signature (.sig) is missing"; exit 1; }
+
+          echo "$ASSETS" | grep -q "\.sha256$" \
+            || { echo "ERROR: SHA256 checksum file is missing"; exit 1; }
+
+          echo "$ASSETS" | grep -q "latest.json" \
+            || { echo "ERROR: latest.json is missing"; exit 1; }
+
+          echo "All critical assets present."
+
+      - name: Verify SHA256 checksum
         run: |
-          LATEST_URL=$(gh release view --repo ${{ github.repository }} --json assets -q '.assets[] | select(.name == "latest.json") | .url')
-          if [ -n "$LATEST_URL" ]; then
-            curl -fsSL "$LATEST_URL" -o /dev/null && echo "latest.json accessible" || echo "WARN: latest.json not accessible"
+          VERSION=$(gh release view --repo ${{ github.repository }} --json tagName -q '.tagName' | sed 's/^v//')
+          EXE="pay-dance-v${VERSION}-windows-x64.exe"
+
+          gh release download --repo ${{ github.repository }} --pattern "${EXE}" --dir /tmp/smoke --clobber
+          gh release download --repo ${{ github.repository }} --pattern "${EXE}.sha256" --dir /tmp/smoke --clobber
+
+          cd /tmp/smoke
+          EXPECTED=$(cat "${EXE}.sha256" | awk '{print $1}')
+          ACTUAL=$(sha256sum "${EXE}" | awk '{print $1}')
+
+          if [ "$EXPECTED" != "$ACTUAL" ]; then
+            echo "ERROR: SHA256 mismatch"
+            echo "  expected: $EXPECTED"
+            echo "  actual:   $ACTUAL"
+            exit 1
           fi
+          echo "SHA256 verified: $ACTUAL"
+
+      - name: Validate latest.json structure
+        run: |
+          gh release download --repo ${{ github.repository }} --pattern latest.json --dir /tmp/smoke --clobber
+
+          cd /tmp/smoke
+          if ! jq -e '.version' latest.json > /dev/null; then
+            echo "ERROR: latest.json missing 'version' field"
+            exit 1
+          fi
+          if ! jq -e '.platforms["windows-x86_64"].url' latest.json > /dev/null; then
+            echo "ERROR: latest.json missing platform download URL"
+            exit 1
+          fi
+          if ! jq -e '.platforms["windows-x86_64"].signature | type == "string" and length > 0' latest.json > /dev/null; then
+            echo "ERROR: latest.json missing non-empty platform signature"
+            exit 1
+          fi
+          echo "latest.json structure valid."
+
+      - name: Verify latest.json download URL is accessible
+        run: |
+          URL=$(jq -r '.platforms["windows-x86_64"].url' /tmp/smoke/latest.json)
+          echo "Checking: $URL"
+          HTTP_CODE=$(curl -sL -o /dev/null -w "%{http_code}" "$URL")
+          if [ "$HTTP_CODE" -ne 200 ] && [ "$HTTP_CODE" -ne 302 ]; then
+            echo "ERROR: Download URL returned HTTP $HTTP_CODE"
+            exit 1
+          fi
+          echo "Download URL accessible (HTTP $HTTP_CODE)."
 
       - name: Verify README download link
         run: |
@@ -68,8 +121,8 @@ jobs:
           DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/latest/download/pay-dance-v${VERSION}-windows-x64.exe"
           echo "Checking: $DOWNLOAD_URL"
           HTTP_CODE=$(curl -sL -o /dev/null -w "%{http_code}" "$DOWNLOAD_URL")
-          if [ "$HTTP_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 302 ]; then
-            echo "Download link accessible (HTTP $HTTP_CODE)"
-          else
-            echo "WARN: Download link returned HTTP $HTTP_CODE"
+          if [ "$HTTP_CODE" -ne 200 ] && [ "$HTTP_CODE" -ne 302 ]; then
+            echo "ERROR: README download link returned HTTP $HTTP_CODE"
+            exit 1
           fi
+          echo "Download link accessible (HTTP $HTTP_CODE)."

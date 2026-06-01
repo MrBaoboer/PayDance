@@ -14,7 +14,7 @@ Web Preview 视觉验证的标准流程是：本地服务 + 内置 Playwright + 
 4. 浅色和深色主题都要覆盖；只改首屏橱窗时也不能只看浅色。
 5. 同步做 DOM 校验：页面标题、`Web Preview · appVersion` 版本号、软件展示区、移动端展示区不消失也不塌缩。
 6. 收集 browser console 与 page error，确认无严重报错。
-7. 保存截图到临时 QA 目录：`C:\Users\mrbao\AppData\Local\Temp\paydance-web-preview-qa-{version}`。
+7. 保存截图到本次运行专属的临时 QA 目录：`C:\Users\mrbao\AppData\Local\Temp\paydance-web-preview-qa-{version}-{commit}-{timestamp}`。不要复用仅包含版本号的固定目录，否则聊天窗口或图片查看层可能缓存旧截图。
 8. 验证完成后关闭本地服务，避免占用端口。
 
 ## 命令
@@ -23,4 +23,4 @@ Web Preview 视觉验证的标准流程是：本地服务 + 内置 Playwright + 
 npm run qa:web-preview
 ```
 
-脚本会自动启动 `npm run dev:web`，使用内置 Playwright 完成三种视口截图与 DOM/console 校验，然后关闭本地服务。截图和 `summary.json` 会写入临时 QA 目录。
+脚本会自动启动 `npm run dev:web`，使用内置 Playwright 完成三种视口截图与 DOM/console 校验，然后关闭本地服务。截图和 `summary.json` 会写入本次运行的唯一临时 QA 目录；`summary.json` 会记录 run id、commit 和页面实际读取到的中英文 DOM 文案，避免误把旧截图当作新证据。

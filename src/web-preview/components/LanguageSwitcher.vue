@@ -1,7 +1,8 @@
-// SPDX-FileCopyrightText: 2026 Mr.Baoboer // SPDX-License-Identifier: AGPL-3.0-only // //
-Additional terms: see /ADDITIONAL_TERMS.md
-
 <script setup lang="ts">
+// SPDX-FileCopyrightText: 2026 Mr.Baoboer
+// SPDX-License-Identifier: AGPL-3.0-only
+//
+// Additional terms: see /legal/ADDITIONAL_TERMS.md
 import { useI18n } from "../../composables/useI18n";
 
 const { locale, setLocale } = useI18n();
@@ -19,51 +20,86 @@ const toggle = () => {
     type="button"
     @click="toggle"
   >
-    {{ locale === "zh-CN" ? "EN" : "中" }}
+    <span class="lang-switcher__track" aria-hidden="true">
+      <span class="lang-switcher__option" :class="{ 'is-active': locale === 'zh-CN' }">
+        中文
+      </span>
+      <span class="lang-switcher__option" :class="{ 'is-active': locale === 'en' }">
+        EN
+      </span>
+    </span>
   </button>
 </template>
 
 <style scoped>
 .lang-switcher {
-  position: fixed;
-  top: 14px;
-  right: 148px;
-  z-index: 100;
-  width: 32px;
-  height: 28px;
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--line, #e2e8f0);
-  border-radius: 6px;
-  background: var(--panel-soft, #f8fafc);
-  color: var(--muted, #64748b);
-  font-family: var(--font-dashboard, inherit);
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
+  flex: 0 0 auto;
+  height: 32px;
+  border: 1px solid color-mix(in srgb, var(--web-border) 84%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--web-surface-strong) 86%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.5),
+    0 6px 14px rgb(24 24 27 / 0.045);
+  color: var(--muted);
+  font-family: var(--web-font-action, var(--font-dashboard, inherit));
+  padding: 2px;
   transition:
     border-color 160ms ease,
-    color 160ms ease,
+    box-shadow 160ms ease,
     background-color 160ms ease;
+  cursor: pointer;
+}
+
+.lang-switcher__track {
+  display: grid;
+  width: 86px;
+  height: 26px;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+.lang-switcher__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 820;
+  line-height: 1;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.lang-switcher__option.is-active {
+  background: color-mix(in srgb, var(--income-accent) 16%, rgb(255 255 255));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--income-accent) 22%, transparent);
+  color: color-mix(in srgb, var(--income-accent) 82%, rgb(24 24 27));
 }
 
 .lang-switcher:hover {
-  border-color: var(--income-accent-ring, #f59e0b);
-  color: var(--text, #1e293b);
-  background: var(--panel, #fff);
+  border-color: color-mix(in srgb, var(--income-accent) 34%, var(--web-border));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.52),
+    0 8px 18px rgb(24 24 27 / 0.06);
 }
 
-/* Dark mode: ensure visibility against dark topbar */
-:global(.theme-dark) .lang-switcher {
-  border-color: var(--line, #334155);
-  background: var(--panel-soft, #1e293b);
-  color: var(--muted, #94a3b8);
+:global(.theme-dark.web-preview) .lang-switcher {
+  background: color-mix(in srgb, var(--web-surface-strong) 78%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.055),
+    0 12px 32px rgb(0 0 0 / 0.26);
 }
 
-:global(.theme-dark) .lang-switcher:hover {
-  border-color: var(--income-accent-ring, #f59e0b);
-  color: var(--text, #f1f5f9);
-  background: var(--panel, #0f172a);
+:global(.theme-dark.web-preview) .lang-switcher__option.is-active {
+  background: color-mix(in srgb, var(--income-accent) 22%, rgb(24 24 27));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--income-accent) 30%, transparent);
+  color: rgb(255 230 191);
 }
 </style>

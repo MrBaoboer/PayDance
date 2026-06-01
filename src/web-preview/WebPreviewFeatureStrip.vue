@@ -1,7 +1,8 @@
-// SPDX-FileCopyrightText: 2026 Mr.Baoboer // SPDX-License-Identifier: AGPL-3.0-only // //
-Additional terms: see /ADDITIONAL_TERMS.md
-
 <script setup lang="ts">
+// SPDX-FileCopyrightText: 2026 Mr.Baoboer
+// SPDX-License-Identifier: AGPL-3.0-only
+//
+// Additional terms: see /legal/ADDITIONAL_TERMS.md
 import { Focus, ShieldCheck, Zap } from "@lucide/vue";
 import { useI18n } from "../composables/useI18n";
 
@@ -49,12 +50,12 @@ const { t } = useI18n();
 }
 
 .web-preview__chips {
-  --web-chip-base-width: 188px;
+  --web-chip-base-width: 220px;
   --web-chip-gap: 0px;
   --web-chip-scale: 1;
   display: grid;
   width: 100%;
-  max-width: min(100%, 860px);
+  max-width: min(100%, 980px);
   grid-template-columns: repeat(
     3,
     calc(var(--web-chip-base-width) * var(--web-chip-scale))
@@ -111,6 +112,10 @@ const { t } = useI18n();
   line-height: 1.1;
 }
 
+.web-preview__chip-copy {
+  white-space: nowrap;
+}
+
 .web-preview__chips dd {
   margin: 0;
   margin-top: calc(7px * var(--web-chip-scale));
@@ -118,7 +123,8 @@ const { t } = useI18n();
   font-size: calc(14px * var(--web-chip-scale));
   font-weight: 520;
   line-height: 1.36;
-  white-space: nowrap;
+  max-width: 28ch;
+  white-space: normal;
 }
 
 @media (max-width: 820px) {
@@ -129,15 +135,49 @@ const { t } = useI18n();
 
 @media (max-width: 560px) {
   .web-preview__feature-strip {
-    width: min(100%, 360px);
+    width: min(100%, 358px);
     margin-top: 2px;
     margin-bottom: 24px;
     padding-bottom: 4px;
   }
 
   .web-preview__chips {
-    --web-chip-scale: min(0.74, calc((100vw - 40px) / 564px));
+    --web-chip-scale: 1;
     max-width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    justify-content: center;
+    justify-items: center;
+    gap: 8px;
+  }
+
+  .web-preview__chip {
+    width: 100%;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    justify-items: center;
+    row-gap: 8px;
+    text-align: center;
+  }
+
+  .web-preview__chip-icon {
+    width: 36px;
+    height: 36px;
+    grid-row: auto;
+  }
+
+  .web-preview__chip-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .web-preview__chips dt {
+    font-size: 13px;
+    line-height: 1.18;
+    white-space: normal;
+  }
+
+  .web-preview__chips dd {
+    display: none;
   }
 }
 </style>

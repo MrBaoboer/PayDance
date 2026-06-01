@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Mr.Baoboer
 // SPDX-License-Identifier: AGPL-3.0-only
 //
-// Additional terms: see /ADDITIONAL_TERMS.md
+// Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useAppShell } from "../composables/useAppShell";
 import { useDashboardModel } from "../composables/useDashboardModel";
-import { provideI18n } from "../composables/useI18n";
+import { useI18n } from "../composables/useI18n";
 import { useSalarySettings } from "../composables/useSalarySettings";
 import { useSalaryTicker } from "../composables/useSalaryTicker";
 import { useThemeSync } from "../composables/useThemeSync";
@@ -45,8 +45,7 @@ export function useWebPreviewState() {
     themeMode,
   } = useSalarySettings(() => Promise.resolve(previewStore));
 
-  const { locale } = useSalarySettings(() => Promise.resolve(previewStore));
-  const { t } = provideI18n(locale);
+  const { locale, t } = useI18n();
 
   const isMiniMode = ref(false);
   const autostartEnabled = ref(false);

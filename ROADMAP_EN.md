@@ -1,5 +1,7 @@
 # Roadmap
 
+> [中文版 →](ROADMAP.md)
+
 This document describes the development direction for PayDance. No release dates are promised.
 
 ## Now
@@ -38,5 +40,3 @@ These features are explicitly excluded. Related PRs will not be accepted:
 - Cloud sync / accounts / online services
 
 See `PRODUCT.md` and `CONTRIBUTING.md` for details.
-
-> [中文版路线图 →](ROADMAP.md)

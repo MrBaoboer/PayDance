@@ -1,5 +1,7 @@
 # Contributing to PayDance
 
+> [中文版 →](CONTRIBUTING.md)
+
 Thanks for your interest! PayDance is a focused desktop tool — please read the guidelines below before submitting anything.
 
 ## Environment
@@ -18,9 +20,10 @@ npm run dev:web         # Web Preview in browser
 
 ## Before Submitting
 
-Run these commands locally. CI will run them too, and PRs that fail won't be merged.
+Run these commands locally. CI automatically chooses lightweight or full verification based on changed paths, and PRs that fail won't be merged.
 
 ```powershell
+npm run verify:metadata # Lightweight verification for docs/legal/brand changes
 npm test                # All unit/component tests
 npm run lint            # ESLint
 npm run format:check    # Prettier
@@ -31,11 +34,46 @@ cargo fmt --all -- --check        # (in src-tauri/)
 cargo clippy --all-targets -- -D warnings
 ```
 
+## Maintainer Push Workflow
+
+Maintainers should use one command to run local verification, push, and confirm remote results before updating `main`:
+
+```powershell
+npm run push:main
+```
+
+This command first classifies the files that are about to be pushed. If every change is limited to documentation, legal, brand asset, or community-template paths, it runs only version consistency, brand and secret hygiene, formatting, repository metadata tests, and `git diff --check`. If the change touches `src/**`, `src-tauri/**`, `package*.json`, `scripts/**`, `.github/workflows/**`, build configuration, or an unknown path, it automatically upgrades to full verification and also runs linting, tests, desktop build, Web Preview build, `npm audit --omit=dev`, `cargo fmt`, `cargo check`, `cargo clippy`, `cargo audit`, and `cargo deny check`.
+
+Lightweight paths include:
+
+- `docs/**`, `legal/**`, `marketing-posters/**`
+- `README*`, `LICENSE*`, `SECURITY*`, `CONTRIBUTING*`, `CHANGELOG*`, `PRODUCT*`, `DESIGN*`
+- `.github/ISSUE_TEMPLATE.md`, `.github/ISSUE_TEMPLATE/**`, `.github/PULL_REQUEST_TEMPLATE.md`
+
+Before pushing, it refuses dirty working trees or non-`main` branches, checks that the default branch has no open Dependabot alerts, pushes `origin/main`, and waits for GitHub Actions CI to finish. It waits for Web Preview only when the change affects Web Preview; remote deployment also runs only after a successful `main` CI run whose change scope requires deployment.
+
+To run push-readiness checks before committing without running `git push`:
+
+```powershell
+npm run verify:push
+```
+
+The security audit steps require these local tools:
+
+```powershell
+cargo install cargo-audit --locked
+cargo install cargo-deny --version 0.19.8 --locked
+gh auth login
+```
+
+Do not run `npm run build:desktop` and `npm run build:web` in parallel because both write to the same `dist/` directory. The push workflow runs them serially in the same order as CI.
+
 ## What We Accept
 
 PayDance is a **desktop real-time salary dashboard**. Contributions should align with the product boundaries documented in `PRODUCT.md`.
 
 **Welcome:**
+
 - Bug fixes with reproduction steps
 - Desktop reliability improvements (window management, tray, auto-start)
 - Windows 11 UI polish (theming, accessibility, DPI)
@@ -46,12 +84,14 @@ PayDance is a **desktop real-time salary dashboard**. Contributions should align
 ## What We Don't Accept
 
 PayDance is intentionally NOT:
+
 - A time tracker or timesheet tool
 - A personal finance manager
 - A payroll or HR system
 - A task/project management app
 
 **We will not accept contributions that add:**
+
 - Keyboard shortcuts or hotkey systems
 - Reminders, notifications, or alerts
 - Segmented time axes or historical charts
@@ -79,16 +119,14 @@ PayDance follows [Semantic Versioning](https://semver.org/). Release versions ar
 
 ## License
 
-The project code is released under [AGPL-3.0-only](LICENSE) with [additional terms under AGPL Section 7](ADDITIONAL_TERMS.md).
+The project code is released under [AGPL-3.0-only](LICENSE) with [additional terms under AGPL Section 7](legal/ADDITIONAL_TERMS.md).
 
 By submitting a code contribution, you confirm that:
 
 - You are legally entitled to make the contribution and it is your original work (or you have the necessary permissions);
-- You accept the terms of the [Contributor License Agreement (CLA)](CLA.md);
+- You agree that your contribution is incorporated into the project under AGPL-3.0-only and the project's additional terms;
 - You include a `Signed-off-by:` line (DCO) with your submission, confirming its lawful origin.
 
-> The project is currently a solo effort. The CLA text is in place, and the signing process will be activated before external PRs are merged. Opening an Issue or suggestion does not require signing the CLA.
+> The project is currently a solo effort. Ordinary contributions enter the project under the open-source terms above. If the maintainer needs to include a contribution in commercial, OEM, or white-label licensing, the contributor will be asked to explicitly sign the [Contributor License Agreement (CLA)](legal/CLA.md) before merge. Opening an Issue, suggestion, or security report does not require signing the CLA.
 
-See `LICENSE`, `ADDITIONAL_TERMS.md`, and `TRADEMARK.md` for details.
-
-> [中文版贡献指南 →](CONTRIBUTING.md)
+See `LICENSE`, `legal/ADDITIONAL_TERMS.md`, `legal/TRADEMARK.md`, and `legal/BRAND-ASSETS.md` for details.

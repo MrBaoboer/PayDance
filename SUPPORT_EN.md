@@ -1,5 +1,7 @@
 # Getting Help
 
+> [中文版 →](SUPPORT.md)
+
 ## Usage Questions
 
 - See [README.md](README.md) for feature overview and quick download
@@ -18,4 +20,3 @@ Do not report publicly. See [SECURITY.md](SECURITY.md).
 
 PayDance is independently developed and maintained by Mr.Baoboer. Contact via the email found in commit history, or @-mention the author in an Issue.
 
-> [中文版帮助指南 →](SUPPORT.md)

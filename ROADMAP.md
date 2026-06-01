@@ -1,5 +1,7 @@
 # 路线图
 
+> [English version →](ROADMAP_EN.md)
+
 本文件记录薪跳 PayDance 的开发方向。不承诺发布时间，仅供了解当前焦点。
 
 ## 当前
@@ -38,5 +40,3 @@
 - 云端同步/账号/在线服务
 
 详见 `PRODUCT.md` 与 `CONTRIBUTING.md`。
-
-> [English version of this Roadmap →](ROADMAP_EN.md)

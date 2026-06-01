@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Mr.Baoboer
 // SPDX-License-Identifier: AGPL-3.0-only
 //
-// Additional terms: see /ADDITIONAL_TERMS.md
+// Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 // ---------------------------------------------------------------------------
 // Build latest.json for the Tauri updater static endpoint.
@@ -25,6 +25,12 @@ if (!version) {
   process.exit(1);
 }
 
+const sigFile = getArg("--sig-file");
+if (!sigFile) {
+  console.error("Missing required --sig-file argument");
+  process.exit(1);
+}
+
 let notes = getArg("--notes") ?? "";
 const notesFile = getArg("--notes-file");
 if (notesFile) {
@@ -36,14 +42,17 @@ if (notesFile) {
   }
 }
 
-const sigFile = getArg("--sig-file");
 let signature = "";
-if (sigFile) {
-  try {
-    signature = readFileSync(sigFile, "utf8").trim();
-  } catch {
-    console.error(`Could not read signature file: ${sigFile}`);
-  }
+try {
+  signature = readFileSync(sigFile, "utf8").trim();
+} catch {
+  console.error(`Could not read signature file: ${sigFile}`);
+  process.exit(1);
+}
+
+if (!signature) {
+  console.error(`Signature file is empty: ${sigFile}`);
+  process.exit(1);
 }
 
 const portableUrl =

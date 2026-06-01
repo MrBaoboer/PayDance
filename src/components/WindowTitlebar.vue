@@ -1,7 +1,8 @@
-// SPDX-FileCopyrightText: 2026 Mr.Baoboer // SPDX-License-Identifier: AGPL-3.0-only // //
-Additional terms: see /ADDITIONAL_TERMS.md
-
 <script setup lang="ts">
+// SPDX-FileCopyrightText: 2026 Mr.Baoboer
+// SPDX-License-Identifier: AGPL-3.0-only
+//
+// Additional terms: see /legal/ADDITIONAL_TERMS.md
 import { Minus, Moon, Pin, Settings2, Shrink, Sun, X } from "@lucide/vue";
 import { useI18n } from "../composables/useI18n";
 

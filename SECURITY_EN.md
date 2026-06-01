@@ -1,5 +1,7 @@
 # Security Policy
 
+> [中文版 →](SECURITY.md)
+
 ## Supported Versions
 
 Only the latest release receives security fixes. Older versions are not supported.
@@ -8,6 +10,12 @@ Only the latest release receives security fixes. Older versions are not supporte
 | --------- | -------------------- |
 | latest    | :white_check_mark:  |
 | < latest  | :x:                 |
+
+## Supported Platforms
+
+The currently released and security-supported surfaces are the **Windows 11 desktop app** and the **Web Preview**. The Tauri dependency graph may include upstream cross-platform dependencies for macOS/Linux in `Cargo.lock`, but those platforms are not part of the current supported release surface unless a release note explicitly ships a build for them.
+
+For third-party dependency alerts that only affect unreleased platform code paths, maintainers will document the assessment and continue tracking upstream Tauri/Wry/GTK updates. If PayDance starts shipping that platform, those dependencies become part of the normal security fix scope.
 
 ## Reporting a Vulnerability
 
@@ -51,5 +59,3 @@ If the Tauri updater signing key is compromised:
 ## Local Data
 
 PayDance is a local-first application. Salary data, work schedules, and preferences are stored only on your device. No data is sent to remote servers. If you discover a vulnerability that could expose local configuration to unauthorized access, please report it immediately.
-
-> [中文版安全策略 →](SECURITY.md)

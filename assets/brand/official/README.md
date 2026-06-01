@@ -18,4 +18,4 @@ Fork maintainers **must** replace these assets with their own distinct branding.
 Do not use official PayDance logos, icons, or marketing artwork as your project's
 identity.
 
-See `ASSET-LICENSE.md` and `TRADEMARK.md` in the repository root.
+See [`BRAND-ASSETS.md`](../legal/BRAND-ASSETS.md) and [`TRADEMARK.md`](../legal/TRADEMARK.md) in the repository root (now in `legal/`).
