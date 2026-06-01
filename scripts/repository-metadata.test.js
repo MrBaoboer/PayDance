@@ -12,7 +12,6 @@ const repoRoot = resolve(import.meta.dirname, "..");
 const read = (path) => readFileSync(resolve(repoRoot, path), "utf8");
 const packageJson = JSON.parse(read("package.json"));
 const versionedDesktopAssetName = `pay-dance-v${packageJson.version}-windows-x64.exe`;
-const versionedDesktopChecksumName = `${versionedDesktopAssetName}.sha256`;
 const desktopDownloadUrl = `https://github.com/MasterBao66/PayDance/releases/latest/download/${versionedDesktopAssetName}`;
 const blockedAudienceTerms = [
   String.fromCodePoint(0x6253, 0x5de5),
