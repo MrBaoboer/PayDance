@@ -3,11 +3,7 @@ dist
 src-tauri/target
 src-tauri/gen
 .npm-cache
-release-assets
+release-assets/
 .tools
 *.log
-.claude/net-diag.ps1
-.claude/settings.local.json
-paydance-updater-key
-paydance-updater-key.pub
-release-assets/
+.claude/
