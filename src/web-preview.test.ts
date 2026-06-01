@@ -552,7 +552,7 @@ describe("PayDance Web Preview", () => {
     const readmeSource = read("README.md");
 
     expect(readmeSource).not.toContain("## 近期改进");
-    expect(readmeSource).toContain("<h1 align=\"center\">薪跳 PayDance</h1>");
+    expect(readmeSource).toContain('<h1 align="center">薪跳 PayDance</h1>');
     expect(readmeSource).toContain("桌面实时工资看板");
     expect(readmeSource).not.toContain(String.fromCodePoint(0x4eea, 0x8868, 0x76d8));
     expect(readmeSource).toContain("在线体验");
@@ -577,7 +577,9 @@ describe("PayDance Web Preview", () => {
     expect(readmeSource).not.toContain("## 技术架构与工程质量");
     expect(readmeSource).not.toContain("## 隐私声明、作者与许可");
     expect(readmeSource).toContain("网页端，含所有核心功能");
-    expect(readmeSource).toContain("便携 EXE，含托盘、置顶、迷你悬浮、开机自启动等完整能力");
+    expect(readmeSource).toContain(
+      "便携 EXE，含托盘、置顶、迷你悬浮、开机自启动等完整能力",
+    );
     expect(readmeSource).not.toContain(["产品", "预览"].join(""));
     expect(readmeSource).not.toContain("poster-01-live-dashboard-v3.png");
     expect(readmeSource).not.toContain(["实时", "收入看板"].join(""));
