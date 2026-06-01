@@ -2,7 +2,7 @@
 
 > [English version →](official_EN.md)
 
-薪跳 PayDance 的官方品牌素材。除非另有明确授权，这些素材**不适用** AGPL-3.0-only 或 CC BY-SA 4.0，由 Mr.Baoboer 保留全部权利。
+本目录记录薪跳 PayDance 的官方品牌素材。除非另有明确授权，这些素材**不适用** AGPL-3.0-only 或 CC BY-SA 4.0，由 Mr.Baoboer 保留全部权利。
 
 ## 仓库中的资产位置
 
@@ -15,6 +15,6 @@
 
 ## 给 Fork 维护者
 
-发布 Fork、衍生版或再分发版本时，请替换为自己可清楚区分的名称、图标和视觉资产。不要把官方 Logo、应用图标或宣传图作为你的项目身份，也不要让用户误以为该版本由官方发布或背书。
+如果你发布 Fork、衍生版或再分发版本，请替换为自己可清楚区分的名称、图标和视觉资产。不要把官方 PayDance Logo、应用图标或宣传图作为你的项目身份使用，也不要让用户误以为该版本由官方发布或背书。
 
 详细边界请阅读 [`BRAND-ASSETS.md`](../../legal/BRAND-ASSETS.md) 与 [`TRADEMARK.md`](../../legal/TRADEMARK.md)。
