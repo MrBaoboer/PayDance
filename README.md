@@ -71,12 +71,46 @@ Web Preview 与桌面端共享核心薪资逻辑和前端界面，部署在 GitH
 
 ## 开发
 
-```bash
+**安装依赖**
+
+```powershell
 npm install
-npm run tauri dev      # 桌面应用
-npm run dev:web        # Web Preview
-npm run build:exe      # 构建 Windows 便携版
-npm run build:web      # 构建网页体验版
+```
+
+**桌面应用**
+
+```powershell
+npm run tauri dev
+```
+
+**Web Preview**
+
+```powershell
+npm run dev:web
+```
+
+**构建 Windows 便携版**
+
+```powershell
+npm run build:exe
+```
+
+**构建网页体验版**
+
+```powershell
+npm run build:web
+```
+
+**重置本地配置，重新体验首次启动向导**
+
+```powershell
+Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json"
+```
+```
+
+```powershell
+# 重置本地配置，重新体验首次启动向导
+Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json"
 ```
 
 详细的提交规范、验证命令和贡献方向请参阅 [贡献指南](.github/CONTRIBUTING.md)。

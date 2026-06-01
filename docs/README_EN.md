@@ -71,12 +71,40 @@ The Web Preview and desktop app share core salary logic and frontend UI, deploye
 
 ## Development
 
-```bash
+**Install dependencies**
+
+```powershell
 npm install
-npm run tauri dev      # Desktop app
-npm run dev:web        # Web Preview
-npm run build:exe      # Build Windows portable EXE
-npm run build:web      # Build web preview
+```
+
+**Desktop app**
+
+```powershell
+npm run tauri dev
+```
+
+**Web Preview**
+
+```powershell
+npm run dev:web
+```
+
+**Build Windows portable EXE**
+
+```powershell
+npm run build:exe
+```
+
+**Build web preview**
+
+```powershell
+npm run build:web
+```
+
+**Reset local config to re-trigger the first-run wizard**
+
+```powershell
+Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json"
 ```
 
 For commit conventions, verification commands, and contribution guidelines, see the [Contributing Guide](../.github/CONTRIBUTING.md).
