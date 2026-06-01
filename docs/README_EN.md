@@ -6,7 +6,7 @@
 <h1 align="center">PayDance 薪跳</h1>
 
 <p align="center">
-  A desktop real-time salary dashboard that turns today's earnings into a quietly ticking number on your screen.
+  Make your labor tangible — see every second of income grow in real time.
 </p>
 
 <p align="center">
@@ -42,14 +42,20 @@ The main window shows today's earnings, work progress, time remaining, and daily
 
 ## Get It
 
+<div align="center">
+
 | &nbsp; | Link | Notes |
 |:---:|:---:|:---:|
 | 🌐 | **[Live Preview](https://masterbao66.github.io/PayDance/)** | Browser-based, all core features available |
 | ⬇️ | **[Windows Desktop](https://github.com/MasterBao66/PayDance/releases/latest)** | Portable EXE with tray, pinning, mini float, auto-start |
 
+</div>
+
 Each release includes a SHA256 checksum file for integrity verification.
 
 ## Tech Stack
+
+<div align="center">
 
 | Layer | Technologies |
 |:---:|:---:|
@@ -59,11 +65,13 @@ Each release includes a SHA256 checksum file for integrity verification.
 | Storage | Local app data directory (Tauri Store) |
 | Testing | Vitest + vue-tsc + cargo clippy |
 
+</div>
+
 The Web Preview and desktop app share core salary logic and frontend UI, deployed to GitHub Pages as an online demo.
 
 ## Development
 
-```powershell
+```bash
 npm install
 npm run tauri dev      # Desktop app
 npm run dev:web        # Web Preview

@@ -6,7 +6,7 @@
 <h1 align="center">薪跳 PayDance</h1>
 
 <p align="center">
-  把今日入账变成桌面上安静跳动的数字，让每一秒的收入增长都看得见。
+  具象化你的劳动价值，让每一秒的收入增长都看得见。
 </p>
 
 <p align="center">
@@ -42,14 +42,20 @@
 
 ## 获取
 
+<div align="center">
+
 | &nbsp; | 入口 | 说明 |
 |:---:|:---:|:---:|
 | 🌐 | **[在线体验](https://masterbao66.github.io/PayDance/)** | 网页端，含所有核心功能 |
 | ⬇️ | **[Windows 桌面版](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.3-windows-x64.exe)** | 便携 EXE，含托盘、置顶、迷你悬浮、开机自启动等完整能力 |
 
+</div>
+
 Release 页面同时提供 SHA256 校验文件，下载后可验证完整性。
 
 ## 技术栈
+
+<div align="center">
 
 | 层级 | 技术 |
 |:---:|:---:|
@@ -59,11 +65,13 @@ Release 页面同时提供 SHA256 校验文件，下载后可验证完整性。
 | 存储 | 本机应用数据目录（Tauri Store） |
 | 测试 | Vitest + vue-tsc + cargo clippy |
 
+</div>
+
 Web Preview 与桌面端共享核心薪资逻辑和前端界面，部署在 GitHub Pages 上作为在线体验入口。
 
 ## 开发
 
-```powershell
+```bash
 npm install
 npm run tauri dev      # 桌面应用
 npm run dev:web        # Web Preview
