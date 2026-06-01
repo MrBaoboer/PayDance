@@ -10,14 +10,12 @@
 </p>
 
 <p align="center">
-  <a href="https://masterbao66.github.io/PayDance/"><strong>🌐 在线体验</strong></a>
+  <a href="https://masterbao66.github.io/PayDance/"><strong>在线体验</strong></a>
   &nbsp;&nbsp;·&nbsp;&nbsp;
-  <a href="https://github.com/MasterBao66/PayDance/releases/latest"><strong>⬇️ 下载桌面版</strong></a>
+  <a href="https://github.com/MasterBao66/PayDance/releases/latest"><strong>下载桌面版</strong></a>
   &nbsp;&nbsp;·&nbsp;&nbsp;
   <a href="docs/README_EN.md">English</a>
 </p>
-
----
 
 ## 它是什么
 
