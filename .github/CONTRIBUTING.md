@@ -2,7 +2,7 @@
 
 > [English version →](../docs/CONTRIBUTING_EN.md)
 
-感谢你愿意关注薪跳 PayDance。这个项目刻意保持很小：它只想把“今天正在挣到的钱”安静、清楚地放在桌面上。提交 Issue 或 PR 前，请先读完下面的边界和流程。
+感谢你关注薪跳 PayDance。这个项目刻意保持很小——它只想把"今天正在挣到的钱"安静、清楚地放在桌面上。提交 Issue 或 PR 前，请先了解下面的边界和流程。
 
 ## 开发环境
 
@@ -20,7 +20,7 @@ npm run dev:web   # 浏览器 Web Preview
 
 ## 提交前验证
 
-请按改动范围选择验证命令。CI 会根据路径自动选择轻量或完整验证，但本地先跑一遍能省很多来回。
+按改动范围选择验证命令。CI 会根据路径自动选择轻量或完整验证，但本地先跑一遍能省很多来回。
 
 ```powershell
 npm run verify:metadata # 文档、法务、品牌、社区模板等轻量改动
@@ -46,19 +46,14 @@ cargo deny check --hide-inclusion-graph
 npm run push:main
 ```
 
-该命令会先对将要推送的文件做路径感知分类。若所有改动都属于文档、法务、品牌素材或社区模板路径，它只运行版本一致性、品牌与密钥卫生、格式检查、仓库元数据测试和 `git diff --check`；若包含 `src/**`、`src-tauri/**`、`package*.json`、`scripts/**`、`.github/workflows/**`、构建配置或未知路径，则自动升级为完整验证，继续运行 lint、测试、桌面构建、Web Preview 构建、`npm audit --omit=dev`、`cargo fmt`、`cargo check`、`cargo clippy`、`cargo audit` 和 `cargo deny check`。
+该命令会对将要推送的文件做路径感知分类：
 
-轻量路径包括：
+- **轻量路径**（`docs/**`、`legal/**`、`README*`、`CHANGELOG*` 等）：只运行版本一致性、品牌与密钥卫生、格式检查、仓库元数据测试和 `git diff --check`。
+- **代码路径**（`src/**`、`src-tauri/**`、`package*.json`、`scripts/**`、`.github/workflows/**` 等）：自动升级为完整验证，追加 lint、测试、桌面构建、Web Preview 构建、`npm audit`、`cargo fmt/check/clippy/audit/deny`。
 
-- `docs/**`、`legal/**`、`marketing-posters/**`
-- `README*`、`LICENSE*`、`SECURITY*`、`CONTRIBUTING*`、`CHANGELOG*`、`PRODUCT*`、`DESIGN*`
-- `.github/ISSUE_TEMPLATE.md`、`.github/ISSUE_TEMPLATE/**`、`.github/PULL_REQUEST_TEMPLATE.md`
+只想跑验证不推送：`npm run verify:push`
 
-如果只想在提交前跑推送前验证，不执行 `git push`：
-
-```powershell
-npm run verify:push
-```
+> 注意：不要并行运行 `npm run build:desktop` 与 `npm run build:web`，两者会写入同一个 `dist/` 目录。
 
 安全审计步骤需要本地安装：
 
@@ -67,8 +62,6 @@ cargo install cargo-audit --locked
 cargo install cargo-deny --version 0.19.8 --locked
 gh auth login
 ```
-
-不要并行运行 `npm run build:desktop` 与 `npm run build:web`，两者会写入同一个 `dist/` 目录；推送工作流已按 CI 顺序串行执行。
 
 ## 我们欢迎
 
@@ -84,7 +77,7 @@ gh auth login
 
 ## 我们不接受
 
-薪跳 PayDance 不是时间追踪、个人财务、薪酬系统、考勤系统或任务管理工具。以下方向当前不在产品边界内，相关 PR 请先开 Issue 说明为什么仍服务核心体验：
+薪跳 PayDance 不是时间追踪、个人财务、薪酬系统、考勤系统或任务管理工具。以下方向当前不在产品边界内，相关 PR 请先开 Issue 讨论：
 
 - 快捷键或热键系统
 - 提醒、通知或弹窗
@@ -92,7 +85,7 @@ gh auth login
 - 云端同步、账号系统或在线服务
 - 任何默认把数据发送到设备外部的功能
 
-这些边界不是冷冰冰的拒绝，而是为了让产品保持轻、稳、可信。如果不确定某项功能是否符合，请先开 Issue 讨论。
+这些边界是为了让产品保持轻、稳、可信。如果不确定某项功能是否合适，先开 Issue 聊聊。
 
 ## PR 规范
 
@@ -110,7 +103,7 @@ gh auth login
 
 ## 版本管理
 
-薪跳 PayDance 遵循[语义化版本](https://semver.org/lang/zh-CN/)。版本号由项目作者管理。请勿在 PR 中自行提升版本号。
+薪跳 PayDance 遵循[语义化版本](https://semver.org/lang/zh-CN/)。版本号由项目作者管理，请勿在 PR 中自行提升版本号。
 
 ## 许可
 

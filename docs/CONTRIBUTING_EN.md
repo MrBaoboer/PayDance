@@ -2,7 +2,7 @@
 
 > [中文版 →](../.github/CONTRIBUTING.md)
 
-Thanks for your interest in PayDance. This project is intentionally small: it puts today's live earnings on the desktop in a calm, clear way. Please read the boundaries and workflow below before opening an Issue or PR.
+Thanks for your interest in PayDance. This project is intentionally small — it puts today's live earnings on the desktop in a calm, clear way. Please read the boundaries and workflow below before opening an Issue or PR.
 
 ## Environment
 
@@ -20,7 +20,7 @@ npm run dev:web   # Browser Web Preview
 
 ## Before Submitting
 
-Choose the checks that match your change. CI automatically selects lightweight or full verification by path, but running the right checks locally saves round trips.
+Choose the checks that match your change. CI automatically selects lightweight or full verification by path, but running locally first saves round trips.
 
 ```powershell
 npm run verify:metadata # Docs, legal, brand, and community-template changes
@@ -28,7 +28,7 @@ npm run verify:fast     # Lint, format, tests, desktop build, Web Preview build
 npm run qa:web-preview  # Web Preview visual and DOM/console validation
 ```
 
-For Rust, release, or security-governance changes, also run these commands in `src-tauri/`:
+For Rust, release, or security-governance changes, also run in `src-tauri/`:
 
 ```powershell
 cargo fmt --all -- --check
@@ -40,35 +40,28 @@ cargo deny check --hide-inclusion-graph
 
 ## Maintainer Push Workflow
 
-Maintainers should use this command before pushing to `main`:
+Before pushing to `main`:
 
 ```powershell
 npm run push:main
 ```
 
-It first classifies the files that are about to be pushed. If every change is limited to documentation, legal, brand asset, or community-template paths, it runs only version consistency, brand and secret hygiene, formatting, repository metadata tests, and `git diff --check`. If the change touches `src/**`, `src-tauri/**`, `package*.json`, `scripts/**`, `.github/workflows/**`, build configuration, or an unknown path, it automatically upgrades to full verification and also runs linting, tests, desktop build, Web Preview build, `npm audit --omit=dev`, `cargo fmt`, `cargo check`, `cargo clippy`, `cargo audit`, and `cargo deny check`.
+This command classifies files by path:
 
-Lightweight paths include:
+- **Lightweight paths** (`docs/**`, `legal/**`, `README*`, `CHANGELOG*`, etc.): runs version consistency, brand/secret hygiene, formatting, metadata tests, and `git diff --check`.
+- **Code paths** (`src/**`, `src-tauri/**`, `package*.json`, `scripts/**`, `.github/workflows/**`, etc.): upgrades to full verification — adds lint, tests, desktop build, Web Preview build, `npm audit`, `cargo fmt/check/clippy/audit/deny`.
 
-- `docs/**`, `legal/**`, `marketing-posters/**`
-- `README*`, `LICENSE*`, `SECURITY*`, `CONTRIBUTING*`, `CHANGELOG*`, `PRODUCT*`, `DESIGN*`
-- `.github/ISSUE_TEMPLATE.md`, `.github/ISSUE_TEMPLATE/**`, `.github/PULL_REQUEST_TEMPLATE.md`
+To run checks without pushing: `npm run verify:push`
 
-To run push-readiness checks before committing without running `git push`:
+> Note: do not run `npm run build:desktop` and `npm run build:web` in parallel — both write to the same `dist/` directory.
 
-```powershell
-npm run verify:push
-```
-
-The security audit steps require these local tools:
+Security audit steps require local tools:
 
 ```powershell
 cargo install cargo-audit --locked
 cargo install cargo-deny --version 0.19.8 --locked
 gh auth login
 ```
-
-Do not run `npm run build:desktop` and `npm run build:web` in parallel because both write to the same `dist/` directory. The push workflow runs them serially in the same order as CI.
 
 ## What We Welcome
 
@@ -84,7 +77,7 @@ All contributions should align with the product boundaries in [PRODUCT.md](PRODU
 
 ## What We Do Not Accept
 
-PayDance is not a time tracker, personal finance manager, payroll system, attendance system, or task manager. The following directions are currently outside the product boundary; related PRs should start with an Issue explaining why they still serve the core experience:
+PayDance is not a time tracker, personal finance manager, payroll system, attendance system, or task manager. The following directions are currently outside the product boundary — related PRs should start with an Issue:
 
 - Keyboard shortcuts or hotkey systems
 - Reminders, notifications, or alerts
@@ -92,7 +85,7 @@ PayDance is not a time tracker, personal finance manager, payroll system, attend
 - Cloud sync, accounts, or online services
 - Any feature that sends data off-device by default
 
-These boundaries are not meant to be cold; they keep the product light, stable, and trustworthy. If you are unsure whether an idea fits, open an Issue first.
+These boundaries keep the product light, stable, and trustworthy. If you're unsure whether an idea fits, open an Issue first.
 
 ## PR Guidelines
 

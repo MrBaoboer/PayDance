@@ -2,7 +2,7 @@
 
 > [English version →](web-preview-qa_EN.md)
 
-Web Preview 的验证标准是：本地服务 + 内置 Playwright + 多视口截图 + DOM/console 双校验。目标不是“截到一张图”，而是确认线上橱窗在真实浏览器里能稳定展示、切换主题、保留关键文案和布局边界。
+Web Preview 的验证标准：本地服务 + 内置 Playwright + 多视口截图 + DOM/console 双校验。目标不是”截到一张图”，而是确认线上橱窗在真实浏览器里能稳定展示、切换主题、保留关键文案和布局边界。
 
 ## 禁用方法
 
