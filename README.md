@@ -17,12 +17,6 @@
   <a href="docs/README_EN.md">English</a>
 </p>
 
-<p align="center">
-  <img src="https://img.shields.io/github/v/release/MasterBao66/PayDance?label=%E7%89%88%E6%9C%AC&color=blue" alt="Latest Release">
-  <img src="https://img.shields.io/github/license/MasterBao66/PayDance?label=%E8%AE%B8%E5%8F%AF&color=green" alt="License">
-  <img src="https://img.shields.io/badge/%E5%B9%B3%E5%8F%B0-Windows%2011-0078D4" alt="Platform">
-</p>
-
 ---
 
 ## 它是什么
@@ -50,8 +44,8 @@
 
 ## 获取
 
-| | 入口 | 说明 |
-|---|---|---|
+| &nbsp; | 入口 | 说明 |
+|:---:|:---:|:---:|
 | 🌐 | **[在线体验](https://masterbao66.github.io/PayDance/)** | 网页端，含所有核心功能 |
 | ⬇️ | **[Windows 桌面版](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.3-windows-x64.exe)** | 便携 EXE，含托盘、置顶、迷你悬浮、开机自启动等完整能力 |
 
@@ -60,7 +54,7 @@ Release 页面同时提供 SHA256 校验文件，下载后可验证完整性。
 ## 技术栈
 
 | 层级 | 技术 |
-|------|------|
+|:---:|:---:|
 | 桌面壳 | Tauri 2 + Rust |
 | 前端 | Vue 3 + TypeScript + Vite |
 | UI | Windows 11 风格、CSS Container Queries、Lucide Icons |

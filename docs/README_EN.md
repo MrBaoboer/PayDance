@@ -17,12 +17,6 @@
   <a href="../README.md">中文</a>
 </p>
 
-<p align="center">
-  <img src="https://img.shields.io/github/v/release/MasterBao66/PayDance?label=version&color=blue" alt="Latest Release">
-  <img src="https://img.shields.io/github/license/MasterBao66/PayDance?color=green" alt="License">
-  <img src="https://img.shields.io/badge/platform-Windows%2011-0078D4" alt="Platform">
-</p>
-
 ---
 
 ## What It Is
@@ -50,8 +44,8 @@ The main window shows today's earnings, work progress, time remaining, and daily
 
 ## Get It
 
-| | Link | Notes |
-|---|---|---|
+| &nbsp; | Link | Notes |
+|:---:|:---:|:---:|
 | 🌐 | **[Live Preview](https://masterbao66.github.io/PayDance/)** | Browser-based, all core features available |
 | ⬇️ | **[Windows Desktop](https://github.com/MasterBao66/PayDance/releases/latest)** | Portable EXE with tray, pinning, mini float, auto-start |
 
@@ -60,7 +54,7 @@ Each release includes a SHA256 checksum file for integrity verification.
 ## Tech Stack
 
 | Layer | Technologies |
-|-------|-------------|
+|:---:|:---:|
 | Desktop shell | Tauri 2 + Rust |
 | Frontend | Vue 3 + TypeScript + Vite |
 | UI | Windows 11 styling, CSS Container Queries, Lucide Icons |
