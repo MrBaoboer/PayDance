@@ -203,7 +203,6 @@ const { restoreWindowPosition } = useWindowPositionRecovery({
   isMiniMode,
   mainPosition,
   miniSize,
-  saveStateNow,
 });
 
 const { clearWindowLifecycleTimers, registerWindowLifecycle } = useAppWindowLifecycle(

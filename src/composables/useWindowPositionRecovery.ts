@@ -39,14 +39,12 @@ export function useWindowPositionRecovery({
   isMiniMode,
   mainPosition,
   miniSize,
-  saveStateNow,
 }: {
   appWindow: PositionRecoveryWindow;
   fullSize: Ref<WindowSize>;
   isMiniMode: Ref<boolean>;
   mainPosition: Ref<WindowPosition | undefined>;
   miniSize: Ref<WindowSize>;
-  saveStateNow: () => Promise<void>;
 }) {
   const moveWindowTo = async (position: WindowPosition) => {
     mainPosition.value = position;
