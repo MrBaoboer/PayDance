@@ -1,6 +1,6 @@
 # 参与贡献
 
-> [English version →](../docs/CONTRIBUTING_EN.md)
+> [English version →](https://github.com/MasterBao66/PayDance/blob/main/docs/CONTRIBUTING_EN.md)
 
 感谢你愿意参与薪跳 PayDance。这个项目刻意保持很小：只做一件事，把“今天正在挣到的钱”安静、清楚地放在桌面上。提交 Issue 或 PR 前，请先了解下面的边界和流程。
 
@@ -65,7 +65,7 @@ gh auth login
 
 ## 我们欢迎
 
-所有贡献都应符合 [PRODUCT.md](../docs/PRODUCT.md) 中记录的产品边界。
+所有贡献都应符合 [PRODUCT.md](https://github.com/MasterBao66/PayDance/blob/main/docs/PRODUCT.md) 中记录的产品边界。
 
 - 附带复现步骤的 Bug 修复
 - 桌面端可靠性改进：窗口管理、托盘、自启动、单实例
@@ -109,7 +109,7 @@ gh auth login
 
 ## 许可
 
-本项目代码采用 [AGPL-3.0-only](../LICENSE) 发布，另有 [AGPL 第 7 条附加条款](../legal/ADDITIONAL_TERMS.md)。
+本项目代码采用 [AGPL-3.0-only](https://github.com/MasterBao66/PayDance/blob/main/LICENSE) 发布，另有 [AGPL 第 7 条附加条款](https://github.com/MasterBao66/PayDance/blob/main/legal/ADDITIONAL_TERMS.md)。
 
 提交代码贡献即表示你确认：
 
