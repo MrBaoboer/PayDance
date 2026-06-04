@@ -2,13 +2,13 @@
 
 > [中文版 →](LEGAL.md)
 
-This document summarizes all legal and licensing information for the PayDance project. Please follow the links for full text of each file.
+This document summarizes legal and licensing information for the PayDance project. Follow the links for the full text of each file.
 
 ## Software Code
 
 The project source code is released under the **[GNU Affero General Public License v3.0 only](../LICENSE)** (AGPL-3.0-only).
 
-You may use, study, modify, and redistribute the code, and may use it commercially in compliance with the license. When distributing modified versions or publicly running modified versions that support network interaction, you must provide the corresponding source code under AGPL-3.0-only and retain reasonable legal notices.
+You may use, study, modify, and redistribute the code, and may use it commercially in compliance with the license. When distributing modified versions, or publicly running modified versions that support network interaction, you must provide the corresponding source code under AGPL-3.0-only and retain reasonable legal notices.
 
 Additional terms permitted under AGPL Section 7 apply — see **[ADDITIONAL_TERMS_EN.md](ADDITIONAL_TERMS_EN.md)**. These terms preserve attribution, require modification notices, prevent source misrepresentation, and reserve trademark rights; they do not prohibit compliant commercial use.
 

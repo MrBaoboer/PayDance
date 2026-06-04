@@ -1,8 +1,8 @@
 # CHANGELOG
 
-本文件记录薪跳 PayDance 的正式版本变化。README 保持为面向用户的产品橱窗；完整版本演进与 GitHub Release 正文来源统一维护在这里。
+本文记录薪跳 PayDance 的正式版本变化。README 面向新用户展示产品；完整版本演进和 GitHub Release 正文来源统一维护在这里。
 
-更多构建产物与校验文件请查看 [GitHub Releases](https://github.com/MasterBao66/PayDance/releases)。
+构建产物与校验文件见 [GitHub Releases](https://github.com/MasterBao66/PayDance/releases)。
 
 ### v0.9.3
 

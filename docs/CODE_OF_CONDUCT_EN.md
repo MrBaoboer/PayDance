@@ -24,7 +24,7 @@ PayDance welcomes specific, respectful, evidence-backed discussion about the pro
 
 Report conduct concerns through the channels in [Support](SUPPORT_EN.md) or [Security Policy](SECURITY_EN.md).
 
-The maintainer may remove comments, close discussions, reject contributions, or limit account participation when needed. The goal is not punishment; it is keeping the project safe, focused, and workable.
+The maintainer may remove comments, close discussions, reject contributions, or limit account participation when needed. The goal is not punishment; it is keeping project discussions safe, focused, and workable.
 
 ## Attribution
 

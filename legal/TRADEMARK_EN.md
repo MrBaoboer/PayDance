@@ -2,7 +2,7 @@
 
 > [中文版 →](TRADEMARK.md)
 
-This policy protects "薪跳 PayDance" as an official independent product and helps prevent users from confusing modified, rebranded, or third-party distributions with the official release. This policy does not change the code rights granted by `LICENSE`.
+This policy protects "薪跳 PayDance" as an official independent product and helps prevent users from confusing modified, rebranded, or third-party distributions with the official release. It does not change the code rights granted by `LICENSE`.
 
 ## Protected marks
 
@@ -40,7 +40,7 @@ Without explicit prior written permission, you may not:
 
 ## Minimum distinction requirements for modified versions and forks
 
-If you distribute a modified version, binary build, installer, portable executable, or hosted version, ordinary users must be able to clearly distinguish it from official PayDance. In practice, you should replace or modify at least:
+If you distribute a modified version, binary build, installer, portable executable, or hosted version, ordinary users must be able to clearly distinguish it from official PayDance. In practice, replace or modify at least:
 
 - Product name
 - Application icon and tray icon

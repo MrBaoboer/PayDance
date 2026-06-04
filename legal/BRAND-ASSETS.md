@@ -2,7 +2,7 @@
 
 > [English version →](BRAND-ASSETS_EN.md)
 
-本文件说明 PayDance 官方品牌素材的授权边界。它不改变 `LICENSE` 对软件代码授予的权利。
+本文说明 PayDance 官方品牌素材的授权边界，不改变 `LICENSE` 对软件代码授予的权利。
 
 除非另有明确书面授权，以下素材不在 AGPL-3.0-only 或 CC BY-SA 4.0 授权范围内：
 

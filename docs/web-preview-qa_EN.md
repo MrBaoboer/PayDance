@@ -2,7 +2,7 @@
 
 > [中文版 →](web-preview-qa.md)
 
-The Web Preview QA flow checks that the storefront works in a real browser: the page renders, theme and language switching work, key copy is present, and primary layout bounds stay inside the viewport. It provides evidence for release decisions, not just a good-looking screenshot.
+The Web Preview QA flow checks that the storefront works in a real browser: the page renders, theme and language switching work, key copy is present, and primary layout bounds stay inside the viewport. Its goal is release evidence, not just a good-looking screenshot.
 
 ## Do Not Use
 

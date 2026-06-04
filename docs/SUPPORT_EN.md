@@ -2,7 +2,7 @@
 
 > [中文版 →](SUPPORT.md)
 
-When something feels off, do not start by guessing. Use the paths below to decide whether you need a document, an Issue, or a private security report.
+When something feels off, use the paths below to decide whether you need a document, an Issue, or a private security report.
 
 ## Start here
 
@@ -13,7 +13,7 @@ When something feels off, do not start by guessing. Use the paths below to decid
 
 ## Usage Questions
 
-If you only want to confirm how a feature should work, search [GitHub Issues](https://github.com/MasterBao66/PayDance/issues) first. If there is no related discussion, open a regular Issue and describe your use case and expected outcome.
+If you only want to confirm how a feature should work, search [GitHub Issues](https://github.com/MasterBao66/PayDance/issues) first. If there is no related discussion, open a regular Issue with your use case and expected outcome.
 
 ## Bug Reports
 
@@ -31,7 +31,7 @@ Do not publicly paste salary data, configuration files, private keys, or any per
 
 PayDance is centered on one idea: a lightweight, local-first, low-distraction real-time desktop wage board. When suggesting a feature, explain the concrete scenario it solves and why it supports that core experience. For platform-adaptation suggestions, include the target system, validation approach, and maintenance scope you can support.
 
-Keyboard shortcuts, reminders, historical charts, attendance tracking, accounts, and cloud sync are currently outside the product boundary. Related ideas can still be discussed, but they need to explain why they would not make the product heavier.
+Keyboard shortcuts, reminders, historical charts, attendance tracking, accounts, and cloud sync are currently outside the product boundary. Related ideas can still be discussed, but they need to explain why they would not make PayDance heavier.
 
 ## Security Vulnerabilities
 

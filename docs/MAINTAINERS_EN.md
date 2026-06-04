@@ -21,7 +21,7 @@ There is no fixed response-time promise. This is a solo-maintained project, so r
 ## Merge Standard
 
 - One pull request should solve one main problem.
-- User-visible behavior needs tests or a documented manual smoke path.
+- User-visible behavior needs tests; when automation is not practical, document the manual smoke path.
 - UI changes need screenshots for Chinese/English and light/dark states.
 - Release-chain, updater, security, legal, and brand changes require maintainer confirmation even when tests pass.
 

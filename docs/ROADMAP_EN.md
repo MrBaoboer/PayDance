@@ -2,7 +2,7 @@
 
 > [中文版 →](ROADMAP.md)
 
-This document records the development direction for PayDance. It is not a release-date promise; it helps maintainers, contributors, and users understand the current priorities.
+This document records PayDance's development direction. It is not a release-date promise; it is a quick way for maintainers, contributors, and users to understand current priorities.
 
 ## Recently Completed
 
@@ -17,7 +17,7 @@ This document records the development direction for PayDance. It is not a releas
 - Window position memory with multi-monitor recovery.
 - System clock calibration: sleep resume, timezone changes, day crossing, and night-shift boundaries.
 - Explicit config migration version chain so future settings changes stay traceable and reversible.
-- Onboarding wizard example awareness: a preview that feels closer to the real live wage tick during setup.
+- Onboarding preview examples that feel closer to the real live wage tick during setup.
 
 ## Next
 

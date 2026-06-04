@@ -2,7 +2,7 @@
 
 > [中文版 →](MAINTENANCE.md)
 
-This document keeps the recurring PayDance maintenance rules easy to find: what to check when changing persisted settings, writing diagnostics, or preparing a release.
+This document keeps recurring PayDance maintenance rules easy to find: what to check when changing persisted settings, writing diagnostics, or preparing a release.
 
 ## Settings Migration
 

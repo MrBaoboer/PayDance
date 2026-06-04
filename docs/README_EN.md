@@ -6,7 +6,7 @@
 <h1 align="center">PayDance 薪跳</h1>
 
 <p align="center">
-  Make your labor tangible — see every second of income grow in real time.
+  Make your labor tangible. Watch every second of income grow.
 </p>
 
 <p align="center">
@@ -19,26 +19,26 @@
 
 ## What It Is
 
-PayDance (薪跳) is a desktop real-time salary dashboard. Configure your salary and work hours, and today's earnings appear on your desktop, ticking upward as you work.
+PayDance (薪跳) is a desktop real-time salary dashboard. Set your salary and working hours, and today's earnings stay on your desktop, rising as your workday moves forward.
 
-The main window shows today's earnings, work progress, time remaining, and daily estimate. The mini floating window keeps only the amount — perfect for a corner of your screen.
+The main window shows today's earnings, work progress, time remaining, and daily estimate. The mini floating window keeps only the amount, ready for a quick glance from the corner of your screen.
 
 <p align="center">
   <img src="posters/poster-02-three-step-setup-v3.png" alt="PayDance three-step setup" width="100%">
 </p>
 
 <p align="center">
-  Salary mode, work hours, preferences — set once, remembered forever.
+  Salary mode, work hours, and preferences: set them once, then PayDance remembers.
 </p>
 
 ## Why Use It
 
-- **Earnings made visible** — Today's income precise to 2 decimal places, ticking continuously, giving your work time a tangible sense of value.
-- **Realistic work schedules** — Monthly/daily/hourly pay with auto-conversion; supports weekly workdays, lunch break exclusion, and overnight shifts.
-- **Mini floating mode** — Amount only, draggable, always-on-top, 10%–100% opacity. Double-click to restore the main window.
-- **Local-first privacy** — No accounts, no uploads, no telemetry. Your salary config stays on your machine.
+- **Earnings made visible** — Today's income is shown to 2 decimal places and keeps ticking, giving each workday a more tangible sense of value.
+- **Realistic work schedules** — Monthly, daily, and hourly pay convert automatically, with weekly workdays, lunch break exclusion, and overnight shifts supported.
+- **Mini floating mode** — Amount only, draggable, always-on-top, and adjustable from 10%–100% opacity. Double-click to restore the main window.
+- **Local-first privacy** — No accounts, no uploads, no telemetry. Your salary settings stay on your machine.
 - **Bilingual UI** — Full Simplified Chinese and English coverage across the interface, tray menu, and validation messages.
-- **Windows 11 experience** — Frameless rounded windows, light/dark themes, system tray, auto-start, silent background updates.
+- **Windows 11 experience** — Frameless rounded windows, light/dark themes, system tray, auto-start, and silent background updates.
 
 ## Get It
 
@@ -51,7 +51,7 @@ The main window shows today's earnings, work progress, time remaining, and daily
 
 </div>
 
-Each release includes a SHA256 checksum file for integrity verification.
+Each release includes a SHA256 checksum file so you can verify the download.
 
 ## Tech Stack
 
@@ -67,7 +67,7 @@ Each release includes a SHA256 checksum file for integrity verification.
 
 </div>
 
-The Web Preview and desktop app share core salary logic and frontend UI, deployed to GitHub Pages as an online demo.
+The Web Preview and desktop app share the same core salary logic and frontend UI. The preview is deployed to GitHub Pages for quick browser-based testing.
 
 ## Development
 
@@ -101,13 +101,13 @@ npm run build:exe
 npm run build:web
 ```
 
-**Reset local config to re-trigger the first-run wizard**
+**Reset local config to open the first-run wizard again**
 
 ```powershell
 Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json"
 ```
 
-For commit conventions, verification commands, and contribution guidelines, see the [Contributing Guide](../.github/CONTRIBUTING.md).
+For commit conventions, verification commands, and contribution workflow, see the [Contributing Guide](../.github/CONTRIBUTING.md).
 
 ## Privacy
 
