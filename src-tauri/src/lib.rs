@@ -28,21 +28,9 @@ fn tray_menu_labels(
     &'static str,
 ) {
     if use_en {
-        (
-            "Open",
-            "Settings",
-            "Mini Mode",
-            "Always on Top",
-            "Quit",
-        )
+        ("Open", "Settings", "Mini Mode", "Always on Top", "Quit")
     } else {
-        (
-            "打开主界面",
-            "打开设置",
-            "切换迷你模式",
-            "切换置顶",
-            "退出",
-        )
+        ("打开主界面", "打开设置", "切换迷你模式", "切换置顶", "退出")
     }
 }
 
