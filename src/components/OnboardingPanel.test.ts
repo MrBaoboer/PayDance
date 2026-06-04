@@ -56,5 +56,4 @@ describe("onboarding panel", () => {
       },
     );
   });
-
 });
