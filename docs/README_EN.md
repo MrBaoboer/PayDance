@@ -107,7 +107,7 @@ npm run build:web
 Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json"
 ```
 
-For commit conventions, verification commands, and contribution workflow, see the [Contributing Guide](../.github/CONTRIBUTING.md).
+For commit conventions, verification commands, and contribution workflow, see the [Contributing Guide](CONTRIBUTING_EN.md).
 
 ## Privacy
 
@@ -115,9 +115,9 @@ PayDance requires no login, uploads no data, and includes no telemetry. All conf
 
 ## Documentation
 
-- [Product Positioning & Boundaries](PRODUCT.md)
+- [Product Positioning & Boundaries](PRODUCT_EN.md)
 - [Roadmap](ROADMAP_EN.md)
-- [Changelog](../CHANGELOG.md)
+- [Changelog](../CHANGELOG_EN.md)
 - [License & Legal](../legal/LEGAL_EN.md)
 
 ## License
