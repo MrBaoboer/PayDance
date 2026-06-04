@@ -47,4 +47,4 @@ These directions remain outside the long-term product focus. Related proposals s
 - Clock-in / attendance / timesheet tracking
 - Cloud sync / accounts / online services
 
-Roadmap decisions are grounded in [PRODUCT.md](PRODUCT.md) and the [Contributing Guide](../.github/CONTRIBUTING.md).
+Roadmap decisions are grounded in [PRODUCT_EN.md](PRODUCT_EN.md) and the [Contributing Guide](CONTRIBUTING_EN.md).
