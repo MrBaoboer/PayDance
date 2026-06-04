@@ -75,7 +75,7 @@ gh auth login
 - 时钟变化、配置迁移、夜班等边界场景测试
 - 中英文文案、文档、发布流程和社区模板改进
 
-第一次参与建议优先选择带有 `good first issue` 或 `help wanted` 标签的议题。这些议题应当范围小、风险低，并说明验证方式。
+如果你是第一次参与，建议先看带有 `good first issue` 或 `help wanted` 标签的议题。这类任务通常范围更小，也会写清楚验证方式。
 
 ## 我们不接受
 
@@ -124,6 +124,6 @@ gh auth login
 ## 维护与治理
 
 - 行为准则：[CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)
-- 维护者说明：[MAINTAINERS.md](../MAINTAINERS.md)
-- 治理说明：[GOVERNANCE.md](../GOVERNANCE.md)
+- 维护者说明：[docs/MAINTAINERS.md](../docs/MAINTAINERS.md)
+- 治理说明：[docs/GOVERNANCE.md](../docs/GOVERNANCE.md)
 - 维护约定：[docs/MAINTENANCE.md](../docs/MAINTENANCE.md)

@@ -2,7 +2,7 @@ blank_issues_enabled: false
 contact_links:
   - name: 下载最新正式版
     url: https://github.com/MasterBao66/PayDance/releases/latest
-    about: 如果只是想获取应用，请优先从 Release 页面下载最新版 Windows 安装包。
+    about: 如果只是想获取应用，请优先从 Release 页面下载最新版 Windows 便携版。
   - name: 查看项目主页
     url: https://github.com/MasterBao66/PayDance#readme
     about: 查看产品介绍、快速下载、隐私说明与开发者指南。

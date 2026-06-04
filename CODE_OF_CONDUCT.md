@@ -1,42 +1,31 @@
-# Code of Conduct
+# 行为准则
 
-PayDance follows the Contributor Covenant Code of Conduct, adapted for a small
-solo-maintained open-source project.
+> [English version →](docs/CODE_OF_CONDUCT_EN.md)
 
-## Our Pledge
+薪跳 PayDance 欢迎围绕产品、代码、文档和发布流程展开具体、友善、有证据的讨论。这个项目目前由个人维护，沟通空间不大，更需要把注意力放在问题本身，少一点消耗，多一点清楚。
 
-We pledge to make participation in this project a harassment-free experience for
-everyone, regardless of age, body size, visible or invisible disability,
-ethnicity, sex characteristics, gender identity and expression, level of
-experience, education, socio-economic status, nationality, personal appearance,
-race, caste, color, religion, or sexual identity and orientation.
+## 我们希望看到
 
-## Expected Behavior
+- 用尊重、清晰的语言交流，允许不同观点存在。
+- 提建议时说明使用场景、影响范围和验证方式。
+- 做技术反馈时尽量给出复现、截图、日志或代码依据。
+- 讨论保持在 PayDance 的产品边界内：本地优先、轻量、低打扰的桌面实时工资看板。
+- 涉及商业授权、OEM、白标或品牌使用时，主动说明相关背景。
 
-- Use welcoming and inclusive language.
-- Respect different viewpoints and implementation constraints.
-- Give and receive technical feedback with concrete evidence.
-- Keep discussions focused on PayDance's product scope and user safety.
-- Disclose conflicts of interest when proposing commercial, OEM, or white-label
-  changes.
+## 我们不接受
 
-## Unacceptable Behavior
+- 人身攻击、嘲讽、威胁、骚扰或持续跑题。
+- 发布他人的私人信息，或要求贡献者透露与贡献无关的薪资、雇主、身份、联系方式。
+- 冒充 PayDance 官方版本、维护者或发布渠道。
+- 使用带有性暗示、歧视性或侮辱性的文字和图片。
+- 明知超出项目边界，仍反复推动会明显增加维护负担的方向。
 
-- Harassment, insults, threats, or sustained off-topic disruption.
-- Sexualized language or imagery.
-- Publishing another person's private information without explicit permission.
-- Bad-faith impersonation of PayDance, its maintainer, or official release
-  channels.
-- Pressuring contributors to share salary, employer, identity, or contact
-  details not required for the contribution.
+## 处理方式
 
-## Enforcement
+如果你遇到行为准则问题，可以通过 [获取帮助](docs/SUPPORT.md) 或 [安全策略](.github/SECURITY.md) 中的渠道联系维护者。
 
-Report conduct concerns through the support and security channels documented in
-[docs/SUPPORT.md](docs/SUPPORT.md) and [.github/SECURITY.md](.github/SECURITY.md).
-The maintainer may remove comments, close discussions, reject contributions, or
-block participants when necessary to keep the project safe and focused.
+维护者会根据情况删除评论、关闭讨论、拒绝贡献，或限制相关账号参与。处理目标不是惩罚，而是让项目讨论保持安全、聚焦、可继续。
 
-## Attribution
+## 来源
 
-This Code of Conduct is adapted from the Contributor Covenant, version 2.1.
+本文参考 Contributor Covenant 2.1，并根据 PayDance 当前的单人维护状态做了简化。

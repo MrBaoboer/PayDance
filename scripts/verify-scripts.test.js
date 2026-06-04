@@ -148,17 +148,14 @@ describe("verification scripts", () => {
     expect(qaScript).toContain("paydance-web-locale");
 
     const qaGuide = readRoot("docs/web-preview-qa.md");
-    expect(qaGuide).toContain(
-      "本地服务 + 项目声明的 Playwright + 多视口截图 + DOM/console/a11y 校验",
-    );
-    expect(qaGuide).toContain("中文进入移动端页面，点击 `Switch to English`");
+    expect(qaGuide).toContain("Web Preview QA 用来确认官网橱窗");
+    expect(qaGuide).toContain("中文移动端进入页面，点击 `Switch to English`");
     expect(qaGuide).toContain("PLAYWRIGHT_NODE_MODULES");
     expect(qaGuide).toContain("@axe-core/playwright");
-    expect(qaGuide).toContain("不要使用 headless Chrome/CDP/CLI screenshot");
+    expect(qaGuide).toContain("不要用 headless Chrome、CDP 或命令行截图");
     expect(qaGuide).toContain(
       "C:\\Users\\mrbao\\AppData\\Local\\Temp\\paydance-web-preview-qa-{version}-{commit}-{timestamp}",
     );
-    expect(qaGuide).toContain("不要复用仅包含版本号的固定目录");
-    expect(qaGuide).toContain("页面实际读取到的中英文 DOM 文案");
+    expect(qaGuide).toContain("页面实际读取到的中英文文案和截图路径");
   });
 });

@@ -124,7 +124,7 @@ See `LICENSE`, `legal/ADDITIONAL_TERMS.md`, `legal/TRADEMARK.md`, and `legal/BRA
 
 ## Maintenance and Governance
 
-- Code of Conduct: [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)
-- Maintainers: [MAINTAINERS.md](../MAINTAINERS.md)
-- Governance: [GOVERNANCE.md](../GOVERNANCE.md)
-- Maintenance conventions: [docs/MAINTENANCE.md](MAINTENANCE.md)
+- Code of Conduct: [CODE_OF_CONDUCT_EN.md](CODE_OF_CONDUCT_EN.md)
+- Maintainers: [MAINTAINERS_EN.md](MAINTAINERS_EN.md)
+- Governance: [GOVERNANCE_EN.md](GOVERNANCE_EN.md)
+- Maintenance conventions: [MAINTENANCE_EN.md](MAINTENANCE_EN.md)

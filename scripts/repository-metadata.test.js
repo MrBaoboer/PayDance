@@ -21,6 +21,7 @@ const blockedAudienceTerms = [
 const blockedDashboardTerm = String.fromCodePoint(0x4eea, 0x8868, 0x76d8);
 const legacyAdditionalTermsReference = `see /${["ADDITIONAL_TERMS", "md"].join(".")}`;
 const binaryExtensions = new Set([".ico", ".png", ".woff2"]);
+const existsInWorktree = (path) => existsSync(resolve(repoRoot, path));
 const textFiles = [
   ".github/ISSUE_TEMPLATE.md",
   ".github/ISSUE_TEMPLATE/bug_report.yml",
@@ -42,6 +43,7 @@ const trackedTextFiles = () =>
   })
     .split(/\r?\n/)
     .filter(Boolean)
+    .filter(existsInWorktree)
     .filter((path) => !binaryExtensions.has(extname(path).toLowerCase()));
 const trackedMarkdownFiles = () =>
   execFileSync("git", ["ls-files", "*.md"], {
@@ -49,7 +51,8 @@ const trackedMarkdownFiles = () =>
     encoding: "utf8",
   })
     .split(/\r?\n/)
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter(existsInWorktree);
 
 function resolveMarkdownLink(file, rawTarget) {
   const target = rawTarget.trim().replace(/^<|>$/g, "").split(/\s+/)[0];
@@ -161,10 +164,17 @@ describe("repository metadata", () => {
   });
 
   it("publishes a minimal community governance surface", () => {
-    expect(read("CODE_OF_CONDUCT.md")).toContain("Contributor Covenant");
-    expect(read("MAINTAINERS.md")).toContain("Response Cadence");
-    expect(read("GOVERNANCE.md")).toContain("solo maintainer");
-    expect(read("docs/MAINTENANCE.md")).toContain("Settings Migration Convention");
+    expect(read("CODE_OF_CONDUCT.md")).toContain("English version");
+    expect(read("CODE_OF_CONDUCT.md")).toContain("行为准则");
+    expect(read("docs/CODE_OF_CONDUCT_EN.md")).toContain("Code of Conduct");
+    expect(read("docs/MAINTAINERS.md")).toContain("维护者说明");
+    expect(read("docs/MAINTAINERS_EN.md")).toContain("Maintainers");
+    expect(read("docs/GOVERNANCE.md")).toContain("治理说明");
+    expect(read("docs/GOVERNANCE_EN.md")).toContain("Governance");
+    expect(read("docs/MAINTENANCE.md")).toContain(
+      ["配置", String.fromCodePoint(0x8fc1, 0x79fb)].join(""),
+    );
+    expect(read("docs/MAINTENANCE_EN.md")).toContain("Settings Migration");
     expect(read(".github/CONTRIBUTING.md")).toContain("good first issue");
     expect(read("docs/CONTRIBUTING_EN.md")).toContain("good first issue");
   });

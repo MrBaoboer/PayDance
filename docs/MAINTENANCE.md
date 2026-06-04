@@ -2,25 +2,25 @@
 
 > [English version →](MAINTENANCE_EN.md)
 
-本文记录薪跳 PayDance 的长期维护约定，避免关键流程只留在聊天记录或单次审计里。
+本文记录 PayDance 的常用维护规则，方便维护者和贡献者快速判断：改配置、写日志、做发布前检查时，哪些事情必须同步处理。
 
-## Settings Migration Convention
+## 配置迁移
 
-- `src/lib/settings-migration.ts` 中的 `settingsSchemaVersion` 是薪资配置迁移版本号。
-- 新增持久化字段时，先写迁移测试，再修改迁移逻辑。
-- 迁移必须保留旧用户可用性：无法识别的字段回退到安全默认值，不应阻塞应用启动。
-- 窗口尺寸、迷你模式、透明度等窗口偏好继续由 `src/lib/window-mode.ts` 维护自己的兼容边界。
-- 修改 schema 时，同步检查 `src/composables/useSalarySettings.ts` 的读写键和保存校验。
+- `src/lib/settings-migration.ts` 里的 `settingsSchemaVersion` 记录薪资配置结构版本。
+- 新增持久化字段时，先补迁移测试，再改迁移逻辑。
+- 旧配置不能阻塞应用启动；无法识别或不安全的值应回退到默认值。
+- 窗口尺寸、迷你模式、透明度等窗口偏好，继续由 `src/lib/window-mode.ts` 维护兼容边界。
+- 改 schema 时，同时检查 `src/composables/useSalarySettings.ts` 的读写键和保存校验。
 
-## Diagnostics Convention
+## 诊断与日志
 
-- 面向用户的错误应说明可恢复动作，例如重试、检查配置或重新打开应用。
-- 面向维护者的诊断应保留在 console 或本地日志语境中，避免暴露薪资、路径、密钥、邮箱等敏感信息。
-- 新增错误日志时，优先记录失败阶段和安全的错误类别，不记录完整私密数据。
+- 用户能看到的错误，应告诉他下一步怎么做，例如重试、检查配置、重新打开应用。
+- 维护者诊断信息可以留在 console 或本地日志里，但不要记录薪资、私有路径、密钥、邮箱等敏感数据。
+- 新增日志时，优先记录失败阶段和安全的错误类别，不记录完整私密内容。
 
-## Desktop Smoke Records
+## 桌面发布前冒烟
 
-每次 Windows 发布前使用 `docs/desktop-smoke-checklist.md` 或英文版清单。记录至少包含：
+每次 Windows 发布前，使用 `docs/desktop-smoke-checklist.md` 或英文版清单。记录至少包含：
 
 - PayDance 版本号和 commit。
 - Windows 版本。
@@ -28,9 +28,9 @@
 - 失败项截图或说明。
 - 是否验证托盘、迷你悬浮、置顶、自启动和更新入口。
 
-## Release Chain
+## 发布链路
 
 - `latest.json` 必须指向版本化 Windows EXE。
 - `.sha256` 必须匹配实际 EXE。
-- `.sig` 是 Tauri updater 签名，不等同于 Windows Authenticode 发布者签名。
-- 在没有可用的免费公开信任代码签名路径前，不强行把 Authenticode 接入 release workflow。
+- `.sig` 是 Tauri updater 签名，不等于 Windows Authenticode 发布者签名。
+- Authenticode 接入前，先确认成本、证书来源、续期方式和失败回滚路径。

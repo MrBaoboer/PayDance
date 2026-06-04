@@ -35,6 +35,8 @@ governed by its own license terms.
 | Prettier | MIT |
 | Tailwind CSS | MIT |
 | vue-tsc | MIT |
+| @axe-core/playwright | MPL-2.0 |
+| axe-core | MPL-2.0 |
 
 ## Rust dependencies
 
