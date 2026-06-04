@@ -7,6 +7,7 @@ import { execFileSync, spawn } from "node:child_process";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import AxeBuilder from "@axe-core/playwright";
 import packageMetadata from "../package.json" with { type: "json" };
 import { resolvePlaywright } from "./resolve-playwright.mjs";
 
@@ -161,6 +162,29 @@ const startServer = () => {
   });
 
   return { logs, server };
+};
+
+const assertAccessibility = async (page, viewportName) => {
+  const results = await new AxeBuilder({ page }).include(".web-preview").analyze();
+  const blockingViolations = results.violations.filter((violation) =>
+    ["critical", "serious"].includes(violation.impact ?? ""),
+  );
+
+  if (blockingViolations.length > 0) {
+    throw new Error(
+      `${viewportName}: accessibility violations ${JSON.stringify(
+        blockingViolations.map((violation) => ({
+          id: violation.id,
+          impact: violation.impact,
+          nodes: violation.nodes.map((node) => ({
+            failureSummary: node.failureSummary,
+            html: node.html,
+            target: node.target,
+          })),
+        })),
+      )}`,
+    );
+  }
 };
 
 const assertDom = async (page, viewportName, locale) => {
@@ -709,6 +733,89 @@ const assertThemeToggleEdge = async (page, viewportName, locale) => {
   }
 };
 
+const seedPreviewContext = async (browser, locale, themeMode, viewport) => {
+  const context = await browser.newContext({
+    deviceScaleFactor: 1,
+    viewport: { width: viewport.width, height: viewport.height },
+  });
+  await context.addInitScript(
+    ({ key, localeKey, localeValue, state }) => {
+      window.localStorage.setItem(localeKey, localeValue);
+      window.localStorage.setItem(key, JSON.stringify(state));
+    },
+    {
+      key: storageKey,
+      localeKey: localeStorageKey,
+      localeValue: locale,
+      state: createPreviewState(themeMode),
+    },
+  );
+
+  return context;
+};
+
+const assertLanguageSwitchFlow = async (browser, consoleFindings, pageErrors) => {
+  const viewport = { name: "mobile", width: 390, height: 844 };
+  const context = await seedPreviewContext(browser, "zh-CN", "light", viewport);
+  const page = await context.newPage();
+
+  page.on("console", (message) => {
+    if (message.type() === "error") {
+      consoleFindings.push(`language-switch/mobile: ${message.text()}`);
+    }
+  });
+  page.on("pageerror", (error) => {
+    pageErrors.push(`language-switch/mobile: ${error.message}`);
+  });
+
+  try {
+    await page.goto(localUrl, { timeout: 60_000, waitUntil: "domcontentloaded" });
+    await page.locator("#paydance-preview").waitFor({
+      state: "visible",
+      timeout: 45_000,
+    });
+
+    const initialLocale = await page.locator(".web-preview").getAttribute("data-locale");
+    if (initialLocale !== "zh-CN") {
+      throw new Error(
+        `language-switch/mobile: initial locale mismatch "${initialLocale}"`,
+      );
+    }
+
+    await page.getByRole("button", { name: "Switch to English" }).click();
+    await page.getByText(localeExpectations.en.headline, { exact: true }).waitFor({
+      state: "visible",
+      timeout: 10_000,
+    });
+
+    const switchedLocale = await page.locator(".web-preview").getAttribute("data-locale");
+    if (switchedLocale !== "en") {
+      throw new Error(
+        `language-switch/mobile: switched locale mismatch "${switchedLocale}"`,
+      );
+    }
+
+    const observedCopy = await assertDom(page, "language-switch/mobile", "en");
+    await assertAccessibility(page, "language-switch/mobile");
+
+    const screenshotPath = join(
+      qaDir,
+      `web-preview-language-switch-zh-CN-to-en-${viewport.name}-${viewport.width}x${viewport.height}.png`,
+    );
+    await page.screenshot({ fullPage: true, path: screenshotPath });
+
+    return {
+      locale: "zh-CN->en",
+      observedCopy,
+      screenshotPath,
+      themeMode: "light",
+      viewport,
+    };
+  } finally {
+    await context.close();
+  }
+};
+
 const runQa = async () => {
   ensureQaDir();
 
@@ -727,23 +834,7 @@ const runQa = async () => {
     for (const locale of locales) {
       for (const themeMode of themes) {
         for (const viewport of viewports) {
-          const context = await browser.newContext({
-            deviceScaleFactor: 1,
-            viewport: { width: viewport.width, height: viewport.height },
-          });
-          await context.addInitScript(
-            ({ key, localeKey, localeValue, state }) => {
-              window.localStorage.setItem(localeKey, localeValue);
-              window.localStorage.setItem(key, JSON.stringify(state));
-            },
-            {
-              key: storageKey,
-              localeKey: localeStorageKey,
-              localeValue: locale,
-              state: createPreviewState(themeMode),
-            },
-          );
-
+          const context = await seedPreviewContext(browser, locale, themeMode, viewport);
           const page = await context.newPage();
           page.on("console", (message) => {
             if (message.type() === "error") {
@@ -772,6 +863,7 @@ const runQa = async () => {
             themeMode,
             viewport,
           });
+          await assertAccessibility(page, `${locale}/${themeMode}/${viewport.name}`);
           await assertThemeToggleEdge(
             page,
             `${locale}/${themeMode}/${viewport.name}`,
@@ -787,6 +879,10 @@ const runQa = async () => {
         }
       }
     }
+
+    observations.push(
+      await assertLanguageSwitchFlow(browser, consoleFindings, pageErrors),
+    );
 
     await browser.close();
 

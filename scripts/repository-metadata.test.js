@@ -65,7 +65,11 @@ function resolveMarkdownLink(file, rawTarget) {
 
   const withoutAnchor = target.split("#")[0];
   if (!withoutAnchor) return null;
-  return resolve(repoRoot, file.includes("/") ? file.replace(/\/[^/]+$/, "") : ".", withoutAnchor);
+  return resolve(
+    repoRoot,
+    file.includes("/") ? file.replace(/\/[^/]+$/, "") : ".",
+    withoutAnchor,
+  );
 }
 
 describe("repository metadata", () => {
@@ -150,6 +154,19 @@ describe("repository metadata", () => {
     expect(postReleaseSmoke).toContain(
       'jq -e \'.platforms["windows-x86_64"].signature | type == "string" and length > 0\' latest.json',
     );
+    expect(postReleaseSmoke).toContain(
+      "Verify latest.json points at the checksummed asset",
+    );
+    expect(postReleaseSmoke).toContain("GitHub asset digest");
+  });
+
+  it("publishes a minimal community governance surface", () => {
+    expect(read("CODE_OF_CONDUCT.md")).toContain("Contributor Covenant");
+    expect(read("MAINTAINERS.md")).toContain("Response Cadence");
+    expect(read("GOVERNANCE.md")).toContain("solo maintainer");
+    expect(read("docs/MAINTENANCE.md")).toContain("Settings Migration Convention");
+    expect(read(".github/CONTRIBUTING.md")).toContain("good first issue");
+    expect(read("docs/CONTRIBUTING_EN.md")).toContain("good first issue");
   });
 
   it("keeps issue template version hints aligned with the current release line", () => {
@@ -231,9 +248,7 @@ describe("repository metadata", () => {
       "PayDance (薪跳) is a desktop real-time salary dashboard.",
     );
     expect(read("docs/PRODUCT.md")).toContain("这并不排斥 macOS、Linux 等平台");
-    expect(read(".github/CONTRIBUTING.md")).toContain(
-      "平台适配贡献需附验证边界",
-    );
+    expect(read(".github/CONTRIBUTING.md")).toContain("平台适配贡献需附验证边界");
     expect(read(".github/SECURITY.md")).not.toContain(
       ["不属于", "当前正式支持", "或发布范围"].join(""),
     );

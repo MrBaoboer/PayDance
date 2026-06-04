@@ -81,7 +81,7 @@ const toggle = () => {
 .lang-switcher__option.is-active {
   background: color-mix(in srgb, var(--income-accent) 16%, rgb(255 255 255));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--income-accent) 22%, transparent);
-  color: color-mix(in srgb, var(--income-accent) 82%, rgb(24 24 27));
+  color: rgb(154 79 0);
 }
 
 .lang-switcher:hover {

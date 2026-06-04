@@ -75,6 +75,9 @@ All contributions should align with the product boundaries in [PRODUCT.md](PRODU
 - Tests for clock changes, config migration, night shifts, and similar boundaries
 - Chinese/English copy, documentation, release workflow, and community-template improvements
 
+For first contributions, prefer issues labeled `good first issue` or `help wanted`.
+They should be small, low-risk, and include a clear verification path.
+
 ## What We Do Not Accept
 
 PayDance is not a time tracker, personal finance manager, payroll system, attendance system, or task manager. The following directions are currently outside the product boundary — related PRs should start with an Issue:
@@ -118,3 +121,10 @@ By submitting a code contribution, you confirm that:
 > The project is currently a solo effort. Ordinary contributions enter the project under the open-source terms above. If the maintainer needs to include a contribution in commercial, OEM, or white-label licensing, the contributor will be asked to explicitly sign the [Contributor License Agreement (CLA)](../legal/CLA.md) before merge. Opening an Issue, suggestion, or security report does not require signing the CLA.
 
 See `LICENSE`, `legal/ADDITIONAL_TERMS.md`, `legal/TRADEMARK.md`, and `legal/BRAND-ASSETS.md` for details.
+
+## Maintenance and Governance
+
+- Code of Conduct: [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)
+- Maintainers: [MAINTAINERS.md](../MAINTAINERS.md)
+- Governance: [GOVERNANCE.md](../GOVERNANCE.md)
+- Maintenance conventions: [docs/MAINTENANCE.md](MAINTENANCE.md)

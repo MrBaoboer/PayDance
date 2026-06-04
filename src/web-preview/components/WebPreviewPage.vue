@@ -24,8 +24,8 @@ const savedLocale =
   typeof localStorage !== "undefined"
     ? localStorage.getItem("paydance-web-locale")
     : null;
-const locale = ref<Locale>(detectLocale(savedLocale));
-provideI18n(locale, (next) => {
+const initialLocale = ref<Locale>(detectLocale(savedLocale));
+const { locale } = provideI18n(initialLocale, (next) => {
   localStorage.setItem("paydance-web-locale", next);
 });
 

@@ -104,6 +104,44 @@ jobs:
           fi
           echo "latest.json structure valid."
 
+      - name: Verify latest.json points at the checksummed asset
+        run: |
+          VERSION=$(gh release view --repo ${{ github.repository }} --json tagName -q '.tagName' | sed 's/^v//')
+          EXE="pay-dance-v${VERSION}-windows-x64.exe"
+          EXPECTED_URL="https://github.com/${{ github.repository }}/releases/latest/download/${EXE}"
+
+          cd /tmp/smoke
+          URL=$(jq -r '.platforms["windows-x86_64"].url' latest.json)
+          if [ "$URL" != "$EXPECTED_URL" ]; then
+            echo "ERROR: latest.json points at unexpected asset URL"
+            echo "  expected: $EXPECTED_URL"
+            echo "  actual:   $URL"
+            exit 1
+          fi
+
+          EXPECTED_SHA=$(cat "${EXE}.sha256" | awk '{print $1}')
+          ACTUAL_SHA=$(sha256sum "${EXE}" | awk '{print $1}')
+          if [ "$EXPECTED_SHA" != "$ACTUAL_SHA" ]; then
+            echo "ERROR: latest.json asset SHA256 mismatch"
+            echo "  expected: $EXPECTED_SHA"
+            echo "  actual:   $ACTUAL_SHA"
+            exit 1
+          fi
+
+          ASSET_DIGEST=$(jq -r --arg name "$EXE" '.assets[] | select(.name == $name) | .digest // ""' "${{ github.workspace }}/latest-release.json")
+          if [ -n "$ASSET_DIGEST" ] && [ "$ASSET_DIGEST" != "null" ]; then
+            echo "GitHub asset digest: $ASSET_DIGEST"
+            NORMALIZED_DIGEST="${ASSET_DIGEST#sha256:}"
+            if [ "$NORMALIZED_DIGEST" != "$ACTUAL_SHA" ]; then
+              echo "ERROR: GitHub asset digest does not match downloaded executable"
+              echo "  expected: $NORMALIZED_DIGEST"
+              echo "  actual:   $ACTUAL_SHA"
+              exit 1
+            fi
+          else
+            echo "GitHub asset digest unavailable; SHA256 sidecar verified."
+          fi
+
       - name: Verify latest.json download URL is accessible
         run: |
           URL=$(jq -r '.platforms["windows-x86_64"].url' /tmp/smoke/latest.json)

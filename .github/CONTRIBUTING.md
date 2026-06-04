@@ -75,6 +75,8 @@ gh auth login
 - 时钟变化、配置迁移、夜班等边界场景测试
 - 中英文文案、文档、发布流程和社区模板改进
 
+第一次参与建议优先选择带有 `good first issue` 或 `help wanted` 标签的议题。这些议题应当范围小、风险低，并说明验证方式。
+
 ## 我们不接受
 
 薪跳 PayDance 不是时间追踪、个人财务、薪酬系统、考勤系统或任务管理工具。以下方向当前不在产品边界内，相关 PR 请先开 Issue 讨论：
@@ -118,3 +120,10 @@ gh auth login
 > 当前项目为单人开发。普通贡献默认按上述开源授权进入项目；如果维护者需要将某项贡献纳入商业授权、OEM 或白标授权范围，会在合并前另行要求贡献者明确签署 [贡献者许可协议（CLA）](../legal/CLA.md)。仅提 Issue、建议或安全报告无需签署 CLA。
 
 详见 `LICENSE`、`legal/ADDITIONAL_TERMS.md`、`legal/TRADEMARK.md` 和 `legal/BRAND-ASSETS.md`。
+
+## 维护与治理
+
+- 行为准则：[CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)
+- 维护者说明：[MAINTAINERS.md](../MAINTAINERS.md)
+- 治理说明：[GOVERNANCE.md](../GOVERNANCE.md)
+- 维护约定：[docs/MAINTENANCE.md](../docs/MAINTENANCE.md)

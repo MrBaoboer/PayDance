@@ -130,6 +130,7 @@ describe("PayDance Web Preview", () => {
   });
 
   it("uses a segmented language switcher instead of a tiny single-label button", () => {
+    expect(webPreviewPageSource).toContain("const { locale } = provideI18n");
     expect(webPreviewPageSource).toContain(':data-locale="locale"');
     expect(webPreviewTopbarSource).toContain("<LanguageSwitcher />");
     expect(webPreviewSource).toContain('class="lang-switcher__track"');

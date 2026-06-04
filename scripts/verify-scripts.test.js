@@ -106,8 +106,10 @@ describe("verification scripts", () => {
   it("codifies Web Preview QA through the project-owned Playwright workflow", () => {
     expect(packageJson.scripts["qa:web-preview"]).toBe("node scripts/qa-web-preview.mjs");
     expect(packageJson.devDependencies.playwright).toBeDefined();
+    expect(packageJson.devDependencies["@axe-core/playwright"]).toBeDefined();
 
     const qaScript = readRoot("scripts/qa-web-preview.mjs");
+    expect(qaScript).toContain("AxeBuilder");
     const resolverScript = readRoot("scripts/resolve-playwright.mjs");
     expect(qaScript).toContain("playwright");
     expect(qaScript).toContain('from "./resolve-playwright.mjs"');
@@ -129,6 +131,10 @@ describe("verification scripts", () => {
     expect(qaScript).toContain("PAYDANCE_WEB_QA_RUN_ID");
     expect(qaScript).toContain("commitSha");
     expect(qaScript).toContain("observedCopies");
+    expect(qaScript).toContain("assertAccessibility");
+    expect(qaScript).toContain("assertLanguageSwitchFlow");
+    expect(qaScript).toContain("Switch to English");
+    expect(qaScript).toContain("data-locale");
     expect(qaScript).toContain("paydance-web-preview-qa-${version}-${runId}");
     expect(qaScript).toContain(".web-preview__chip");
     expect(qaScript).toContain(".web-preview__action");
@@ -143,9 +149,11 @@ describe("verification scripts", () => {
 
     const qaGuide = readRoot("docs/web-preview-qa.md");
     expect(qaGuide).toContain(
-      "本地服务 + 项目声明的 Playwright + 多视口截图 + DOM/console 双校验",
+      "本地服务 + 项目声明的 Playwright + 多视口截图 + DOM/console/a11y 校验",
     );
+    expect(qaGuide).toContain("中文进入移动端页面，点击 `Switch to English`");
     expect(qaGuide).toContain("PLAYWRIGHT_NODE_MODULES");
+    expect(qaGuide).toContain("@axe-core/playwright");
     expect(qaGuide).toContain("不要使用 headless Chrome/CDP/CLI screenshot");
     expect(qaGuide).toContain(
       "C:\\Users\\mrbao\\AppData\\Local\\Temp\\paydance-web-preview-qa-{version}-{commit}-{timestamp}",
