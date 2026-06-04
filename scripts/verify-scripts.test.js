@@ -81,15 +81,43 @@ describe("verification scripts", () => {
     expect(pushWorkflow).toContain('watchWorkflow("CI"');
     expect(pushWorkflow).toContain('watchWorkflow("Web Preview"');
 
-    expect(readRoot("CONTRIBUTING.md")).toContain("npm run push:main");
-    expect(readRoot("CONTRIBUTING_EN.md")).toContain("npm run push:main");
+    expect(readRoot(".github/CONTRIBUTING.md")).toContain("npm run push:main");
+    expect(readRoot("docs/CONTRIBUTING_EN.md")).toContain("npm run push:main");
   });
 
-  it("codifies Web Preview QA through the Codex Playwright workflow", () => {
+  it("keeps Rust dependency governance explicit and warning-free", () => {
+    const auditConfig = readRoot("src-tauri/.cargo/audit.toml");
+    const denyConfig = readRoot("src-tauri/deny.toml");
+
+    expect(auditConfig).toContain("# Tauri/Wry upstream advisories");
+    expect(auditConfig).toContain("RUSTSEC-2024-0411");
+    expect(auditConfig).toContain("RUSTSEC-2024-0413");
+    expect(auditConfig).toContain("RUSTSEC-2025-0100");
+
+    expect(denyConfig).toContain('multiple-versions = "allow"');
+    expect(denyConfig).not.toContain("RUSTSEC-2024-0370");
+    expect(denyConfig).not.toContain('"GPL-3.0-only"');
+    expect(denyConfig).not.toContain('"GPL-3.0-or-later"');
+    expect(denyConfig).not.toContain('"OpenSSL"');
+    expect(denyConfig).not.toContain('"Unicode-DFS-2016"');
+    expect(denyConfig).not.toContain('"BSL-1.0"');
+  });
+
+  it("codifies Web Preview QA through the project-owned Playwright workflow", () => {
     expect(packageJson.scripts["qa:web-preview"]).toBe("node scripts/qa-web-preview.mjs");
+    expect(packageJson.devDependencies.playwright).toBeDefined();
+    expect(packageJson.devDependencies["@axe-core/playwright"]).toBeDefined();
 
     const qaScript = readRoot("scripts/qa-web-preview.mjs");
+    expect(qaScript).toContain("AxeBuilder");
+    const resolverScript = readRoot("scripts/resolve-playwright.mjs");
     expect(qaScript).toContain("playwright");
+    expect(qaScript).toContain('from "./resolve-playwright.mjs"');
+    expect(resolverScript).toContain("resolvePlaywright");
+    expect(resolverScript).toContain('resolve(projectRoot, "node_modules")');
+    expect(resolverScript.indexOf('resolve(projectRoot, "node_modules")')).toBeLessThan(
+      resolverScript.indexOf("CODEX_NODE_MODULES"),
+    );
     expect(qaScript).toContain("desktop");
     expect(qaScript).toContain("medium");
     expect(qaScript).toContain("mobile");
@@ -103,6 +131,10 @@ describe("verification scripts", () => {
     expect(qaScript).toContain("PAYDANCE_WEB_QA_RUN_ID");
     expect(qaScript).toContain("commitSha");
     expect(qaScript).toContain("observedCopies");
+    expect(qaScript).toContain("assertAccessibility");
+    expect(qaScript).toContain("assertLanguageSwitchFlow");
+    expect(qaScript).toContain("Switch to English");
+    expect(qaScript).toContain("data-locale");
     expect(qaScript).toContain("paydance-web-preview-qa-${version}-${runId}");
     expect(qaScript).toContain(".web-preview__chip");
     expect(qaScript).toContain(".web-preview__action");
@@ -116,14 +148,14 @@ describe("verification scripts", () => {
     expect(qaScript).toContain("paydance-web-locale");
 
     const qaGuide = readRoot("docs/web-preview-qa.md");
-    expect(qaGuide).toContain(
-      "本地服务 + 内置 Playwright + 多视口截图 + DOM/console 双校验",
-    );
-    expect(qaGuide).toContain("不要使用 headless Chrome/CDP/CLI screenshot");
+    expect(qaGuide).toContain("Web Preview QA 用来确认官网橱窗");
+    expect(qaGuide).toContain("中文移动端进入页面，点击 `Switch to English`");
+    expect(qaGuide).toContain("PLAYWRIGHT_NODE_MODULES");
+    expect(qaGuide).toContain("@axe-core/playwright");
+    expect(qaGuide).toContain("不要用 headless Chrome、CDP 或命令行截图");
     expect(qaGuide).toContain(
       "C:\\Users\\mrbao\\AppData\\Local\\Temp\\paydance-web-preview-qa-{version}-{commit}-{timestamp}",
     );
-    expect(qaGuide).toContain("不要复用仅包含版本号的固定目录");
-    expect(qaGuide).toContain("页面实际读取到的中英文 DOM 文案");
+    expect(qaGuide).toContain("页面实际读取到的中英文文案和截图路径");
   });
 });

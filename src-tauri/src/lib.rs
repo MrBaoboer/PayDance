@@ -11,6 +11,7 @@ use tauri::{
 };
 
 const TRAY_OPEN_SETTINGS_EVENT: &str = "tray-open-settings";
+const TRAY_RESET_WINDOW_POSITION_EVENT: &str = "tray-reset-window-position";
 const TRAY_TOGGLE_ALWAYS_ON_TOP_EVENT: &str = "tray-toggle-always-on-top";
 const TRAY_TOGGLE_MINI_MODE_EVENT: &str = "tray-toggle-mini-mode";
 
@@ -26,11 +27,26 @@ fn tray_menu_labels(
     &'static str,
     &'static str,
     &'static str,
+    &'static str,
 ) {
     if use_en {
-        ("Open", "Settings", "Mini Mode", "Always on Top", "Quit")
+        (
+            "Open",
+            "Settings",
+            "Mini Mode",
+            "Reset Position",
+            "Always on Top",
+            "Quit",
+        )
     } else {
-        ("打开主界面", "打开设置", "切换迷你模式", "切换置顶", "退出")
+        (
+            "打开主界面",
+            "打开设置",
+            "切换迷你模式",
+            "重置窗口位置",
+            "切换置顶",
+            "退出",
+        )
     }
 }
 
@@ -46,11 +62,12 @@ fn build_tray_menu(
     app: &AppHandle,
     use_en: bool,
 ) -> Result<tauri::menu::Menu<tauri::Wry>, tauri::Error> {
-    let (show, settings, toggle_mini, toggle_top, quit) = tray_menu_labels(use_en);
+    let (show, settings, toggle_mini, reset_position, toggle_top, quit) = tray_menu_labels(use_en);
     MenuBuilder::new(app)
         .text("show", show)
         .text("settings", settings)
         .text("toggle_mini", toggle_mini)
+        .text("reset_position", reset_position)
         .separator()
         .text("toggle_top", toggle_top)
         .text("quit", quit)
@@ -126,6 +143,10 @@ pub fn run() {
                         "toggle_mini" => {
                             show_window(&window);
                             let _ = window.emit(TRAY_TOGGLE_MINI_MODE_EVENT, ());
+                        }
+                        "reset_position" => {
+                            show_window(&window);
+                            let _ = window.emit(TRAY_RESET_WINDOW_POSITION_EVENT, ());
                         }
                         "toggle_top" => {
                             show_window(&window);

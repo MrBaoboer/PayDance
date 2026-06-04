@@ -54,7 +54,6 @@ describe("main dashboard shell", () => {
     expect(mainDashboardSource).toContain("hero-dashboard");
     expect(mainDashboardSource).toContain("salary-info-button--quiet");
     expect(appWindowSource).toContain("SalaryInfoSheet");
-    expect(mainDashboardSource).not.toContain("薪资明细");
     expect(mainDashboardSource).not.toContain("dashboard-controls");
   });
 

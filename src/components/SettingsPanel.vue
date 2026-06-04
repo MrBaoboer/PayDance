@@ -4,7 +4,6 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 import { computed, ref } from "vue";
-import { AlertCircle, ArrowBigUp, Loader } from "@lucide/vue";
 import {
   appAuthor,
   appCopyright,
@@ -20,11 +19,13 @@ import {
   localeLabels,
   supportedLocales,
 } from "../composables/useI18n";
-import { downloadAndInstall, type UpdaterStatus } from "../platform/updater";
+import type { UpdaterStatus } from "../platform/updater";
 import { openExternalUrl } from "../platform/opener";
+import type { Messages } from "../i18n/types";
 import LunchBreakFields from "./settings/LunchBreakFields.vue";
 import SalaryAmountFields from "./settings/SalaryAmountFields.vue";
 import SalaryModeControl from "./settings/SalaryModeControl.vue";
+import UpdateActionBadge from "./settings/UpdateActionBadge.vue";
 import WorkdayPicker from "./settings/WorkdayPicker.vue";
 import WorkTimeFields from "./settings/WorkTimeFields.vue";
 import SegmentedControl from "./ui/SegmentedControl.vue";
@@ -32,8 +33,6 @@ import SettingsGroup from "./ui/SettingsGroup.vue";
 import SwitchRow from "./ui/SwitchRow.vue";
 
 const { locale, setLocale, t } = useI18n();
-const isDownloading = ref(false);
-const updateError = ref("");
 
 const props = withDefaults(
   defineProps<{
@@ -44,10 +43,12 @@ const props = withDefaults(
     firstIssue: string;
     hasIssue: (field: SalaryConfigIssue["field"]) => boolean;
     isAutostartUpdating: boolean;
+    settingsSaveError?: string;
     showDesktopFeatures?: boolean;
     updateStatus: UpdaterStatus;
   }>(),
   {
+    settingsSaveError: "",
     showDesktopFeatures: true,
   },
 );
@@ -59,26 +60,16 @@ const emit = defineEmits<{
   "update:locale": [locale: Locale];
 }>();
 
-const downloadUpdate = async () => {
-  if (isDownloading.value) return;
-  isDownloading.value = true;
-  updateError.value = "";
-  try {
-    const result = await downloadAndInstall();
-    if (result.kind === "error") {
-      updateError.value = result.message;
-    }
-  } finally {
-    isDownloading.value = false;
-  }
-};
-
 const amountModeOptions = computed(
   () =>
     [
       { label: t.value("amountMode.rolling"), value: "rolling" },
       { label: t.value("amountMode.plain"), value: "plain" },
     ] as const,
+);
+
+const settingsSaveErrorText = computed(() =>
+  props.settingsSaveError ? t.value(props.settingsSaveError as keyof Messages) : "",
 );
 
 const langOptions = computed(() =>
@@ -129,6 +120,10 @@ const openRepository = async () => {
   <section class="settings-panel">
     <div v-if="firstIssue" class="settings-alert">
       {{ firstIssue }}
+    </div>
+
+    <div v-if="settingsSaveErrorText" class="settings-save-error" role="status">
+      {{ settingsSaveErrorText }}
     </div>
 
     <SettingsGroup :title="t('settings.salaryMode')">
@@ -217,26 +212,7 @@ const openRepository = async () => {
         <strong>{{ appName }} {{ appEnglishName }}</strong>
         <span>
           {{ t("about.appVersion") }}：{{ appVersion }}
-          <Loader
-            v-if="isDownloading"
-            class="update-badge update-badge--spinning"
-            :size="14"
-            :title="t('updater.downloading')"
-          />
-          <AlertCircle
-            v-else-if="updateError"
-            class="update-badge update-badge--error"
-            :size="14"
-            :title="`${t('updater.failed')}: ${updateError} — ${t('updater.retry')}`"
-            @click.stop="downloadUpdate"
-          />
-          <ArrowBigUp
-            v-else-if="updateStatus.kind === 'updateAvailable'"
-            class="update-badge"
-            :size="14"
-            :title="`${t('updater.newVersion')} ${updateStatus.version} — ${t('updater.clickToDownload')}`"
-            @click.stop="downloadUpdate"
-          />
+          <UpdateActionBadge :update-status="updateStatus" />
         </span>
         <span>{{ t("about.appAuthor") }}：{{ appAuthor }}</span>
       </div>
@@ -298,38 +274,15 @@ const openRepository = async () => {
   text-align: left;
 }
 
-.update-badge {
-  display: inline;
-  vertical-align: text-bottom;
-  color: var(--income-accent);
-  cursor: pointer;
-  transition:
-    color 160ms ease,
-    transform 160ms ease;
-  margin-left: 4px;
-}
-
-.update-badge:hover {
-  color: var(--income-accent-bright);
-  transform: scale(1.15);
-}
-
-.update-badge--error {
-  color: var(--danger, #e74c3c);
-}
-
-.update-badge--error:hover {
-  color: var(--danger-bright, #ff5c4a);
-}
-
-.update-badge--spinning {
-  animation: update-spin 1s linear infinite;
-}
-
-@keyframes update-spin {
-  to {
-    transform: rotate(360deg);
-  }
+.settings-save-error {
+  border: 1px solid rgb(231 76 60 / 0.28);
+  border-radius: var(--ui-radius-sm, 10px);
+  background: rgb(231 76 60 / 0.1);
+  padding: clamp(8px, 2cqh, 11px) var(--ui-pad-sm, 11px);
+  color: var(--danger);
+  font-size: var(--ui-font-sm, 14px);
+  font-weight: 650;
+  text-align: left;
 }
 
 .about-footer {

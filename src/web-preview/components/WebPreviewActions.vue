@@ -27,7 +27,7 @@ defineProps<{
         {{ t("web.downloadWindows") }}
       </span>
       <span class="web-preview__action-label web-preview__action-label-short">
-        Download
+        {{ t("web.downloadShort") }}
       </span>
       <Download :size="16" />
     </a>

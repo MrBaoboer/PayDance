@@ -3,13 +3,9 @@ dist
 src-tauri/target
 src-tauri/gen
 .npm-cache
-release-assets
+release-assets/
 .tools
 *.log
-.claude/net-diag.ps1
-.claude/settings.local.json
-marketing-posters/poster-03-mini-floating-v2.png
-marketing-posters/poster-04-local-first-v2.png
+.claude/
 paydance-updater-key
 paydance-updater-key.pub
-release-assets/

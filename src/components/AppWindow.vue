@@ -28,33 +28,40 @@ type ResizeDirection =
 
 const { t } = useI18n();
 
-defineProps<{
-  alwaysOnTop: boolean;
-  amountMode: AmountMode;
-  appName: string;
-  autostartEnabled: boolean;
-  autostartError: string;
-  config: SalaryConfig;
-  dailyEarnText: string;
-  earnedText: string;
-  firstConfigIssue: string;
-  hasConfigIssues: boolean;
-  hasIssue: (field: SalaryConfigIssue["field"]) => boolean;
-  isAutostartUpdating: boolean;
-  isThemeSwitching: boolean;
-  isWorkingStatus?: boolean;
-  middleStat: DashboardMiddleStat;
-  salaryModeLabel: string;
-  shouldShowOnboarding: boolean;
-  showDesktopFeatures?: boolean;
-  showSalaryInfo: boolean;
-  showSettings: boolean;
-  snapshot: SalarySnapshot;
-  statusText: string;
-  themeMode: ThemeMode;
-  updateStatus: UpdaterStatus;
-  workedTimeText: string;
-}>();
+withDefaults(
+  defineProps<{
+    alwaysOnTop: boolean;
+    amountMode: AmountMode;
+    appName: string;
+    autostartEnabled: boolean;
+    autostartError: string;
+    config: SalaryConfig;
+    dailyEarnText: string;
+    earnedText: string;
+    firstConfigIssue: string;
+    hasConfigIssues: boolean;
+    hasIssue: (field: SalaryConfigIssue["field"]) => boolean;
+    isAutostartUpdating: boolean;
+    isThemeSwitching: boolean;
+    isWorkingStatus?: boolean;
+    middleStat: DashboardMiddleStat;
+    salaryModeLabel: string;
+    settingsSaveError?: string;
+    shouldShowOnboarding: boolean;
+    showDesktopFeatures?: boolean;
+    showSalaryInfo: boolean;
+    showSettings: boolean;
+    snapshot: SalarySnapshot;
+    statusText: string;
+    themeMode: ThemeMode;
+    updateStatus: UpdaterStatus;
+    workedTimeText: string;
+  }>(),
+  {
+    settingsSaveError: "",
+    showDesktopFeatures: true,
+  },
+);
 
 const emit = defineEmits<{
   close: [];
@@ -145,6 +152,7 @@ const emit = defineEmits<{
               :first-issue="firstConfigIssue"
               :has-issue="hasIssue"
               :is-autostart-updating="isAutostartUpdating"
+              :settings-save-error="settingsSaveError"
               :show-desktop-features="showDesktopFeatures"
               :update-status="updateStatus"
               @update:amount-mode="emit('update:amountMode', $event)"

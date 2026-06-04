@@ -60,6 +60,7 @@ const en: Messages = {
   "settings.autostart": "Launch at startup",
   "settings.autostartError": "Failed to update autostart setting",
   "settings.language": "Language",
+  "settings.saveFailed": "Settings could not be saved. Please try again.",
 
   // ── Settings → salary mode ─────────────────────────────────────────────
   "salaryMode.label": "Salary type",
@@ -117,6 +118,9 @@ const en: Messages = {
   "onboarding.back": "Back",
   "onboarding.next": "Next",
   "onboarding.start": "Start",
+  "onboardingPreview.today": "Today",
+  "onboardingPreview.perMinute": "Per minute",
+  "onboardingPreview.lunchPaused": "Earnings pause during lunch break",
 
   // ── Onboarding → preferences ───────────────────────────────────────────
   "preferences.language": "Language",
@@ -181,15 +185,16 @@ const en: Messages = {
   "updater.installPrompt": "A new version has been downloaded. Restart now to install?",
 
   // ── Web Preview ────────────────────────────────────────────────────────
-  "web.heroHeadline1": "See your pay",
-  "web.heroHeadline2": "tick up live",
+  "web.heroHeadline1": "See Your Pay",
+  "web.heroHeadline2": "Tick Up Live",
   "web.heroLead": "A wage board that tracks today’s earnings.",
   "web.downloadWindows": "Download for Windows",
-  "web.featureRealtime": "Today’s pay",
+  "web.downloadShort": "Desktop",
+  "web.featureRealtime": "Today’s Pay",
   "web.featureRealtimeDesc": "Ticks up as you work",
-  "web.featureFocus": "Mini window",
+  "web.featureFocus": "Mini Window",
   "web.featureFocusDesc": "Made for the corner",
-  "web.featurePrivacy": "Local data",
+  "web.featurePrivacy": "Local Data",
   "web.featurePrivacyDesc": "Saved on this device",
   "web.featureAriaLabel": "Key features",
   "web.topbarAriaLabel": "Product info",

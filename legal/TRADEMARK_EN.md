@@ -2,7 +2,7 @@
 
 > [中文版 →](TRADEMARK.md)
 
-This policy protects "薪跳 PayDance" as an official independent product and helps prevent users from confusing modified, rebranded, or third-party distributions with the official release. This policy does not change the code rights granted by `LICENSE`.
+This policy protects "薪跳 PayDance" as an official independent product and helps prevent users from confusing modified, rebranded, or third-party distributions with the official release. It does not change the code rights granted by `LICENSE`.
 
 ## Protected marks
 
@@ -40,7 +40,7 @@ Without explicit prior written permission, you may not:
 
 ## Minimum distinction requirements for modified versions and forks
 
-If you distribute a modified version, binary build, installer, portable executable, or hosted version, ordinary users must be able to clearly distinguish it from official PayDance. In practice, you should replace or modify at least:
+If you distribute a modified version, binary build, installer, portable executable, or hosted version, ordinary users must be able to clearly distinguish it from official PayDance. In practice, replace or modify at least:
 
 - Product name
 - Application icon and tray icon
@@ -68,7 +68,7 @@ Unless otherwise announced, only the `MasterBao66/PayDance` repository, that rep
 
 ## Authorization
 
-To use the PayDance name, logo, icon, visual assets, or official release channels beyond factual reference, contact Mr.Baoboer for written permission. Authorization is granted case by case and may include limits on scope, term, territory, and presentation.
+To use the PayDance name, logo, icon, visual assets, or official release channels beyond factual reference, contact via the email listed on the [author's GitHub profile](https://github.com/MasterBao66) for written permission. Authorization is granted case by case and may include limits on scope, term, territory, and presentation.
 
 ## Rationale
 

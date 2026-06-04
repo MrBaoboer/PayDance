@@ -179,6 +179,61 @@ jobs:
           node scripts/release/build-latest-json.mjs @latestArgs |
             Out-File -Encoding utf8 release-assets/latest.json
 
+      - name: Build artifact smoke
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
+          $portableName = "pay-dance-v$version-windows-x64.exe"
+          $portablePath = "src-tauri/target/release/$portableName"
+          $checksumPath = "$portablePath.sha256"
+          $signaturePath = "release-assets/$portableName.sig"
+          $latestPath = "release-assets/latest.json"
+          $reportPath = "release-assets/build-artifact-smoke.md"
+
+          "# Build artifact smoke" | Out-File -Encoding utf8 $reportPath
+          "Version: $version" | Out-File -Encoding utf8 -Append $reportPath
+          "" | Out-File -Encoding utf8 -Append $reportPath
+
+          Write-Host "Verify dry-run release assets"
+          foreach ($path in @($portablePath, $checksumPath, $signaturePath, $latestPath)) {
+            if (-not (Test-Path $path)) {
+              Write-Error "Missing release asset: $path"
+              exit 1
+            }
+          }
+
+          $expectedHash = ((Get-Content -LiteralPath $checksumPath -Raw).Trim() -split "\s+")[0].ToLowerInvariant()
+          $actualHash = (Get-FileHash $portablePath -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($expectedHash -ne $actualHash) {
+            Write-Error "SHA256 mismatch for $portableName"
+            exit 1
+          }
+          "- EXE SHA256 verified: $actualHash" | Out-File -Encoding utf8 -Append $reportPath
+
+          Write-Host "Verify updater signature"
+          $signature = (Get-Content -LiteralPath $signaturePath -Raw).Trim()
+          if (-not $signature) {
+            Write-Error "Updater signature is empty: $signaturePath"
+            exit 1
+          }
+
+          $latest = Get-Content -LiteralPath $latestPath -Raw | ConvertFrom-Json
+          $platform = $latest.platforms.'windows-x86_64'
+          if (-not $platform) {
+            Write-Error "latest.json missing windows-x86_64 platform"
+            exit 1
+          }
+          if ($platform.signature -ne $signature) {
+            Write-Error "latest.json signature does not match the generated signature file"
+            exit 1
+          }
+          if ($platform.url -notlike "*$portableName") {
+            Write-Error "latest.json does not point to $portableName"
+            exit 1
+          }
+          "- Updater signature metadata verified." | Out-File -Encoding utf8 -Append $reportPath
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
@@ -188,6 +243,7 @@ jobs:
             src-tauri/target/release/pay-dance-v*-windows-x64.exe.sha256
             release-assets/pay-dance-v*-windows-x64.exe.sig
             release-assets/latest.json
+            release-assets/build-artifact-smoke.md
           if-no-files-found: error
 
       - name: Create GitHub Release

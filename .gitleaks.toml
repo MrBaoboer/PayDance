@@ -1,22 +1,22 @@
-# Gitleaks configuration for PayDance
-# Scans git history and working tree for hardcoded secrets
-
+# Gitleaks configuration for PayDance.
+# Scans git history and the working tree for hardcoded secrets.
 title = "PayDance gitleaks config"
 
 [allowlist]
-  description = "Global allowlist"
-  paths = [
-    # Exclude auto-generated and binary files
-    "src-tauri/icons/",
-    "src-tauri/target/",
-    "node_modules/",
-    # Exclude test fixtures with fake keys
-    "\\.test\\.ts$",
-    "\\.test\\.js$",
-    "\\.snap$",
-    # Lock files
-    "package-lock\\.json$",
-    "Cargo\\.lock$",
-    # Mock files
-    "src/__mocks__/",
-  ]
+description = "Global allowlist"
+paths = [
+  # Auto-generated, vendored, or binary-heavy directories.
+  "src-tauri/icons/",
+  "src-tauri/target/",
+  "node_modules/",
+
+  # Tests and snapshots only contain fake fixtures.
+  "\\.test\\.ts$",
+  "\\.test\\.js$",
+  "\\.snap$",
+  "src/__mocks__/",
+
+  # Lock files are reviewed by package managers and security tooling.
+  "package-lock\\.json$",
+  "Cargo\\.lock$",
+]

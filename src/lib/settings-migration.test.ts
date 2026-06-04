@@ -6,6 +6,7 @@
 import { describe, expect, it } from "vitest";
 import {
   migrateSalaryConfig,
+  migrateVersionedSalaryConfig,
   resolveOnboardingState,
   settingsSchemaVersion,
 } from "./settings-migration";
@@ -73,6 +74,57 @@ describe("settings migration", () => {
   });
 
   it("declares the v0.5 settings schema version", () => {
-    expect(settingsSchemaVersion).toBe(3);
+    expect(settingsSchemaVersion).toBe(4);
+  });
+
+  it("migrates saved configs through an explicit versioned chain", () => {
+    const config = migrateVersionedSalaryConfig({
+      config: {
+        monthlySalary: 16_000,
+        salaryType: "daily",
+        dailySalary: 720,
+        workdays: [5, 1, 1, 3],
+      },
+      schemaVersion: 2,
+    });
+
+    expect(config).toMatchObject({
+      salaryType: "daily",
+      dailySalary: 720,
+      monthlySalary: 16_000,
+      workdays: [1, 3, 5],
+    });
+  });
+
+  it("keeps versioned migrations idempotent at the current schema", () => {
+    const first = migrateVersionedSalaryConfig({
+      config: {
+        salaryType: "hourly",
+        hourlyRate: 96,
+        workdays: [1, 2, 3, 4, 5],
+      },
+      schemaVersion: settingsSchemaVersion,
+    });
+    const second = migrateVersionedSalaryConfig({
+      config: first,
+      schemaVersion: settingsSchemaVersion,
+    });
+
+    expect(second).toEqual(first);
+  });
+
+  it("isolates future settings schemas instead of trusting unknown shapes", () => {
+    const config = migrateVersionedSalaryConfig({
+      config: {
+        salaryType: "hourly",
+        hourlyRate: 999,
+        workdays: [0],
+      },
+      schemaVersion: settingsSchemaVersion + 1,
+    });
+
+    expect(config.salaryType).toBe("monthly");
+    expect(config.hourlyRate).not.toBe(999);
+    expect(config.workdays).toEqual([1, 2, 3, 4, 5]);
   });
 });

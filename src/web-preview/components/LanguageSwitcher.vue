@@ -61,6 +61,7 @@ const toggle = () => {
   height: 26px;
   grid-template-columns: 1fr 1fr;
   gap: 2px;
+  border-radius: 999px;
 }
 
 .lang-switcher__option {
@@ -80,7 +81,7 @@ const toggle = () => {
 .lang-switcher__option.is-active {
   background: color-mix(in srgb, var(--income-accent) 16%, rgb(255 255 255));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--income-accent) 22%, transparent);
-  color: color-mix(in srgb, var(--income-accent) 82%, rgb(24 24 27));
+  color: rgb(154 79 0);
 }
 
 .lang-switcher:hover {
@@ -90,16 +91,27 @@ const toggle = () => {
     0 8px 18px rgb(24 24 27 / 0.06);
 }
 
-:global(.theme-dark.web-preview) .lang-switcher {
-  background: color-mix(in srgb, var(--web-surface-strong) 78%, transparent);
+:global(.theme-dark.web-preview .lang-switcher) {
+  border-color: rgb(255 255 255 / 0.14);
+  background: rgb(13 14 16 / 0.9);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.055),
-    0 12px 32px rgb(0 0 0 / 0.26);
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 8px 18px rgb(0 0 0 / 0.3);
 }
 
-:global(.theme-dark.web-preview) .lang-switcher__option.is-active {
-  background: color-mix(in srgb, var(--income-accent) 22%, rgb(24 24 27));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--income-accent) 30%, transparent);
-  color: rgb(255 230 191);
+:global(.theme-dark.web-preview .lang-switcher__track) {
+  background: rgb(255 255 255 / 0.025);
+}
+
+:global(.theme-dark.web-preview .lang-switcher__option) {
+  color: rgb(158 163 173);
+}
+
+:global(.theme-dark.web-preview .lang-switcher__option.is-active) {
+  background: color-mix(in srgb, var(--income-accent) 18%, rgb(18 18 20));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--income-accent) 32%, transparent),
+    0 0 14px rgb(245 158 11 / 0.12);
+  color: rgb(255 214 154);
 }
 </style>

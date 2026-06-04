@@ -20,6 +20,15 @@ function uniqueNormalizedFiles(files) {
   return [...new Set(files.map(normalizeChangedFile).filter(Boolean))].sort();
 }
 
+function commitExists(ref) {
+  try {
+    execFileSync("git", ["cat-file", "-e", `${ref}^{commit}`], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function isLightweightFile(file) {
   if (ROOT_LIGHTWEIGHT_FILE.test(file)) {
     return true;
@@ -146,7 +155,7 @@ function parseArgs(argv) {
 
 function gitFilesForRange(base, head) {
   const gitArgs =
-    base && !ZERO_SHA.test(base)
+    base && !ZERO_SHA.test(base) && commitExists(base)
       ? ["diff", "--name-only", base, head, "--"]
       : ["ls-tree", "-r", "--name-only", head];
 

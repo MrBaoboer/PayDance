@@ -15,6 +15,7 @@ import {
   normalizeFullSize,
   normalizeMiniOpacityPercent,
   normalizeMiniSize,
+  resolveVisibleWindowPosition,
   resolveWindowPreferences,
 } from "./window-mode";
 
@@ -109,5 +110,27 @@ describe("window mode preferences", () => {
       fullSize: { width: 720, height: 540 },
       miniOpacityPercent: defaultMiniOpacityPercent,
     });
+  });
+
+  it("clamps restored window positions back into a visible monitor work area", () => {
+    expect(
+      resolveVisibleWindowPosition({
+        fallbackPosition: { x: 80, y: 80 },
+        position: { x: 2_400, y: 120 },
+        size: { width: 480, height: 460 },
+        workAreas: [{ x: 0, y: 0, width: 1_920, height: 1_080 }],
+      }),
+    ).toEqual({ x: 1_424, y: 120 });
+  });
+
+  it("falls back to the primary work area when a restored window is fully off screen", () => {
+    expect(
+      resolveVisibleWindowPosition({
+        fallbackPosition: { x: 80, y: 80 },
+        position: { x: -1_800, y: -900 },
+        size: { width: 480, height: 460 },
+        workAreas: [{ x: 0, y: 0, width: 1_920, height: 1_080 }],
+      }),
+    ).toEqual({ x: 80, y: 80 });
   });
 });

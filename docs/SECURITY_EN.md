@@ -1,10 +1,10 @@
 # Security Policy
 
-> [中文版 →](SECURITY.md)
+> [中文版 →](../.github/SECURITY.md)
 
 ## Supported Versions
 
-Only the latest release receives security fixes. Older versions are not supported.
+Only the latest release receives security fixes. Older versions do not receive separate security patches.
 
 | Version   | Supported            |
 | --------- | -------------------- |
@@ -13,9 +13,7 @@ Only the latest release receives security fixes. Older versions are not supporte
 
 ## Supported Platforms
 
-The currently released and security-supported surfaces are the **Windows 11 desktop app** and the **Web Preview**. The Tauri dependency graph may include upstream cross-platform dependencies for macOS/Linux in `Cargo.lock`, but those platforms are not part of the current supported release surface unless a release note explicitly ships a build for them.
-
-For third-party dependency alerts that only affect unreleased platform code paths, maintainers will document the assessment and continue tracking upstream Tauri/Wry/GTK updates. If PayDance starts shipping that platform, those dependencies become part of the normal security fix scope.
+The currently released and security-supported surfaces are the **Windows 11 desktop app** and the **Web Preview**. The Tauri dependency graph may include upstream cross-platform dependencies for macOS/Linux in `Cargo.lock`; these dependencies are not ignored, but until a platform is officially shipped, related findings are assessed as unreleased-platform paths, documented, and tracked upstream.
 
 ## Reporting a Vulnerability
 
@@ -24,7 +22,7 @@ For third-party dependency alerts that only affect unreleased platform code path
 Please report via either of the following private channels:
 
 - **GitHub Security Advisory** (recommended): submit at [Security Advisories](https://github.com/MasterBao66/PayDance/security/advisories/new)
-- **Email**: see the email listed on the [author's GitHub profile](https://github.com/MasterBao66) (include `[SECURITY]` in the subject line)
+- **Email**: see the email listed on the [author's GitHub profile](https://github.com/MasterBao66), and include `[SECURITY]` in the subject line
 
 ### What to Include
 
@@ -37,7 +35,7 @@ Please report via either of the following private channels:
 
 - **Acknowledgment**: Within 72 hours
 - **Assessment**: Within 5 business days
-- **Fix timeline**: Depends on severity; critical issues patched as quickly as possible
+- **Fix timeline**: Depends on severity; critical issues are prioritized
 - **Disclosure**: After a fix is released and users have had reasonable time to update
 
 ## Sensitive Information

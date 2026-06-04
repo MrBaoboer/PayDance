@@ -12,11 +12,19 @@ describe("monotonic wall clock", () => {
     );
   });
 
-  it("does not jump when the system wall clock moves forward", () => {
+  it("does not jump when the system wall clock drift stays below the rebase threshold", () => {
     const clock = makeClock({ monotonicMs: 0, wallTimeMs: 1_700_000_000_000 });
 
-    expect(clock.nowMs({ monotonicMs: 2_000, wallTimeMs: 1_700_003_600_000 })).toBe(
+    expect(clock.nowMs({ monotonicMs: 2_000, wallTimeMs: 1_700_000_003_000 })).toBe(
       1_700_000_002_000,
+    );
+  });
+
+  it("rebases to the real wall clock after a large resume or clock correction", () => {
+    const clock = makeClock({ monotonicMs: 0, wallTimeMs: 1_700_000_000_000 });
+
+    expect(clock.nowMs({ monotonicMs: 2_000, wallTimeMs: 1_700_007_200_000 })).toBe(
+      1_700_007_200_000,
     );
   });
 

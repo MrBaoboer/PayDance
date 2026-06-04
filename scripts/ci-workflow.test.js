@@ -56,6 +56,10 @@ describe("CI workflow routing", () => {
     expect(ciWorkflow).toContain("if: needs.changes.outputs.requires_full_ci == 'true'");
     expect(ciWorkflow).toContain("Build frontend");
     expect(ciWorkflow).toContain("Build Web Preview");
+    expect(ciWorkflow).toContain("Web Preview QA");
+    expect(ciWorkflow).toContain("npm run qa:web-preview");
+    expect(ciWorkflow).toContain("paydance-web-preview-qa-*");
+    expect(ciWorkflow).toContain("Upload Web Preview QA evidence");
     expect(ciWorkflow).toContain("Security audit");
 
     expect(webPreviewWorkflow).toContain("Read CI change scope");

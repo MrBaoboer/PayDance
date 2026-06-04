@@ -22,6 +22,15 @@ body,
   font-family: var(--font-sans);
 }
 
+html.is-web-preview-page,
+body.is-web-preview-page,
+html.is-web-preview-page #app {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 * {
   box-sizing: border-box;
 }

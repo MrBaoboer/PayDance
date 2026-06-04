@@ -1,21 +1,25 @@
-# Web Preview QA
+# Web Preview 质量验证
 
-Web Preview 视觉验证的标准流程是：本地服务 + 内置 Playwright + 多视口截图 + DOM/console 双校验。
+> [English version →](web-preview-qa_EN.md)
 
-## 禁用方法
+Web Preview QA 用来确认官网橱窗在真实浏览器里稳定可用：页面能正常渲染，主题和语言能切换，关键文案不丢，主要布局不溢出。它的目标不是截一张好看的图，而是为发布判断留下可靠证据。
 
-不要使用 headless Chrome/CDP/CLI screenshot 作为 Web Preview 验证方式。上一轮验证已经证明这条路线可能得到全白截图，却仍然返回看似正常的退出结果，不能作为发布信号。
+## 不要使用
 
-## 标准流程
+不要用 headless Chrome、CDP 或命令行截图替代这个流程。它们曾经出现过全白截图却正常退出的情况，不能作为发布信号。
+
+## 验证流程
 
 1. 启动本地 Web Preview dev server，并记录本地 URL。
-2. 使用 Codex 内置 Node + Playwright 打开页面。
+2. 使用项目 `devDependency` 中的 Playwright 打开页面；如需调试特殊环境，可用 `PLAYWRIGHT_NODE_MODULES` 指向外部 `node_modules`。
 3. 按固定视口截图：桌面端 `1440x900`，中等窗口 `960x760`，移动端 `390x844`。
-4. 浅色和深色主题都要覆盖；只改首屏橱窗时也不能只看浅色。
-5. 同步做 DOM 校验：页面标题、`Web Preview · appVersion` 版本号、软件展示区、移动端展示区不消失也不塌缩。
-6. 收集 browser console 与 page error，确认无严重报错。
-7. 保存截图到本次运行专属的临时 QA 目录：`C:\Users\mrbao\AppData\Local\Temp\paydance-web-preview-qa-{version}-{commit}-{timestamp}`。不要复用仅包含版本号的固定目录，否则聊天窗口或图片查看层可能缓存旧截图。
-8. 验证完成后关闭本地服务，避免占用端口。
+4. 同时覆盖浅色和深色主题。即使只改了首屏，也不要只看浅色。
+5. 检查 DOM：页面标题、`Web Preview · appVersion`、软件预览区和移动端布局必须存在且稳定。
+6. 跑真实语言切换：中文移动端进入页面，点击 `Switch to English`，确认 `data-locale="en"`，英文标题和主要按钮在视口内可见。
+7. 用 `@axe-core/playwright` 检查自动化能发现的严重无障碍问题。这不是完整 WCAG 合规证明。
+8. 收集控制台错误和页面错误，确认没有严重报错。
+9. 将截图和 `summary.json` 保存到本次运行专属临时目录：`C:\Users\mrbao\AppData\Local\Temp\paydance-web-preview-qa-{version}-{commit}-{timestamp}`。
+10. 结束后关闭本地服务，避免占用端口。
 
 ## 命令
 
@@ -23,4 +27,14 @@ Web Preview 视觉验证的标准流程是：本地服务 + 内置 Playwright + 
 npm run qa:web-preview
 ```
 
-脚本会自动启动 `npm run dev:web`，使用内置 Playwright 完成三种视口截图与 DOM/console 校验，然后关闭本地服务。截图和 `summary.json` 会写入本次运行的唯一临时 QA 目录；`summary.json` 会记录 run id、commit 和页面实际读取到的中英文 DOM 文案，避免误把旧截图当作新证据。
+脚本会启动 `npm run dev:web`，完成多视口截图、DOM 检查、控制台检查、无障碍检查和中文到英文的点击回归，然后关闭本地服务。`summary.json` 会记录运行 ID、commit、页面实际读取到的中英文文案和截图路径，方便确认结果来自本次运行。
+
+## 通过标准
+
+- 三种视口都有非空截图，首屏没有文字重叠、按钮溢出或主体塌缩。
+- 中英文文案都来自当前页面 DOM，而不是旧截图或手工判断。
+- 中文进入后点击 EN，根节点 `data-locale` 必须同步为 `en`。
+- 没有 critical/serious 级别的 axe 自动化无障碍违规。
+- 浅色/深色切换后，预览窗口边缘没有明显闪白、错色或残影。
+- `summary.json` 中没有严重控制台错误或页面错误。
+- 验证结束后本地 dev server 已退出。

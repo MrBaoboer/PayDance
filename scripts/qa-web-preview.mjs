@@ -4,13 +4,13 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 import { execFileSync, spawn } from "node:child_process";
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { homedir, tmpdir } from "node:os";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { createRequire } from "node:module";
+import AxeBuilder from "@axe-core/playwright";
 import packageMetadata from "../package.json" with { type: "json" };
+import { resolvePlaywright } from "./resolve-playwright.mjs";
 
-const require = createRequire(import.meta.url);
 const version = packageMetadata.version;
 const sanitizeRunId = (value) =>
   value
@@ -55,7 +55,7 @@ const localeExpectations = {
   },
   en: {
     downloadName: /Download for Windows/,
-    headline: "See your pay",
+    headline: "See Your Pay",
     themeToggleLabels: ["Switch to dark mode", "Switch to light mode"],
   },
 };
@@ -81,32 +81,6 @@ const createPreviewState = (themeMode) => ({
   settingsVersion: 3,
   themeMode,
 });
-
-const resolvePlaywright = () => {
-  const moduleDirs = [
-    process.env.PLAYWRIGHT_NODE_MODULES,
-    process.env.CODEX_NODE_MODULES,
-    join(
-      homedir(),
-      ".cache",
-      "codex-runtimes",
-      "codex-primary-runtime",
-      "dependencies",
-      "node",
-      "node_modules",
-    ),
-    resolve("node_modules"),
-  ].filter(Boolean);
-
-  for (const moduleDir of moduleDirs) {
-    const packageDir = join(moduleDir, "playwright");
-    if (existsSync(packageDir)) {
-      return require(packageDir);
-    }
-  }
-
-  return require("playwright");
-};
 
 const waitForServer = async () => {
   const deadline = Date.now() + 30_000;
@@ -190,6 +164,29 @@ const startServer = () => {
   return { logs, server };
 };
 
+const assertAccessibility = async (page, viewportName) => {
+  const results = await new AxeBuilder({ page }).include(".web-preview").analyze();
+  const blockingViolations = results.violations.filter((violation) =>
+    ["critical", "serious"].includes(violation.impact ?? ""),
+  );
+
+  if (blockingViolations.length > 0) {
+    throw new Error(
+      `${viewportName}: accessibility violations ${JSON.stringify(
+        blockingViolations.map((violation) => ({
+          id: violation.id,
+          impact: violation.impact,
+          nodes: violation.nodes.map((node) => ({
+            failureSummary: node.failureSummary,
+            html: node.html,
+            target: node.target,
+          })),
+        })),
+      )}`,
+    );
+  }
+};
+
 const assertDom = async (page, viewportName, locale) => {
   const viewport = page.viewportSize();
   const expectedText = localeExpectations[locale];
@@ -253,7 +250,9 @@ const assertDom = async (page, viewportName, locale) => {
     .getByText(expectedText.headline, { exact: true })
     .isVisible();
   const downloadName = viewportName.includes("mobile")
-    ? /^Download$/
+    ? locale === "zh-CN"
+      ? /^下载电脑版$/
+      : /^Desktop$/
     : expectedText.downloadName;
   const downloadVisible = await page
     .getByRole("link", { name: downloadName })
@@ -278,6 +277,25 @@ const assertDom = async (page, viewportName, locale) => {
   if (featureCards.length !== 3) {
     throw new Error(`${viewportName}: expected 3 feature cards`);
   }
+
+  const featureDescriptions = await page
+    .locator(".web-preview__chip dd")
+    .evaluateAll((descriptions) =>
+      descriptions.map((description) => {
+        const rect = description.getBoundingClientRect();
+        const styles = window.getComputedStyle(description);
+        const lineHeight = Number.parseFloat(styles.lineHeight);
+
+        return {
+          height: rect.height,
+          lineHeight,
+          text: description.textContent?.trim(),
+          visible: rect.width > 0 && rect.height > 0,
+          whiteSpace: styles.whiteSpace,
+          wrapped: Number.isFinite(lineHeight) && rect.height > lineHeight * 1.35,
+        };
+      }),
+    );
 
   if (viewportName.includes("mobile")) {
     const cardTop = featureCards[0].top;
@@ -312,6 +330,16 @@ const assertDom = async (page, viewportName, locale) => {
       if (currentCard.right > nextCard.left + 1) {
         throw new Error(`${viewportName}: feature cards overlap horizontally`);
       }
+    }
+
+    if (
+      featureDescriptions.some(
+        (description) => description.visible && description.wrapped,
+      )
+    ) {
+      throw new Error(
+        `${viewportName}: feature descriptions wrapped ${JSON.stringify(featureDescriptions)}`,
+      );
     }
   }
 
@@ -408,25 +436,118 @@ const assertDom = async (page, viewportName, locale) => {
     );
   }
 
-  if (viewportName.includes("mobile")) {
-    const [featureStripBox, footerBox, leadMetrics] = await Promise.all([
-      page.locator(".web-preview__feature-strip").boundingBox(),
-      page.locator(".web-preview__footer").boundingBox(),
-      page.locator(".web-preview__lead").evaluate((lead) => {
-        const rect = lead.getBoundingClientRect();
-        const styles = window.getComputedStyle(lead);
-        const headlineRect = document
-          .querySelector(".web-preview h1")
-          ?.getBoundingClientRect();
-
+  if (viewportName.includes("medium")) {
+    const mediumHeroFlow = await page.evaluate(() => {
+      const rectFor = (selector) => {
+        const element = document.querySelector(selector);
+        if (!element) return null;
+        const rect = element.getBoundingClientRect();
         return {
-          fontSize: Number.parseFloat(styles.fontSize),
-          fontWeight: Number.parseFloat(styles.fontWeight),
-          gapFromHeadline: headlineRect ? rect.top - headlineRect.bottom : 0,
+          bottom: rect.bottom,
+          centerX: rect.left + rect.width / 2,
+          height: rect.height,
+          left: rect.left,
+          right: rect.right,
+          top: rect.top,
           width: rect.width,
         };
-      }),
-    ]);
+      };
+      const viewportWidth = document.documentElement.clientWidth;
+      const actions = rectFor(".web-preview__actions");
+      const copy = rectFor(".web-preview__copy");
+      const showcase = rectFor("#paydance-preview");
+      const preview = document.querySelector(".web-preview");
+      const previewStyles = preview ? window.getComputedStyle(preview) : null;
+      const rootStyles = window.getComputedStyle(document.documentElement);
+      const bodyStyles = window.getComputedStyle(document.body);
+
+      return {
+        actions,
+        bodyOverflowY: bodyStyles.overflowY,
+        copy,
+        copyCenterOffset: copy ? Math.abs(copy.centerX - viewportWidth / 2) : 0,
+        documentScrollHeight: document.documentElement.scrollHeight,
+        previewOverflowY: previewStyles?.overflowY ?? "",
+        rootOverflowY: rootStyles.overflowY,
+        showcase,
+        showcaseCenterOffset: showcase
+          ? Math.abs(showcase.centerX - viewportWidth / 2)
+          : 0,
+        viewportHeight: window.innerHeight,
+        verticalGap: copy && showcase ? showcase.top - copy.bottom : 0,
+      };
+    });
+
+    if (
+      !mediumHeroFlow.copy ||
+      !mediumHeroFlow.showcase ||
+      mediumHeroFlow.verticalGap < 28 ||
+      mediumHeroFlow.copyCenterOffset > 24 ||
+      mediumHeroFlow.showcaseCenterOffset > 24
+    ) {
+      throw new Error(
+        `${viewportName}: medium viewport hero should use centered single-column flow ${JSON.stringify(
+          mediumHeroFlow,
+        )}`,
+      );
+    }
+
+    if (
+      mediumHeroFlow.documentScrollHeight <= mediumHeroFlow.viewportHeight + 24 ||
+      mediumHeroFlow.rootOverflowY === "hidden" ||
+      mediumHeroFlow.bodyOverflowY === "hidden" ||
+      mediumHeroFlow.previewOverflowY !== "visible"
+    ) {
+      throw new Error(
+        `${viewportName}: medium viewport content must use document-level vertical scrolling ${JSON.stringify(
+          mediumHeroFlow,
+        )}`,
+      );
+    }
+  }
+
+  if (viewportName.includes("mobile")) {
+    const [featureStripBox, footerBox, leadMetrics, salaryInfoMetrics] =
+      await Promise.all([
+        page.locator(".web-preview__feature-strip").boundingBox(),
+        page.locator(".web-preview__footer").boundingBox(),
+        page.locator(".web-preview__lead").evaluate((lead) => {
+          const rect = lead.getBoundingClientRect();
+          const styles = window.getComputedStyle(lead);
+          const headlineRect = document
+            .querySelector(".web-preview h1")
+            ?.getBoundingClientRect();
+
+          return {
+            fontSize: Number.parseFloat(styles.fontSize),
+            fontWeight: Number.parseFloat(styles.fontWeight),
+            gapFromHeadline: headlineRect ? rect.top - headlineRect.bottom : 0,
+            width: rect.width,
+          };
+        }),
+        page.locator(".web-preview__frame").evaluate((frame) => {
+          const frameRect = frame.getBoundingClientRect();
+          const button = frame.querySelector(".salary-info-button");
+          const progressTrack = frame.querySelector(".progress-track");
+          const buttonRect = button?.getBoundingClientRect();
+          const progressRect = progressTrack?.getBoundingClientRect();
+
+          return buttonRect && progressRect
+            ? {
+                buttonCenter: buttonRect.top + buttonRect.height / 2,
+                bottomGap: frameRect.bottom - buttonRect.bottom,
+                centerOffset: Math.abs(
+                  buttonRect.top +
+                    buttonRect.height / 2 -
+                    (progressRect.bottom + frameRect.bottom) / 2,
+                ),
+                height: buttonRect.height,
+                midpoint: (progressRect.bottom + frameRect.bottom) / 2,
+                progressBottom: progressRect.bottom,
+              }
+            : null;
+        }),
+      ]);
 
     if (!featureStripBox || !footerBox) {
       throw new Error(`${viewportName}: feature strip or footer is missing`);
@@ -452,6 +573,19 @@ const assertDom = async (page, viewportName, locale) => {
       leadMetrics.gapFromHeadline < 12
     ) {
       throw new Error(`${viewportName}: lead typography is too large or too tight`);
+    }
+
+    if (
+      !salaryInfoMetrics ||
+      salaryInfoMetrics.bottomGap < 18 ||
+      salaryInfoMetrics.centerOffset > 6 ||
+      salaryInfoMetrics.height > 30
+    ) {
+      throw new Error(
+        `${viewportName}: salary info button should sit midway between progress and frame edge ${JSON.stringify(
+          salaryInfoMetrics,
+        )}`,
+      );
     }
   }
 
@@ -516,16 +650,12 @@ const assertDom = async (page, viewportName, locale) => {
           iconRect.top + iconRect.height / 2 - (linkRect.top + linkRect.height / 2),
         );
       });
-      const labelOffsets = Array.from(
-        link.querySelectorAll(".web-preview__action-label"),
-      )
+      const labelOffsets = Array.from(link.querySelectorAll(".web-preview__action-label"))
         .map((label) => label.getBoundingClientRect())
         .filter((labelRect) => labelRect.width > 0 && labelRect.height > 0)
         .map((labelRect) =>
           Math.abs(
-            labelRect.top +
-              labelRect.height / 2 -
-              (linkRect.top + linkRect.height / 2),
+            labelRect.top + labelRect.height / 2 - (linkRect.top + linkRect.height / 2),
           ),
         );
 
@@ -603,6 +733,89 @@ const assertThemeToggleEdge = async (page, viewportName, locale) => {
   }
 };
 
+const seedPreviewContext = async (browser, locale, themeMode, viewport) => {
+  const context = await browser.newContext({
+    deviceScaleFactor: 1,
+    viewport: { width: viewport.width, height: viewport.height },
+  });
+  await context.addInitScript(
+    ({ key, localeKey, localeValue, state }) => {
+      window.localStorage.setItem(localeKey, localeValue);
+      window.localStorage.setItem(key, JSON.stringify(state));
+    },
+    {
+      key: storageKey,
+      localeKey: localeStorageKey,
+      localeValue: locale,
+      state: createPreviewState(themeMode),
+    },
+  );
+
+  return context;
+};
+
+const assertLanguageSwitchFlow = async (browser, consoleFindings, pageErrors) => {
+  const viewport = { name: "mobile", width: 390, height: 844 };
+  const context = await seedPreviewContext(browser, "zh-CN", "light", viewport);
+  const page = await context.newPage();
+
+  page.on("console", (message) => {
+    if (message.type() === "error") {
+      consoleFindings.push(`language-switch/mobile: ${message.text()}`);
+    }
+  });
+  page.on("pageerror", (error) => {
+    pageErrors.push(`language-switch/mobile: ${error.message}`);
+  });
+
+  try {
+    await page.goto(localUrl, { timeout: 60_000, waitUntil: "domcontentloaded" });
+    await page.locator("#paydance-preview").waitFor({
+      state: "visible",
+      timeout: 45_000,
+    });
+
+    const initialLocale = await page.locator(".web-preview").getAttribute("data-locale");
+    if (initialLocale !== "zh-CN") {
+      throw new Error(
+        `language-switch/mobile: initial locale mismatch "${initialLocale}"`,
+      );
+    }
+
+    await page.getByRole("button", { name: "Switch to English" }).click();
+    await page.getByText(localeExpectations.en.headline, { exact: true }).waitFor({
+      state: "visible",
+      timeout: 10_000,
+    });
+
+    const switchedLocale = await page.locator(".web-preview").getAttribute("data-locale");
+    if (switchedLocale !== "en") {
+      throw new Error(
+        `language-switch/mobile: switched locale mismatch "${switchedLocale}"`,
+      );
+    }
+
+    const observedCopy = await assertDom(page, "language-switch/mobile", "en");
+    await assertAccessibility(page, "language-switch/mobile");
+
+    const screenshotPath = join(
+      qaDir,
+      `web-preview-language-switch-zh-CN-to-en-${viewport.name}-${viewport.width}x${viewport.height}.png`,
+    );
+    await page.screenshot({ fullPage: true, path: screenshotPath });
+
+    return {
+      locale: "zh-CN->en",
+      observedCopy,
+      screenshotPath,
+      themeMode: "light",
+      viewport,
+    };
+  } finally {
+    await context.close();
+  }
+};
+
 const runQa = async () => {
   ensureQaDir();
 
@@ -621,23 +834,7 @@ const runQa = async () => {
     for (const locale of locales) {
       for (const themeMode of themes) {
         for (const viewport of viewports) {
-          const context = await browser.newContext({
-            deviceScaleFactor: 1,
-            viewport: { width: viewport.width, height: viewport.height },
-          });
-          await context.addInitScript(
-            ({ key, localeKey, localeValue, state }) => {
-              window.localStorage.setItem(localeKey, localeValue);
-              window.localStorage.setItem(key, JSON.stringify(state));
-            },
-            {
-              key: storageKey,
-              localeKey: localeStorageKey,
-              localeValue: locale,
-              state: createPreviewState(themeMode),
-            },
-          );
-
+          const context = await seedPreviewContext(browser, locale, themeMode, viewport);
           const page = await context.newPage();
           page.on("console", (message) => {
             if (message.type() === "error") {
@@ -666,6 +863,7 @@ const runQa = async () => {
             themeMode,
             viewport,
           });
+          await assertAccessibility(page, `${locale}/${themeMode}/${viewport.name}`);
           await assertThemeToggleEdge(
             page,
             `${locale}/${themeMode}/${viewport.name}`,
@@ -681,6 +879,10 @@ const runQa = async () => {
         }
       }
     }
+
+    observations.push(
+      await assertLanguageSwitchFlow(browser, consoleFindings, pageErrors),
+    );
 
     await browser.close();
 

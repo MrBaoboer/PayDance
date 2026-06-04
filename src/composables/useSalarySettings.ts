@@ -58,6 +58,7 @@ export function useSalarySettings(
   const locale = ref<Locale>("zh-CN");
   const hasCompletedOnboarding = ref(false);
   const isSettingsReady = ref(false);
+  const settingsSaveError = ref("");
   let storePromise: Promise<SettingsStoreAdapter> | null = null;
 
   const getStore = () => {
@@ -105,7 +106,7 @@ export function useSalarySettings(
         settingsStoreKeys.hasCompletedOnboarding,
       );
 
-      config.value = migrateSalaryConfig(savedConfig);
+      config.value = migrateSalaryConfig(savedConfig, savedSettingsVersion);
       hasCompletedOnboarding.value = resolveOnboardingState(
         savedConfig,
         savedHasCompletedOnboarding,
@@ -184,6 +185,7 @@ export function useSalarySettings(
       );
       await store.set(settingsStoreKeys.settingsVersion, settingsSchemaVersion);
       await store.save();
+      settingsSaveError.value = "";
 
       if (shouldPersistSalaryConfig) {
         const savedConfig = await store.get<Partial<SalaryConfig>>(
@@ -198,6 +200,7 @@ export function useSalarySettings(
       }
     } catch (error) {
       console.error("Failed to save settings", error);
+      settingsSaveError.value = "settings.saveFailed";
     }
   };
 
@@ -210,6 +213,7 @@ export function useSalarySettings(
     loadSettings,
     locale,
     saveSettings,
+    settingsSaveError,
     themeMode,
   };
 }

@@ -64,6 +64,7 @@ export interface Messages {
   "settings.autostart": string;
   "settings.autostartError": string;
   "settings.language": string;
+  "settings.saveFailed": string;
 
   // ── Settings → salary mode ─────────────────────────────────────────────
   "salaryMode.label": string;
@@ -121,6 +122,9 @@ export interface Messages {
   "onboarding.back": string;
   "onboarding.next": string;
   "onboarding.start": string;
+  "onboardingPreview.today": string;
+  "onboardingPreview.perMinute": string;
+  "onboardingPreview.lunchPaused": string;
 
   // ── Onboarding → preferences ───────────────────────────────────────────
   "preferences.language": string;
@@ -188,6 +192,7 @@ export interface Messages {
   "web.heroHeadline2": string;
   "web.heroLead": string;
   "web.downloadWindows": string;
+  "web.downloadShort": string;
   "web.featureRealtime": string;
   "web.featureRealtimeDesc": string;
   "web.featureFocus": string;

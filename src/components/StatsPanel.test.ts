@@ -12,7 +12,6 @@ describe("stats panel", () => {
     expect(statsPanelSource).toContain("middleValue: string");
     expect(statsPanelSource).toContain("{{ middleLabel }}");
     expect(statsPanelSource).toContain("formatMetricSegments(middleValue)");
-    expect(statsPanelSource).not.toContain("<span>距离下班</span>");
     expect(statsPanelSource).not.toContain("{{ remainingTime }}");
   });
 

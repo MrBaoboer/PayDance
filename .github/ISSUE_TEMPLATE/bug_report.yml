@@ -1,40 +1,73 @@
 name: Bug 反馈
-description: 反馈薪跳 PayDance 的异常、崩溃或体验问题
+description: 反馈薪跳 PayDance 的异常、崩溃、显示错位或体验问题
 title: "[Bug] "
 labels: ["bug"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈。请尽量写清楚复现路径，这能让问题更快被确认和修复。
+
+        请不要公开粘贴薪资数据、配置文件、私钥或任何个人敏感信息。
   - type: textarea
     id: summary
     attributes:
       label: 问题描述
-      description: 请简要说明发生了什么。
+      description: 请用几句话说明发生了什么，以及你原本期待它怎样工作。
+      placeholder: 例如：切换到迷你悬浮模式后，透明度面板位置不对齐。
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
       label: 复现步骤
-      description: 请列出稳定复现问题的步骤。
+      description: 请列出稳定复现问题的步骤；如果不能稳定复现，也请说明大概触发场景。
       placeholder: |
         1. 打开应用
         2. 进入设置中心
-        3. ...
+        3. 修改 ...
+        4. 观察到 ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+      description: 你认为正确的表现应该是什么？
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+      description: 请描述实际表现；如有截图、录屏或报错信息，可以放在这里。
     validations:
       required: true
   - type: input
     id: version
     attributes:
       label: 应用版本
-      placeholder: v0.9.3
+      placeholder: v0.9.4
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: 发生位置
+      options:
+        - Windows 桌面端
+        - Web Preview
+        - 构建或开发环境
+        - 文档或发布资产
     validations:
       required: true
   - type: input
     id: system
     attributes:
       label: 系统环境
-      placeholder: Windows 11 23H2
+      placeholder: Windows 11 23H2 / Edge 版本号 / Node.js 版本号
   - type: textarea
     id: extra
     attributes:
       label: 补充信息
-      description: 可以附截图、录屏、日志或你观察到的其它细节。
+      description: 可以写下你已经尝试过的排查方式、相关日志片段，或这个问题对你使用的影响。

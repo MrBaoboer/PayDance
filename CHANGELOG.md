@@ -1,8 +1,15 @@
 # CHANGELOG
 
-本文件记录薪跳 PayDance 的正式版本变化。README 保持为面向用户的产品橱窗；完整版本演进与 GitHub Release 正文来源统一维护在这里。
+本文记录薪跳 PayDance 的正式版本变化。README 面向新用户展示产品；完整版本演进和 GitHub Release 正文来源统一维护在这里。
 
-更多构建产物与校验文件请查看 [GitHub Releases](https://github.com/MasterBao66/PayDance/releases)。
+构建产物与校验文件见 [GitHub Releases](https://github.com/MasterBao66/PayDance/releases)。
+
+### v0.9.4
+
+- **桌面可靠性收口**：计时器改为混合时钟策略，长时间休眠或系统时间大幅前跳后会重新按真实墙上时间校准，同时继续避免金额倒退；窗口恢复会校验显示器可见区域，托盘新增“重置窗口位置”。
+- **本地设置更可信**：配置迁移升级为显式版本链，未来版本配置会安全隔离；设置写盘失败会在设置面板展示轻量提示，不再只进入 console。
+- **更新与发布链路加固**：更新器区分开发配置缺失、正式版签名失败、清单异常和网络失败；Release dry-run 增加本次构建产物 smoke 报告，发布后 smoke 不再把 dry-run 误判为公开 Release 验证。
+- **Web Preview 与可访问性**：Web Preview QA 接入 CI 门禁；语言切换同步 HTML `lang`；更新角标改为语义按钮；首次配置向导加入实时预览。
 
 ### v0.9.3
 

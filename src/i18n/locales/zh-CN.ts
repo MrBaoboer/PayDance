@@ -59,6 +59,7 @@ const zhCN: Messages = {
   "settings.autostart": "开机自动启动",
   "settings.autostartError": "自启动设置失败",
   "settings.language": "语言",
+  "settings.saveFailed": "设置未能保存，请重试。",
 
   // ── Settings → salary mode ─────────────────────────────────────────────
   "salaryMode.label": "薪资输入方式",
@@ -116,6 +117,9 @@ const zhCN: Messages = {
   "onboarding.back": "上一步",
   "onboarding.next": "下一步",
   "onboarding.start": "开始",
+  "onboardingPreview.today": "今日预计",
+  "onboardingPreview.perMinute": "每分钟",
+  "onboardingPreview.lunchPaused": "午休时金额会暂停增长",
 
   // ── Onboarding → preferences ───────────────────────────────────────────
   "preferences.language": "语言",
@@ -183,6 +187,7 @@ const zhCN: Messages = {
   "web.heroHeadline2": "收入跳动",
   "web.heroLead": "具象化你的劳动价值，专注工作，也看见回报",
   "web.downloadWindows": "下载 Windows 版",
+  "web.downloadShort": "下载电脑版",
   "web.featureRealtime": "毫秒级更新",
   "web.featureRealtimeDesc": "今日收入实时跳动",
   "web.featureFocus": "安心专注",

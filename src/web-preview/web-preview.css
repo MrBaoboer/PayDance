@@ -49,11 +49,11 @@
   position: relative;
   isolation: isolate;
   display: flex;
-  height: 100dvh;
+  height: auto;
   min-height: 100dvh;
   flex-direction: column;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow-x: clip;
+  overflow-y: visible;
   background:
     linear-gradient(
       115deg,
@@ -599,19 +599,19 @@
 }
 
 @media (max-width: 1180px) {
-  .web-preview[data-locale="en"] .web-preview__hero {
+  .web-preview__hero {
     grid-template-columns: 1fr;
     justify-items: center;
     gap: clamp(34px, 5.6vw, 54px);
     padding-top: clamp(34px, 5vw, 56px);
   }
 
-  .web-preview[data-locale="en"] .web-preview__copy {
+  .web-preview__copy {
     justify-items: center;
     text-align: center;
   }
 
-  .web-preview[data-locale="en"] .web-preview__actions {
+  .web-preview__actions {
     justify-content: center;
   }
 }
@@ -691,7 +691,8 @@
   .web-preview__hero {
     flex: 0 0 auto;
     gap: 30px;
-    padding-top: 18px; padding-bottom: 24px;
+    padding-top: 18px;
+    padding-bottom: 24px;
   }
 
   .web-preview h1 {
@@ -782,6 +783,35 @@
 
   .web-preview[data-locale="en"] .web-preview__frame {
     height: clamp(326px, 86vw, 348px);
+  }
+
+  .web-preview__frame .app-window {
+    --hero-top-pad: clamp(16px, 4.6cqh, 22px);
+    --hero-bottom-pad: clamp(12px, 3.2cqh, 16px);
+    --hero-amount-gap: clamp(9px, 2.8cqh, 14px);
+    --hero-dashboard-gap: clamp(12px, 3.8cqh, 18px);
+    --salary-info-offset: clamp(14px, 4cqh, 18px);
+    --ui-gap-xs: clamp(4px, 1.05cqh, 6px);
+    --ui-gap-sm: clamp(6px, 1.5cqh, 8px);
+  }
+
+  .web-preview__frame .hero-panel {
+    justify-content: flex-start;
+  }
+
+  .web-preview__frame .hero-dashboard {
+    gap: clamp(7px, 1.9cqh, 10px);
+    padding: clamp(9px, 2.4cqh, 12px);
+  }
+
+  .web-preview__frame .stat-item {
+    padding-top: clamp(7px, 1.9cqh, 10px);
+    padding-bottom: clamp(7px, 1.9cqh, 10px);
+  }
+
+  .web-preview__frame .hero-panel .salary-info-button {
+    height: clamp(24px, 5.4cqh, 28px);
+    margin-top: var(--salary-info-offset);
   }
 
   .web-preview[data-locale="en"] .web-preview__feature-strip {

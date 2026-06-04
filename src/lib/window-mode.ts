@@ -15,6 +15,8 @@ export type WindowPosition = {
   y: number;
 };
 
+export type WindowWorkArea = WindowPosition & WindowSize;
+
 export const windowSettingsSchemaVersion = 2;
 export const currentSettingsSchemaVersion = windowSettingsSchemaVersion;
 
@@ -49,6 +51,53 @@ export const normalizeFullSize = (
     Math.round(size?.height ?? fullWindowSize.height),
   ),
 });
+
+const defaultRestoreMargin = 16;
+
+const clampValue = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
+
+export function resolveVisibleWindowPosition({
+  fallbackPosition,
+  position,
+  restoreMargin = defaultRestoreMargin,
+  size,
+  workAreas,
+}: {
+  fallbackPosition: WindowPosition;
+  position: WindowPosition | undefined;
+  restoreMargin?: number;
+  size: WindowSize;
+  workAreas: WindowWorkArea[];
+}): WindowPosition | undefined {
+  if (!position) return undefined;
+
+  const primaryArea = workAreas[0];
+  if (!primaryArea) return position;
+
+  const isFarOutsidePrimary =
+    position.x < primaryArea.x - size.width || position.y < primaryArea.y - size.height;
+
+  if (isFarOutsidePrimary) {
+    return fallbackPosition;
+  }
+
+  const maxX = primaryArea.x + primaryArea.width - size.width - restoreMargin;
+  const maxY = primaryArea.y + primaryArea.height - size.height - restoreMargin;
+
+  return {
+    x: clampValue(
+      position.x,
+      primaryArea.x + restoreMargin,
+      Math.max(primaryArea.x, maxX),
+    ),
+    y: clampValue(
+      position.y,
+      primaryArea.y + restoreMargin,
+      Math.max(primaryArea.y, maxY),
+    ),
+  };
+}
 
 export const normalizeMiniOpacityPercent = (value: unknown) => {
   const numericValue =

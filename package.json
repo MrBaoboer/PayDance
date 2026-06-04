@@ -1,7 +1,7 @@
 {
   "name": "pay-dance",
   "private": true,
-  "version": "0.9.3",
+  "version": "0.9.4",
   "author": "Mr.Baoboer",
   "license": "AGPL-3.0-only",
   "repository": "github:MasterBao66/PayDance",
@@ -44,6 +44,7 @@
     "vue": "^3.5.35"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.0",
     "@tauri-apps/cli": "^2.11.2",
@@ -56,6 +57,7 @@
     "eslint-plugin-vuejs-accessibility": "^2.5.0",
     "globals": "^17.6.0",
     "happy-dom": "^20.9.0",
+    "playwright": "^1.60.0",
     "prettier": "^3.8.3",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",

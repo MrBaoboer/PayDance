@@ -8,6 +8,7 @@ import { describe, expect, it } from "vitest";
 import desktopAppSource from "./DesktopApp.vue?raw";
 import appWindowSource from "./components/AppWindow.vue?raw";
 import miniOpacityPanelSource from "./composables/useMiniOpacityPanel.ts?raw";
+import windowPositionRecoverySource from "./composables/useWindowPositionRecovery.ts?raw";
 import windowLifecycleSource from "./composables/useAppWindowLifecycle.ts?raw";
 import windowStatePersistenceSource from "./composables/useWindowStatePersistence.ts?raw";
 
@@ -74,5 +75,14 @@ describe("app chrome", () => {
     expect(desktopAppSource).toContain("loadWindowPreferences");
     expect(windowStatePersistenceSource).toContain("catch (error)");
     expect(windowStatePersistenceSource).toContain("defaultWindowPreferences");
+  });
+
+  it("can reset a restored window position from the tray", () => {
+    expect(desktopAppSource).toContain("useWindowPositionRecovery");
+    expect(desktopAppSource).toContain("resetWindowPosition");
+    expect(desktopAppSource).toContain("restoreWindowPosition");
+    expect(windowPositionRecoverySource).toContain("availableMonitors");
+    expect(windowPositionRecoverySource).toContain("resolveVisibleWindowPosition");
+    expect(windowPositionRecoverySource).toContain("fallbackMainPosition");
   });
 });

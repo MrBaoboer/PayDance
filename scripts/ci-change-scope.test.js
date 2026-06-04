@@ -33,6 +33,9 @@ describe("CI change scope", () => {
       "CONTRIBUTING.md",
       "CONTRIBUTING_EN.md",
       "CHANGELOG.md",
+      "CODE_OF_CONDUCT.md",
+      "docs/GOVERNANCE.md",
+      "docs/MAINTAINERS.md",
       "PRODUCT.md",
       "DESIGN.md",
       "docs/web-preview-qa.md",
@@ -117,6 +120,32 @@ describe("CI change scope", () => {
       expect(output).toContain("requires_full_ci=false");
       expect(output).toContain("deploy_web_preview=false");
       expect(summary.changedFiles).toEqual(["README.md", "legal/ADDITIONAL_TERMS.md"]);
+    });
+  });
+
+  it("falls back to the head tree when the push base is unavailable", () => {
+    withTempDir((cwd) => {
+      const jsonPath = join(cwd, "scope.json");
+
+      execFileSync(
+        "node",
+        [
+          scriptPath,
+          "--base",
+          "0123456789abcdef0123456789abcdef01234567",
+          "--head",
+          "HEAD",
+          "--json-file",
+          jsonPath,
+        ],
+        { encoding: "utf8" },
+      );
+
+      const summary = JSON.parse(readFileSync(jsonPath, "utf8"));
+
+      expect(summary.scope).toBe("full");
+      expect(summary.requiresFullCi).toBe(true);
+      expect(summary.changedFiles).toContain("package.json");
     });
   });
 });

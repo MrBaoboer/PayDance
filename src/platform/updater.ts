@@ -16,13 +16,60 @@ export type UpdaterStatus =
   | { kind: "upToDate" }
   | { kind: "updateAvailable"; version: string; notes?: string }
   | { kind: "downloading" }
-  | { kind: "error"; message: string }
-  | { kind: "unavailable" }
+  | {
+      kind: "error";
+      message: string;
+      reason?: "manifest-invalid" | "network" | "signature-verification";
+    }
+  | { kind: "unavailable"; reason?: "dev-config" | "web" }
   | { kind: "ready"; version: string };
+
+const errorMessageFrom = (error: unknown) =>
+  error instanceof Error ? error.message : "Unknown update error";
+
+export function classifyUpdateError(
+  error: unknown,
+  isProductionBuild: boolean,
+): UpdaterStatus {
+  const message = errorMessageFrom(error);
+  const normalizedMessage = message.toLowerCase();
+  const isConfigOrTrustError =
+    normalizedMessage.includes("pubkey") ||
+    normalizedMessage.includes("public key") ||
+    normalizedMessage.includes("signature") ||
+    normalizedMessage.includes("manifest") ||
+    normalizedMessage.includes("endpoint");
+
+  if (!isProductionBuild && isConfigOrTrustError) {
+    return { kind: "unavailable", reason: "dev-config" };
+  }
+
+  if (
+    normalizedMessage.includes("signature") ||
+    normalizedMessage.includes("pubkey") ||
+    normalizedMessage.includes("public key")
+  ) {
+    return {
+      kind: "error",
+      message: "Update signature verification failed",
+      reason: "signature-verification",
+    };
+  }
+
+  if (normalizedMessage.includes("manifest") || normalizedMessage.includes("endpoint")) {
+    return {
+      kind: "error",
+      message: "Update manifest is invalid",
+      reason: "manifest-invalid",
+    };
+  }
+
+  return { kind: "error", message, reason: "network" };
+}
 
 export async function checkForUpdate(): Promise<UpdaterStatus> {
   if (isWebPreview) {
-    return { kind: "unavailable" };
+    return { kind: "unavailable", reason: "web" };
   }
 
   try {
@@ -36,28 +83,14 @@ export async function checkForUpdate(): Promise<UpdaterStatus> {
       notes: update.body ?? undefined,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown update error";
-    // When the updater plugin is not configured (missing pubkey, missing manifest),
-    // treat it as "unavailable" rather than a hard error.
-    if (
-      message.includes("pubkey") ||
-      message.includes("public key") ||
-      message.includes("signature") ||
-      message.includes("manifest") ||
-      message.includes("endpoint")
-    ) {
-      console.warn("Updater not configured:", message);
-      return { kind: "unavailable" };
-    }
-
     console.error("Update check failed:", error);
-    return { kind: "error", message };
+    return classifyUpdateError(error, import.meta.env.PROD);
   }
 }
 
 export async function downloadAndInstall(): Promise<UpdaterStatus> {
   if (isWebPreview) {
-    return { kind: "unavailable" };
+    return { kind: "unavailable", reason: "web" };
   }
 
   try {
@@ -73,9 +106,6 @@ export async function downloadAndInstall(): Promise<UpdaterStatus> {
     return { kind: "ready", version: update.version };
   } catch (error) {
     console.error("Update download failed:", error);
-    return {
-      kind: "error",
-      message: error instanceof Error ? error.message : "Update download failed",
-    };
+    return classifyUpdateError(error, import.meta.env.PROD);
   }
 }

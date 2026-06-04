@@ -6,17 +6,11 @@ version = 2
 yanked = "deny"
 unmaintained = "workspace"
 unsound = "workspace"
-ignore = [
-  # Transitive Tauri dependency; maintained fork is proc-macro-error2
-  "RUSTSEC-2024-0370",
-]
 
 [licenses]
 # AGPL-3.0-only is the project license; allow compatible licenses
 allow = [
   "AGPL-3.0-only",
-  "GPL-3.0-only",
-  "GPL-3.0-or-later",
   "MIT",
   "Apache-2.0",
   "Apache-2.0 WITH LLVM-exception",
@@ -24,10 +18,7 @@ allow = [
   "ISC",
   "Zlib",
   "Unicode-3.0",
-  "Unicode-DFS-2016",
-  "BSL-1.0",
   "CC0-1.0",
-  "OpenSSL",
   "Unlicense",
   "MPL-2.0",
   "CDLA-Permissive-2.0",
@@ -39,7 +30,10 @@ expression = "ISC AND MIT AND OpenSSL"
 license-files = [{ path = "LICENSE", hash = 0xbd0eed23 }]
 
 [bans]
-multiple-versions = "warn"
+# Tauri's cross-platform graph currently carries several intentional duplicate
+# crate versions. Keep cargo-deny warning-free while new duplicate policy is
+# handled during scheduled dependency updates.
+multiple-versions = "allow"
 deny = []
 skip = []
 

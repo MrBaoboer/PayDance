@@ -2,7 +2,7 @@
 
 > [中文版 →](BRAND-ASSETS.md)
 
-This file explains the licensing boundaries for official PayDance brand assets. It does not change the rights granted for software code by `LICENSE`.
+This file explains the licensing boundaries for official PayDance brand assets. It does not change the software-code rights granted by `LICENSE`.
 
 Unless explicitly authorized in writing, the following assets are not licensed under AGPL-3.0-only or CC BY-SA 4.0:
 
@@ -27,7 +27,7 @@ These uses must not imply that your release is official, or that Mr.Baoboer endo
 
 ## Fork and modified distribution requirements
 
-Modified distributions must use their own distinct branding and must not use official assets as product identity. In practice, you should replace:
+Modified distributions must use their own distinct branding and must not use official assets as product identity. In practice, replace:
 
 - Product name, logo, application icon, and tray icon
 - Marketing artwork, website visuals, social preview images, and promotional screenshots
@@ -40,7 +40,7 @@ You may show official screenshots in factual references, but you may not use off
 
 ## Separate authorization
 
-For commercial promotion, courses, media kits, partnerships, OEM, white-label, or other uses beyond factual reference, contact Mr.Baoboer for written authorization.
+For commercial promotion, courses, media kits, partnerships, OEM, white-label, or other uses beyond factual reference, contact via the email listed on the [author's GitHub profile](https://github.com/MasterBao66) for written authorization.
 
 ---
 

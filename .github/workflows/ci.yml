@@ -118,6 +118,20 @@ jobs:
       - name: Build Web Preview
         run: npm run build:web
 
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+
+      - name: Web Preview QA
+        run: npm run qa:web-preview
+
+      - name: Upload Web Preview QA evidence
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: web-preview-qa-evidence
+          path: ${{ runner.temp }}/paydance-web-preview-qa-*
+          if-no-files-found: ignore
+
       - name: Check Rust formatting
         run: cargo fmt --all -- --check
         working-directory: src-tauri

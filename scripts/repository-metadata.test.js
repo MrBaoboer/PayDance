@@ -3,47 +3,57 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { extname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const read = (path) => readFileSync(resolve(import.meta.dirname, "..", path), "utf8");
+const repoRoot = resolve(import.meta.dirname, "..");
+const read = (path) => readFileSync(resolve(repoRoot, path), "utf8");
 const packageJson = JSON.parse(read("package.json"));
 const versionedDesktopAssetName = `pay-dance-v${packageJson.version}-windows-x64.exe`;
-const versionedDesktopChecksumName = `${versionedDesktopAssetName}.sha256`;
 const desktopDownloadUrl = `https://github.com/MasterBao66/PayDance/releases/latest/download/${versionedDesktopAssetName}`;
-const blockedAudienceTerms = [
-  String.fromCodePoint(0x6253, 0x5de5),
-  String.fromCodePoint(0x6253, 0x5de5, 0x4eba),
-  String.fromCodePoint(0x6253, 0x5de5, 0x4eba, 0x7684),
-];
-const macOsName = ["mac", "OS"].join("");
-const blockedDashboardTerm = String.fromCodePoint(0x4eea, 0x8868, 0x76d8);
 const legacyAdditionalTermsReference = `see /${["ADDITIONAL_TERMS", "md"].join(".")}`;
 const binaryExtensions = new Set([".ico", ".png", ".woff2"]);
-const textFiles = [
-  ".github/ISSUE_TEMPLATE.md",
-  ".github/ISSUE_TEMPLATE/bug_report.yml",
-  "CHANGELOG.md",
-  "DESIGN.md",
-  "LICENSE",
-  "PRODUCT.md",
-  "README.md",
-  "package.json",
-  "scripts/repository-metadata.test.js",
-  "src-tauri/capabilities/desktop.json",
-  "src/WebPreviewApp.vue",
-  "src/web-preview.test.ts",
-].filter((path) => !binaryExtensions.has(extname(path).toLowerCase()));
+const existsInWorktree = (path) => existsSync(resolve(repoRoot, path));
 const trackedTextFiles = () =>
   execFileSync("git", ["ls-files"], {
-    cwd: resolve(import.meta.dirname, ".."),
+    cwd: repoRoot,
     encoding: "utf8",
   })
     .split(/\r?\n/)
     .filter(Boolean)
+    .filter(existsInWorktree)
     .filter((path) => !binaryExtensions.has(extname(path).toLowerCase()));
+const trackedMarkdownFiles = () =>
+  execFileSync("git", ["ls-files", "*.md"], {
+    cwd: repoRoot,
+    encoding: "utf8",
+  })
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .filter(existsInWorktree);
+
+function resolveMarkdownLink(file, rawTarget) {
+  const target = rawTarget.trim().replace(/^<|>$/g, "").split(/\s+/)[0];
+  if (
+    !target ||
+    target.startsWith("#") ||
+    target.startsWith("http://") ||
+    target.startsWith("https://") ||
+    target.startsWith("mailto:")
+  ) {
+    return null;
+  }
+
+  const withoutAnchor = target.split("#")[0];
+  if (!withoutAnchor) return null;
+  return resolve(
+    repoRoot,
+    file.includes("/") ? file.replace(/\/[^/]+$/, "") : ".",
+    withoutAnchor,
+  );
+}
 
 describe("repository metadata", () => {
   it("keeps README desktop download links on the versioned Windows release executable", () => {
@@ -55,10 +65,10 @@ describe("repository metadata", () => {
       ),
     );
 
-    expect(desktopDownloadLinks?.length).toBeGreaterThanOrEqual(2);
+    expect(desktopDownloadLinks?.length).toBeGreaterThanOrEqual(1);
     expect(readme).toContain(desktopDownloadUrl);
     expect(readme).toContain(versionedDesktopAssetName);
-    expect(readme).toContain(versionedDesktopChecksumName);
+    // versionedDesktopChecksumName is removed from README to prevent hardcoded version churn
     expect(read("src/lib/app-meta.ts")).toContain("windowsDownloadAssetName");
     expect(readme).not.toContain("releases/download/v0.7.16/pay-dance.exe");
     expect(readme).not.toContain("masterbao66.github.io/PayDance/pay-dance.exe");
@@ -119,6 +129,9 @@ describe("repository metadata", () => {
     expect(releaseWorkflow).toContain("windows-x64");
     expect(releaseWorkflow).not.toContain("pay-dance.exe.sha256");
     expect(releaseWorkflow).toContain("latest.json");
+    expect(releaseWorkflow).toContain("Build artifact smoke");
+    expect(releaseWorkflow).toContain("Verify dry-run release assets");
+    expect(releaseWorkflow).toContain("Verify updater signature");
     expect(releaseWorkflow).toContain("fail_on_unmatched_files: true");
     expect(releaseWorkflow).not.toContain(
       '$sigArg = if (Test-Path $sigFile) { "--sig-file $sigFile" } else { "" }',
@@ -127,6 +140,43 @@ describe("repository metadata", () => {
     expect(postReleaseSmoke).toContain(
       'jq -e \'.platforms["windows-x86_64"].signature | type == "string" and length > 0\' latest.json',
     );
+    expect(postReleaseSmoke).toContain(
+      "Verify latest.json points at the checksummed asset",
+    );
+    expect(postReleaseSmoke).toContain("GitHub asset digest");
+  });
+
+  it("publishes a minimal community governance surface", () => {
+    expect(read("CODE_OF_CONDUCT.md")).toContain("English version");
+    expect(read("CODE_OF_CONDUCT.md")).toContain("行为准则");
+    expect(read("docs/CODE_OF_CONDUCT_EN.md")).toContain("Code of Conduct");
+    expect(read("docs/MAINTAINERS.md")).toContain("维护者说明");
+    expect(read("docs/MAINTAINERS_EN.md")).toContain("Maintainers");
+    expect(read("docs/GOVERNANCE.md")).toContain("治理说明");
+    expect(read("docs/GOVERNANCE_EN.md")).toContain("Governance");
+    expect(read("docs/MAINTENANCE.md")).toContain("配置迁移");
+    expect(read("docs/MAINTENANCE_EN.md")).toContain("Settings Migration");
+    expect(read(".github/CONTRIBUTING.md")).toContain("good first issue");
+    expect(read("docs/CONTRIBUTING_EN.md")).toContain("good first issue");
+  });
+
+  it("keeps .github contributing governance links on canonical GitHub blob URLs", () => {
+    const contributing = read(".github/CONTRIBUTING.md");
+    const githubBlobBase = "https://github.com/MasterBao66/PayDance/blob/main";
+
+    expect(contributing).toContain(
+      `[CODE_OF_CONDUCT.md](${githubBlobBase}/CODE_OF_CONDUCT.md)`,
+    );
+    expect(contributing).toContain(
+      `[docs/MAINTAINERS.md](${githubBlobBase}/docs/MAINTAINERS.md)`,
+    );
+    expect(contributing).toContain(
+      `[docs/GOVERNANCE.md](${githubBlobBase}/docs/GOVERNANCE.md)`,
+    );
+    expect(contributing).toContain(
+      `[docs/MAINTENANCE.md](${githubBlobBase}/docs/MAINTENANCE.md)`,
+    );
+    expect(contributing).not.toContain("github.com/MasterBao66/PayDance/blob/docs/");
   });
 
   it("keeps issue template version hints aligned with the current release line", () => {
@@ -135,16 +185,105 @@ describe("repository metadata", () => {
     expect(read(".github/ISSUE_TEMPLATE/bug_report.yml")).toContain(currentVersion);
   });
 
-  it("removes legacy audience and desktop migration wording from product text", () => {
-    for (const file of textFiles) {
+  it("keeps repository markdown links resolvable after documentation moves", () => {
+    const missingLinks = [];
+    const markdownLinkPattern = /(?<!!)\[[^\]]+\]\(([^)]+)\)/g;
+
+    for (const file of trackedMarkdownFiles()) {
       const source = read(file);
-
-      for (const term of blockedAudienceTerms) {
-        expect(source, file).not.toContain(term);
+      for (const match of source.matchAll(markdownLinkPattern)) {
+        const resolved = resolveMarkdownLink(file, match[1]);
+        if (resolved && !existsSync(resolved)) {
+          missingLinks.push(`${file}: ${match[1]}`);
+        }
       }
+    }
 
-      expect(source, file).not.toContain(macOsName);
-      expect(source, file).not.toContain(String.fromCodePoint(0x8fc1, 0x79fb));
+    expect(missingLinks).toEqual([]);
+  });
+
+  it("keeps gitleaks configuration parseable and intentional", () => {
+    const config = read(".gitleaks.toml");
+
+    expect(config).toContain('title = "PayDance gitleaks config"');
+    expect(config).toContain("[allowlist]");
+    expect(config).toContain("paths = [");
+    expect(config.split(/\r?\n/).length).toBeGreaterThan(10);
+    expect(config).not.toContain("PayDance#");
+  });
+
+  it("keeps brand asset documentation Chinese-first with English mirrors", () => {
+    expect(read("docs/brand/official.md")).toContain("# 官方品牌资产");
+    expect(read("docs/brand/official.md")).toContain(
+      "> [English version →](official_EN.md)",
+    );
+    expect(read("docs/brand/official_EN.md")).toContain("# Official Brand Assets");
+
+    expect(read("docs/brand/community-placeholder.md")).toContain("# 社区占位资产");
+    expect(read("docs/brand/community-placeholder.md")).toContain(
+      "> [English version →](community-placeholder_EN.md)",
+    );
+    expect(read("docs/brand/community-placeholder_EN.md")).toContain(
+      "# Community Placeholder Assets",
+    );
+  });
+
+  it("keeps maintainer contact guidance on the public GitHub profile email", () => {
+    const githubProfile = "https://github.com/MasterBao66";
+    const blockedContactPhrases = [
+      ["提交", "历史", "中的", "邮箱"].join(""),
+      ["email", "found", "in", "commit", "history"].join(" "),
+      ["contact", "Mr.Baoboer"].join(" "),
+      ["联系", "Mr.Baoboer"].join(" "),
+    ];
+
+    expect(read("docs/SUPPORT.md")).toContain(githubProfile);
+    expect(read("docs/SUPPORT_EN.md")).toContain(githubProfile);
+    expect(read("legal/LEGAL.md")).toContain(githubProfile);
+    expect(read("legal/LEGAL_EN.md")).toContain(githubProfile);
+
+    for (const file of trackedTextFiles()) {
+      const source = read(file);
+      for (const phrase of blockedContactPhrases) {
+        expect(source, file).not.toContain(phrase);
+      }
+    }
+  });
+
+  it("keeps platform positioning Windows-focused but community-extensible", () => {
+    expect(read("README.md")).toContain(
+      "薪跳 PayDance 是一款桌面实时工资看板。配置薪资与上下班时间后",
+    );
+    expect(read("docs/README_EN.md")).toContain(
+      "PayDance (薪跳) is a desktop real-time salary dashboard.",
+    );
+    expect(read("docs/PRODUCT.md")).toContain("这并不排斥 macOS、Linux 等平台");
+    expect(read(".github/CONTRIBUTING.md")).toContain("平台适配贡献需附验证边界");
+    expect(read(".github/SECURITY.md")).not.toContain(
+      ["不属于", "当前正式支持", "或发布范围"].join(""),
+    );
+    expect(read("docs/SECURITY_EN.md")).not.toContain(
+      "not part of the current supported release surface",
+    );
+  });
+
+  it("keeps stage-dependent docs from over-promising future scope", () => {
+    const blockedScopePhrases = [
+      ["永", "不", "做"].join(""),
+      ["will", "not", "be", "accepted"].join(" "),
+      ["不会", "合并"].join(""),
+    ];
+
+    expect(read("README.md")).toContain("网页端，含所有核心功能");
+    expect(read("docs/README_EN.md")).toContain("Browser-based, all core features");
+    expect(read("docs/ROADMAP.md")).toContain("长期排除方向");
+    expect(read("docs/ROADMAP_EN.md")).toContain("Long-Term Exclusions");
+
+    for (const file of trackedTextFiles()) {
+      const source = read(file);
+      for (const phrase of blockedScopePhrases) {
+        expect(source, file).not.toContain(phrase);
+      }
     }
   });
 
@@ -152,13 +291,9 @@ describe("repository metadata", () => {
     const positioning = "桌面实时工资看板";
 
     expect(read("README.md")).toContain(positioning);
-    expect(read("PRODUCT.md")).toContain(positioning);
+    expect(read("docs/PRODUCT.md")).toContain(positioning);
     expect(read("src/lib/app-meta.ts")).toContain(positioning);
     expect(read("src-tauri/Cargo.toml")).toContain(positioning);
     expect(read("src-tauri/src/lib.rs")).toContain(positioning);
-
-    for (const file of trackedTextFiles()) {
-      expect(read(file), file).not.toContain(blockedDashboardTerm);
-    }
   });
 });

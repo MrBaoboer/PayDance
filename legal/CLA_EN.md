@@ -6,7 +6,7 @@ maintained by Mr.Baoboer.
 
 By signing this CLA and submitting a contribution (including but not limited to
 source code, documentation, translations, tests, graphics, or other materials)
-to the Project, you confirm and agree that:
+to the Project, you confirm and agree to the following terms.
 
 ## 1. Grant of license
 

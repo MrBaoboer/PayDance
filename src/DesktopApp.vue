@@ -4,7 +4,6 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { LogicalPosition } from "@tauri-apps/api/dpi";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   readAutostartEnabled,
@@ -32,6 +31,7 @@ import { useSalaryTicker } from "./composables/useSalaryTicker";
 import { useThemeSync } from "./composables/useThemeSync";
 import { registerTrayActions } from "./composables/useTrayActions";
 import { useWindowMode } from "./composables/useWindowMode";
+import { useWindowPositionRecovery } from "./composables/useWindowPositionRecovery";
 import { useWindowStatePersistence } from "./composables/useWindowStatePersistence";
 import { checkForUpdate, type UpdaterStatus } from "./platform/updater";
 import AppWindow from "./components/AppWindow.vue";
@@ -60,6 +60,7 @@ const {
   loadSettings,
   locale,
   saveSettings,
+  settingsSaveError,
   themeMode,
 } = useSalarySettings(undefined, () => t.value);
 
@@ -196,6 +197,15 @@ const startResize = async (direction: ResizeDirection) => {
   await appWindow.startResizeDragging(direction);
 };
 
+const { resetWindowPosition, restoreWindowPosition } = useWindowPositionRecovery({
+  appWindow,
+  fullSize,
+  isMiniMode,
+  mainPosition,
+  miniSize,
+  saveStateNow,
+});
+
 const { clearWindowLifecycleTimers, registerWindowLifecycle } = useAppWindowLifecycle(
   appWindow,
   {
@@ -223,27 +233,16 @@ onMounted(async () => {
   miniPosition.value = windowPreferences.miniPosition;
   showSettings.value = false;
 
-  // Restore saved window position if available
-  if (mainPosition.value) {
-    try {
-      await appWindow.setPosition(
-        new LogicalPosition(mainPosition.value.x, mainPosition.value.y),
-      );
-    } catch {
-      // Ignore — window manager may reject the position
-    }
-  }
+  await restoreWindowPosition().catch(() => undefined);
 
   await refreshAutostart();
   await applyThemeMode(themeMode.value, { persist: false });
   await applyWindowMode();
 
   unlisteners.push(
-    // Flush state before the process exits (triggered by tray "quit" menu)
     await appWindow.listen("before-app-exit", async () => {
       await saveStateNow();
     }),
-    // Persist window position after dragging ends
     await appWindow.onMoved(() => {
       void appWindow.outerPosition().then((pos) => {
         mainPosition.value = { x: pos.x, y: pos.y };
@@ -253,6 +252,7 @@ onMounted(async () => {
     ...(await registerWindowLifecycle()),
     ...(await registerTrayActions(appWindow, {
       openSettings,
+      resetWindowPosition,
       toggleAlwaysOnTop,
       toggleMiniMode,
     })),
@@ -321,6 +321,7 @@ onBeforeUnmount(() => {
       :is-working-status="isWorkingStatus"
       :middle-stat="middleStat"
       :salary-mode-label="salaryModeLabel"
+      :settings-save-error="settingsSaveError"
       :should-show-onboarding="shouldShowOnboarding"
       :show-desktop-features="true"
       :snapshot="snapshot"

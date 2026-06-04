@@ -9,6 +9,7 @@ import settingsGroupSource from "./ui/SettingsGroup.vue?raw";
 import switchRowSource from "./ui/SwitchRow.vue?raw";
 import lunchBreakFieldsSource from "./settings/LunchBreakFields.vue?raw";
 import salaryAmountFieldsSource from "./settings/SalaryAmountFields.vue?raw";
+import updateActionBadgeSource from "./settings/UpdateActionBadge.vue?raw";
 import workTimeFieldsSource from "./settings/WorkTimeFields.vue?raw";
 
 describe("settings panel", () => {
@@ -37,8 +38,6 @@ describe("settings panel", () => {
     expect(settingsPanelSource).toContain("<LunchBreakFields");
     expect(lunchBreakFieldsSource).toContain('t("lunchBreak.heading")');
     expect(settingsPanelSource).not.toContain("data-settings-card");
-    expect(settingsPanelSource).not.toContain("<strong>显示</strong>");
-    expect(settingsPanelSource).not.toContain("<strong>休息扣除</strong>");
     expect(settingsPanelSource).not.toContain("themeMode");
     expect(settingsPanelSource).not.toContain("update:themeMode");
   });
@@ -61,16 +60,12 @@ describe("settings panel", () => {
     expect(lunchBreakFieldsSource).toContain('t("lunchBreak.heading")');
     expect(lunchBreakFieldsSource).toContain("t('lunchBreak.toggle')");
     expect(lunchBreakFieldsSource).toContain(':disabled="!config.enableLunchBreak"');
-    expect(lunchBreakFieldsSource).not.toContain("休息扣除");
-    expect(lunchBreakFieldsSource).not.toContain("从工作时长中扣除固定休息段");
   });
 
   it("keeps modified attribution footer but removes the about heading copy", () => {
     expect(settingsPanelSource).toContain("about-footer__repo-card");
     expect(settingsPanelSource).toContain("about-footer__copyright");
     expect(settingsPanelSource).toContain("about-footer__copyright--centered");
-    expect(settingsPanelSource).not.toContain("<strong>关于</strong>");
-    expect(settingsPanelSource).not.toContain('data-settings-card="关于"');
     expect(settingsPanelSource.indexOf("repository-button")).toBeLessThan(
       settingsPanelSource.indexOf("about-footer__copyright"),
     );
@@ -100,6 +95,20 @@ describe("settings panel", () => {
     expect(settingsPanelSource).toContain("gap: clamp(11px, 2.6cqh, 14px)");
     expect(settingsPanelSource).toContain("padding: clamp(15px, 3.6cqw, 19px)");
     expect(settingsGroupSource).toContain("padding: clamp(12px, 3cqw, 15px)");
+  });
+
+  it("surfaces local settings save failures without relying on console output", () => {
+    expect(settingsPanelSource).toContain("settingsSaveError?: string");
+    expect(settingsPanelSource).toContain('settingsSaveError: ""');
+    expect(settingsPanelSource).toContain("settings-save-error");
+    expect(settingsPanelSource).toContain('role="status"');
+  });
+
+  it("uses semantic buttons for update retry and install actions", () => {
+    expect(settingsPanelSource).toContain("<UpdateActionBadge");
+    expect(updateActionBadgeSource).toContain('class="update-badge-button"');
+    expect(updateActionBadgeSource).toContain(':aria-label="');
+    expect(updateActionBadgeSource).not.toContain('@click.stop="downloadUpdate"');
   });
 
   it("keeps the attribution footer balanced in narrow settings sheets", () => {

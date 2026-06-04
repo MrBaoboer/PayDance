@@ -50,7 +50,7 @@ const { t } = useI18n();
 }
 
 .web-preview__chips {
-  --web-chip-base-width: 220px;
+  --web-chip-base-width: 272px;
   --web-chip-gap: 0px;
   --web-chip-scale: 1;
   display: grid;
@@ -96,7 +96,7 @@ const { t } = useI18n();
   height: calc(24px * var(--web-chip-scale));
 }
 
-:global(.theme-dark.web-preview) .web-preview__chip-icon {
+:global(.theme-dark.web-preview .web-preview__chip-icon) {
   border-color: color-mix(in srgb, var(--income-accent) 22%, transparent);
   background: color-mix(in srgb, var(--income-accent) 12%, transparent);
   box-shadow:
@@ -123,13 +123,51 @@ const { t } = useI18n();
   font-size: calc(14px * var(--web-chip-scale));
   font-weight: 520;
   line-height: 1.36;
-  max-width: 28ch;
-  white-space: normal;
+  max-width: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 1180px) {
+  .web-preview__chips {
+    max-width: 920px;
+  }
 }
 
 @media (max-width: 820px) {
   .web-preview__feature-strip {
     width: min(100%, 560px);
+  }
+
+  .web-preview__chips {
+    max-width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    justify-content: center;
+    justify-items: center;
+    gap: 12px;
+  }
+
+  .web-preview__chip {
+    width: 100%;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    justify-items: center;
+    row-gap: 8px;
+    text-align: center;
+  }
+
+  .web-preview__chip-icon {
+    width: 40px;
+    height: 40px;
+    grid-row: auto;
+  }
+
+  .web-preview__chip-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .web-preview__chips dd {
+    display: none;
   }
 }
 
@@ -143,20 +181,11 @@ const { t } = useI18n();
 
   .web-preview__chips {
     --web-chip-scale: 1;
-    max-width: 100%;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    justify-content: center;
-    justify-items: center;
     gap: 8px;
   }
 
   .web-preview__chip {
-    width: 100%;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
-    justify-items: center;
     row-gap: 8px;
-    text-align: center;
   }
 
   .web-preview__chip-icon {
@@ -174,10 +203,6 @@ const { t } = useI18n();
     font-size: 13px;
     line-height: 1.18;
     white-space: normal;
-  }
-
-  .web-preview__chips dd {
-    display: none;
   }
 }
 </style>

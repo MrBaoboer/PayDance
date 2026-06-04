@@ -1,0 +1,32 @@
+# Tauri/Wry upstream advisories currently inherited through the cross-platform
+# dependency graph. PayDance only ships Windows 11 desktop builds today; these
+# IDs are tracked here so cargo audit remains quiet while new advisories still
+# surface normally.
+
+[advisories]
+ignore = [
+  # proc-macro-error is pulled by gtk/glib macros through the Linux WebKit stack.
+  "RUSTSEC-2024-0370",
+
+  # gtk-rs GTK3 bindings are unmaintained upstream and enter through Wry/Tao.
+  "RUSTSEC-2024-0411",
+  "RUSTSEC-2024-0412",
+  "RUSTSEC-2024-0413",
+  "RUSTSEC-2024-0414",
+  "RUSTSEC-2024-0415",
+  "RUSTSEC-2024-0416",
+  "RUSTSEC-2024-0417",
+  "RUSTSEC-2024-0418",
+  "RUSTSEC-2024-0419",
+  "RUSTSEC-2024-0420",
+
+  # glib 0.18 remains in the same Linux WebKit dependency path.
+  "RUSTSEC-2024-0429",
+
+  # unic 0.9 crates are pulled by tauri-utils through urlpattern.
+  "RUSTSEC-2025-0075",
+  "RUSTSEC-2025-0080",
+  "RUSTSEC-2025-0081",
+  "RUSTSEC-2025-0098",
+  "RUSTSEC-2025-0100",
+]

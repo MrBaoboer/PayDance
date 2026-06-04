@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
-import { ref } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import productLogoUrl from "../../../src-tauri/icons/icon.png";
 import { detectLocale, provideI18n, type Locale } from "../../composables/useI18n";
 import {
@@ -24,12 +24,25 @@ const savedLocale =
   typeof localStorage !== "undefined"
     ? localStorage.getItem("paydance-web-locale")
     : null;
-const locale = ref<Locale>(detectLocale(savedLocale));
-provideI18n(locale, (next) => {
+const initialLocale = ref<Locale>(detectLocale(savedLocale));
+const { locale } = provideI18n(initialLocale, (next) => {
   localStorage.setItem("paydance-web-locale", next);
+  document.documentElement.lang = next;
 });
 
 const shellClass = ref("theme-light");
+const documentScrollClass = "is-web-preview-page";
+
+const toggleDocumentScroll = (enabled: boolean) => {
+  document.documentElement.classList.toggle(documentScrollClass, enabled);
+  document.body.classList.toggle(documentScrollClass, enabled);
+};
+
+onMounted(() => {
+  document.documentElement.lang = locale.value;
+  toggleDocumentScroll(true);
+});
+onBeforeUnmount(() => toggleDocumentScroll(false));
 </script>
 
 <template>

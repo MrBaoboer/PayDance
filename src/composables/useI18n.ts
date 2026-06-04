@@ -93,12 +93,13 @@ export function provideI18n(
   savedLocale: Ref<Locale>,
   onChange?: (locale: Locale) => void,
 ) {
-  const locale = ref<Locale>(detectLocale(savedLocale.value));
+  const locale = savedLocale;
   const t = computed(() => createT(locale));
 
   const setLocale = (next: Locale) => {
-    locale.value = next;
-    onChange?.(next);
+    const detectedLocale = detectLocale(next);
+    locale.value = detectedLocale;
+    onChange?.(detectedLocale);
   };
 
   const ctx = { locale, t, setLocale };

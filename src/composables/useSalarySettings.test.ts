@@ -61,7 +61,7 @@ describe("useSalarySettings", () => {
     storeMocks.get.mockResolvedValue(undefined);
     storeMocks.save.mockRejectedValue(new Error("disk unavailable"));
 
-    const { isSettingsReady, loadSettings, saveSettings } =
+    const { isSettingsReady, loadSettings, saveSettings, settingsSaveError } =
       await import("./useSalarySettings").then((module) =>
         module.useSalarySettings(createMockStore),
       );
@@ -77,6 +77,7 @@ describe("useSalarySettings", () => {
       }),
     ).resolves.toBeUndefined();
     expect(isSettingsReady.value).toBe(true);
+    expect(settingsSaveError.value).toBe("settings.saveFailed");
   });
 
   it("does not persist invalid salary settings while preserving UI preferences", async () => {

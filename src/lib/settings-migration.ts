@@ -5,9 +5,13 @@
 
 import { defaultSalaryConfig, type SalaryConfig, type SalaryType } from "./salary";
 
-export const settingsSchemaVersion = 3;
+export const settingsSchemaVersion = 4;
 
 type PersistedSalaryConfig = Partial<SalaryConfig> | undefined;
+type VersionedSalaryConfigInput = {
+  config: unknown;
+  schemaVersion: number | undefined;
+};
 
 const defaultWorkdays = defaultSalaryConfig.workdays;
 const salaryTypes: SalaryType[] = ["monthly", "daily", "hourly"];
@@ -32,7 +36,20 @@ const normalizeWorkdays = (workdays: unknown) => {
   return uniqueWorkdays.sort((a, b) => a - b);
 };
 
-export function migrateSalaryConfig(savedConfig: PersistedSalaryConfig): SalaryConfig {
+const asPartialConfig = (value: unknown): PersistedSalaryConfig =>
+  value && typeof value === "object" ? (value as PersistedSalaryConfig) : undefined;
+
+const migrateV1ToV2 = (value: unknown) => asPartialConfig(value);
+const migrateV2ToV3 = (value: unknown) => asPartialConfig(value);
+const migrateV3ToV4 = (value: unknown) => asPartialConfig(value);
+
+export const settingsMigrations: Record<number, (value: unknown) => unknown> = {
+  1: migrateV1ToV2,
+  2: migrateV2ToV3,
+  3: migrateV3ToV4,
+};
+
+function normalizeSalaryConfig(savedConfig: PersistedSalaryConfig): SalaryConfig {
   const salaryType = isSalaryType(savedConfig?.salaryType)
     ? savedConfig.salaryType
     : defaultSalaryConfig.salaryType;
@@ -55,6 +72,43 @@ export function migrateSalaryConfig(savedConfig: PersistedSalaryConfig): SalaryC
       : defaultSalaryConfig.workDaysPerMonth,
     workdays: normalizeWorkdays(savedConfig?.workdays),
   };
+}
+
+export function migrateVersionedSalaryConfig({
+  config,
+  schemaVersion,
+}: VersionedSalaryConfigInput): SalaryConfig {
+  if (
+    typeof schemaVersion === "number" &&
+    Number.isFinite(schemaVersion) &&
+    schemaVersion > settingsSchemaVersion
+  ) {
+    return normalizeSalaryConfig(undefined);
+  }
+
+  let migratedConfig: unknown = config;
+  let currentVersion =
+    typeof schemaVersion === "number" && Number.isFinite(schemaVersion)
+      ? Math.max(1, Math.floor(schemaVersion))
+      : 1;
+
+  while (currentVersion < settingsSchemaVersion) {
+    const migrate = settingsMigrations[currentVersion];
+    migratedConfig = migrate ? migrate(migratedConfig) : migratedConfig;
+    currentVersion += 1;
+  }
+
+  return normalizeSalaryConfig(asPartialConfig(migratedConfig));
+}
+
+export function migrateSalaryConfig(
+  savedConfig: PersistedSalaryConfig,
+  savedSettingsVersion?: number,
+): SalaryConfig {
+  return migrateVersionedSalaryConfig({
+    config: savedConfig,
+    schemaVersion: savedSettingsVersion,
+  });
 }
 
 export function resolveOnboardingState(

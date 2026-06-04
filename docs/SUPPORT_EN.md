@@ -1,0 +1,42 @@
+# Getting Help
+
+> [中文版 →](SUPPORT.md)
+
+When something feels off, use the paths below to decide whether you need a document, an Issue, or a private security report.
+
+## Start here
+
+- Product overview, downloads, and privacy boundaries: [README.md](../README.md)
+- Version history: [CHANGELOG.md](../CHANGELOG.md)
+- Product scope and non-goals: [PRODUCT.md](PRODUCT.md)
+- Development and PR workflow: [Contributing Guide](../.github/CONTRIBUTING.md)
+
+## Usage Questions
+
+If you only want to confirm how a feature should work, search [GitHub Issues](https://github.com/MasterBao66/PayDance/issues) first. If there is no related discussion, open a regular Issue with your use case and expected outcome.
+
+## Bug Reports
+
+Please use the Bug Report form when possible, and include:
+
+- Application version, for example `v0.9.4`
+- System environment, for example Windows 11 23H2
+- Stable reproduction steps, or the approximate trigger
+- Expected behavior and actual behavior
+- Screenshots, recordings, or error snippets
+
+Do not publicly paste salary data, configuration files, private keys, or any personal sensitive information.
+
+## Feature Requests
+
+PayDance is centered on one idea: a lightweight, local-first, low-distraction real-time desktop wage board. When suggesting a feature, explain the concrete scenario it solves and why it supports that core experience. For platform-adaptation suggestions, include the target system, validation approach, and maintenance scope you can support.
+
+Keyboard shortcuts, reminders, historical charts, attendance tracking, accounts, and cloud sync are currently outside the product boundary. Related ideas can still be discussed, but they need to explain why they would not make PayDance heavier.
+
+## Security Vulnerabilities
+
+Do not report security vulnerabilities through public Issues. Follow the private reporting process in [SECURITY.md](../.github/SECURITY.md).
+
+## Contact
+
+PayDance is independently developed and maintained by Mr.Baoboer. Contact via the email listed on the [author's GitHub profile](https://github.com/MasterBao66), or @-mention the author in a related Issue.
