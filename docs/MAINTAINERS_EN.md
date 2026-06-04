@@ -13,7 +13,7 @@ PayDance is currently maintained by one person.
 
 - Security reports: handled according to the [Security Policy](SECURITY_EN.md).
 - Reproducible bugs: usually reviewed before feature requests.
-- Pull requests: prioritized when they are scoped, verified, and aligned with [Product Boundaries](PRODUCT.md).
+- Pull requests: prioritized when they are scoped, verified, and aligned with [Product Boundaries](PRODUCT_EN.md).
 - First contributions: start with `good first issue` or `help wanted` when available.
 
 There is no fixed response-time promise. This is a solo-maintained project, so response quality and release quality come first.
