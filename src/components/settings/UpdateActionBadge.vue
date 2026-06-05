@@ -62,8 +62,6 @@ const downloadUpdate = async () => {
 
 <style scoped>
 .update-badge {
-  position: relative;
-  top: 1px;
   display: inline-block;
   margin-left: 4px;
   color: var(--income-accent);
@@ -75,8 +73,6 @@ const downloadUpdate = async () => {
 }
 
 .update-badge-button {
-  position: relative;
-  top: 1px;
   display: inline-flex;
   width: 18px;
   height: 18px;
