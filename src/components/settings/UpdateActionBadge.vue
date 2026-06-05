@@ -62,10 +62,12 @@ const downloadUpdate = async () => {
 
 <style scoped>
 .update-badge {
-  display: inline;
+  position: relative;
+  top: 1px;
+  display: inline-block;
   margin-left: 4px;
   color: var(--income-accent);
-  vertical-align: text-bottom;
+  vertical-align: middle;
 }
 
 .update-badge--spinning {
@@ -73,18 +75,21 @@ const downloadUpdate = async () => {
 }
 
 .update-badge-button {
-  display: inline-grid;
+  position: relative;
+  top: 1px;
+  display: inline-flex;
   width: 18px;
   height: 18px;
+  align-items: center;
+  justify-content: center;
   margin-left: 4px;
-  place-items: center;
   border: 0;
   border-radius: 999px;
   background: transparent;
   padding: 0;
   color: var(--income-accent);
   cursor: pointer;
-  vertical-align: text-bottom;
+  vertical-align: middle;
   transition:
     color 160ms ease,
     transform 160ms ease;
