@@ -5,7 +5,6 @@
 
 export const trayEventNames = {
   openSettings: "tray-open-settings",
-  resetWindowPosition: "tray-reset-window-position",
   toggleAlwaysOnTop: "tray-toggle-always-on-top",
   toggleMiniMode: "tray-toggle-mini-mode",
 } as const;

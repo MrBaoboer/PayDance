@@ -117,7 +117,7 @@ gh auth login
 - 你同意你的贡献以 AGPL-3.0-only 及本项目附加条款并入项目；
 - 提交时包含 `Signed-off-by:` 行（DCO），确认你的贡献来源合法。
 
-> 项目目前为单人开发。普通贡献会按上述开源许可进入项目；如果维护者需要将某项贡献纳入商业授权、OEM 或白标授权范围，会在合并前请你签署 [贡献者许可协议（CLA）](../legal/CLA.md)。仅提交 Issue、建议或安全报告无需签署 CLA。
+> 项目目前为单人开发。普通贡献会按上述开源许可进入项目；如果维护者需要将某项贡献纳入商业授权、OEM 或白标授权范围，会在合并前请你签署 [贡献者许可协议（CLA）](https://github.com/MasterBao66/PayDance/blob/main/legal/CLA.md)。仅提交 Issue、建议或安全报告无需签署 CLA。
 
 详见 `LICENSE`、`legal/ADDITIONAL_TERMS.md`、`legal/TRADEMARK.md` 和 `legal/BRAND-ASSETS.md`。
 

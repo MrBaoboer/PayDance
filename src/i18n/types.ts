@@ -122,9 +122,6 @@ export interface Messages {
   "onboarding.back": string;
   "onboarding.next": string;
   "onboarding.start": string;
-  "onboardingPreview.today": string;
-  "onboardingPreview.perMinute": string;
-  "onboardingPreview.lunchPaused": string;
 
   // ── Onboarding → preferences ───────────────────────────────────────────
   "preferences.language": string;

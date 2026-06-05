@@ -14,7 +14,6 @@ import { getOnboardingStepIssues } from "../lib/onboarding-validation";
 import type { ResizeDirection } from "../lib/resize-handles";
 import { useI18n } from "../composables/useI18n";
 import ResizeHandles from "./onboarding/ResizeHandles.vue";
-import OnboardingPreview from "./onboarding/OnboardingPreview.vue";
 import StepPreferences from "./onboarding/StepPreferences.vue";
 import StepSalaryMode from "./onboarding/StepSalaryMode.vue";
 import StepWorkTime from "./onboarding/StepWorkTime.vue";
@@ -120,8 +119,6 @@ const goBack = () => {
       <div v-if="firstIssue" class="onboarding-alert">
         {{ firstIssue }}
       </div>
-
-      <OnboardingPreview :config="config" />
 
       <footer class="onboarding-footer">
         <button

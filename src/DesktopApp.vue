@@ -197,13 +197,12 @@ const startResize = async (direction: ResizeDirection) => {
   await appWindow.startResizeDragging(direction);
 };
 
-const { resetWindowPosition, restoreWindowPosition } = useWindowPositionRecovery({
+const { restoreWindowPosition } = useWindowPositionRecovery({
   appWindow,
   fullSize,
   isMiniMode,
   mainPosition,
   miniSize,
-  saveStateNow,
 });
 
 const { clearWindowLifecycleTimers, registerWindowLifecycle } = useAppWindowLifecycle(
@@ -241,7 +240,12 @@ onMounted(async () => {
 
   unlisteners.push(
     await appWindow.listen("before-app-exit", async () => {
-      await saveStateNow();
+      try {
+        await saveStateNow();
+      } finally {
+        const { exit } = await import("@tauri-apps/plugin-process");
+        await exit(0);
+      }
     }),
     await appWindow.onMoved(() => {
       void appWindow.outerPosition().then((pos) => {
@@ -252,7 +256,6 @@ onMounted(async () => {
     ...(await registerWindowLifecycle()),
     ...(await registerTrayActions(appWindow, {
       openSettings,
-      resetWindowPosition,
       toggleAlwaysOnTop,
       toggleMiniMode,
     })),

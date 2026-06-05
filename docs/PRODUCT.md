@@ -1,5 +1,7 @@
 # PRODUCT
 
+> [English version →](PRODUCT_EN.md)
+
 本文固定薪跳 PayDance 的产品定位、能力边界和取舍原则，避免后续版本偏离“桌面实时工资看板”这一核心体验。
 
 ## 一句话定位

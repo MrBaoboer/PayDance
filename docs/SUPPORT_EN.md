@@ -6,10 +6,11 @@ When something feels off, use the paths below to decide whether you need a docum
 
 ## Start here
 
-- Product overview, downloads, and privacy boundaries: [README.md](../README.md)
-- Version history: [CHANGELOG.md](../CHANGELOG.md)
-- Product scope and non-goals: [PRODUCT.md](PRODUCT.md)
-- Development and PR workflow: [Contributing Guide](../.github/CONTRIBUTING.md)
+- Product overview, downloads, and privacy boundaries: [README_EN.md](README_EN.md)
+- Common usage, privacy, licensing, and contribution questions: [FAQ_EN.md](FAQ_EN.md)
+- Version history: [CHANGELOG_EN.md](../CHANGELOG_EN.md)
+- Product scope and non-goals: [PRODUCT_EN.md](PRODUCT_EN.md)
+- Development and PR workflow: [Contributing Guide](CONTRIBUTING_EN.md)
 
 ## Usage Questions
 
@@ -35,7 +36,7 @@ Keyboard shortcuts, reminders, historical charts, attendance tracking, accounts,
 
 ## Security Vulnerabilities
 
-Do not report security vulnerabilities through public Issues. Follow the private reporting process in [SECURITY.md](../.github/SECURITY.md).
+Do not report security vulnerabilities through public Issues. Follow the private reporting process in [SECURITY_EN.md](SECURITY_EN.md).
 
 ## Contact
 

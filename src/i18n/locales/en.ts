@@ -118,9 +118,6 @@ const en: Messages = {
   "onboarding.back": "Back",
   "onboarding.next": "Next",
   "onboarding.start": "Start",
-  "onboardingPreview.today": "Today",
-  "onboardingPreview.perMinute": "Per minute",
-  "onboardingPreview.lunchPaused": "Earnings pause during lunch break",
 
   // ── Onboarding → preferences ───────────────────────────────────────────
   "preferences.language": "Language",

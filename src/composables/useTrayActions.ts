@@ -18,7 +18,6 @@ export async function registerTrayActions(
   appWindow: TrayEventWindow,
   actions: {
     openSettings: () => Promise<void> | void;
-    resetWindowPosition: () => Promise<void> | void;
     toggleAlwaysOnTop: () => Promise<void> | void;
     toggleMiniMode: () => Promise<void> | void;
   },
@@ -28,12 +27,6 @@ export async function registerTrayActions(
   unlisteners.push(
     await appWindow.listen(trayEventNames.openSettings, () => {
       void actions.openSettings();
-    }),
-  );
-
-  unlisteners.push(
-    await appWindow.listen(trayEventNames.resetWindowPosition, () => {
-      void actions.resetWindowPosition();
     }),
   );
 

@@ -65,7 +65,7 @@ gh auth login
 
 ## What We Welcome
 
-All contributions should align with the product boundaries in [PRODUCT.md](PRODUCT.md).
+All contributions should align with the product boundaries in [PRODUCT_EN.md](PRODUCT_EN.md).
 
 - Bug fixes with reproduction steps
 - Desktop reliability improvements: window management, tray, autostart, single instance
@@ -94,7 +94,7 @@ These boundaries keep the product light, stable, and trustworthy. If you are uns
 1. **One change per PR.** Do not mix a bug fix, refactor, and documentation sweep.
 2. **Write tests.** New behavior needs test coverage; bug fixes should include a regression test.
 3. **Follow existing code style.** Prefer established patterns in the codebase.
-4. **Update CHANGELOG.md** under the `## Unreleased` section; for internal verification or tiny doc polish, explain why it is not applicable.
+4. **Update [CHANGELOG.md](../CHANGELOG.md) and [CHANGELOG_EN.md](../CHANGELOG_EN.md)** under the `## Unreleased` section; for internal verification or tiny doc polish, explain why it is not applicable.
 5. **Screenshots are required for UI changes**, covering at least light/dark mode and Chinese/English.
 6. **Platform adaptations must describe their validation boundary**, including target OS, build command, manual smoke items, update endpoint, and brand-distinction approach.
 7. **Use conventional commits:** `feat:`, `fix:`, `docs:`, `test:`, `chore:`, `refactor:`.
@@ -109,7 +109,7 @@ PayDance follows [Semantic Versioning](https://semver.org/). Release versions ar
 
 ## License
 
-The project code is released under [AGPL-3.0-only](../LICENSE) with [additional terms under AGPL Section 7](../legal/ADDITIONAL_TERMS.md).
+The project code is released under [AGPL-3.0-only](../LICENSE) with [additional terms under AGPL Section 7](../legal/ADDITIONAL_TERMS_EN.md).
 
 By submitting a code contribution, you confirm that:
 
@@ -117,9 +117,9 @@ By submitting a code contribution, you confirm that:
 - You agree that your contribution is incorporated into the project under AGPL-3.0-only and the project's additional terms;
 - You include a `Signed-off-by:` line (DCO) with your submission, confirming its lawful origin.
 
-> The project is currently a solo effort. Ordinary contributions enter the project under the open-source terms above. If the maintainer needs to include a contribution in commercial, OEM, or white-label licensing, the contributor will be asked to explicitly sign the [Contributor License Agreement (CLA)](../legal/CLA.md) before merge. Opening an Issue, suggestion, or security report does not require the CLA.
+> The project is currently a solo effort. Ordinary contributions enter the project under the open-source terms above. If the maintainer needs to include a contribution in commercial, OEM, or white-label licensing, the contributor will be asked to explicitly sign the [Contributor License Agreement (CLA)](../legal/CLA_EN.md) before merge. Opening an Issue, suggestion, or security report does not require the CLA.
 
-See `LICENSE`, `legal/ADDITIONAL_TERMS.md`, `legal/TRADEMARK.md`, and `legal/BRAND-ASSETS.md` for details.
+See [LICENSE](../LICENSE), [ADDITIONAL_TERMS_EN.md](../legal/ADDITIONAL_TERMS_EN.md), [TRADEMARK_EN.md](../legal/TRADEMARK_EN.md), and [BRAND-ASSETS_EN.md](../legal/BRAND-ASSETS_EN.md) for details.
 
 ## Maintenance and Governance
 

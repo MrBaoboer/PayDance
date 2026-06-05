@@ -38,9 +38,11 @@ function isLightweightFile(file) {
     file.startsWith("docs/") ||
     file.startsWith("legal/") ||
     file.startsWith("marketing-posters/") ||
+    file === ".github/CONTRIBUTING.md" ||
     file === ".github/ISSUE_TEMPLATE.md" ||
     file.startsWith(".github/ISSUE_TEMPLATE/") ||
-    file === ".github/PULL_REQUEST_TEMPLATE.md"
+    file === ".github/PULL_REQUEST_TEMPLATE.md" ||
+    file === ".github/SECURITY.md"
   );
 }
 

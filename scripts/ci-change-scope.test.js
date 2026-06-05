@@ -41,8 +41,10 @@ describe("CI change scope", () => {
       "docs/web-preview-qa.md",
       "legal/ADDITIONAL_TERMS.md",
       "marketing-posters/poster.png",
+      ".github/CONTRIBUTING.md",
       ".github/ISSUE_TEMPLATE/bug_report.yml",
       ".github/PULL_REQUEST_TEMPLATE.md",
+      ".github/SECURITY.md",
     ]);
 
     expect(result.scope).toBe("lightweight");

@@ -7,6 +7,7 @@
 ## 先看哪里
 
 - 想了解产品、下载地址和隐私边界：看 [README.md](../README.md)
+- 想快速确认常见使用、隐私、许可和贡献问题：看 [FAQ.md](FAQ.md)
 - 想确认某个版本改了什么：看 [CHANGELOG.md](../CHANGELOG.md)
 - 想理解哪些功能会做、哪些不会做：看 [PRODUCT.md](PRODUCT.md)
 - 想参与开发或提交 PR：看 [贡献指南](../.github/CONTRIBUTING.md)

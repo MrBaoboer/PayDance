@@ -4,6 +4,7 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 import { describe, expect, it } from "vitest";
+import updaterSource from "./updater.ts?raw";
 import { classifyUpdateError } from "./updater";
 
 describe("updater error classification", () => {
@@ -35,5 +36,13 @@ describe("updater error classification", () => {
       message: "network timeout",
       reason: "network",
     });
+  });
+
+  it("uses the PayDance portable updater instead of executing the exe as an installer", () => {
+    expect(updaterSource).toContain(
+      'invoke<PortableUpdateResult>("install_portable_update")',
+    );
+    expect(updaterSource).not.toContain("update.downloadAndInstall");
+    expect(updaterSource).not.toContain("@tauri-apps/plugin-process");
   });
 });

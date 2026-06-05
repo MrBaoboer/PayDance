@@ -111,6 +111,23 @@ describe("settings panel", () => {
     expect(updateActionBadgeSource).not.toContain('@click.stop="downloadUpdate"');
   });
 
+  it("keeps the update badge visually centered with the version text", () => {
+    expect(settingsPanelSource).toContain("about-footer__version-line");
+    expect(settingsPanelSource).toContain("display: inline-flex");
+    expect(settingsPanelSource).toContain("align-items: center");
+    expect(settingsPanelSource).toContain("gap: 3px");
+    expect(updateActionBadgeSource).toContain("display: inline-flex");
+    expect(updateActionBadgeSource).toContain("vertical-align: middle");
+    expect(updateActionBadgeSource).toContain("transform: translateX(-1px)");
+    expect(updateActionBadgeSource).toContain("inset-block-start: 0");
+    expect(updateActionBadgeSource).toContain("inset-inline-start: -1px");
+    expect(updateActionBadgeSource).toContain("margin-left: 0");
+    expect(updateActionBadgeSource).not.toContain("translate(-1px, -1px)");
+    expect(updateActionBadgeSource).not.toContain("top: 1px");
+    expect(updateActionBadgeSource).not.toContain("vertical-align: text-bottom");
+    expect(updateActionBadgeSource).not.toContain("place-items: center");
+  });
+
   it("keeps the attribution footer balanced in narrow settings sheets", () => {
     expect(settingsPanelSource).toContain("grid-template-columns: minmax(0, 1fr) auto");
     expect(settingsPanelSource).toContain("min-width: clamp(96px, 20cqw, 112px)");

@@ -1,5 +1,5 @@
-name: Bug 反馈
-description: 反馈薪跳 PayDance 的异常、崩溃、显示错位或体验问题
+name: Bug 反馈 / Bug Report
+description: 反馈薪跳 PayDance 的异常、崩溃、显示错位或体验问题 / Report errors, crashes, layout issues, or UX problems
 title: "[Bug] "
 labels: ["bug"]
 body:
@@ -7,67 +7,69 @@ body:
     attributes:
       value: |
         感谢反馈。请尽量写清楚复现路径，这能让问题更快被确认和修复。
+        Thanks for reporting a bug. Please describe the reproduction path as clearly as possible so the issue can be confirmed and fixed faster.
 
         请不要公开粘贴薪资数据、配置文件、私钥或任何个人敏感信息。
+        Do not publicly paste salary data, config files, private keys, or personal sensitive information.
   - type: textarea
     id: summary
     attributes:
-      label: 问题描述
-      description: 请用几句话说明发生了什么，以及你原本期待它怎样工作。
-      placeholder: 例如：切换到迷你悬浮模式后，透明度面板位置不对齐。
+      label: 问题描述 / Summary
+      description: 请用几句话说明发生了什么，以及你原本期待它怎样工作。 / Briefly explain what happened and what you expected.
+      placeholder: 例如：切换到迷你悬浮模式后，透明度面板位置不对齐。 / Example: The opacity panel is misaligned after switching to mini floating mode.
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: 复现步骤
-      description: 请列出稳定复现问题的步骤；如果不能稳定复现，也请说明大概触发场景。
+      label: 复现步骤 / Reproduction Steps
+      description: 请列出稳定复现问题的步骤；如果不能稳定复现，也请说明大概触发场景。 / List stable reproduction steps, or describe the approximate trigger if it is intermittent.
       placeholder: |
-        1. 打开应用
-        2. 进入设置中心
-        3. 修改 ...
-        4. 观察到 ...
+        1. 打开应用 / Open the app
+        2. 进入设置中心 / Open Settings
+        3. 修改 ... / Change ...
+        4. 观察到 ... / Observe ...
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: 期望结果
-      description: 你认为正确的表现应该是什么？
+      label: 期望结果 / Expected Result
+      description: 你认为正确的表现应该是什么？ / What behavior did you expect?
     validations:
       required: true
   - type: textarea
     id: actual
     attributes:
-      label: 实际结果
-      description: 请描述实际表现；如有截图、录屏或报错信息，可以放在这里。
+      label: 实际结果 / Actual Result
+      description: 请描述实际表现；如有截图、录屏或报错信息，可以放在这里。 / Describe what actually happened. Add screenshots, recordings, or error messages if available.
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: 应用版本
+      label: 应用版本 / App Version
       placeholder: v0.9.4
     validations:
       required: true
   - type: dropdown
     id: surface
     attributes:
-      label: 发生位置
+      label: 发生位置 / Surface
       options:
-        - Windows 桌面端
+        - Windows 桌面端 / Windows desktop app
         - Web Preview
-        - 构建或开发环境
-        - 文档或发布资产
+        - 构建或开发环境 / Build or development environment
+        - 文档或发布资产 / Documentation or release assets
     validations:
       required: true
   - type: input
     id: system
     attributes:
-      label: 系统环境
-      placeholder: Windows 11 23H2 / Edge 版本号 / Node.js 版本号
+      label: 系统环境 / System Environment
+      placeholder: Windows 11 23H2 / Edge version / Node.js version
   - type: textarea
     id: extra
     attributes:
-      label: 补充信息
-      description: 可以写下你已经尝试过的排查方式、相关日志片段，或这个问题对你使用的影响。
+      label: 补充信息 / Additional Context
+      description: 可以写下你已经尝试过的排查方式、相关日志片段，或这个问题对你使用的影响。 / Include troubleshooting attempts, relevant log snippets, or the impact on your workflow.

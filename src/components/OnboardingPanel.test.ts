@@ -6,7 +6,6 @@
 import { describe, expect, it } from "vitest";
 import onboardingPanelSource from "./OnboardingPanel.vue?raw";
 import stepPreferencesSource from "./onboarding/StepPreferences.vue?raw";
-import onboardingPreviewSource from "./onboarding/OnboardingPreview.vue?raw";
 import stepWorkTimeSource from "./onboarding/StepWorkTime.vue?raw";
 import lunchBreakFieldsSource from "./settings/LunchBreakFields.vue?raw";
 import salaryAmountFieldsSource from "./settings/SalaryAmountFields.vue?raw";
@@ -56,13 +55,5 @@ describe("onboarding panel", () => {
         expect(source).toContain("font-weight: var(--field-value-weight)");
       },
     );
-  });
-
-  it("shows a live salary preview during first-run setup", () => {
-    expect(onboardingPanelSource).toContain("<OnboardingPreview");
-    expect(onboardingPanelSource).toContain(':config="config"');
-    expect(onboardingPreviewSource).toContain("calculateSalarySnapshot");
-    expect(onboardingPreviewSource).toContain('t("onboardingPreview.today")');
-    expect(onboardingPreviewSource).toContain('t("onboardingPreview.perMinute")');
   });
 });

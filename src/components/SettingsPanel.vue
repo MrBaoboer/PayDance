@@ -210,8 +210,10 @@ const openRepository = async () => {
     <footer class="about-footer" :aria-label="t('about.openRepo')">
       <div class="about-footer__identity">
         <strong>{{ appName }} {{ appEnglishName }}</strong>
-        <span>
-          {{ t("about.appVersion") }}：{{ appVersion }}
+        <span class="about-footer__version-line">
+          <span class="about-footer__version-text"
+            >{{ t("about.appVersion") }}：{{ appVersion }}</span
+          >
           <UpdateActionBadge :update-status="updateStatus" />
         </span>
         <span>{{ t("about.appAuthor") }}：{{ appAuthor }}</span>
@@ -324,6 +326,16 @@ const openRepository = async () => {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.about-footer__version-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.about-footer__version-text {
+  min-width: 0;
 }
 
 .about-footer__copyright--centered {

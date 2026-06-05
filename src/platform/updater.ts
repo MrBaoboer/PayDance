@@ -27,6 +27,8 @@ export type UpdaterStatus =
 const errorMessageFrom = (error: unknown) =>
   error instanceof Error ? error.message : "Unknown update error";
 
+type PortableUpdateResult = { kind: "upToDate" } | { kind: "ready"; version: string };
+
 export function classifyUpdateError(
   error: unknown,
   isProductionBuild: boolean,
@@ -94,16 +96,8 @@ export async function downloadAndInstall(): Promise<UpdaterStatus> {
   }
 
   try {
-    const { check } = await import("@tauri-apps/plugin-updater");
-    const { relaunch } = await import("@tauri-apps/plugin-process");
-
-    const update = await check();
-    if (!update) return { kind: "upToDate" };
-
-    await update.downloadAndInstall();
-    await relaunch();
-
-    return { kind: "ready", version: update.version };
+    const { invoke } = await import("@tauri-apps/api/core");
+    return await invoke<PortableUpdateResult>("install_portable_update");
   } catch (error) {
     console.error("Update download failed:", error);
     return classifyUpdateError(error, import.meta.env.PROD);

@@ -77,9 +77,22 @@ describe("app chrome", () => {
     expect(windowStatePersistenceSource).toContain("defaultWindowPreferences");
   });
 
-  it("can reset a restored window position from the tray", () => {
+  it("flushes pending state and exits from the frontend when tray quit is requested", () => {
+    const exitListener = desktopAppSource.slice(
+      desktopAppSource.indexOf('appWindow.listen("before-app-exit"'),
+      desktopAppSource.indexOf(
+        "await appWindow.onMoved",
+        desktopAppSource.indexOf('appWindow.listen("before-app-exit"'),
+      ),
+    );
+
+    expect(exitListener).toContain('await import("@tauri-apps/plugin-process")');
+    expect(exitListener).toContain("await saveStateNow()");
+    expect(exitListener).toContain("await exit(0)");
+  });
+
+  it("can restore a saved window position from the tray", () => {
     expect(desktopAppSource).toContain("useWindowPositionRecovery");
-    expect(desktopAppSource).toContain("resetWindowPosition");
     expect(desktopAppSource).toContain("restoreWindowPosition");
     expect(windowPositionRecoverySource).toContain("availableMonitors");
     expect(windowPositionRecoverySource).toContain("resolveVisibleWindowPosition");

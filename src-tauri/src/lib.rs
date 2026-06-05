@@ -3,20 +3,33 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
-use std::sync::Mutex;
+#[cfg(windows)]
+use std::os::windows::process::CommandExt;
+use std::{
+    fs,
+    path::{Path, PathBuf},
+    process::Command,
+    sync::Mutex,
+};
 use tauri::{
     menu::MenuBuilder,
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     AppHandle, Emitter, Listener, Manager, WebviewWindow,
 };
+use tauri_plugin_updater::UpdaterExt;
 
 const TRAY_OPEN_SETTINGS_EVENT: &str = "tray-open-settings";
-const TRAY_RESET_WINDOW_POSITION_EVENT: &str = "tray-reset-window-position";
 const TRAY_TOGGLE_ALWAYS_ON_TOP_EVENT: &str = "tray-toggle-always-on-top";
 const TRAY_TOGGLE_MINI_MODE_EVENT: &str = "tray-toggle-mini-mode";
 
 struct TrayState {
     handle: Mutex<Option<tauri::tray::TrayIcon>>,
+}
+
+#[derive(serde::Serialize)]
+#[serde(tag = "kind", rename_all = "camelCase")]
+enum PortableUpdateResult {
+    UpToDate,
 }
 
 fn tray_menu_labels(
@@ -27,26 +40,11 @@ fn tray_menu_labels(
     &'static str,
     &'static str,
     &'static str,
-    &'static str,
 ) {
     if use_en {
-        (
-            "Open",
-            "Settings",
-            "Mini Mode",
-            "Reset Position",
-            "Always on Top",
-            "Quit",
-        )
+        ("Open", "Settings", "Mini Mode", "Always on Top", "Quit")
     } else {
-        (
-            "打开主界面",
-            "打开设置",
-            "切换迷你模式",
-            "重置窗口位置",
-            "切换置顶",
-            "退出",
-        )
+        ("打开主界面", "打开设置", "切换迷你模式", "切换置顶", "退出")
     }
 }
 
@@ -62,12 +60,11 @@ fn build_tray_menu(
     app: &AppHandle,
     use_en: bool,
 ) -> Result<tauri::menu::Menu<tauri::Wry>, tauri::Error> {
-    let (show, settings, toggle_mini, reset_position, toggle_top, quit) = tray_menu_labels(use_en);
+    let (show, settings, toggle_mini, toggle_top, quit) = tray_menu_labels(use_en);
     MenuBuilder::new(app)
         .text("show", show)
         .text("settings", settings)
         .text("toggle_mini", toggle_mini)
-        .text("reset_position", reset_position)
         .separator()
         .text("toggle_top", toggle_top)
         .text("quit", quit)
@@ -77,6 +74,152 @@ fn build_tray_menu(
 fn show_window(window: &WebviewWindow) {
     let _ = window.show();
     let _ = window.set_focus();
+}
+
+#[cfg(windows)]
+fn probe_install_dir(install_dir: &Path) -> Result<(), String> {
+    let probe_path = install_dir.join(format!(".paydance-update-probe-{}.tmp", std::process::id()));
+
+    fs::write(&probe_path, b"paydance-update-probe")
+        .map_err(|error| format!("Unable to write update probe: {error}"))?;
+    fs::remove_file(&probe_path)
+        .map_err(|error| format!("Unable to remove update probe: {error}"))?;
+
+    Ok(())
+}
+
+#[cfg(windows)]
+fn safe_update_dir(version: &str) -> PathBuf {
+    let safe_version = version
+        .chars()
+        .map(|ch| {
+            if ch.is_ascii_alphanumeric() || matches!(ch, '.' | '-' | '_') {
+                ch
+            } else {
+                '-'
+            }
+        })
+        .collect::<String>();
+
+    std::env::temp_dir().join(format!(
+        "paydance-portable-update-{}-{safe_version}",
+        std::process::id()
+    ))
+}
+
+#[cfg(windows)]
+fn portable_update_script() -> &'static str {
+    r#"
+param(
+  [Parameter(Mandatory=$true)][int]$ProcessId,
+  [Parameter(Mandatory=$true)][string]$Source,
+  [Parameter(Mandatory=$true)][string]$Destination
+)
+$ErrorActionPreference = 'Stop'
+try {
+  Wait-Process -Id $ProcessId -Timeout 30
+} catch {
+}
+for ($i = 0; $i -lt 120; $i++) {
+  try {
+    Copy-Item -LiteralPath $Source -Destination $Destination -Force
+    Start-Process -FilePath $Destination
+    Remove-Item -LiteralPath $Source -Force -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath $PSCommandPath -Force -ErrorAction SilentlyContinue
+    exit 0
+  } catch {
+    Start-Sleep -Milliseconds 250
+  }
+}
+exit 1
+"#
+}
+
+#[cfg(windows)]
+fn stage_portable_update(bytes: &[u8], version: &str) -> Result<(PathBuf, PathBuf), String> {
+    if !bytes.starts_with(b"MZ") {
+        return Err("Downloaded update is not a Windows executable.".to_string());
+    }
+
+    let current_exe =
+        std::env::current_exe().map_err(|error| format!("Unable to locate app exe: {error}"))?;
+    let install_dir = current_exe
+        .parent()
+        .ok_or_else(|| "Unable to locate app directory.".to_string())?;
+    probe_install_dir(install_dir)?;
+
+    let update_dir = safe_update_dir(version);
+    fs::create_dir_all(&update_dir)
+        .map_err(|error| format!("Unable to create update directory: {error}"))?;
+
+    let staged_exe = update_dir.join("pay-dance-update.exe");
+    let script_path = update_dir.join("apply-update.ps1");
+
+    fs::write(&staged_exe, bytes)
+        .map_err(|error| format!("Unable to stage update executable: {error}"))?;
+    fs::write(&script_path, portable_update_script())
+        .map_err(|error| format!("Unable to stage update script: {error}"))?;
+
+    Ok((staged_exe, script_path))
+}
+
+#[cfg(windows)]
+fn spawn_portable_update_helper(
+    script_path: &Path,
+    staged_exe: &Path,
+    current_exe: &Path,
+) -> Result<(), String> {
+    const CREATE_NO_WINDOW: u32 = 0x08000000;
+
+    Command::new("powershell.exe")
+        .args(["-NoProfile", "-ExecutionPolicy", "Bypass", "-File"])
+        .arg(script_path)
+        .arg("-ProcessId")
+        .arg(std::process::id().to_string())
+        .arg("-Source")
+        .arg(staged_exe)
+        .arg("-Destination")
+        .arg(current_exe)
+        .creation_flags(CREATE_NO_WINDOW)
+        .spawn()
+        .map_err(|error| format!("Unable to start update helper: {error}"))?;
+
+    Ok(())
+}
+
+#[cfg(windows)]
+#[tauri::command]
+async fn install_portable_update(app: AppHandle) -> Result<PortableUpdateResult, String> {
+    let update = app
+        .updater()
+        .map_err(|error| format!("Unable to initialize updater: {error}"))?
+        .check()
+        .await
+        .map_err(|error| format!("Unable to check update: {error}"))?;
+
+    let Some(update) = update else {
+        return Ok(PortableUpdateResult::UpToDate);
+    };
+
+    let version = update.version.clone();
+    let bytes = update
+        .download(|_, _| {}, || {})
+        .await
+        .map_err(|error| format!("Unable to download update: {error}"))?;
+
+    let current_exe =
+        std::env::current_exe().map_err(|error| format!("Unable to locate app exe: {error}"))?;
+    let (staged_exe, script_path) = stage_portable_update(&bytes, &version)?;
+    spawn_portable_update_helper(&script_path, &staged_exe, &current_exe)?;
+
+    app.cleanup_before_exit();
+    std::process::exit(0);
+}
+
+#[cfg(not(windows))]
+#[tauri::command]
+async fn install_portable_update(_app: AppHandle) -> Result<PortableUpdateResult, String> {
+    Err("Portable updates are only available on Windows.".to_string())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -100,6 +243,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_updater::Builder::new().build())
+        .invoke_handler(tauri::generate_handler![install_portable_update])
         .setup(|app| {
             // Build initial tray menu with default Chinese labels.
             // The frontend will emit "locale-changed" once it loads the saved locale.
@@ -144,22 +288,13 @@ pub fn run() {
                             show_window(&window);
                             let _ = window.emit(TRAY_TOGGLE_MINI_MODE_EVENT, ());
                         }
-                        "reset_position" => {
-                            show_window(&window);
-                            let _ = window.emit(TRAY_RESET_WINDOW_POSITION_EVENT, ());
-                        }
                         "toggle_top" => {
                             show_window(&window);
                             let _ = window.emit(TRAY_TOGGLE_ALWAYS_ON_TOP_EVENT, ());
                         }
                         "quit" => {
-                            // Emit event so the frontend can flush state before exit.
-                            let _ = app.emit("before-app-exit", ());
-                            let handle = app.clone();
-                            std::thread::spawn(move || {
-                                std::thread::sleep(std::time::Duration::from_secs(3));
-                                handle.exit(0);
-                            });
+                            let _ = window.hide();
+                            let _ = window.emit("before-app-exit", ());
                         }
                         _ => {}
                     }
