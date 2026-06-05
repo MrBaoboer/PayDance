@@ -240,7 +240,12 @@ onMounted(async () => {
 
   unlisteners.push(
     await appWindow.listen("before-app-exit", async () => {
-      await saveStateNow();
+      try {
+        await saveStateNow();
+      } finally {
+        const { exit } = await import("@tauri-apps/plugin-process");
+        await exit(0);
+      }
     }),
     await appWindow.onMoved(() => {
       void appWindow.outerPosition().then((pos) => {

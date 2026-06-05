@@ -17,6 +17,9 @@ const defaultCapability = JSON.parse(
 const miniOpacityCapability = JSON.parse(
   readFileSync(resolve(tauriDir, "capabilities", "mini-opacity.json"), "utf8"),
 );
+const desktopCapability = JSON.parse(
+  readFileSync(resolve(tauriDir, "capabilities", "desktop.json"), "utf8"),
+);
 const libRs = readFileSync(resolve(tauriDir, "src", "lib.rs"), "utf8");
 
 describe("desktop window chrome", () => {
@@ -40,6 +43,20 @@ describe("desktop window chrome", () => {
   it("names the first tray action as opening the main window", () => {
     expect(libRs).toContain("打开主界面");
     expect(libRs).toContain('.text("show"');
+  });
+
+  it("hides immediately and delegates process exit when the tray quit action is selected", () => {
+    const quitBranch = libRs.slice(
+      libRs.indexOf('"quit" => {'),
+      libRs.indexOf("_ => {}", libRs.indexOf('"quit" => {')),
+    );
+
+    expect(quitBranch).toContain("window.hide()");
+    expect(quitBranch).toContain('window.emit("before-app-exit", ())');
+    expect(quitBranch).not.toContain("std::thread::sleep");
+    expect(quitBranch).not.toContain("Duration::from_secs");
+    expect(quitBranch).not.toContain("std::thread::spawn");
+    expect(quitBranch).not.toContain("handle.exit(0)");
   });
 
   it("defines a hidden companion window for the mini opacity slider", () => {
@@ -76,6 +93,12 @@ describe("desktop window chrome", () => {
     expect(JSON.stringify(defaultCapability.permissions)).toContain(
       "opener:allow-open-url",
     );
+  });
+
+  it("allows the frontend to exit immediately after flushing tray quit state", () => {
+    expect(desktopCapability.windows).toEqual(["main"]);
+    expect(desktopCapability.permissions).toContain("process:allow-exit");
+    expect(desktopCapability.permissions).toContain("process:allow-restart");
   });
 
   it("limits the mini opacity companion window to slider-only permissions", () => {

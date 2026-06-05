@@ -6,6 +6,7 @@
     "autostart:allow-disable",
     "autostart:allow-enable",
     "autostart:allow-is-enabled",
+    "process:allow-exit",
     "process:allow-restart"
   ]
 }

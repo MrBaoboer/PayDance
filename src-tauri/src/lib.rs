@@ -132,13 +132,8 @@ pub fn run() {
                             let _ = window.emit(TRAY_TOGGLE_ALWAYS_ON_TOP_EVENT, ());
                         }
                         "quit" => {
-                            // Emit event so the frontend can flush state before exit.
-                            let _ = app.emit("before-app-exit", ());
-                            let handle = app.clone();
-                            std::thread::spawn(move || {
-                                std::thread::sleep(std::time::Duration::from_secs(3));
-                                handle.exit(0);
-                            });
+                            let _ = window.hide();
+                            let _ = window.emit("before-app-exit", ());
                         }
                         _ => {}
                     }
