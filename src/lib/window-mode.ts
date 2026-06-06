@@ -15,7 +15,10 @@ export type WindowPosition = {
   y: number;
 };
 
-export type WindowWorkArea = WindowPosition & WindowSize;
+export type WindowWorkArea = WindowPosition &
+  WindowSize & {
+    scaleFactor?: number;
+  };
 
 export const windowSettingsSchemaVersion = 2;
 export const currentSettingsSchemaVersion = windowSettingsSchemaVersion;
@@ -57,6 +60,41 @@ const defaultRestoreMargin = 16;
 const clampValue = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
+const resolveScaleFactor = (workArea: WindowWorkArea) =>
+  typeof workArea.scaleFactor === "number" &&
+  Number.isFinite(workArea.scaleFactor) &&
+  workArea.scaleFactor > 0
+    ? workArea.scaleFactor
+    : 1;
+
+const containsPoint = (workArea: WindowWorkArea, position: WindowPosition) =>
+  position.x >= workArea.x &&
+  position.x < workArea.x + workArea.width &&
+  position.y >= workArea.y &&
+  position.y < workArea.y + workArea.height;
+
+const resolveOverlapArea = (
+  workArea: WindowWorkArea,
+  position: WindowPosition,
+  size: WindowSize,
+) => {
+  const scaleFactor = resolveScaleFactor(workArea);
+  const physicalWidth = Math.round(size.width * scaleFactor);
+  const physicalHeight = Math.round(size.height * scaleFactor);
+  const overlapWidth = Math.max(
+    0,
+    Math.min(position.x + physicalWidth, workArea.x + workArea.width) -
+      Math.max(position.x, workArea.x),
+  );
+  const overlapHeight = Math.max(
+    0,
+    Math.min(position.y + physicalHeight, workArea.y + workArea.height) -
+      Math.max(position.y, workArea.y),
+  );
+
+  return overlapWidth * overlapHeight;
+};
+
 export function resolveVisibleWindowPosition({
   fallbackPosition,
   position,
@@ -75,27 +113,35 @@ export function resolveVisibleWindowPosition({
   const primaryArea = workAreas[0];
   if (!primaryArea) return position;
 
-  const isFarOutsidePrimary =
-    position.x < primaryArea.x - size.width || position.y < primaryArea.y - size.height;
-
-  if (isFarOutsidePrimary) {
-    return fallbackPosition;
-  }
-
-  const maxX = primaryArea.x + primaryArea.width - size.width - restoreMargin;
-  const maxY = primaryArea.y + primaryArea.height - size.height - restoreMargin;
+  const containingArea = workAreas.find((workArea) => containsPoint(workArea, position));
+  const overlappingAreas = workAreas
+    .map((workArea) => ({
+      overlapArea: resolveOverlapArea(workArea, position, size),
+      workArea,
+    }))
+    .filter(({ overlapArea }) => overlapArea > 0)
+    .sort((left, right) => right.overlapArea - left.overlapArea);
+  const targetArea = containingArea ?? overlappingAreas[0]?.workArea ?? primaryArea;
+  const targetPosition =
+    containingArea || overlappingAreas.length > 0 ? position : fallbackPosition;
+  const scaleFactor = resolveScaleFactor(targetArea);
+  const physicalMargin = Math.round(restoreMargin * scaleFactor);
+  const physicalWidth = Math.round(size.width * scaleFactor);
+  const physicalHeight = Math.round(size.height * scaleFactor);
+  const minX = targetArea.x + physicalMargin;
+  const minY = targetArea.y + physicalMargin;
+  const maxX = Math.max(
+    minX,
+    targetArea.x + targetArea.width - physicalWidth - physicalMargin,
+  );
+  const maxY = Math.max(
+    minY,
+    targetArea.y + targetArea.height - physicalHeight - physicalMargin,
+  );
 
   return {
-    x: clampValue(
-      position.x,
-      primaryArea.x + restoreMargin,
-      Math.max(primaryArea.x, maxX),
-    ),
-    y: clampValue(
-      position.y,
-      primaryArea.y + restoreMargin,
-      Math.max(primaryArea.y, maxY),
-    ),
+    x: clampValue(targetPosition.x, minX, maxX),
+    y: clampValue(targetPosition.y, minY, maxY),
   };
 }
 

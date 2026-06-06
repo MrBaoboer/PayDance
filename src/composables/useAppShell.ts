@@ -5,7 +5,7 @@
 
 import { computed, ref, type Ref } from "vue";
 import { resolveAppView, type AppViewState } from "../lib/app-view";
-import type { ThemeMode, WindowSize } from "../lib/window-mode";
+import type { ThemeMode, WindowPosition, WindowSize } from "../lib/window-mode";
 import { normalizeFullSize } from "../lib/window-mode";
 
 type ShellWindow = {
@@ -18,11 +18,14 @@ export function useAppShell({
   appWindow,
   applyThemeMode,
   applyWindowMode,
+  captureWindowPosition = async () => undefined,
   fullSize,
   hasCompletedOnboarding,
   isMiniMode,
   isOpacityPanelWindow,
   isSettingsReady,
+  readWindowPosition = () => undefined,
+  restoreWindowPosition = async () => undefined,
   saveStateNow,
   setAlwaysOnTop,
   themeMode,
@@ -31,11 +34,14 @@ export function useAppShell({
   appWindow: ShellWindow;
   applyThemeMode: (mode: ThemeMode, options?: { persist?: boolean }) => Promise<void>;
   applyWindowMode: () => Promise<void>;
+  captureWindowPosition?: () => Promise<void>;
   fullSize: Ref<WindowSize>;
   hasCompletedOnboarding: Ref<boolean>;
   isMiniMode: Ref<boolean>;
   isOpacityPanelWindow: boolean;
   isSettingsReady: Ref<boolean>;
+  readWindowPosition?: (miniMode: boolean) => WindowPosition | undefined;
+  restoreWindowPosition?: (position: WindowPosition) => Promise<void>;
   saveStateNow: () => Promise<void>;
   setAlwaysOnTop: (value: boolean) => Promise<void>;
   themeMode: Ref<ThemeMode>;
@@ -64,9 +70,17 @@ export function useAppShell({
       width: window.innerWidth,
     });
 
-  const setMiniMode = async (value: boolean) => {
+  const applyMiniMode = async (value: boolean) => {
+    const isChangingMode = value !== isMiniMode.value;
+    let destinationPosition: WindowPosition | undefined;
+
     if (value && !isMiniMode.value) {
       fullSize.value = getCurrentWindowSize();
+    }
+
+    if (isChangingMode) {
+      await captureWindowPosition().catch(() => undefined);
+      destinationPosition = readWindowPosition(value);
     }
 
     isMiniMode.value = value;
@@ -75,6 +89,13 @@ export function useAppShell({
       showSalaryInfo.value = false;
     }
     await applyWindowMode();
+    if (destinationPosition) {
+      await restoreWindowPosition(destinationPosition).catch(() => undefined);
+    }
+  };
+
+  const setMiniMode = async (value: boolean) => {
+    await applyMiniMode(value);
     await saveStateNow();
   };
 
@@ -84,8 +105,7 @@ export function useAppShell({
     showSettings.value = true;
     showSalaryInfo.value = false;
     if (isMiniMode.value) {
-      isMiniMode.value = false;
-      await applyWindowMode();
+      await applyMiniMode(false);
     }
     await appWindow.show();
     await appWindow.setFocus();

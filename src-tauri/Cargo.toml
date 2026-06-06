@@ -1,6 +1,6 @@
 [package]
 name = "pay-dance"
-version = "0.9.4"
+version = "0.9.5"
 description = "薪跳 · 桌面实时工资看板"
 authors = ["Mr.Baoboer"]
 license = "AGPL-3.0-only"

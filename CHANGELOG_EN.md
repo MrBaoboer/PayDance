@@ -6,6 +6,13 @@ This file records official PayDance releases. README introduces the product to n
 
 Build artifacts and verification files are available in [GitHub Releases](https://github.com/MasterBao66/PayDance/releases).
 
+### v0.9.5
+
+- **Independent full and mini window positions**: Each mode now saves and restores its own coordinates, so moving the mini window no longer overwrites the full window position.
+- **Multi-monitor and DPI recovery fixes**: Window positions consistently use physical pixels and are validated against the actual primary monitor, per-monitor work areas, and scale factors, including left/right secondary displays, mixed scaling, taskbars, and disconnected-display fallback.
+- **Mode-transition race fix**: The outgoing position is captured before resizing and the destination position snapshot is restored afterward, preventing resize events from contaminating the other mode's coordinates.
+- **Regression coverage**: Added tests for mode transitions, independent positions, 150% DPI, negative secondary-monitor coordinates, and disconnected displays.
+
 ### v0.9.4
 
 - **Desktop reliability hardening**: Hybrid clock recalibrates after long sleep or large system clock forward jumps while preserving monotonic earnings; window positions are clamped to visible monitor areas.
