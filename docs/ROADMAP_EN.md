@@ -15,7 +15,7 @@ This document records PayDance's development direction. It is not a release-date
 
 ## Now
 
-- Complete the v0.9.4 release-chain review: confirm Latest Release status, public assets, `latest.json` compatibility, portable auto-update paths, and a key-rotation drill.
+- Complete the v0.9.5 release-chain review: confirm Latest Release status, public assets, `latest.json` compatibility, portable auto-update paths, and a key-rotation drill.
 - Close remaining system-clock calibration gaps: major backward corrections, timezone changes, day crossing, and night-shift boundaries.
 - Improve multi-monitor recovery: preserve still-valid secondary-monitor positions first, and add a reset-window-position entry point.
 - Improve settings recovery UX: future-schema downgrade warnings, save retry, and visible load-failure states.

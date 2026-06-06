@@ -87,6 +87,14 @@ const { applyWindowMode, setAlwaysOnTop } = useWindowMode(
   fullSize,
   alwaysOnTop,
 );
+const windowPosition = useWindowPositionRecovery({
+  appWindow,
+  fullSize,
+  isMiniMode,
+  mainPosition,
+  miniPosition,
+  miniSize,
+});
 const { clearSaveStateTimer, loadWindowPreferences, saveStateNow, scheduleSaveState } =
   useWindowStatePersistence({
     defaultWindowPreferences,
@@ -119,11 +127,14 @@ const {
   appWindow,
   applyThemeMode,
   applyWindowMode,
+  captureWindowPosition: windowPosition.captureWindowPosition,
   fullSize,
   hasCompletedOnboarding,
   isMiniMode,
   isOpacityPanelWindow,
   isSettingsReady,
+  readWindowPosition: windowPosition.readWindowPosition,
+  restoreWindowPosition: windowPosition.restoreWindowPosition,
   saveStateNow,
   setAlwaysOnTop,
   themeMode,
@@ -197,14 +208,6 @@ const startResize = async (direction: ResizeDirection) => {
   await appWindow.startResizeDragging(direction);
 };
 
-const { restoreWindowPosition } = useWindowPositionRecovery({
-  appWindow,
-  fullSize,
-  isMiniMode,
-  mainPosition,
-  miniSize,
-});
-
 const { clearWindowLifecycleTimers, registerWindowLifecycle } = useAppWindowLifecycle(
   appWindow,
   {
@@ -232,11 +235,10 @@ onMounted(async () => {
   miniPosition.value = windowPreferences.miniPosition;
   showSettings.value = false;
 
-  await restoreWindowPosition().catch(() => undefined);
-
   await refreshAutostart();
   await applyThemeMode(themeMode.value, { persist: false });
   await applyWindowMode();
+  await windowPosition.restoreWindowPosition().catch(() => undefined);
 
   unlisteners.push(
     await appWindow.listen("before-app-exit", async () => {
@@ -247,11 +249,9 @@ onMounted(async () => {
         await exit(0);
       }
     }),
-    await appWindow.onMoved(() => {
-      void appWindow.outerPosition().then((pos) => {
-        mainPosition.value = { x: pos.x, y: pos.y };
-        scheduleSaveState();
-      });
+    await appWindow.onMoved(({ payload: position }) => {
+      windowPosition.recordWindowPosition(position);
+      scheduleSaveState();
     }),
     ...(await registerWindowLifecycle()),
     ...(await registerTrayActions(appWindow, {

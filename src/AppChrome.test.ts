@@ -97,5 +97,8 @@ describe("app chrome", () => {
     expect(windowPositionRecoverySource).toContain("availableMonitors");
     expect(windowPositionRecoverySource).toContain("resolveVisibleWindowPosition");
     expect(windowPositionRecoverySource).toContain("fallbackMainPosition");
+    expect(windowPositionRecoverySource).toContain("PhysicalPosition");
+    expect(windowPositionRecoverySource).toContain("miniPosition");
+    expect(desktopAppSource).toContain("recordWindowPosition(position)");
   });
 });

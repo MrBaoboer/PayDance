@@ -116,18 +116,43 @@ describe("window mode preferences", () => {
     expect(
       resolveVisibleWindowPosition({
         fallbackPosition: { x: 80, y: 80 },
-        position: { x: 2_400, y: 120 },
+        position: { x: 1_700, y: 120 },
         size: { width: 480, height: 460 },
         workAreas: [{ x: 0, y: 0, width: 1_920, height: 1_080 }],
       }),
     ).toEqual({ x: 1_424, y: 120 });
   });
 
-  it("falls back to the primary work area when a restored window is fully off screen", () => {
+  it("preserves a saved position on a secondary monitor to the left", () => {
     expect(
       resolveVisibleWindowPosition({
         fallbackPosition: { x: 80, y: 80 },
-        position: { x: -1_800, y: -900 },
+        position: { x: -2_000, y: 120 },
+        size: { width: 480, height: 460 },
+        workAreas: [
+          { x: 0, y: 0, width: 1_920, height: 1_080, scaleFactor: 1 },
+          { x: -2_560, y: 0, width: 2_560, height: 1_440, scaleFactor: 1.25 },
+        ],
+      }),
+    ).toEqual({ x: -2_000, y: 120 });
+  });
+
+  it("converts logical window size and margin for a high-DPI work area", () => {
+    expect(
+      resolveVisibleWindowPosition({
+        fallbackPosition: { x: 80, y: 80 },
+        position: { x: 1_700, y: 900 },
+        size: { width: 480, height: 460 },
+        workAreas: [{ x: 0, y: 0, width: 1_920, height: 1_080, scaleFactor: 1.5 }],
+      }),
+    ).toEqual({ x: 1_176, y: 366 });
+  });
+
+  it("falls back to the primary work area when the saved monitor is disconnected", () => {
+    expect(
+      resolveVisibleWindowPosition({
+        fallbackPosition: { x: 80, y: 80 },
+        position: { x: 2_400, y: 120 },
         size: { width: 480, height: 460 },
         workAreas: [{ x: 0, y: 0, width: 1_920, height: 1_080 }],
       }),
