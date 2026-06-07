@@ -77,6 +77,17 @@ All contributions should align with the product boundaries in [PRODUCT_EN.md](PR
 
 For first contributions, prefer issues labeled `good first issue` or `help wanted`. They should be small, low-risk, and clear about verification.
 
+## First Contribution Walkthrough
+
+For a low-risk first PR, pick one documentation or QA issue and keep the change narrow:
+
+1. Read the linked issue and confirm it is still open.
+2. Edit one focused file, such as a docs page, checklist, or community template.
+3. Run `npm run verify:metadata` for docs, legal, brand, or community-template changes.
+4. Open the PR with a short summary, the verification command you ran, and a `Signed-off-by:` line.
+
+Avoid mixing code, screenshots, release notes, and documentation cleanup in the same first PR unless the issue explicitly asks for that scope.
+
 ## What We Do Not Accept
 
 PayDance is not a time tracker, personal finance manager, payroll system, attendance system, or task manager. The following directions are outside the current product boundary; related PRs should start with an Issue:
