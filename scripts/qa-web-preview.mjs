@@ -113,6 +113,37 @@ const stabilizeVisualPage = async (page) => {
   await page.waitForTimeout(150);
 };
 
+const readThemePaint = (page) =>
+  page.evaluate(() => {
+    const read = (selector, property) => {
+      const element = document.querySelector(selector);
+      return element ? window.getComputedStyle(element)[property] : null;
+    };
+
+    return {
+      frameBackground: read(".web-preview__frame", "backgroundColor"),
+      languageBackground: read(".lang-switcher", "backgroundColor"),
+      rootBackground: read(".web-preview", "backgroundImage"),
+      rootColor: read(".web-preview", "color"),
+      themeClass: document.querySelector(".web-preview")?.className ?? null,
+    };
+  });
+
+const assertStableInitialThemePaint = async (page, caseName) => {
+  const initialPaint = await readThemePaint(page);
+  await page.waitForTimeout(220);
+  const settledPaint = await readThemePaint(page);
+
+  if (JSON.stringify(initialPaint) !== JSON.stringify(settledPaint)) {
+    throw new Error(
+      `${caseName}: theme colors changed after first paint ${JSON.stringify({
+        initialPaint,
+        settledPaint,
+      })}`,
+    );
+  }
+};
+
 const assertVisualBaseline = ({ locale, screenshotPath, themeMode, viewport }) => {
   if (!isVisualBaselineCase(locale, themeMode, viewport.name)) return null;
 
@@ -947,6 +978,10 @@ const runQa = async () => {
             state: "visible",
             timeout: 45_000,
           });
+          await assertStableInitialThemePaint(
+            page,
+            `${locale}/${themeMode}/${viewport.name}`,
+          );
           await stabilizeVisualPage(page);
           const observedCopy = await assertDom(
             page,

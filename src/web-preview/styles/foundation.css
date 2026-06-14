@@ -56,6 +56,12 @@
   padding: clamp(24px, 3.6vw, 54px) clamp(24px, 5vw, 74px) clamp(18px, 3vw, 34px);
 }
 
+.web-preview.is-theme-booting *,
+.web-preview.is-theme-booting *::before,
+.web-preview.is-theme-booting *::after {
+  transition: none !important;
+}
+
 .web-preview::before,
 .web-preview::after {
   display: none;

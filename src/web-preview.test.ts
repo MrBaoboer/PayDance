@@ -84,9 +84,21 @@ describe("PayDance Web Preview", () => {
     const desktopSettingsStore = read("src/platform/settings-store.ts");
 
     expect(webSettingsStore).toContain("createBrowserSettingsStore");
+    expect(webSettingsStore).toContain("readBrowserThemeMode");
     expect(webSettingsStore).toContain("window.localStorage");
     expect(webSettingsStore).toContain("paydance-web-preview-settings");
     expect(desktopSettingsStore).toContain('import("@tauri-apps/plugin-store")');
+  });
+
+  it("hydrates the saved web theme before enabling visual transitions", () => {
+    expect(webPreviewPageSource).toContain("readBrowserThemeMode");
+    expect(webPreviewStateSource).toContain("readBrowserThemeMode");
+    expect(webPreviewPageSource).toContain("is-theme-booting");
+    expect(webPreviewPageSource).toContain("@theme-ready");
+    expect(webPreviewShowcaseSource).toContain("themeReady");
+    expect(webPreviewShowcaseSource).toContain("isSettingsReady");
+    expect(webPreviewStyles).toContain(".web-preview.is-theme-booting");
+    expect(webPreviewStyles).toContain("transition: none !important");
   });
 
   it("presents web preview as a bounded online experience", () => {

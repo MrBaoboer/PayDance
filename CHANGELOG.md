@@ -8,6 +8,8 @@
 
 ## Unreleased
 
+- **官网刷新稳定性**：Web Preview 在首帧同步恢复已保存主题，并在设置初始化完成前暂停颜色过渡，避免刷新时短暂出现浅色页面与黑色控件混合的画面。
+- **依赖与 CI 基线更新**：前端依赖升级到当前兼容最新版；CI、CodeQL 与发布流程切换至 Node 24 和 Windows 2025，Pages 产物读取升级至 `actions/download-artifact` 8.0.1。
 - **推送提速**：日常推送只在本地执行元数据、格式、代码规范和单元测试，耗时较长的构建、浏览器 QA、Rust 检查和安全审计交给 GitHub CI；正式发布继续通过 `npm run verify:release` 执行完整检查。
 - **维护基础升级**：Renovate 改为立即检查、无限并发 PR 和人工合并评估；Web Preview 新增固定环境的像素差异门禁；Windows EXE 冒烟会输出窗口响应与单实例 JSON 证据。
 - **架构收敛**：Rust 托盘与便携更新、Web Preview 样式、设置页仓库信息均按职责拆分；网页构建只注入版本号，不再包含完整 `package.json`。
