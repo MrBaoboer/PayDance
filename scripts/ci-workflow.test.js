@@ -66,6 +66,10 @@ describe("CI workflow routing", () => {
     expect(ciWorkflow).toContain("Security audit");
     expect(ciWorkflow).toContain("Run Rust tests");
     expect(ciWorkflow).toContain("cargo test");
+    expect(ciWorkflow).toContain("name: CI gate");
+    expect(ciWorkflow).toContain("if: always()");
+    expect(ciWorkflow).toContain("needs.verify.result");
+    expect(ciWorkflow).toContain("needs.security.result");
 
     expect(webPreviewWorkflow).toContain("Read CI change scope");
     expect(webPreviewWorkflow).toContain("actions/download-artifact");
@@ -91,6 +95,8 @@ describe("CI workflow routing", () => {
     expect(codeqlWorkflow).toContain("github/codeql-action/analyze@");
     expect(codeqlWorkflow).toContain("javascript-typescript");
     expect(codeqlWorkflow).toContain("rust");
+    expect(codeqlWorkflow).toContain("name: CodeQL gate");
+    expect(codeqlWorkflow).toContain("needs.analyze.result");
     expect(releaseWorkflow).toContain("Smoke test Windows executable");
     expect(releaseWorkflow).toContain("scripts/smoke-windows-exe.ps1");
     expect(releaseWorkflow).toContain("Generate release SBOM");

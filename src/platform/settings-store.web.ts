@@ -3,11 +3,15 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
+import type { ThemeMode } from "../lib/window-mode";
+
 export type SettingsStoreAdapter = {
   get: <Value>(key: string) => Promise<Value | undefined>;
   save: () => Promise<void>;
   set: (key: string, value: unknown) => Promise<void>;
 };
+
+export const browserSettingsStorageKey = "paydance-web-preview-settings";
 
 const readBrowserState = (storageKey: string) => {
   if (typeof window === "undefined") return {};
@@ -21,8 +25,15 @@ const readBrowserState = (storageKey: string) => {
   }
 };
 
+export const readBrowserThemeMode = (
+  storageKey = browserSettingsStorageKey,
+): ThemeMode => {
+  const themeMode = readBrowserState(storageKey).themeMode;
+  return themeMode === "dark" ? "dark" : "light";
+};
+
 export const createBrowserSettingsStore = (
-  storageKey = "paydance-web-preview-settings",
+  storageKey = browserSettingsStorageKey,
 ): SettingsStoreAdapter => {
   let state = readBrowserState(storageKey);
 

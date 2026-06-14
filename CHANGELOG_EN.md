@@ -8,6 +8,8 @@ Build artifacts and verification files are available in [GitHub Releases](https:
 
 ## Unreleased
 
+- **Stable website refreshes**: Web Preview restores the saved theme before first paint and pauses color transitions until settings initialization finishes, preventing mixed light-page and black-control frames during refresh.
+- **Dependency and CI baseline refresh**: Frontend dependencies move to their latest compatible versions; CI, CodeQL, and release workflows now use Node 24 and Windows 2025, while Pages artifact retrieval uses `actions/download-artifact` 8.0.1.
 - **Faster daily pushes**: local push checks now cover metadata, formatting, lint, and unit tests, while GitHub CI handles slower builds, browser QA, Rust checks, and security audits. Formal releases still run the complete `npm run verify:release` path.
 - **Maintenance foundation**: Renovate now runs immediately with unlimited concurrent PRs and human merge assessment; Web Preview has deterministic pixel-diff gates; Windows EXE smoke emits JSON evidence for window responsiveness and single-instance behavior.
 - **Focused ownership**: tray and portable updater Rust, Web Preview styles, and the Settings repository footer are split by responsibility. Web builds receive only the version string instead of the complete `package.json`.

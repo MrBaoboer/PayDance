@@ -14,6 +14,7 @@ import {
   repositoryUrl,
   windowsDownloadUrl,
 } from "../../lib/app-meta";
+import { readBrowserThemeMode } from "../../platform/settings-store.web";
 import WebPreviewFeatureStrip from "../WebPreviewFeatureStrip.vue";
 import WebPreviewFooter from "./WebPreviewFooter.vue";
 import WebPreviewHeroCopy from "./WebPreviewHeroCopy.vue";
@@ -30,24 +31,40 @@ const { locale } = provideI18n(initialLocale, (next) => {
   document.documentElement.lang = next;
 });
 
-const shellClass = ref("theme-light");
+const shellClass = ref(`theme-${readBrowserThemeMode()}`);
+const isThemeReady = ref(false);
 const documentScrollClass = "is-web-preview-page";
 const productHomepageUrl = import.meta.env.BASE_URL;
+let themeReadyFrame = 0;
 
 const toggleDocumentScroll = (enabled: boolean) => {
   document.documentElement.classList.toggle(documentScrollClass, enabled);
   document.body.classList.toggle(documentScrollClass, enabled);
 };
 
+const markThemeReady = () => {
+  window.cancelAnimationFrame(themeReadyFrame);
+  themeReadyFrame = window.requestAnimationFrame(() => {
+    isThemeReady.value = true;
+  });
+};
+
 onMounted(() => {
   document.documentElement.lang = locale.value;
   toggleDocumentScroll(true);
 });
-onBeforeUnmount(() => toggleDocumentScroll(false));
+onBeforeUnmount(() => {
+  window.cancelAnimationFrame(themeReadyFrame);
+  toggleDocumentScroll(false);
+});
 </script>
 
 <template>
-  <main class="web-preview" :class="shellClass" :data-locale="locale">
+  <main
+    class="web-preview"
+    :class="[shellClass, { 'is-theme-booting': !isThemeReady }]"
+    :data-locale="locale"
+  >
     <WebPreviewTopbar
       :app-english-name="appEnglishName"
       :app-name="appName"
@@ -62,7 +79,10 @@ onBeforeUnmount(() => toggleDocumentScroll(false));
         :windows-download-url="windowsDownloadUrl"
       />
 
-      <WebPreviewShowcase @shell-class-change="shellClass = $event" />
+      <WebPreviewShowcase
+        @shell-class-change="shellClass = $event"
+        @theme-ready="markThemeReady"
+      />
 
       <WebPreviewFeatureStrip />
     </section>
