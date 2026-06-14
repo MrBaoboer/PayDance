@@ -63,7 +63,7 @@ Each release includes a SHA256 checksum file so you can verify the download.
 | Frontend | Vue 3 + TypeScript + Vite |
 | UI | Windows 11 styling, CSS Container Queries, Lucide Icons |
 | Storage | Local app data directory (Tauri Store) |
-| Testing | Vitest + vue-tsc + cargo clippy |
+| Testing | Vitest + Rust unit tests + vue-tsc + cargo clippy |
 
 </div>
 

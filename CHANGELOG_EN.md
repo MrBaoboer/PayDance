@@ -6,6 +6,17 @@ This file records official PayDance releases. README introduces the product to n
 
 Build artifacts and verification files are available in [GitHub Releases](https://github.com/MasterBao66/PayDance/releases).
 
+## Unreleased
+
+### v0.9.6
+
+- **First-run fixes**: the mobile onboarding footer remains visible, and Web Preview always returns to the full dashboard instead of restoring the previous mini mode.
+- **Silent settings self-repair**: a damaged value now resets only itself or the smallest linked group, preserving other valid preferences; repaired settings are written back without a persistent warning or automatically opening Settings.
+- **Platform boundary**: Web Preview now uses browser-only storage, updater, and external-link adapters so its bundle does not pull in Tauri platform modules.
+- **Rust regression tests**: cover update-version directory sanitization, Windows EXE recognition, spaced-path arguments, and install-directory write probes.
+- **Release security**: added CodeQL, Windows EXE launch and single-instance smoke, SPDX SBOM generation, and full commit-SHA pinning for every GitHub Action.
+- **Website SEO**: replaced the sharing image with a product-logo composition and reduced it from about 905 KB to about 45 KB; added a Windows desktop wage-dashboard title and corrected the structured-data category.
+
 ### v0.9.5
 
 - **Independent full and mini window positions**: Each mode now saves and restores its own coordinates, so moving the mini window no longer overwrites the full window position.

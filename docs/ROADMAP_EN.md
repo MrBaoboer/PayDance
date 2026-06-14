@@ -12,13 +12,16 @@ This document records PayDance's development direction. It is not a release-date
 - Stronger updater and release chain: updater errors now distinguish missing development config, production signature failures, invalid manifests, and network failures; Release dry-runs include smoke checks for the current build artifacts, while post-release smoke no longer mistakes dry-runs for published Release verification.
 - Web Preview and accessibility fixes: locale switching now syncs the HTML `lang` attribute, and updater badges use semantic buttons.
 - Supply-chain, brand, and licensing baseline governance: `cargo audit`, `cargo deny`, gitleaks, locked dependencies, metadata tests, official asset boundaries, and bilingual documentation mirrors.
+- First-run and settings recovery: the mobile onboarding footer stays visible, Web Preview always opens in the full dashboard, and damaged or future-version settings are silently repaired field by field and written back.
+- Release and supply-chain automation: real Rust unit tests cover update helpers; Release runs an automated Windows EXE launch smoke and single-instance check, generates an SPDX SBOM, and CodeQL analyzes TypeScript and Rust. All GitHub Actions are pinned to commit SHAs.
+- Website discovery: the 1200 × 630 sharing image now uses the product logo as its main visual and is substantially smaller, while the title and structured data describe a Windows desktop utility more accurately.
 
 ## Now
 
-- Complete the v0.9.5 release-chain review: confirm Latest Release status, public assets, `latest.json` compatibility, portable auto-update paths, and a key-rotation drill.
+- Complete the v0.9.6 release-chain review: confirm Latest Release status, public assets, `latest.json` compatibility, portable auto-update paths, and a key-rotation drill.
 - Close remaining system-clock calibration gaps: major backward corrections, timezone changes, day crossing, and night-shift boundaries.
 - Improve multi-monitor recovery: preserve still-valid secondary-monitor positions first, and add a reset-window-position entry point.
-- Improve settings recovery UX: future-schema downgrade warnings, save retry, and visible load-failure states.
+- Add an explicit retry action after settings-save failures.
 - Surface background updater failures appropriately: keep routine network failures low-noise, while clearly exposing manifest errors and signature-verification failures.
 - Add onboarding preview examples so setup immediately shows estimated daily income, per-minute income, and lunch-break pause semantics.
 
@@ -26,9 +29,8 @@ This document records PayDance's development direction. It is not a release-date
 
 - Authenticode code signing to reduce Windows SmartScreen warnings.
 - Mini floating-window context menu: opacity, reset position, and restore main window.
-- Windows desktop smoke tests for native capabilities: tray, always-on-top, autostart, single instance, sleep resume, and multi-monitor changes.
-- Real updater signature verification, gitleaks download checksum verification, and GitHub Actions commit-SHA pinning.
-- SBOM generation and release archiving.
+- Extend native Windows smoke coverage to tray, always-on-top, autostart, and sleep resume.
+- Add real updater signature verification and gitleaks download checksum verification.
 - Community contribution labels and a public soft-launch feedback loop so new contributors can find suitable entry points.
 
 ## Later

@@ -116,7 +116,7 @@ const goBack = () => {
         />
       </div>
 
-      <div v-if="firstIssue" class="onboarding-alert">
+      <div v-if="firstIssue" class="onboarding-alert" role="status">
         {{ firstIssue }}
       </div>
 
@@ -163,8 +163,10 @@ const goBack = () => {
   display: grid;
   position: relative;
   width: min(100%, clamp(370px, 88cqw, 440px));
+  height: min(100%, clamp(348px, 80cqh, 376px));
   max-height: 100%;
-  overflow: hidden auto;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  overflow: hidden;
   border: 1px solid var(--onboarding-border, var(--border));
   border-radius: clamp(16px, 4cqw, 20px);
   background: var(--onboarding-panel, var(--panel));
@@ -218,7 +220,7 @@ const goBack = () => {
 }
 
 .onboarding-body {
-  min-height: clamp(228px, 53cqh, 276px);
+  min-height: 0;
   overflow-y: auto;
   padding: clamp(20px, 4.4cqw, 24px);
 }

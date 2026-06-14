@@ -191,7 +191,7 @@ const assertDom = async (page, viewportName, locale) => {
   const viewport = page.viewportSize();
   const expectedText = localeExpectations[locale];
   const title = await page.title();
-  if (title !== "薪跳 PayDance") {
+  if (title !== "薪跳 PayDance — Windows 桌面实时工资看板") {
     throw new Error(`${viewportName}: unexpected title "${title}"`);
   }
 

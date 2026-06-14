@@ -4,6 +4,8 @@
 
 感谢你愿意参与薪跳 PayDance。这个项目刻意保持很小：只做一件事，把“今天正在挣到的钱”安静、清楚地放在桌面上。提交 Issue 或 PR 前，请先了解下面的边界和流程。
 
+> **贡献许可一句话说明：普通贡献只需要 DCO 签署行，不需要提前签 CLA。** 只有维护者计划把某项贡献用于商业、OEM 或白标授权时，才会在合并前单独联系贡献者签署 CLA。
+
 ## 开发环境
 
 - **操作系统**：当前官方发布与验证基线为 Windows 11；Web Preview 可在浏览器中预览核心体验；平台适配贡献需附验证边界说明
@@ -77,6 +79,17 @@ gh auth login
 
 第一次参与时，建议从 `good first issue` 或 `help wanted` 标签的 Issue 入手。这些任务范围较小，验证方式也更清楚。
 
+## 第一次贡献指引
+
+对于低风险的第一次 PR，建议选择一个文档或 QA 相关 Issue，并保持改动范围收窄：
+
+1. 阅读关联 Issue，确认它仍然处于打开状态。
+2. 只编辑一个聚焦文件，例如文档页面、检查清单或社区模板。
+3. 文档、法务、品牌或社区模板改动请运行 `npm run verify:metadata`。
+4. 打开 PR 时写清简短摘要、已运行的验证命令，并包含 `Signed-off-by:` 行。
+
+除非 Issue 明确要求，不要在同一个第一次 PR 中混合代码、截图、发布说明和文档清理。
+
 ## 我们不接受
 
 薪跳 PayDance 不是时间追踪、个人财务、薪酬系统、考勤系统或任务管理工具。以下方向不在当前产品边界内，相关 PR 请先开 Issue 讨论：
@@ -107,7 +120,7 @@ gh auth login
 
 薪跳 PayDance 遵循 [语义化版本](https://semver.org/lang/zh-CN/)。版本号由项目作者管理，请勿在 PR 中自行提升版本号。
 
-## 许可
+## 许可细则
 
 本项目代码采用 [AGPL-3.0-only](https://github.com/MasterBao66/PayDance/blob/main/LICENSE) 发布，另有 [AGPL 第 7 条附加条款](https://github.com/MasterBao66/PayDance/blob/main/legal/ADDITIONAL_TERMS.md)。
 
@@ -117,7 +130,7 @@ gh auth login
 - 你同意你的贡献以 AGPL-3.0-only 及本项目附加条款并入项目；
 - 提交时包含 `Signed-off-by:` 行（DCO），确认你的贡献来源合法。
 
-> 项目目前为单人开发。普通贡献会按上述开源许可进入项目；如果维护者需要将某项贡献纳入商业授权、OEM 或白标授权范围，会在合并前请你签署 [贡献者许可协议（CLA）](https://github.com/MasterBao66/PayDance/blob/main/legal/CLA.md)。仅提交 Issue、建议或安全报告无需签署 CLA。
+> 普通贡献会按上述开源许可进入项目；如果维护者需要将某项贡献纳入商业授权、OEM 或白标授权范围，会在合并前请你签署 [贡献者许可协议（CLA）](https://github.com/MasterBao66/PayDance/blob/main/legal/CLA.md)。仅提交 Issue、建议或安全报告无需签署 CLA。
 
 详见 `LICENSE`、`legal/ADDITIONAL_TERMS.md`、`legal/TRADEMARK.md` 和 `legal/BRAND-ASSETS.md`。
 

@@ -4,9 +4,11 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 import { describe, expect, it } from "vitest";
+import { defaultSalaryConfig } from "./salary";
 import {
   migrateSalaryConfig,
   migrateVersionedSalaryConfig,
+  recoverVersionedSalaryConfig,
   resolveOnboardingState,
   settingsSchemaVersion,
 } from "./settings-migration";
@@ -113,18 +115,98 @@ describe("settings migration", () => {
     expect(second).toEqual(first);
   });
 
-  it("isolates future settings schemas instead of trusting unknown shapes", () => {
-    const config = migrateVersionedSalaryConfig({
+  it("keeps recognized valid fields from future schemas and ignores unknown fields", () => {
+    const result = recoverVersionedSalaryConfig({
       config: {
         salaryType: "hourly",
         hourlyRate: 999,
         workdays: [0],
+        unsupportedField: "ignored",
       },
       schemaVersion: settingsSchemaVersion + 1,
     });
 
-    expect(config.salaryType).toBe("monthly");
-    expect(config.hourlyRate).not.toBe(999);
-    expect(config.workdays).toEqual([1, 2, 3, 4, 5]);
+    expect(result.recoveryReason).toBe("future-schema");
+    expect(result.config.salaryType).toBe("hourly");
+    expect(result.config.hourlyRate).toBe(999);
+    expect(result.config.workdays).toEqual([0]);
+    expect(result.config).not.toHaveProperty("unsupportedField");
+  });
+
+  it("repairs invalid primitive fields without changing unrelated values", () => {
+    const result = recoverVersionedSalaryConfig({
+      config: {
+        ...defaultSalaryConfig,
+        monthlySalary: 18_888,
+        endTime: "17:30",
+        startTime: "25:90",
+        enableLunchBreak: "yes",
+        unsupportedField: "ignored",
+      },
+      schemaVersion: settingsSchemaVersion,
+    });
+
+    expect(result.recoveryReason).toBe("invalid-values");
+    expect(result.config.monthlySalary).toBe(18_888);
+    expect(result.config.startTime).toBe(defaultSalaryConfig.startTime);
+    expect(result.config.endTime).toBe("17:30");
+    expect(result.config.enableLunchBreak).toBe(defaultSalaryConfig.enableLunchBreak);
+    expect(result.config).not.toHaveProperty("unsupportedField");
+  });
+
+  it("repairs only the linked work-time pair when start and end conflict", () => {
+    const result = recoverVersionedSalaryConfig({
+      config: {
+        ...defaultSalaryConfig,
+        startTime: "08:00",
+        endTime: "08:00",
+        lunchStart: "11:30",
+        lunchEnd: "12:15",
+        enableLunchBreak: true,
+      },
+      schemaVersion: settingsSchemaVersion,
+    });
+
+    expect(result.config).toMatchObject({
+      startTime: defaultSalaryConfig.startTime,
+      endTime: defaultSalaryConfig.endTime,
+      lunchStart: "11:30",
+      lunchEnd: "12:15",
+      enableLunchBreak: true,
+    });
+  });
+
+  it("repairs only the linked lunch group when lunch falls outside work hours", () => {
+    const result = recoverVersionedSalaryConfig({
+      config: {
+        ...defaultSalaryConfig,
+        startTime: "08:00",
+        endTime: "17:00",
+        lunchStart: "18:00",
+        lunchEnd: "19:00",
+        enableLunchBreak: true,
+      },
+      schemaVersion: settingsSchemaVersion,
+    });
+
+    expect(result.config).toMatchObject({
+      startTime: "08:00",
+      endTime: "17:00",
+      lunchStart: defaultSalaryConfig.lunchStart,
+      lunchEnd: defaultSalaryConfig.lunchEnd,
+      enableLunchBreak: defaultSalaryConfig.enableLunchBreak,
+    });
+  });
+
+  it("marks non-object config shapes for replacement", () => {
+    const result = recoverVersionedSalaryConfig({
+      config: [],
+      schemaVersion: settingsSchemaVersion,
+    });
+
+    expect(result).toEqual({
+      config: defaultSalaryConfig,
+      recoveryReason: "invalid-values",
+    });
   });
 });

@@ -8,7 +8,7 @@ import type { AmountMode } from "../composables/useSalarySettings";
 import type { DashboardMiddleStat } from "../composables/useDashboardModel";
 import type { SalaryConfig, SalaryConfigIssue, SalarySnapshot } from "../lib/salary";
 import type { ThemeMode } from "../lib/window-mode";
-import type { UpdaterStatus } from "../platform/updater";
+import type { UpdaterStatus } from "#updater";
 import MainDashboard from "./MainDashboard.vue";
 import { useI18n } from "../composables/useI18n";
 import OnboardingPanel from "./OnboardingPanel.vue";

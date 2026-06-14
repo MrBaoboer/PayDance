@@ -11,6 +11,8 @@ This document keeps recurring PayDance maintenance rules easy to find: what to c
 - Old settings must not block launch; unknown or unsafe values should fall back to defaults.
 - Window size, mini mode, and opacity preferences keep their compatibility boundary in `src/lib/window-mode.ts`.
 - When changing the schema, also check the read/write keys and save verification in `src/composables/useSalarySettings.ts`.
+- Time, boolean, salary-number, and workday values must be normalized before use; unknown fields must not pass through to runtime config.
+- Automatic recovery should reset only the damaged value or smallest linked group, preserve other valid settings, and immediately write back the repair; completed background repair must not remain as a persistent warning.
 
 ## Diagnostics and Logs
 
@@ -28,9 +30,20 @@ Before each Windows release, use `docs/desktop-smoke-checklist.md` or the Englis
 - Screenshot or note for any failed item.
 - Whether tray, mini floating mode, always-on-top, auto-start, and update entry points were checked.
 
+The Release workflow also runs `scripts/smoke-windows-exe.ps1` to confirm that the portable EXE creates a main window, remains stable, and rejects a second instance. The manual checklist still covers tray, autostart, and sleep scenarios that are not yet reliable to automate.
+
 ## Release Chain
 
 - `latest.json` must point at the versioned Windows EXE.
 - `.sha256` must match the actual EXE.
 - `.sig` is the Tauri updater signature, not a Windows Authenticode publisher signature.
 - Before adding Authenticode, confirm cost, certificate source, renewal, and rollback behavior.
+- `release-assets/pay-dance-sbom.spdx.json` must be archived with each Release.
+- Every GitHub Actions `uses:` reference must be pinned to a 40-character commit SHA with a version comment.
+- The CodeQL workflow must explicitly analyze `javascript-typescript` and `rust`.
+
+## Renovate
+
+- Configuration lives in `.github/renovate.json`; validate it with `npx --yes --package renovate@43.220.0 renovate-config-validator .github/renovate.json`.
+- Public evidence of a working hosted app is a Renovate PR or a `Dependency Dashboard` Issue. A config file alone does not prove installation.
+- If two scheduled windows pass without Renovate activity, the maintainer should reconfirm repository access in the GitHub App settings.

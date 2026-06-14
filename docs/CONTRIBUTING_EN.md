@@ -4,6 +4,8 @@
 
 Thanks for your interest in PayDance. This project is intentionally small: it puts today's live earnings on the desktop in a calm, clear way. Please read the boundaries and workflow below before opening an Issue or PR.
 
+> **License in one sentence: Ordinary contributions only need a DCO sign-off; no CLA is required upfront.** A CLA is requested separately before merge only if the maintainer plans to use that contribution in commercial, OEM, or white-label licensing.
+
 ## Environment
 
 - **OS**: the current official release and validation baseline is Windows 11; Web Preview can preview the core experience in a browser; platform-adaptation contributions need a clear validation boundary
@@ -118,7 +120,7 @@ All user-facing strings must be in `src/i18n/locales/zh-CN.ts` and `src/i18n/loc
 
 PayDance follows [Semantic Versioning](https://semver.org/). Release versions are managed by the project author. Do not bump the version number in your PR.
 
-## License
+## License Details
 
 The project code is released under [AGPL-3.0-only](../LICENSE) with [additional terms under AGPL Section 7](../legal/ADDITIONAL_TERMS_EN.md).
 
@@ -128,7 +130,7 @@ By submitting a code contribution, you confirm that:
 - You agree that your contribution is incorporated into the project under AGPL-3.0-only and the project's additional terms;
 - You include a `Signed-off-by:` line (DCO) with your submission, confirming its lawful origin.
 
-> The project is currently a solo effort. Ordinary contributions enter the project under the open-source terms above. If the maintainer needs to include a contribution in commercial, OEM, or white-label licensing, the contributor will be asked to explicitly sign the [Contributor License Agreement (CLA)](../legal/CLA_EN.md) before merge. Opening an Issue, suggestion, or security report does not require the CLA.
+> Ordinary contributions enter the project under the open-source terms above. If the maintainer needs to include a contribution in commercial, OEM, or white-label licensing, the contributor will be asked to explicitly sign the [Contributor License Agreement (CLA)](../legal/CLA_EN.md) before merge. Opening an Issue, suggestion, or security report does not require the CLA.
 
 See [LICENSE](../LICENSE), [ADDITIONAL_TERMS_EN.md](../legal/ADDITIONAL_TERMS_EN.md), [TRADEMARK_EN.md](../legal/TRADEMARK_EN.md), and [BRAND-ASSETS_EN.md](../legal/BRAND-ASSETS_EN.md) for details.
 

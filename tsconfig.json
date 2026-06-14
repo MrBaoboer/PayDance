@@ -7,7 +7,10 @@
     "skipLibCheck": true,
     "moduleResolution": "Bundler",
     "paths": {
-      "#runtime-app": ["./src/DesktopApp.vue"]
+      "#opener": ["./src/platform/opener.ts"],
+      "#runtime-app": ["./src/DesktopApp.vue"],
+      "#settings-store": ["./src/platform/settings-store.ts"],
+      "#updater": ["./src/platform/updater.ts"]
     },
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,

@@ -17,14 +17,12 @@ import {
 } from "../lib/salary";
 import {
   migrateSalaryConfig,
+  recoverVersionedSalaryConfig,
   resolveOnboardingState,
   settingsSchemaVersion,
 } from "../lib/settings-migration";
 import { settingsStoreFileName, settingsStoreKeys } from "../lib/settings-store";
-import {
-  createSettingsStore,
-  type SettingsStoreAdapter,
-} from "../platform/settings-store";
+import { createSettingsStore, type SettingsStoreAdapter } from "#settings-store";
 import { detectLocale, type Locale } from "./useI18n";
 
 export type AmountMode = "rolling" | "plain";
@@ -78,6 +76,48 @@ export function useSalarySettings(
     hasCompletedOnboarding.value = false;
   };
 
+  const persistRecoveredConfig = async (
+    store: SettingsStoreAdapter,
+    recoveredConfig: SalaryConfig,
+  ) => {
+    try {
+      await store.set(settingsStoreKeys.config, recoveredConfig);
+      await store.set(settingsStoreKeys.settingsVersion, settingsSchemaVersion);
+      await store.save();
+    } catch (error) {
+      console.error("Failed to persist repaired settings", error);
+      settingsSaveError.value = "settings.saveFailed";
+    }
+  };
+
+  const persistDefaultSettings = async () => {
+    try {
+      const store = await getStore();
+      const windowPreferences = resolveWindowPreferences({});
+      await store.set(settingsStoreKeys.config, config.value);
+      await store.set(settingsStoreKeys.alwaysOnTop, alwaysOnTop.value);
+      await store.set(settingsStoreKeys.themeMode, themeMode.value);
+      await store.set(settingsStoreKeys.amountMode, amountMode.value);
+      await store.set(settingsStoreKeys.locale, locale.value);
+      await store.set(settingsStoreKeys.isMiniMode, windowPreferences.isMiniMode);
+      await store.set(settingsStoreKeys.fullSize, windowPreferences.fullSize);
+      await store.set(settingsStoreKeys.miniSize, windowPreferences.miniSize);
+      await store.set(
+        settingsStoreKeys.miniOpacityPercent,
+        windowPreferences.miniOpacityPercent,
+      );
+      await store.set(
+        settingsStoreKeys.hasCompletedOnboarding,
+        hasCompletedOnboarding.value,
+      );
+      await store.set(settingsStoreKeys.settingsVersion, settingsSchemaVersion);
+      await store.save();
+    } catch (error) {
+      console.error("Failed to replace unreadable settings with defaults", error);
+      settingsSaveError.value = "settings.saveFailed";
+    }
+  };
+
   const loadSettings = async () => {
     try {
       const store = await getStore();
@@ -106,11 +146,18 @@ export function useSalarySettings(
         settingsStoreKeys.hasCompletedOnboarding,
       );
 
-      config.value = migrateSalaryConfig(savedConfig, savedSettingsVersion);
+      const recoveredConfig = recoverVersionedSalaryConfig({
+        config: savedConfig,
+        schemaVersion: savedSettingsVersion,
+      });
+      config.value = recoveredConfig.config;
       hasCompletedOnboarding.value = resolveOnboardingState(
         savedConfig,
         savedHasCompletedOnboarding,
       );
+      if (recoveredConfig.recoveryReason) {
+        await persistRecoveredConfig(store, recoveredConfig.config);
+      }
 
       if (typeof savedTop === "boolean") {
         alwaysOnTop.value = savedTop;
@@ -139,6 +186,7 @@ export function useSalarySettings(
     } catch (error) {
       console.error("Failed to load settings, falling back to defaults", error);
       resetToDefaults();
+      await persistDefaultSettings();
       return resolveWindowPreferences({});
     } finally {
       isSettingsReady.value = true;

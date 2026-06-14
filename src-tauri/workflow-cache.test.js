@@ -18,7 +18,7 @@ describe("github actions rust cache", () => {
     (workflowName) => {
       const workflow = readWorkflow(workflowName);
 
-      expect(workflow).toContain("uses: Swatinem/rust-cache@v2");
+      expect(workflow).toMatch(/uses: Swatinem\/rust-cache@[0-9a-f]{40} # v2/);
       expect(workflow).toContain("workspaces: src-tauri -> target");
       expect(workflow).toContain("cache-on-failure: true");
     },

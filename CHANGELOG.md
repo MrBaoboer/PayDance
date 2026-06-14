@@ -6,6 +6,17 @@
 
 构建产物与校验文件见 [GitHub Releases](https://github.com/MasterBao66/PayDance/releases)。
 
+## Unreleased
+
+### v0.9.6
+
+- **首次体验修复**：移动端首次向导 Footer 始终可见；Web Preview 每次访问默认回到完整看板，不再恢复上次迷你模式。
+- **设置自修复**：单项损坏时只恢复该项或最小关联组，其余有效设置保持不变；修复结果会静默写回，不再显示长期损坏提示或自动打开设置中心。
+- **平台边界**：Web Preview 使用独立的存储、更新器和外链适配器，浏览器构建不再引入 Tauri 平台模块。
+- **Rust 回归测试**：覆盖更新版本目录清洗、Windows EXE 识别、带空格路径参数和安装目录写入探测。
+- **发布安全**：新增 CodeQL、Windows EXE 启动与单实例冒烟、SPDX SBOM；所有 GitHub Actions 固定到完整 Commit SHA。
+- **官网 SEO**：分享图改为以产品 Logo 为主体，并从约 905 KB 压缩至约 45 KB；补充 Windows 桌面实时工资看板标题并修正结构化数据分类。
+
 ### v0.9.5
 
 - **主窗口与迷你窗口位置隔离**：两个模式分别保存和恢复坐标，移动迷你窗口不再覆盖完整窗口位置。

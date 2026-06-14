@@ -30,7 +30,7 @@ Use the [Web Preview](https://masterbao66.github.io/PayDance/) if you want to tr
 
 ### Which Windows file should I download?
 
-Download `pay-dance-v0.9.5-windows-x64.exe` from the [latest Release](https://github.com/MasterBao66/PayDance/releases/latest). The Release page also includes a SHA256 checksum file so you can verify the download.
+Download `pay-dance-v0.9.6-windows-x64.exe` from the [latest Release](https://github.com/MasterBao66/PayDance/releases/latest). The Release page also includes a SHA256 checksum file so you can verify the download.
 
 ### Why a portable EXE instead of an installer?
 
