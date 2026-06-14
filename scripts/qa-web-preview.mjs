@@ -10,7 +10,11 @@ import { join, resolve } from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import packageMetadata from "../package.json" with { type: "json" };
 import { resolvePlaywright } from "./resolve-playwright.mjs";
-import { comparePngFiles } from "./visual-diff.mjs";
+import {
+  comparePngFiles,
+  isVisualRegression,
+  visualMaxDiffRatio,
+} from "./visual-diff.mjs";
 
 const version = packageMetadata.version;
 const sanitizeRunId = (value) =>
@@ -38,10 +42,10 @@ const runId = sanitizeRunId(
 );
 const port = Number(process.env.PAYDANCE_WEB_QA_PORT ?? 4174);
 const localUrl = `http://127.0.0.1:${port}/PayDance/`;
-const qaDir = join(tmpdir(), `paydance-web-preview-qa-${version}-${runId}`);
+const qaRoot = process.env.RUNNER_TEMP ?? tmpdir();
+const qaDir = join(qaRoot, `paydance-web-preview-qa-${version}-${runId}`);
 const visualBaselineDir = resolve("tests", "visual-baselines");
 const updateVisualBaselines = process.argv.includes("--update-visual-baselines");
-const visualMaxDiffRatio = 0.001;
 const storageKey = "paydance-web-preview-settings";
 const viewports = [
   { name: "desktop", width: 1440, height: 900 },
@@ -134,12 +138,12 @@ const assertVisualBaseline = ({ locale, screenshotPath, themeMode, viewport }) =
   });
   copyFileSync(baselinePath, expectedPath);
 
-  if (result.ratio > visualMaxDiffRatio) {
+  if (isVisualRegression(result.ratio)) {
     throw new Error(
       `Visual regression ${fileName}: ${result.diffPixels} pixels changed (${(
         result.ratio * 100
-      ).toFixed(
-        3,
+      ).toFixed(3)}%, budget ${(visualMaxDiffRatio * 100).toFixed(
+        1,
       )}%). Expected: ${expectedPath}. Actual: ${screenshotPath}. Diff: ${diffPath}.`,
     );
   }

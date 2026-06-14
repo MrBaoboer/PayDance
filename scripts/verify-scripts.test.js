@@ -130,6 +130,7 @@ describe("verification scripts", () => {
     expect(qaScript).toContain("--force");
     expect(qaScript).toContain("Web Preview");
     expect(qaScript).toContain("PAYDANCE_WEB_QA_RUN_ID");
+    expect(qaScript).toContain("process.env.RUNNER_TEMP ?? tmpdir()");
     expect(qaScript).toContain("commitSha");
     expect(qaScript).toContain("observedCopies");
     expect(qaScript).toContain("assertAccessibility");

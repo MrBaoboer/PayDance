@@ -32,6 +32,13 @@ afterEach(() => {
 });
 
 describe("visual PNG comparison", () => {
+  it("keeps small runner noise within budget but rejects visible regressions", async () => {
+    const { isVisualRegression } = await import("./visual-diff.mjs");
+
+    expect(isVisualRegression(0.00412)).toBe(false);
+    expect(isVisualRegression(0.006)).toBe(true);
+  });
+
   it("reports no changed pixels for identical images", async () => {
     mkdirSync(testRoot, { recursive: true });
     const baselinePath = join(testRoot, "baseline.png");

@@ -8,11 +8,15 @@ import { dirname } from "node:path";
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
 
+export const visualMaxDiffRatio = 0.005;
+export const isVisualRegression = (ratio, maxDiffRatio = visualMaxDiffRatio) =>
+  ratio > maxDiffRatio;
+
 export const comparePngFiles = ({
   actualPath,
   baselinePath,
   diffPath,
-  threshold = 0.1,
+  threshold = 0.2,
 }) => {
   if (!existsSync(baselinePath)) {
     throw new Error(

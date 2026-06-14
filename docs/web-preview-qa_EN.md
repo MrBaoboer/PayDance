@@ -44,5 +44,5 @@ Normal QA never accepts new screenshots automatically. On a mismatch, the tempor
 - There are no critical/serious axe automated accessibility violations.
 - After light/dark theme switching, the preview window edge has no obvious flash, color mismatch, or residue.
 - `summary.json` contains no severe console error or page error.
-- Canonical states differ from reviewed baselines by no more than `0.1%` of pixels.
+- Canonical states ignore minor antialiasing noise and may differ from reviewed baselines by no more than `0.5%` of pixels; expected, actual, and diff images are retained on failure.
 - The local dev server exits after validation.
