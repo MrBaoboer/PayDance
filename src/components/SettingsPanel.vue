@@ -19,8 +19,8 @@ import {
   localeLabels,
   supportedLocales,
 } from "../composables/useI18n";
-import type { UpdaterStatus } from "../platform/updater";
-import { openExternalUrl } from "../platform/opener";
+import type { UpdaterStatus } from "#updater";
+import { openExternalUrl } from "#opener";
 import type { Messages } from "../i18n/types";
 import LunchBreakFields from "./settings/LunchBreakFields.vue";
 import SalaryAmountFields from "./settings/SalaryAmountFields.vue";

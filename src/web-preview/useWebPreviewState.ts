@@ -20,7 +20,7 @@ import {
   type WindowPosition,
   type WindowSize,
 } from "../lib/window-mode";
-import { createBrowserSettingsStore } from "../platform/settings-store";
+import { createBrowserSettingsStore } from "../platform/settings-store.web";
 
 const miniStagePaddingX = 34;
 const miniStageHeight = 188;
@@ -218,7 +218,7 @@ export function useWebPreviewState() {
 
   onMounted(async () => {
     const windowPreferences = await loadWindowPreferences();
-    isMiniMode.value = windowPreferences.isMiniMode;
+    isMiniMode.value = false;
     fullSize.value = windowPreferences.fullSize;
     miniSize.value = windowPreferences.miniSize;
     miniOpacityPercent.value = windowPreferences.miniOpacityPercent;

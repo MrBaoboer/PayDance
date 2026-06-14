@@ -23,7 +23,6 @@ import webPreviewStateSource from "./web-preview/useWebPreviewState.ts?raw";
 import enLocaleSource from "./i18n/locales/en.ts?raw";
 import zhLocaleSource from "./i18n/locales/zh-CN.ts?raw";
 import runtimeSource from "./platform/runtime.ts?raw";
-import settingsStoreSource from "./platform/settings-store.ts?raw";
 import appMetaSource from "./lib/app-meta.ts?raw";
 
 const read = (path: string) =>
@@ -75,10 +74,13 @@ describe("PayDance Web Preview", () => {
   });
 
   it("keeps browser preview storage local and separate from Tauri Store", () => {
-    expect(settingsStoreSource).toContain("createBrowserSettingsStore");
-    expect(settingsStoreSource).toContain("window.localStorage");
-    expect(settingsStoreSource).toContain("paydance-web-preview-settings");
-    expect(settingsStoreSource).toContain('import("@tauri-apps/plugin-store")');
+    const webSettingsStore = read("src/platform/settings-store.web.ts");
+    const desktopSettingsStore = read("src/platform/settings-store.ts");
+
+    expect(webSettingsStore).toContain("createBrowserSettingsStore");
+    expect(webSettingsStore).toContain("window.localStorage");
+    expect(webSettingsStore).toContain("paydance-web-preview-settings");
+    expect(desktopSettingsStore).toContain('import("@tauri-apps/plugin-store")');
   });
 
   it("presents web preview as a bounded online experience", () => {
@@ -107,6 +109,11 @@ describe("PayDance Web Preview", () => {
     expect(ogImage.size).toBeGreaterThan(20_000);
     expect(pngSize("public/og-image.png")).toEqual({ width: 1200, height: 630 });
     expect(htmlSource).toContain("https://masterbao66.github.io/PayDance/og-image.png");
+    expect(ogImage.size).toBeLessThan(450_000);
+    expect(htmlSource).toContain(
+      "<title>薪跳 PayDance — Windows 桌面实时工资看板</title>",
+    );
+    expect(htmlSource).toContain('"applicationCategory": "UtilitiesApplication"');
     expect(webPreviewSource).toContain('class="web-preview__brand"');
     expect(webPreviewSource).toContain('class="web-preview__brand-logo"');
     expect(webPreviewSource).not.toContain("web-preview__brand-icon");
@@ -476,6 +483,27 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewLineCount).toBeLessThanOrEqual(220);
   });
 
+  it("always opens the browser preview in the full dashboard view", () => {
+    expect(webPreviewStateSource).toContain("isMiniMode.value = false");
+    expect(webPreviewStateSource).not.toContain(
+      "isMiniMode.value = windowPreferences.isMiniMode",
+    );
+  });
+
+  it("keeps Tauri modules out of the browser platform adapters", () => {
+    const viteConfig = read("vite.config.ts");
+    const webSettingsStore = read("src/platform/settings-store.web.ts");
+    const webUpdater = read("src/platform/updater.web.ts");
+    const webOpener = read("src/platform/opener.web.ts");
+
+    expect(viteConfig).toContain('"#settings-store"');
+    expect(viteConfig).toContain('"#updater"');
+    expect(viteConfig).toContain('"#opener"');
+    expect(webSettingsStore).not.toContain("@tauri-apps");
+    expect(webUpdater).not.toContain("@tauri-apps");
+    expect(webOpener).not.toContain("@tauri-apps");
+  });
+
   it("removes auxiliary text around the software preview", () => {
     expect(webPreviewSource).not.toContain("web-preview__showcase-header");
     expect(webPreviewSource).not.toContain("web-preview__notice");
@@ -587,10 +615,8 @@ describe("PayDance Web Preview", () => {
     expect(viteConfig).toContain("src-tauri/target/**");
     expect(read(".github/workflows/web-preview.yml")).toContain("npm run build:web");
     expect(read(".github/workflows/web-preview.yml")).toContain(
-      "actions/upload-pages-artifact@v5",
+      "actions/upload-pages-artifact@",
     );
-    expect(read(".github/workflows/web-preview.yml")).toContain(
-      "actions/deploy-pages@v5",
-    );
+    expect(read(".github/workflows/web-preview.yml")).toContain("actions/deploy-pages@");
   });
 });

@@ -13,9 +13,29 @@ export default defineConfig(({ mode }) => ({
   plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
+      "#opener": fileURLToPath(
+        new URL(
+          mode === "web" ? "./src/platform/opener.web.ts" : "./src/platform/opener.ts",
+          import.meta.url,
+        ),
+      ),
       "#runtime-app": fileURLToPath(
         new URL(
           mode === "web" ? "./src/WebPreviewApp.vue" : "./src/DesktopApp.vue",
+          import.meta.url,
+        ),
+      ),
+      "#settings-store": fileURLToPath(
+        new URL(
+          mode === "web"
+            ? "./src/platform/settings-store.web.ts"
+            : "./src/platform/settings-store.ts",
+          import.meta.url,
+        ),
+      ),
+      "#updater": fileURLToPath(
+        new URL(
+          mode === "web" ? "./src/platform/updater.web.ts" : "./src/platform/updater.ts",
           import.meta.url,
         ),
       ),

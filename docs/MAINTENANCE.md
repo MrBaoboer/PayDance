@@ -11,6 +11,8 @@
 - 旧配置不能阻塞应用启动；无法识别或不安全的值应回退到默认值。
 - 窗口尺寸、迷你模式、透明度等窗口偏好，继续由 `src/lib/window-mode.ts` 维护兼容边界。
 - 改 schema 时，同时检查 `src/composables/useSalarySettings.ts` 的读写键和保存校验。
+- 时间、布尔值、薪资数字和工作日必须在使用前归一化；未知字段不能透传到运行时配置。
+- 自动恢复应只重置损坏项或最小关联组，保留其他有效设置，并立即写回修复结果；不要把已完成的后台修复长期展示为警告。
 
 ## 诊断与日志
 
@@ -28,9 +30,20 @@
 - 失败项截图或说明。
 - 是否验证托盘、迷你悬浮、置顶、自启动和更新入口。
 
+Release workflow 还会运行 `scripts/smoke-windows-exe.ps1`，自动确认便携 EXE 能创建主窗口、稳定运行并阻止第二实例。人工清单继续覆盖自动化暂时无法可靠操作的托盘、自启动和休眠场景。
+
 ## 发布链路
 
 - `latest.json` 必须指向对应版本的 Windows EXE。
 - `.sha256` 必须匹配实际 EXE 文件。
 - `.sig` 是 Tauri updater 签名，不等于 Windows Authenticode 发布者签名。
 - 接入 Authenticode 前，先确认成本、证书来源、续期方式和失败回滚路径。
+- `release-assets/pay-dance-sbom.spdx.json` 必须随 Release 归档。
+- GitHub Actions 的 `uses:` 必须固定到 40 位 Commit SHA，并在行尾保留对应版本注释。
+- CodeQL workflow 必须显式分析 `javascript-typescript` 与 `rust`。
+
+## Renovate
+
+- 配置位于 `.github/renovate.json`，可运行 `npx --yes --package renovate@43.220.0 renovate-config-validator .github/renovate.json` 验证。
+- Hosted App 正常运行的公开证据是 Renovate PR 或 `Dependency Dashboard` Issue；仅存在配置文件不等于机器人已经安装。
+- 如果连续两个计划窗口都没有任何 Renovate 活动，维护者应在 GitHub App 设置中重新确认仓库授权。

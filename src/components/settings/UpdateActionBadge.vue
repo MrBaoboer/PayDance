@@ -6,7 +6,7 @@
 import { ref } from "vue";
 import { AlertCircle, ArrowBigUp, Loader } from "@lucide/vue";
 import { useI18n } from "../../composables/useI18n";
-import { downloadAndInstall, type UpdaterStatus } from "../../platform/updater";
+import { downloadAndInstall, type UpdaterStatus } from "#updater";
 
 defineProps<{
   updateStatus: UpdaterStatus;

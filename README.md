@@ -47,7 +47,7 @@
 | &nbsp; | 入口 | 说明 |
 |:---:|:---:|:---:|
 | 🌐 | **[在线体验](https://masterbao66.github.io/PayDance/)** | 网页端，含所有核心功能 |
-| ⬇️ | **[Windows 桌面版](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.5-windows-x64.exe)** | 便携 EXE，含托盘、置顶、迷你悬浮、开机自启动等完整能力 |
+| ⬇️ | **[Windows 桌面版](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.6-windows-x64.exe)** | 便携 EXE，含托盘、置顶、迷你悬浮、开机自启动等完整能力 |
 
 </div>
 
@@ -63,7 +63,7 @@ Release 页面同时提供 SHA256 校验文件，下载后可验证完整性。
 | 前端 | Vue 3 + TypeScript + Vite |
 | UI | Windows 11 风格、CSS Container Queries、Lucide Icons |
 | 存储 | 本机应用数据目录（Tauri Store） |
-| 测试 | Vitest + vue-tsc + cargo clippy |
+| 测试 | Vitest + Rust 单元测试 + vue-tsc + cargo clippy |
 
 </div>
 

@@ -29,6 +29,9 @@ describe("useSalarySettings", () => {
   it("falls back to defaults and marks settings ready when the store cannot be read", async () => {
     storeMocks.get.mockRejectedValue(new Error("corrupt settings"));
 
+    const settings = await import("./useSalarySettings").then((module) =>
+      module.useSalarySettings(createMockStore),
+    );
     const {
       config,
       amountMode,
@@ -37,9 +40,7 @@ describe("useSalarySettings", () => {
       isSettingsReady,
       loadSettings,
       themeMode,
-    } = await import("./useSalarySettings").then((module) =>
-      module.useSalarySettings(createMockStore),
-    );
+    } = settings;
 
     const windowPreferences = await loadSettings();
 
@@ -49,12 +50,46 @@ describe("useSalarySettings", () => {
     expect(amountMode.value).toBe("rolling");
     expect(hasCompletedOnboarding.value).toBe(false);
     expect(isSettingsReady.value).toBe(true);
+    expect(settings).not.toHaveProperty("settingsRecoveryNotice");
+    expect(storeMocks.set).toHaveBeenCalledWith("config", defaultSalaryConfig);
+    expect(storeMocks.set).toHaveBeenCalledWith("settingsVersion", 4);
+    expect(storeMocks.save).toHaveBeenCalled();
     expect(windowPreferences).toEqual({
       fullSize: fullWindowSize,
       isMiniMode: false,
       miniOpacityPercent: defaultMiniOpacityPercent,
       miniSize: miniDefaultSize,
     });
+  });
+
+  it("silently writes repaired persisted values back to the store", async () => {
+    storeMocks.get.mockImplementation(async (key: string) => {
+      if (key === "config") {
+        return {
+          ...defaultSalaryConfig,
+          monthlySalary: 18_888,
+          startTime: "99:99",
+          enableLunchBreak: "invalid",
+        };
+      }
+      if (key === "settingsVersion") return 4;
+      return undefined;
+    });
+
+    const settings = await import("./useSalarySettings").then((module) =>
+      module.useSalarySettings(createMockStore),
+    );
+    const { config, loadSettings } = settings;
+
+    await loadSettings();
+
+    expect(config.value.monthlySalary).toBe(18_888);
+    expect(config.value.startTime).toBe(defaultSalaryConfig.startTime);
+    expect(config.value.enableLunchBreak).toBe(defaultSalaryConfig.enableLunchBreak);
+    expect(settings).not.toHaveProperty("settingsRecoveryNotice");
+    expect(storeMocks.set).toHaveBeenCalledWith("config", config.value);
+    expect(storeMocks.set).toHaveBeenCalledWith("settingsVersion", 4);
+    expect(storeMocks.save).toHaveBeenCalled();
   });
 
   it("keeps the app usable when saving settings fails", async () => {

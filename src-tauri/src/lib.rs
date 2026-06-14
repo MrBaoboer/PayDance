@@ -6,6 +6,7 @@
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
 use std::{
+    ffi::OsString,
     fs,
     path::{Path, PathBuf},
     process::Command,
@@ -89,8 +90,8 @@ fn probe_install_dir(install_dir: &Path) -> Result<(), String> {
 }
 
 #[cfg(windows)]
-fn safe_update_dir(version: &str) -> PathBuf {
-    let safe_version = version
+fn sanitize_update_version(version: &str) -> String {
+    version
         .chars()
         .map(|ch| {
             if ch.is_ascii_alphanumeric() || matches!(ch, '.' | '-' | '_') {
@@ -99,12 +100,21 @@ fn safe_update_dir(version: &str) -> PathBuf {
                 '-'
             }
         })
-        .collect::<String>();
+        .collect()
+}
 
+#[cfg(windows)]
+fn safe_update_dir(version: &str) -> PathBuf {
+    let safe_version = sanitize_update_version(version);
     std::env::temp_dir().join(format!(
         "paydance-portable-update-{}-{safe_version}",
         std::process::id()
     ))
+}
+
+#[cfg(windows)]
+fn is_windows_executable(bytes: &[u8]) -> bool {
+    bytes.len() >= 2 && bytes.starts_with(b"MZ")
 }
 
 #[cfg(windows)]
@@ -137,7 +147,7 @@ exit 1
 
 #[cfg(windows)]
 fn stage_portable_update(bytes: &[u8], version: &str) -> Result<(PathBuf, PathBuf), String> {
-    if !bytes.starts_with(b"MZ") {
+    if !is_windows_executable(bytes) {
         return Err("Downloaded update is not a Windows executable.".to_string());
     }
 
@@ -164,6 +174,28 @@ fn stage_portable_update(bytes: &[u8], version: &str) -> Result<(PathBuf, PathBu
 }
 
 #[cfg(windows)]
+fn portable_update_helper_args(
+    process_id: u32,
+    script_path: &Path,
+    staged_exe: &Path,
+    current_exe: &Path,
+) -> Vec<OsString> {
+    vec![
+        OsString::from("-NoProfile"),
+        OsString::from("-ExecutionPolicy"),
+        OsString::from("Bypass"),
+        OsString::from("-File"),
+        script_path.as_os_str().to_owned(),
+        OsString::from("-ProcessId"),
+        OsString::from(process_id.to_string()),
+        OsString::from("-Source"),
+        staged_exe.as_os_str().to_owned(),
+        OsString::from("-Destination"),
+        current_exe.as_os_str().to_owned(),
+    ]
+}
+
+#[cfg(windows)]
 fn spawn_portable_update_helper(
     script_path: &Path,
     staged_exe: &Path,
@@ -172,14 +204,12 @@ fn spawn_portable_update_helper(
     const CREATE_NO_WINDOW: u32 = 0x08000000;
 
     Command::new("powershell.exe")
-        .args(["-NoProfile", "-ExecutionPolicy", "Bypass", "-File"])
-        .arg(script_path)
-        .arg("-ProcessId")
-        .arg(std::process::id().to_string())
-        .arg("-Source")
-        .arg(staged_exe)
-        .arg("-Destination")
-        .arg(current_exe)
+        .args(portable_update_helper_args(
+            std::process::id(),
+            script_path,
+            staged_exe,
+            current_exe,
+        ))
         .creation_flags(CREATE_NO_WINDOW)
         .spawn()
         .map_err(|error| format!("Unable to start update helper: {error}"))?;
@@ -326,4 +356,67 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(all(test, windows))]
+mod tests {
+    use super::*;
+    use std::ffi::OsString;
+
+    #[test]
+    fn sanitizes_update_versions_for_temp_directory_names() {
+        assert_eq!(
+            sanitize_update_version("v1.2.3 beta/../x"),
+            "v1.2.3-beta-..-x"
+        );
+    }
+
+    #[test]
+    fn accepts_only_windows_executable_payloads() {
+        assert!(is_windows_executable(b"MZ\x90\0"));
+        assert!(!is_windows_executable(b"PK\x03\x04"));
+        assert!(!is_windows_executable(b"M"));
+    }
+
+    #[test]
+    fn keeps_helper_paths_as_independent_arguments() {
+        let args = portable_update_helper_args(
+            42,
+            Path::new(r"C:\Temp Folder\apply-update.ps1"),
+            Path::new(r"C:\Temp Folder\pay dance.exe"),
+            Path::new(r"C:\Program Files\PayDance\pay-dance.exe"),
+        );
+
+        assert_eq!(
+            args,
+            vec![
+                OsString::from("-NoProfile"),
+                OsString::from("-ExecutionPolicy"),
+                OsString::from("Bypass"),
+                OsString::from("-File"),
+                OsString::from(r"C:\Temp Folder\apply-update.ps1"),
+                OsString::from("-ProcessId"),
+                OsString::from("42"),
+                OsString::from("-Source"),
+                OsString::from(r"C:\Temp Folder\pay dance.exe"),
+                OsString::from("-Destination"),
+                OsString::from(r"C:\Program Files\PayDance\pay-dance.exe"),
+            ]
+        );
+    }
+
+    #[test]
+    fn probes_a_writable_install_directory_without_leaving_files() {
+        let probe_dir =
+            std::env::temp_dir().join(format!("paydance-probe-test-{}", std::process::id()));
+        fs::create_dir_all(&probe_dir).expect("test directory should be created");
+
+        probe_install_dir(&probe_dir).expect("writable directory should pass");
+
+        let remaining = fs::read_dir(&probe_dir)
+            .expect("test directory should be readable")
+            .count();
+        fs::remove_dir_all(&probe_dir).expect("test directory should be removed");
+        assert_eq!(remaining, 0);
+    }
 }

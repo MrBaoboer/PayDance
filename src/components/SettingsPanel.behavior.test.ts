@@ -8,11 +8,11 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { defaultSalaryConfig } from "../lib/salary";
 
-vi.mock("../platform/updater", () => ({
+vi.mock("#updater", () => ({
   downloadAndInstall: vi.fn(async () => ({ kind: "upToDate" })),
 }));
 
-vi.mock("../platform/opener", () => ({
+vi.mock("#opener", () => ({
   openExternalUrl: vi.fn(async () => {}),
 }));
 

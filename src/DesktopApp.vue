@@ -33,11 +33,10 @@ import { registerTrayActions } from "./composables/useTrayActions";
 import { useWindowMode } from "./composables/useWindowMode";
 import { useWindowPositionRecovery } from "./composables/useWindowPositionRecovery";
 import { useWindowStatePersistence } from "./composables/useWindowStatePersistence";
-import { checkForUpdate, type UpdaterStatus } from "./platform/updater";
+import { checkForUpdate, type UpdaterStatus } from "#updater";
 import AppWindow from "./components/AppWindow.vue";
 import MiniWindow from "./components/MiniWindow.vue";
 import MiniOpacityPanel from "./components/MiniOpacityPanel.vue";
-
 const appWindow = getCurrentWindow();
 const isOpacityPanelWindow = appWindow.label === "mini-opacity";
 const updateStatus = ref<UpdaterStatus>({ kind: "upToDate" });
@@ -50,7 +49,6 @@ type ResizeDirection =
   | "SouthEast"
   | "SouthWest"
   | "West";
-
 const {
   amountMode,
   alwaysOnTop,
@@ -233,8 +231,6 @@ onMounted(async () => {
   miniOpacityPercent.value = windowPreferences.miniOpacityPercent;
   mainPosition.value = windowPreferences.mainPosition;
   miniPosition.value = windowPreferences.miniPosition;
-  showSettings.value = false;
-
   await refreshAutostart();
   await applyThemeMode(themeMode.value, { persist: false });
   await applyWindowMode();

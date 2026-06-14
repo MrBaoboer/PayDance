@@ -104,6 +104,11 @@ describe("settings panel", () => {
     expect(settingsPanelSource).toContain('role="status"');
   });
 
+  it("does not show a persistent warning after automatic settings repair", () => {
+    expect(settingsPanelSource).not.toContain("settingsRecoveryNotice");
+    expect(settingsPanelSource).not.toContain("settings-recovery-notice");
+  });
+
   it("uses semantic buttons for update retry and install actions", () => {
     expect(settingsPanelSource).toContain("<UpdateActionBadge");
     expect(updateActionBadgeSource).toContain('class="update-badge-button"');

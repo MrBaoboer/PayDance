@@ -49,7 +49,7 @@ jobs:
           }
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           ref: ${{ env.RELEASE_TAG }}
 
@@ -83,16 +83,16 @@ jobs:
           Write-Host "CI passed for $commitSha."
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: 22
           cache: npm
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
 
       - name: Cache Rust build
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
         with:
           workspaces: src-tauri -> target
           cache-on-failure: true
@@ -234,8 +234,25 @@ jobs:
           }
           "- Updater signature metadata verified." | Out-File -Encoding utf8 -Append $reportPath
 
+      - name: Smoke test Windows executable
+        shell: pwsh
+        run: |
+          $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
+          ./scripts/smoke-windows-exe.ps1 `
+            -ExePath "src-tauri/target/release/pay-dance-v$version-windows-x64.exe"
+
+      - name: Generate release SBOM
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          artifact-name: pay-dance-sbom
+          format: spdx-json
+          output-file: release-assets/pay-dance-sbom.spdx.json
+          path: .
+          upload-artifact: false
+          upload-release-assets: false
+
       - name: Upload build artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: pay-dance-windows-release
           path: |
@@ -244,11 +261,12 @@ jobs:
             release-assets/pay-dance-v*-windows-x64.exe.sig
             release-assets/latest.json
             release-assets/build-artifact-smoke.md
+            release-assets/pay-dance-sbom.spdx.json
           if-no-files-found: error
 
       - name: Create GitHub Release
         if: (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && env.DRY_RUN != 'true'
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
         with:
           name: 薪跳 PayDance ${{ env.RELEASE_TAG }}
           tag_name: ${{ env.RELEASE_TAG }}
@@ -259,6 +277,7 @@ jobs:
             src-tauri/target/release/pay-dance-v*-windows-x64.exe.sha256
             release-assets/pay-dance-v*-windows-x64.exe.sig
             release-assets/latest.json
+            release-assets/pay-dance-sbom.spdx.json
 
       - name: Dry run summary
         if: env.DRY_RUN == 'true'

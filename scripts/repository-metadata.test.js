@@ -158,6 +158,24 @@ describe("repository metadata", () => {
     expect(read("docs/MAINTENANCE_EN.md")).toContain("Settings Migration");
     expect(read(".github/CONTRIBUTING.md")).toContain("good first issue");
     expect(read("docs/CONTRIBUTING_EN.md")).toContain("good first issue");
+    expect(read(".github/CONTRIBUTING.md")).toContain(
+      "普通贡献只需要 DCO 签署行，不需要提前签 CLA",
+    );
+    expect(read("docs/CONTRIBUTING_EN.md")).toContain(
+      "Ordinary contributions only need a DCO sign-off; no CLA is required upfront",
+    );
+  });
+
+  it("keeps bilingual roadmap status aligned with implemented reliability work", () => {
+    const roadmap = read("docs/ROADMAP.md");
+    const roadmapEn = read("docs/ROADMAP_EN.md");
+
+    expect(roadmap).toContain("CodeQL");
+    expect(roadmap).toContain("SBOM");
+    expect(roadmap).toContain("Windows EXE 自动启动冒烟");
+    expect(roadmapEn).toContain("CodeQL");
+    expect(roadmapEn).toContain("SBOM");
+    expect(roadmapEn).toContain("automated Windows EXE launch smoke");
   });
 
   it("keeps .github contributing governance links on canonical GitHub blob URLs", () => {

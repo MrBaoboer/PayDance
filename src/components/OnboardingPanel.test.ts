@@ -38,9 +38,22 @@ describe("onboarding panel", () => {
 
   it("uses a more spacious first-run layout", () => {
     expect(onboardingPanelSource).toContain("clamp(370px, 88cqw, 440px)");
-    expect(onboardingPanelSource).toContain("min-height: clamp(228px, 53cqh, 276px)");
     expect(onboardingPanelSource).toContain("padding: clamp(20px, 4.4cqw, 24px)");
     expect(stepWorkTimeSource).toContain("gap: clamp(16px, 3.6cqh, 20px)");
+  });
+
+  it("keeps the action footer visible in short mobile preview frames", () => {
+    expect(onboardingPanelSource).toContain(
+      "grid-template-rows: auto minmax(0, 1fr) auto auto",
+    );
+    expect(onboardingPanelSource).toContain("overflow: hidden");
+    expect(onboardingPanelSource).toContain(".onboarding-body {\n  min-height: 0");
+    expect(onboardingPanelSource).not.toContain("overflow: hidden auto");
+  });
+
+  it("does not show a persistent warning after automatic settings repair", () => {
+    expect(onboardingPanelSource).not.toContain("settingsRecoveryNotice");
+    expect(onboardingPanelSource).not.toContain("recoveryNoticeText");
   });
 
   it("uses the dashboard numeric font for numbers, symbols, and Latin glyphs", () => {
