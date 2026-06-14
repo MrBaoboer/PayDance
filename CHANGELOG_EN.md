@@ -8,6 +8,8 @@ Build artifacts and verification files are available in [GitHub Releases](https:
 
 ## Unreleased
 
+- **Faster daily pushes**: local push checks now cover metadata, formatting, lint, and unit tests, while GitHub CI handles slower builds, browser QA, Rust checks, and security audits. Formal releases still run the complete `npm run verify:release` path.
+
 ### v0.9.6
 
 - **First-run fixes**: the mobile onboarding footer remains visible, and Web Preview always returns to the full dashboard instead of restoring the previous mini mode.

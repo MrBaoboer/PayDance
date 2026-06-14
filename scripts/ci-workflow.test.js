@@ -39,6 +39,9 @@ describe("CI workflow routing", () => {
     expect(pushWorkflow).toContain("verify:metadata");
     expect(pushWorkflow).toContain("scope.requiresFullCi");
     expect(pushWorkflow).toContain("scope.deployWebPreview");
+    expect(pushWorkflow).toContain("Fast daily checks");
+    expect(pushWorkflow).not.toContain('"build:desktop"');
+    expect(pushWorkflow).not.toContain('"build:web"');
     expect(pushWorkflow).toContain('watchWorkflow("CI"');
     expect(pushWorkflow).toContain('watchWorkflow("Web Preview"');
   });

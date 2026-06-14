@@ -51,13 +51,21 @@ npm run push:main
 该命令会根据待推送文件路径自动分流：
 
 - **轻量路径**（`docs/**`、`legal/**`、`README*`、`CHANGELOG*` 等）：仅运行版本一致性、品牌与密钥卫生、格式检查、仓库元数据测试和 `git diff --check`。
-- **代码路径**（`src/**`、`src-tauri/**`、`package*.json`、`scripts/**`、`.github/workflows/**` 等）：自动升级为完整验证，追加 lint、测试、桌面构建、Web Preview 构建、`npm audit`、`cargo fmt/check/clippy/audit/deny`。
+- **代码路径**（`src/**`、`src-tauri/**`、`package*.json`、`scripts/**`、`.github/workflows/**` 等）：追加 lint 和单元测试。桌面构建、Web Preview 构建、浏览器 QA、Rust 检查和安全审计由推送后的 GitHub CI 完成。
 
 如只需验证、不推送：`npm run verify:push`
 
+正式发布前使用完整验证：
+
+```powershell
+npm run verify:release
+```
+
+该命令会完整执行桌面与 Web 构建、npm/Rust 安全审计、Rust 格式、编译检查、Clippy 和测试。
+
 > 注意：`npm run build:desktop` 和 `npm run build:web` 会写入同一个 `dist/` 目录，不要并行跑。
 
-安全审计步骤需要提前安装以下工具：
+正式发布的安全审计需要提前安装以下工具；日常推送不再要求每次重复运行它们：
 
 ```powershell
 cargo install cargo-audit --locked

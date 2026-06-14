@@ -56,9 +56,11 @@ describe("verification scripts", () => {
     expect(packageJson.scripts["verify:release"]).toContain(
       "cargo clippy --all-targets -- -D warnings",
     );
+    expect(packageJson.scripts["verify:release"]).toContain("cargo audit");
+    expect(packageJson.scripts["verify:release"]).toContain("cargo deny check");
   });
 
-  it("keeps the maintainer push workflow guarded end to end", () => {
+  it("keeps daily pushes fast while release verification stays complete", () => {
     const pushWorkflow = readRoot("scripts/push-workflow.mjs");
 
     expect(pushWorkflow).toContain("npm run verify:push");
@@ -66,13 +68,12 @@ describe("verification scripts", () => {
     expect(pushWorkflow).toContain("npm_execpath");
     expect(pushWorkflow).toContain("npm-cli.js");
     expect(pushWorkflow).not.toContain("npm.cmd");
-    expect(pushWorkflow).toContain("cargo install cargo-audit --locked");
-    expect(pushWorkflow).toContain("cargo install cargo-deny --version 0.19.8 --locked");
-    expect(pushWorkflow).toContain('"build:desktop"');
-    expect(pushWorkflow).toContain('"build:web"');
-    expect(pushWorkflow).toContain('"audit", "--omit=dev"');
-    expect(pushWorkflow).toContain('"audit"');
-    expect(pushWorkflow).toContain('"deny", "check"');
+    expect(pushWorkflow).toContain('"lint"');
+    expect(pushWorkflow).toContain('"unit tests"');
+    expect(pushWorkflow).not.toContain('"build:desktop"');
+    expect(pushWorkflow).not.toContain('"build:web"');
+    expect(pushWorkflow).not.toContain('"audit", "--omit=dev"');
+    expect(pushWorkflow).not.toContain('"deny", "check"');
     expect(pushWorkflow).toContain('"diff", "--check"');
     expect(pushWorkflow).toContain("Working tree is not clean");
     expect(pushWorkflow).toContain("Refusing to push from");

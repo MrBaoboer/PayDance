@@ -51,13 +51,21 @@ npm run push:main
 This command classifies files by path:
 
 - **Lightweight paths** (`docs/**`, `legal/**`, `README*`, `CHANGELOG*`, etc.): runs version consistency, brand/secret hygiene, formatting, metadata tests, and `git diff --check`.
-- **Code paths** (`src/**`, `src-tauri/**`, `package*.json`, `scripts/**`, `.github/workflows/**`, etc.): upgrades to full verification — adds lint, tests, desktop build, Web Preview build, `npm audit`, `cargo fmt/check/clippy/audit/deny`.
+- **Code paths** (`src/**`, `src-tauri/**`, `package*.json`, `scripts/**`, `.github/workflows/**`, etc.): adds lint and unit tests. GitHub CI handles desktop and Web Preview builds, browser QA, Rust checks, and security audits after the push.
 
 To run checks without pushing: `npm run verify:push`
 
+Before a formal release, run the complete verification path:
+
+```powershell
+npm run verify:release
+```
+
+This runs desktop and Web builds, npm/Rust security audits, Rust formatting, compile checks, Clippy, and tests.
+
 > Note: do not run `npm run build:desktop` and `npm run build:web` in parallel — both write to the same `dist/` directory.
 
-Security audit steps require local tools:
+Release security audits require these local tools; daily pushes no longer repeat them:
 
 ```powershell
 cargo install cargo-audit --locked
