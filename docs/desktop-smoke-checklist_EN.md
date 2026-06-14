@@ -45,4 +45,4 @@ Use this checklist before each Windows desktop release. It covers real desktop c
 
 ## Recording
 
-Before release, record the tested version, Windows version, monitor count, DPI scaling, and screenshots for any failed item. If a critical item fails, fix it or mark it as a known issue before continuing the release.
+Release automation generates `paydance-exe-smoke-report.json` with the main window handle, responsiveness, and single-instance result. Before release, still record the tested version, Windows version, monitor count, DPI scaling, and screenshots for any failed item. If a critical item fails, fix it or mark it as a known issue before continuing the release.

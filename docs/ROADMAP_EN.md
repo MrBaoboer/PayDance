@@ -15,13 +15,14 @@ This document records PayDance's development direction. It is not a release-date
 - First-run and settings recovery: the mobile onboarding footer stays visible, Web Preview always opens in the full dashboard, and damaged or future-version settings are silently repaired field by field and written back.
 - Release and supply-chain automation: real Rust unit tests cover update helpers; Release runs an automated Windows EXE launch smoke and single-instance check, generates an SPDX SBOM, and CodeQL analyzes TypeScript and Rust. All GitHub Actions are pinned to commit SHAs.
 - Website discovery: the 1200 × 630 sharing image now uses the product logo as its main visual and is substantially smaller, while the title and structured data describe a Windows desktop utility more accurately.
+- Maintenance evidence: Web Preview now has deterministic time/viewport pixel-diff gates; Rust tray actions have behavior-level tests, and EXE smoke records window responsiveness and single-instance results as JSON.
+- Contributor entry points: bilingual architecture change maps connect common work to files and checks, while starter issues require a user-visible result, before evidence, acceptance criteria, and a verification command.
 
 ## Now
 
 - Complete the v0.9.6 release-chain review: confirm Latest Release status, public assets, `latest.json` compatibility, portable auto-update paths, and a key-rotation drill.
 - Close remaining system-clock calibration gaps: major backward corrections, timezone changes, day crossing, and night-shift boundaries.
 - Improve multi-monitor recovery: preserve still-valid secondary-monitor positions first, and add a reset-window-position entry point.
-- Add an explicit retry action after settings-save failures.
 - Surface background updater failures appropriately: keep routine network failures low-noise, while clearly exposing manifest errors and signature-verification failures.
 - Add onboarding preview examples so setup immediately shows estimated daily income, per-minute income, and lunch-break pause semantics.
 
@@ -29,14 +30,13 @@ This document records PayDance's development direction. It is not a release-date
 
 - Authenticode code signing to reduce Windows SmartScreen warnings.
 - Mini floating-window context menu: opacity, reset position, and restore main window.
-- Extend native Windows smoke coverage to tray, always-on-top, autostart, and sleep resume.
+- Continue coverage that requires a real Windows session: system-tray clicks, autostart after reboot, and actual sleep/resume.
 - Add real updater signature verification and gitleaks download checksum verification.
-- Community contribution labels and a public soft-launch feedback loop so new contributors can find suitable entry points.
+- Publish product-boundary-reviewed, user-visible starter tasks and build a public feedback loop.
 
 ## Later
 
 - English website entry: `/en/`, `hreflang`, and language switching.
-- Playwright screenshot regression for the Web Preview first screen and key states.
 - Multi-currency support, while keeping the main interface lightweight and avoiding exchange-rate, tax, or financial-analysis complexity.
 
 ## Long-Term Exclusions

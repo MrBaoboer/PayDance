@@ -44,6 +44,7 @@ The Release workflow also runs `scripts/smoke-windows-exe.ps1` to confirm that t
 
 ## Renovate
 
-- Configuration lives in `.github/renovate.json`; validate it with `npx --yes --package renovate@43.220.0 renovate-config-validator .github/renovate.json`.
+- Configuration lives in `.github/renovate.json`; validate it with `npx --yes --package renovate renovate-config-validator .github/renovate.json`.
+- Renovate runs immediately with unlimited concurrent PRs and mandatory human merge assessment. Automerge is disabled.
 - Public evidence of a working hosted app is a Renovate PR or a `Dependency Dashboard` Issue. A config file alone does not prove installation.
-- If two scheduled windows pass without Renovate activity, the maintainer should reconfirm repository access in the GitHub App settings.
+- After the configuration reaches `main`, confirm the Dashboard and first PR batch immediately. If nothing appears, reconfirm repository access in the GitHub App settings.

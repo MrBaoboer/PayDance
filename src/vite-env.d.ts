@@ -4,3 +4,5 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 /// <reference types="vite/client" />
+
+declare const __PAYDANCE_VERSION__: string;

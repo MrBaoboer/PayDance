@@ -7,6 +7,8 @@ import { describe, expect, it } from "vitest";
 import onboardingPanelSource from "./components/OnboardingPanel.vue?raw";
 import settingsPanelSource from "./components/SettingsPanel.vue?raw";
 import salarySource from "./lib/salary.ts?raw";
+import webPreviewCssSource from "./web-preview/web-preview.css?raw";
+import rustLibSource from "../src-tauri/src/lib.rs?raw";
 
 const withoutLicenseHeader = (source: string) =>
   source
@@ -20,7 +22,9 @@ const lineCount = (source: string) => withoutLicenseHeader(source).split(/\r?\n/
 describe("architecture size boundaries", () => {
   it("keeps large UI and salary entry files below the maintenance limit", () => {
     expect(lineCount(onboardingPanelSource)).toBeLessThanOrEqual(350);
-    expect(lineCount(settingsPanelSource)).toBeLessThanOrEqual(450);
+    expect(lineCount(settingsPanelSource)).toBeLessThanOrEqual(260);
     expect(lineCount(salarySource)).toBeLessThanOrEqual(80);
+    expect(lineCount(webPreviewCssSource)).toBeLessThanOrEqual(20);
+    expect(lineCount(rustLibSource)).toBeLessThanOrEqual(80);
   });
 });

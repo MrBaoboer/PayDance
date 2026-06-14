@@ -130,6 +130,8 @@ describe("verification scripts", () => {
     expect(qaScript).toContain("--force");
     expect(qaScript).toContain("Web Preview");
     expect(qaScript).toContain("PAYDANCE_WEB_QA_RUN_ID");
+    expect(qaScript).toContain("process.env.RUNNER_TEMP ?? tmpdir()");
+    expect(qaScript).toContain('timezoneId: "Asia/Shanghai"');
     expect(qaScript).toContain("commitSha");
     expect(qaScript).toContain("observedCopies");
     expect(qaScript).toContain("assertAccessibility");
@@ -157,6 +159,7 @@ describe("verification scripts", () => {
     expect(qaGuide).toContain(
       "C:\\Users\\mrbao\\AppData\\Local\\Temp\\paydance-web-preview-qa-{version}-{commit}-{timestamp}",
     );
-    expect(qaGuide).toContain("页面实际读取到的中英文文案和截图路径");
+    expect(qaGuide).toContain("页面实际读取到的中英文文案");
+    expect(qaGuide).toContain("截图路径和视觉比较结果");
   });
 });

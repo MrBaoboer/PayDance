@@ -11,6 +11,7 @@ import { describe, expect, it } from "vitest";
 const repoRoot = resolve(import.meta.dirname, "..");
 const read = (path) => readFileSync(resolve(repoRoot, path), "utf8");
 const packageJson = JSON.parse(read("package.json"));
+const renovateConfig = JSON.parse(read(".github/renovate.json"));
 const versionedDesktopAssetName = `pay-dance-v${packageJson.version}-windows-x64.exe`;
 const desktopDownloadUrl = `https://github.com/MasterBao66/PayDance/releases/latest/download/${versionedDesktopAssetName}`;
 const legacyAdditionalTermsReference = `see /${["ADDITIONAL_TERMS", "md"].join(".")}`;
@@ -56,6 +57,17 @@ function resolveMarkdownLink(file, rawTarget) {
 }
 
 describe("repository metadata", () => {
+  it("keeps Renovate immediate, unlimited, and human-reviewed", () => {
+    expect(renovateConfig.dependencyDashboard).toBe(true);
+    expect(renovateConfig.automerge).toBe(false);
+    expect(renovateConfig.prConcurrentLimit).toBe(0);
+    expect(renovateConfig.prHourlyLimit).toBe(0);
+    expect(renovateConfig.schedule).toBeUndefined();
+    expect(
+      renovateConfig.packageRules.some((rule) => rule.automerge === true),
+    ).toBe(false);
+  });
+
   it("keeps README desktop download links on the versioned Windows release executable", () => {
     const readme = read("README.md");
     const desktopDownloadLinks = readme.match(
@@ -156,8 +168,21 @@ describe("repository metadata", () => {
     expect(read("docs/GOVERNANCE_EN.md")).toContain("Governance");
     expect(read("docs/MAINTENANCE.md")).toContain("配置迁移");
     expect(read("docs/MAINTENANCE_EN.md")).toContain("Settings Migration");
+    expect(read("README.md")).toContain("docs/ARCHITECTURE.md");
+    expect(read("docs/README_EN.md")).toContain("ARCHITECTURE_EN.md");
+    expect(read("docs/ARCHITECTURE.md")).toContain("修改导航");
+    expect(read("docs/ARCHITECTURE_EN.md")).toContain("Change Map");
     expect(read(".github/CONTRIBUTING.md")).toContain("good first issue");
     expect(read("docs/CONTRIBUTING_EN.md")).toContain("good first issue");
+    expect(read(".github/CONTRIBUTING.md")).toContain("用户能看到的结果");
+    expect(read(".github/CONTRIBUTING.md")).toContain("验收标准");
+    expect(read(".github/CONTRIBUTING.md")).toContain("验证命令");
+    expect(read("docs/CONTRIBUTING_EN.md")).toContain("user-visible result");
+    expect(read("docs/CONTRIBUTING_EN.md")).toContain("Acceptance criteria");
+    expect(read("docs/CONTRIBUTING_EN.md")).toContain("Verification command");
+    expect(read(".github/ISSUE_TEMPLATE.md")).toContain("用户影响");
+    expect(read(".github/ISSUE_TEMPLATE.md")).toContain("验收标准");
+    expect(read(".github/ISSUE_TEMPLATE.md")).toContain("验证命令");
     expect(read(".github/CONTRIBUTING.md")).toContain(
       "普通贡献只需要 DCO 签署行，不需要提前签 CLA",
     );
@@ -312,6 +337,6 @@ describe("repository metadata", () => {
     expect(read("docs/PRODUCT.md")).toContain(positioning);
     expect(read("src/lib/app-meta.ts")).toContain(positioning);
     expect(read("src-tauri/Cargo.toml")).toContain(positioning);
-    expect(read("src-tauri/src/lib.rs")).toContain(positioning);
+    expect(read("src-tauri/src/tray.rs")).toContain(positioning);
   });
 });

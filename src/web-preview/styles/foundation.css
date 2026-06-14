@@ -1,0 +1,104 @@
+.web-preview {
+  --brand-logo-size: 52px;
+  --brand-name-size: 24px;
+  --headline-main-size: clamp(42px, 3.6vw, 58px);
+  --headline-accent-size: clamp(62px, 5.2vw, 84px);
+  --web-font-action:
+    "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
+  --web-font-display:
+    "PayDance Web Serif", "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", serif;
+  --web-font-ui:
+    "PayDance Web Sans", "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
+  --web-max-width: 1280px;
+  --web-frame-lift: 0 32px 76px rgb(24 24 27 / 0.12), 0 0 0 1px rgb(255 255 255 / 0.72);
+  --web-page-bg: rgb(249 250 251);
+  --web-page-depth: rgb(235 238 241);
+  --web-page-sheen: rgb(255 244 225 / 0.64);
+  --web-stage-aura: rgb(217 119 6 / 0.13);
+  --web-stage-panel: rgb(255 255 255);
+  --web-stage-reflection: rgb(255 238 213 / 0.72);
+  --web-stage-ring: rgb(24 24 27 / 0.075);
+  --web-stage-surface: linear-gradient(
+    138deg,
+    rgb(255 255 255 / 0.78) 0%,
+    rgb(255 244 225 / 0.34) 50%,
+    rgb(255 255 255 / 0) 100%
+  );
+  --web-stage-surface-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.64), 0 42px 118px rgb(24 24 27 / 0.075);
+  --web-surface: rgb(255 255 255 / 0.74);
+  --web-surface-strong: rgb(255 255 255 / 0.96);
+  --web-border: rgb(24 24 27 / 0.11);
+  --web-shadow: var(--web-frame-lift);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  height: auto;
+  min-height: 100dvh;
+  flex-direction: column;
+  overflow-x: clip;
+  overflow-y: visible;
+  background:
+    linear-gradient(
+      115deg,
+      transparent 0%,
+      transparent 53%,
+      var(--web-page-sheen) 76%,
+      transparent 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(253 253 252) 0%,
+      var(--web-page-bg) 58%,
+      var(--web-page-depth) 100%
+    );
+  color: var(--text);
+  padding: clamp(24px, 3.6vw, 54px) clamp(24px, 5vw, 74px) clamp(18px, 3vw, 34px);
+}
+
+.web-preview::before,
+.web-preview::after {
+  display: none;
+}
+
+.theme-dark.web-preview {
+  --web-frame-lift: 0 42px 116px rgb(0 0 0 / 0.64), 0 0 68px rgb(245 158 11 / 0.062);
+  --web-page-bg: rgb(7 8 9);
+  --web-page-depth: rgb(12 11 10);
+  --web-page-sheen: rgb(245 158 11 / 0.026);
+  --web-stage-aura: rgb(245 158 11 / 0.064);
+  --web-stage-panel: rgb(18 18 20);
+  --web-stage-reflection: rgb(245 158 11 / 0.052);
+  --web-stage-ring: rgb(255 255 255 / 0.105);
+  --web-stage-surface: linear-gradient(
+    138deg,
+    rgb(255 255 255 / 0.064) 0%,
+    rgb(245 158 11 / 0.05) 47%,
+    rgb(255 255 255 / 0.012) 100%
+  );
+  --web-stage-surface-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.045), 0 62px 154px rgb(0 0 0 / 0.5);
+  --web-surface: rgb(25 25 28 / 0.8);
+  --web-surface-strong: rgb(38 38 42 / 0.96);
+  --web-border: rgb(255 255 255 / 0.13);
+  --web-shadow: var(--web-frame-lift);
+  background:
+    linear-gradient(
+      115deg,
+      transparent 0%,
+      transparent 56%,
+      var(--web-page-sheen) 80%,
+      transparent 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(5 6 7) 0%,
+      var(--web-page-bg) 58%,
+      var(--web-page-depth) 100%
+    );
+}
+
+.theme-dark.web-preview::before,
+.theme-dark.web-preview::after {
+  display: none;
+}

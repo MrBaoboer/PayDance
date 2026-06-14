@@ -38,4 +38,31 @@ describe("monotonic wall clock", () => {
       1_700_000_005_000,
     );
   });
+
+  it("continues smoothly after rebasing on sleep resume", () => {
+    const clock = makeClock({ monotonicMs: 0, wallTimeMs: 1_700_000_000_000 });
+
+    const resumed = clock.nowMs({
+      monotonicMs: 2_000,
+      wallTimeMs: 1_700_028_800_000,
+    });
+    const nextTick = clock.nowMs({
+      monotonicMs: 3_500,
+      wallTimeMs: 1_700_028_801_500,
+    });
+
+    expect(resumed).toBe(1_700_028_800_000);
+    expect(nextTick).toBe(1_700_028_801_500);
+  });
+
+  it("ignores a large backward wall-clock correction after resume", () => {
+    const clock = makeClock({ monotonicMs: 0, wallTimeMs: 1_700_000_000_000 });
+
+    expect(
+      clock.nowMs({
+        monotonicMs: 10_000,
+        wallTimeMs: 1_699_996_400_000,
+      }),
+    ).toBe(1_700_000_010_000);
+  });
 });

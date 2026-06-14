@@ -1,6 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
+  "dependencyDashboard": true,
+  "automerge": false,
+  "prConcurrentLimit": 0,
+  "prHourlyLimit": 0,
   "labels": ["dependencies"],
   "packageRules": [
     {
@@ -57,14 +61,7 @@
       "matchPackageNames": ["serde", "serde_json"],
       "groupName": "Rust serialization",
       "groupSlug": "rust-serde"
-    },
-    {
-      "matchUpdateTypes": ["patch"],
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": true
     }
   ],
-  "timezone": "Asia/Shanghai",
-  "schedule": ["before 9am on Monday"]
+  "timezone": "Asia/Shanghai"
 }

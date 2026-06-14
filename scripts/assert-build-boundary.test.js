@@ -63,4 +63,27 @@ describe("build boundary assertion", () => {
       },
     );
   });
+
+  it.each(["web", "desktop"])(
+    "rejects package manifest metadata in the %s build",
+    (target) => {
+      const marker = target === "web" ? "PayDance Web Preview" : "tray-open-settings";
+
+      withDistFixture(
+        {
+          [`index-${target}.js`]:
+            `${marker} verify:release @tauri-apps/plugin-updater`,
+        },
+        (cwd) => {
+          expect(() =>
+            execFileSync("node", [scriptPath, target], {
+              cwd,
+              encoding: "utf8",
+              stdio: "pipe",
+            }),
+          ).toThrow(/package manifest metadata/);
+        },
+      );
+    },
+  );
 });

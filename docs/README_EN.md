@@ -116,6 +116,7 @@ PayDance requires no login, uploads no data, and includes no telemetry. All conf
 ## Documentation
 
 - [FAQ](FAQ_EN.md)
+- [Architecture and Change Map](ARCHITECTURE_EN.md)
 - [Product Positioning & Boundaries](PRODUCT_EN.md)
 - [Roadmap](ROADMAP_EN.md)
 - [Changelog](../CHANGELOG_EN.md)

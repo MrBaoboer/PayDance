@@ -39,7 +39,13 @@ const pngSize = (path: string) => {
   };
 };
 const appStyles = read("src/style.css");
-const webPreviewStyles = read("src/web-preview/web-preview.css");
+const webPreviewStyles = [
+  read("src/web-preview/web-preview.css"),
+  read("src/web-preview/styles/foundation.css"),
+  read("src/web-preview/styles/hero.css"),
+  read("src/web-preview/styles/showcase.css"),
+  read("src/web-preview/styles/responsive.css"),
+].join("\n");
 const cssBlockFrom = (source: string, selector: string) =>
   source.match(
     new RegExp(`${selector.split(".").join("\\.")} \\{[\\s\\S]*?\\n\\}`),
@@ -135,6 +141,15 @@ describe("PayDance Web Preview", () => {
     expect(cssBlock(".web-preview__status")).toContain("gap: 8px");
   });
 
+  it("keeps the brand logo on the product homepage", () => {
+    expect(webPreviewPageSource).toContain(
+      "const productHomepageUrl = import.meta.env.BASE_URL",
+    );
+    expect(webPreviewPageSource).toContain(':product-homepage-url="productHomepageUrl"');
+    expect(webPreviewTopbarSource).toContain(':href="productHomepageUrl"');
+    expect(webPreviewTopbarSource).not.toContain(':href="repositoryUrl"');
+  });
+
   it("uses a segmented language switcher instead of a tiny single-label button", () => {
     expect(webPreviewPageSource).toContain("const { locale } = provideI18n");
     expect(webPreviewPageSource).toContain(':data-locale="locale"');
@@ -218,9 +233,7 @@ describe("PayDance Web Preview", () => {
     );
     expect(webPreviewSource).toContain("overflow-wrap: normal");
     expect(webPreviewSource).toContain("@media (max-width: 1180px)");
-    expect(webPreviewSource).toContain(
-      ".web-preview__hero {\n    grid-template-columns: 1fr;",
-    );
+    expect(webPreviewStyles).toContain("grid-template-columns: 1fr");
     expect(webPreviewSource).not.toContain(
       '@media (max-width: 1180px) {\n  .web-preview[data-locale="en"] .web-preview__hero',
     );
@@ -274,13 +287,9 @@ describe("PayDance Web Preview", () => {
       "grid-template-columns: minmax(330px, 0.9fr) minmax(390px, 460px)",
     );
     expect(webPreviewSource).toContain("@media (max-width: 1180px)");
-    expect(webPreviewSource).toContain(
-      ".web-preview__hero {\n    grid-template-columns: 1fr;",
-    );
+    expect(webPreviewStyles).toContain("grid-template-columns: 1fr");
     expect(webPreviewSource).toContain("gap: clamp(34px, 5.6vw, 54px)");
-    expect(webPreviewSource).toContain(
-      ".web-preview__copy {\n    justify-items: center;",
-    );
+    expect(webPreviewStyles).toContain("justify-items: center");
     expect(webPreviewSource).toContain("@media (max-width: 820px)");
   });
 
@@ -378,7 +387,7 @@ describe("PayDance Web Preview", () => {
     expect(cssBlock(".web-preview__action-label")).toContain(
       "transform: translateY(-0.75px)",
     );
-    expect(webPreviewSource).toContain(".web-preview__action--quiet {\n  gap: 3px;");
+    expect(cssBlock(".web-preview__action--quiet")).toContain("gap: 3px");
     expect(cssBlock(".web-preview__action")).toContain(
       "transition: box-shadow 160ms ease",
     );
