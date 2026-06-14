@@ -239,7 +239,8 @@ jobs:
         run: |
           $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
           ./scripts/smoke-windows-exe.ps1 `
-            -ExePath "src-tauri/target/release/pay-dance-v$version-windows-x64.exe"
+            -ExePath "src-tauri/target/release/pay-dance-v$version-windows-x64.exe" `
+            -ReportPath "release-assets/paydance-exe-smoke-report.json"
 
       - name: Generate release SBOM
         uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
@@ -261,6 +262,7 @@ jobs:
             release-assets/pay-dance-v*-windows-x64.exe.sig
             release-assets/latest.json
             release-assets/build-artifact-smoke.md
+            release-assets/paydance-exe-smoke-report.json
             release-assets/pay-dance-sbom.spdx.json
           if-no-files-found: error
 

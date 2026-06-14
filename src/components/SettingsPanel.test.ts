@@ -9,12 +9,13 @@ import settingsGroupSource from "./ui/SettingsGroup.vue?raw";
 import switchRowSource from "./ui/SwitchRow.vue?raw";
 import lunchBreakFieldsSource from "./settings/LunchBreakFields.vue?raw";
 import salaryAmountFieldsSource from "./settings/SalaryAmountFields.vue?raw";
+import settingsAboutFooterSource from "./settings/SettingsAboutFooter.vue?raw";
 import updateActionBadgeSource from "./settings/UpdateActionBadge.vue?raw";
 import workTimeFieldsSource from "./settings/WorkTimeFields.vue?raw";
 
 describe("settings panel", () => {
   it("shows the about version as a plain number", () => {
-    const versionLine = settingsPanelSource
+    const versionLine = settingsAboutFooterSource
       .split("\n")
       .find((line) => line.includes("{{ appVersion }}"));
     const prefixedVersionTemplate = ["v", "{{ appVersion }}"].join("");
@@ -63,12 +64,7 @@ describe("settings panel", () => {
   });
 
   it("keeps modified attribution footer but removes the about heading copy", () => {
-    expect(settingsPanelSource).toContain("about-footer__repo-card");
-    expect(settingsPanelSource).toContain("about-footer__copyright");
-    expect(settingsPanelSource).toContain("about-footer__copyright--centered");
-    expect(settingsPanelSource.indexOf("repository-button")).toBeLessThan(
-      settingsPanelSource.indexOf("about-footer__copyright"),
-    );
+    expect(settingsPanelSource).toContain("<SettingsAboutFooter");
   });
 
   it("adds a lightweight autostart card without unrelated desktop controls", () => {
@@ -110,17 +106,17 @@ describe("settings panel", () => {
   });
 
   it("uses semantic buttons for update retry and install actions", () => {
-    expect(settingsPanelSource).toContain("<UpdateActionBadge");
+    expect(settingsAboutFooterSource).toContain("<UpdateActionBadge");
     expect(updateActionBadgeSource).toContain('class="update-badge-button"');
     expect(updateActionBadgeSource).toContain(':aria-label="');
     expect(updateActionBadgeSource).not.toContain('@click.stop="downloadUpdate"');
   });
 
   it("keeps the update badge visually centered with the version text", () => {
-    expect(settingsPanelSource).toContain("about-footer__version-line");
-    expect(settingsPanelSource).toContain("display: inline-flex");
-    expect(settingsPanelSource).toContain("align-items: center");
-    expect(settingsPanelSource).toContain("gap: 3px");
+    expect(settingsAboutFooterSource).toContain("about-footer__version-line");
+    expect(settingsAboutFooterSource).toContain("display: inline-flex");
+    expect(settingsAboutFooterSource).toContain("align-items: center");
+    expect(settingsAboutFooterSource).toContain("gap: 3px");
     expect(updateActionBadgeSource).toContain("display: inline-flex");
     expect(updateActionBadgeSource).toContain("vertical-align: middle");
     expect(updateActionBadgeSource).toContain("transform: translateX(-1px)");
@@ -134,20 +130,24 @@ describe("settings panel", () => {
   });
 
   it("keeps the attribution footer balanced in narrow settings sheets", () => {
-    expect(settingsPanelSource).toContain("grid-template-columns: minmax(0, 1fr) auto");
-    expect(settingsPanelSource).toContain("min-width: clamp(96px, 20cqw, 112px)");
-    expect(settingsPanelSource).toContain("min-width: clamp(92px, 20cqw, 112px)");
-    expect(settingsPanelSource).toContain("width: clamp(92px, 20cqw, 108px)");
-    expect(settingsPanelSource).toContain(
+    expect(settingsAboutFooterSource).toContain(
+      "grid-template-columns: minmax(0, 1fr) auto",
+    );
+    expect(settingsAboutFooterSource).toContain("min-width: clamp(96px, 20cqw, 112px)");
+    expect(settingsAboutFooterSource).toContain("min-width: clamp(92px, 20cqw, 112px)");
+    expect(settingsAboutFooterSource).toContain("width: clamp(92px, 20cqw, 108px)");
+    expect(settingsAboutFooterSource).toContain(
       "transform: translateX(calc(var(--about-footer-nudge) * -1))",
     );
-    expect(settingsPanelSource).toContain(
+    expect(settingsAboutFooterSource).toContain(
       "--about-footer-nudge: clamp(3px, 0.9cqw, 5px)",
     );
-    expect(settingsPanelSource).toContain("box-shadow: 0 7px 18px rgb(15 23 42 / 0.08)");
-    expect(settingsPanelSource).toContain("width: 20px");
-    expect(settingsPanelSource).not.toContain("flex-wrap: wrap");
-    expect(settingsPanelSource).not.toContain(
+    expect(settingsAboutFooterSource).toContain(
+      "box-shadow: 0 7px 18px rgb(15 23 42 / 0.08)",
+    );
+    expect(settingsAboutFooterSource).toContain("width: 20px");
+    expect(settingsAboutFooterSource).not.toContain("flex-wrap: wrap");
+    expect(settingsAboutFooterSource).not.toContain(
       ".about-footer__identity {\n    text-align: center;",
     );
   });
@@ -172,8 +172,8 @@ describe("settings panel", () => {
     expect(fieldInputBlock).not.toContain("font-family: var(--font-mono)");
     expect(salaryAmountFieldsSource).toContain(".field-unit");
     expect(salaryAmountFieldsSource).toContain("font-family: var(--font-dashboard)");
-    expect(settingsPanelSource).toContain(".repository-button");
-    expect(settingsPanelSource).toContain(".about-footer__identity span");
-    expect(settingsPanelSource).toContain("font-variant-numeric: tabular-nums");
+    expect(settingsAboutFooterSource).toContain(".repository-button");
+    expect(settingsAboutFooterSource).toContain(".about-footer__identity span");
+    expect(settingsAboutFooterSource).toContain("font-variant-numeric: tabular-nums");
   });
 });

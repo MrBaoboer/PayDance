@@ -157,6 +157,7 @@ describe("verification scripts", () => {
     expect(qaGuide).toContain(
       "C:\\Users\\mrbao\\AppData\\Local\\Temp\\paydance-web-preview-qa-{version}-{commit}-{timestamp}",
     );
-    expect(qaGuide).toContain("页面实际读取到的中英文文案和截图路径");
+    expect(qaGuide).toContain("页面实际读取到的中英文文案");
+    expect(qaGuide).toContain("截图路径和视觉比较结果");
   });
 });

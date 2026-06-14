@@ -97,6 +97,10 @@ describe("CI workflow routing", () => {
     expect(releaseWorkflow).toContain("pay-dance-sbom.spdx.json");
     expect(smokeScript).toContain("MainWindowHandle");
     expect(smokeScript).toContain("single-instance");
+    expect(smokeScript).toContain("[string]$ReportPath");
+    expect(smokeScript).toContain("ConvertTo-Json");
+    expect(smokeScript).toContain("Responding");
+    expect(releaseWorkflow).toContain("paydance-exe-smoke-report.json");
   });
 
   it("pins every GitHub Action to a full commit SHA", () => {

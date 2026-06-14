@@ -6,10 +6,18 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import tailwindcss from "@tailwindcss/vite";
+import { readFileSync } from "node:fs";
 import { fileURLToPath, URL } from "node:url";
+
+const packageMetadata = JSON.parse(
+  readFileSync(new URL("./package.json", import.meta.url), "utf8"),
+) as { version: string };
 
 export default defineConfig(({ mode }) => ({
   base: mode === "web" ? "/PayDance/" : "./",
+  define: {
+    __PAYDANCE_VERSION__: JSON.stringify(packageMetadata.version),
+  },
   plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {

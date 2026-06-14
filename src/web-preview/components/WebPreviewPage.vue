@@ -32,6 +32,7 @@ const { locale } = provideI18n(initialLocale, (next) => {
 
 const shellClass = ref("theme-light");
 const documentScrollClass = "is-web-preview-page";
+const productHomepageUrl = import.meta.env.BASE_URL;
 
 const toggleDocumentScroll = (enabled: boolean) => {
   document.documentElement.classList.toggle(documentScrollClass, enabled);
@@ -51,8 +52,8 @@ onBeforeUnmount(() => toggleDocumentScroll(false));
       :app-english-name="appEnglishName"
       :app-name="appName"
       :app-version="appVersion"
+      :product-homepage-url="productHomepageUrl"
       :product-logo-url="productLogoUrl"
-      :repository-url="repositoryUrl"
     />
 
     <section class="web-preview__hero" aria-label="PayDance Web Preview">

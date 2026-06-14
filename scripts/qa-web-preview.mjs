@@ -4,12 +4,13 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 import { execFileSync, spawn } from "node:child_process";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import packageMetadata from "../package.json" with { type: "json" };
 import { resolvePlaywright } from "./resolve-playwright.mjs";
+import { comparePngFiles } from "./visual-diff.mjs";
 
 const version = packageMetadata.version;
 const sanitizeRunId = (value) =>
@@ -38,6 +39,9 @@ const runId = sanitizeRunId(
 const port = Number(process.env.PAYDANCE_WEB_QA_PORT ?? 4174);
 const localUrl = `http://127.0.0.1:${port}/PayDance/`;
 const qaDir = join(tmpdir(), `paydance-web-preview-qa-${version}-${runId}`);
+const visualBaselineDir = resolve("tests", "visual-baselines");
+const updateVisualBaselines = process.argv.includes("--update-visual-baselines");
+const visualMaxDiffRatio = 0.001;
 const storageKey = "paydance-web-preview-settings";
 const viewports = [
   { name: "desktop", width: 1440, height: 900 },
@@ -81,6 +85,73 @@ const createPreviewState = (themeMode) => ({
   settingsVersion: 3,
   themeMode,
 });
+
+const isVisualBaselineCase = (locale, themeMode, viewportName) =>
+  ((locale === "zh-CN" && themeMode === "light") ||
+    (locale === "en" && themeMode === "dark")) &&
+  ["desktop", "mobile"].includes(viewportName);
+
+const stabilizeVisualPage = async (page) => {
+  await page.addStyleTag({
+    content: `
+      *,
+      *::before,
+      *::after {
+        animation-delay: 0s !important;
+        animation-duration: 0s !important;
+        caret-color: transparent !important;
+        transition-delay: 0s !important;
+        transition-duration: 0s !important;
+      }
+    `,
+  });
+  await page.evaluate(() => document.fonts.ready.then(() => true));
+  await page.waitForTimeout(150);
+};
+
+const assertVisualBaseline = ({ locale, screenshotPath, themeMode, viewport }) => {
+  if (!isVisualBaselineCase(locale, themeMode, viewport.name)) return null;
+
+  const fileName = `web-preview-${locale}-${themeMode}-${viewport.name}-${viewport.width}x${viewport.height}.png`;
+  const baselinePath = join(visualBaselineDir, fileName);
+
+  if (updateVisualBaselines) {
+    mkdirSync(visualBaselineDir, { recursive: true });
+    copyFileSync(screenshotPath, baselinePath);
+    return {
+      baselinePath,
+      mode: "updated",
+      name: fileName,
+    };
+  }
+
+  const expectedPath = join(qaDir, `expected-${fileName}`);
+  const diffPath = join(qaDir, `diff-${fileName}`);
+  const result = comparePngFiles({
+    actualPath: screenshotPath,
+    baselinePath,
+    diffPath,
+  });
+  copyFileSync(baselinePath, expectedPath);
+
+  if (result.ratio > visualMaxDiffRatio) {
+    throw new Error(
+      `Visual regression ${fileName}: ${result.diffPixels} pixels changed (${(
+        result.ratio * 100
+      ).toFixed(
+        3,
+      )}%). Expected: ${expectedPath}. Actual: ${screenshotPath}. Diff: ${diffPath}.`,
+    );
+  }
+
+  return {
+    ...result,
+    baselinePath,
+    expectedPath,
+    mode: "compared",
+    name: fileName,
+  };
+};
 
 const waitForServer = async () => {
   const deadline = Date.now() + 30_000;
@@ -739,11 +810,28 @@ const seedPreviewContext = async (browser, locale, themeMode, viewport) => {
     viewport: { width: viewport.width, height: viewport.height },
   });
   await context.addInitScript(
-    ({ key, localeKey, localeValue, state }) => {
+    ({ fixedTime, key, localeKey, localeValue, state }) => {
+      const NativeDate = Date;
+      class FixedDate extends NativeDate {
+        constructor(...args) {
+          super(...(args.length === 0 ? [fixedTime] : args));
+        }
+
+        static now() {
+          return fixedTime;
+        }
+      }
+      Object.setPrototypeOf(FixedDate, NativeDate);
+      Object.defineProperty(window, "Date", { configurable: true, value: FixedDate });
+      Object.defineProperty(performance, "now", {
+        configurable: true,
+        value: () => 0,
+      });
       window.localStorage.setItem(localeKey, localeValue);
       window.localStorage.setItem(key, JSON.stringify(state));
     },
     {
+      fixedTime: Date.parse("2026-06-15T02:00:00.000Z"),
       key: storageKey,
       localeKey: localeStorageKey,
       localeValue: locale,
@@ -774,6 +862,7 @@ const assertLanguageSwitchFlow = async (browser, consoleFindings, pageErrors) =>
       state: "visible",
       timeout: 45_000,
     });
+    await stabilizeVisualPage(page);
 
     const initialLocale = await page.locator(".web-preview").getAttribute("data-locale");
     if (initialLocale !== "zh-CN") {
@@ -830,6 +919,7 @@ const runQa = async () => {
     const consoleFindings = [];
     const pageErrors = [];
     const observations = [];
+    const visualComparisons = [];
 
     for (const locale of locales) {
       for (const themeMode of themes) {
@@ -852,6 +942,7 @@ const runQa = async () => {
             state: "visible",
             timeout: 45_000,
           });
+          await stabilizeVisualPage(page);
           const observedCopy = await assertDom(
             page,
             `${locale}/${themeMode}/${viewport.name}`,
@@ -875,6 +966,13 @@ const runQa = async () => {
             `web-preview-${locale}-${themeMode}-${viewport.name}-${viewport.width}x${viewport.height}.png`,
           );
           await page.screenshot({ fullPage: true, path: screenshotPath });
+          const visualComparison = assertVisualBaseline({
+            locale,
+            screenshotPath,
+            themeMode,
+            viewport,
+          });
+          if (visualComparison) visualComparisons.push(visualComparison);
           await context.close();
         }
       }
@@ -919,6 +1017,7 @@ const runQa = async () => {
               })),
             ),
           ),
+          visualComparisons,
           version,
         },
         null,

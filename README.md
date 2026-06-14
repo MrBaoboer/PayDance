@@ -116,6 +116,7 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json"
 ## 相关文档
 
 - [常见问题](docs/FAQ.md)
+- [架构与修改导航](docs/ARCHITECTURE.md)
 - [产品定位与边界](docs/PRODUCT.md)
 - [路线图](docs/ROADMAP.md)
 - [更新日志](CHANGELOG.md)

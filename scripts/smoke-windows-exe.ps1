@@ -7,18 +7,34 @@ param(
   [Parameter(Mandatory = $true)]
   [string]$ExePath,
   [int]$StartupTimeoutSeconds = 25,
-  [int]$StableSeconds = 10
+  [int]$StableSeconds = 10,
+  [string]$ReportPath = ""
 )
 
 $ErrorActionPreference = "Stop"
 $resolvedExe = (Resolve-Path -LiteralPath $ExePath).Path
 $smokeRoot = Join-Path $env:RUNNER_TEMP "paydance-exe-smoke"
+if (-not $ReportPath) {
+  $ReportPath = Join-Path $smokeRoot "report.json"
+}
+$resolvedReportPath = [System.IO.Path]::GetFullPath($ReportPath)
+$reportDirectory = Split-Path -Parent $resolvedReportPath
 $env:APPDATA = Join-Path $smokeRoot "Roaming"
 $env:LOCALAPPDATA = Join-Path $smokeRoot "Local"
-New-Item -ItemType Directory -Force -Path $env:APPDATA, $env:LOCALAPPDATA | Out-Null
+New-Item -ItemType Directory -Force -Path $env:APPDATA, $env:LOCALAPPDATA, $reportDirectory | Out-Null
 
 $primary = $null
 $secondary = $null
+$report = [ordered]@{
+  status = "running"
+  executable = $resolvedExe
+  startedAt = (Get-Date).ToUniversalTime().ToString("o")
+  startupTimeoutSeconds = $StartupTimeoutSeconds
+  stableSeconds = $StableSeconds
+  mainWindowHandle = 0
+  responding = $false
+  singleInstance = $false
+}
 
 try {
   Write-Host "Starting PayDance smoke target: $resolvedExe"
@@ -35,6 +51,11 @@ try {
 
   if ($primary.MainWindowHandle -eq 0) {
     throw "PayDance did not create a main window within $StartupTimeoutSeconds seconds."
+  }
+  $report.mainWindowHandle = $primary.MainWindowHandle.ToInt64()
+  $report.responding = $primary.Responding
+  if (-not $report.responding) {
+    throw "PayDance created a main window but is not responding."
   }
 
   Write-Host "Main window detected. Verifying stable runtime for $StableSeconds seconds."
@@ -55,9 +76,23 @@ try {
     throw "The primary PayDance process exited during the single-instance check."
   }
 
+  $report.status = "passed"
+  $report.primaryProcessId = $primary.Id
+  $report.secondaryExitCode = $secondary.ExitCode
+  $report.singleInstance = $true
+  $report.completedAt = (Get-Date).ToUniversalTime().ToString("o")
   Write-Host "Windows EXE smoke passed: main window, stable runtime, single-instance."
 }
+catch {
+  $report.status = "failed"
+  $report.error = $_.Exception.Message
+  $report.completedAt = (Get-Date).ToUniversalTime().ToString("o")
+  throw
+}
 finally {
+  $report | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $resolvedReportPath -Encoding utf8
+  Write-Host "Windows EXE smoke report: $resolvedReportPath"
+
   foreach ($process in @($secondary, $primary)) {
     if ($null -ne $process) {
       $process.Refresh()

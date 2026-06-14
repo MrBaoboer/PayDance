@@ -71,4 +71,17 @@ describe("autostart", () => {
       error: "自启动设置失败",
     });
   });
+
+  it("keeps autostart enabled when disabling is rejected by Windows", async () => {
+    const adapter = createAdapter(true);
+    vi.mocked(adapter.disable).mockRejectedValue(new Error("access denied"));
+
+    await expect(
+      setAutostartEnabled(adapter, false, true, "自启动设置失败"),
+    ).resolves.toEqual({
+      enabled: true,
+      error: "自启动设置失败",
+    });
+    expect(adapter.enable).not.toHaveBeenCalled();
+  });
 });

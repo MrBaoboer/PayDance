@@ -94,5 +94,27 @@ describe("useWindowMode", () => {
     await applyWindowMode();
 
     expect(lastCall(managedWindow.sizeCalls)).toEqual({ width: 720, height: 540 });
+    expect(lastCall(managedWindow.alwaysOnTopCalls)).toBe(true);
+  });
+
+  it("keeps the native mini window topmost after changing the saved full-window preference", async () => {
+    const managedWindow = createManagedWindow();
+    const isMiniMode = ref(true);
+    const miniSize = ref({ ...miniDefaultSize });
+    const fullSize = ref({ ...fullWindowSize });
+    const alwaysOnTop = ref(false);
+    const { setAlwaysOnTop } = useWindowMode(
+      managedWindow.window,
+      isMiniMode,
+      miniSize,
+      fullSize,
+      alwaysOnTop,
+    );
+
+    await setAlwaysOnTop(true);
+    await setAlwaysOnTop(false);
+
+    expect(alwaysOnTop.value).toBe(false);
+    expect(managedWindow.alwaysOnTopCalls).toEqual([true, true]);
   });
 });

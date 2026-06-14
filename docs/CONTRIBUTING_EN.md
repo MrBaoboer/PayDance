@@ -89,14 +89,17 @@ For first contributions, prefer issues labeled `good first issue` or `help wante
 
 ## First Contribution Walkthrough
 
-For a low-risk first PR, pick one documentation or QA issue and keep the change narrow:
+First contributions are no longer limited to documentation. Prefer a small user-visible result with a bounded implementation:
 
 1. Read the linked issue and confirm it is still open.
-2. Edit one focused file, such as a docs page, checklist, or community template.
-3. Run `npm run verify:metadata` for docs, legal, brand, or community-template changes.
-4. Open the PR with a short summary, the verification command you ran, and a `Signed-off-by:` line.
+2. The issue must state the **user-visible result**, current screenshot or reproduction evidence, bounded scope, **Acceptance criteria**, and one explicit **Verification command**.
+3. Starter work normally changes only 1–2 primary files. Work requiring release keys, updater signing, or cross-module migration is not a `good first issue`.
+4. UI improvements include before/after screenshots; behavior fixes include a test that fails before the fix and passes afterward.
+5. Open the PR with a short summary, the verification command you ran, and a `Signed-off-by:` line.
 
-Avoid mixing code, screenshots, release notes, and documentation cleanup in the same first PR unless the issue explicitly asks for that scope.
+Maintainers do not manufacture tasks to increase label counts. A new user-visible issue is published only after its product fit is confirmed. An assignment may be released after seven days without a plan, commit, or progress update.
+
+Avoid mixing feature work, unrelated refactoring, release notes, and documentation cleanup in the same first PR unless the issue explicitly asks for that scope.
 
 ## What We Do Not Accept
 

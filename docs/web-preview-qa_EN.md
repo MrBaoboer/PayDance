@@ -19,7 +19,8 @@ Do not replace this flow with headless Chrome, CDP, or command-line screenshots.
 7. Use `@axe-core/playwright` for serious automated accessibility findings. This is not a full WCAG compliance claim.
 8. Collect console errors and page errors, and confirm there are no severe errors.
 9. Save screenshots and `summary.json` to a unique temporary QA directory for this run: `C:\Users\mrbao\AppData\Local\Temp\paydance-web-preview-qa-{version}-{commit}-{timestamp}`.
-10. Stop the local service after validation so the port is not left occupied.
+10. Compare four canonical visual states: desktop and mobile for Chinese light mode and English dark mode.
+11. Stop the local service after validation so the port is not left occupied.
 
 ## Command
 
@@ -27,7 +28,13 @@ Do not replace this flow with headless Chrome, CDP, or command-line screenshots.
 npm run qa:web-preview
 ```
 
-The script starts `npm run dev:web`, runs multi-viewport screenshots, DOM checks, console checks, accessibility checks, and the Chinese-to-English click regression, then shuts down the local service. `summary.json` records the run id, commit, actual Chinese/English copy read from the page, and screenshot paths so the evidence is tied to the current run.
+Update baselines only after confirming that the visual change is intentional:
+
+```powershell
+npm run qa:web-preview:update
+```
+
+Normal QA never accepts new screenshots automatically. On a mismatch, the temporary evidence directory keeps the expected, actual, and diff images. `summary.json` records the run id, commit, current Chinese/English copy, screenshot paths, and visual comparison results.
 
 ## Passing Criteria
 
@@ -37,4 +44,5 @@ The script starts `npm run dev:web`, runs multi-viewport screenshots, DOM checks
 - There are no critical/serious axe automated accessibility violations.
 - After light/dark theme switching, the preview window edge has no obvious flash, color mismatch, or residue.
 - `summary.json` contains no severe console error or page error.
+- Canonical states differ from reviewed baselines by no more than `0.1%` of pixels.
 - The local dev server exits after validation.
