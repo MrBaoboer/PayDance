@@ -811,6 +811,7 @@ const assertThemeToggleEdge = async (page, viewportName, locale) => {
 const seedPreviewContext = async (browser, locale, themeMode, viewport) => {
   const context = await browser.newContext({
     deviceScaleFactor: 1,
+    timezoneId: "Asia/Shanghai",
     viewport: { width: viewport.width, height: viewport.height },
   });
   await context.addInitScript(
