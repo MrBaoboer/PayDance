@@ -114,20 +114,29 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).not.toContain("@tauri-apps");
   });
 
-  it("brands the web storefront with the product logo and current version", () => {
+  it("brands the web storefront with the setup poster and current version", () => {
     const favicon = statSync(new URL("../public/favicon.png", import.meta.url));
-    const ogImage = statSync(new URL("../public/og-image.png", import.meta.url));
+    const sharePoster = statSync(
+      new URL("../docs/posters/poster-02-three-step-setup-v3.png", import.meta.url),
+    );
     const htmlSource = read("index.html");
+    const sharePosterUrl =
+      "https://raw.githubusercontent.com/MasterBao66/PayDance/main/docs/posters/poster-02-three-step-setup-v3.png";
 
     expect(webPreviewSource).toContain("productLogoUrl");
     expect(webPreviewSource).toContain("appVersion");
     expect(htmlSource).toContain('rel="icon"');
     expect(htmlSource).toContain("%BASE_URL%favicon.png");
     expect(favicon.size).toBeGreaterThan(1_000);
-    expect(ogImage.size).toBeGreaterThan(20_000);
-    expect(pngSize("public/og-image.png")).toEqual({ width: 1200, height: 630 });
-    expect(htmlSource).toContain("https://masterbao66.github.io/PayDance/og-image.png");
-    expect(ogImage.size).toBeLessThan(450_000);
+    expect(sharePoster.size).toBeGreaterThan(20_000);
+    expect(pngSize("docs/posters/poster-02-three-step-setup-v3.png")).toEqual({
+      width: 1448,
+      height: 1086,
+    });
+    expect(htmlSource.match(new RegExp(sharePosterUrl, "g"))).toHaveLength(2);
+    expect(htmlSource).toContain('<meta property="og:image:width" content="1448" />');
+    expect(htmlSource).toContain('<meta property="og:image:height" content="1086" />');
+    expect(htmlSource).toContain("薪跳 PayDance 三步设置界面");
     expect(htmlSource).toContain(
       "<title>薪跳 PayDance — Windows 桌面实时工资看板</title>",
     );
