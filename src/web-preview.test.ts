@@ -27,6 +27,8 @@ import appMetaSource from "./lib/app-meta.ts?raw";
 
 const read = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+const countLiteralOccurrences = (source: string, value: string) =>
+  source.split(value).length - 1;
 const pngSize = (path: string) => {
   const source = readFileSync(new URL(`../${path}`, import.meta.url));
   const pngSignature = "89504e470d0a1a0a";
@@ -135,8 +137,8 @@ describe("PayDance Web Preview", () => {
       width: 1448,
       height: 1086,
     });
-    expect(chineseHtmlSource.match(new RegExp(sharePosterUrl, "g"))).toHaveLength(2);
-    expect(englishHtmlSource.match(new RegExp(sharePosterUrl, "g"))).toHaveLength(2);
+    expect(countLiteralOccurrences(chineseHtmlSource, sharePosterUrl)).toBe(2);
+    expect(countLiteralOccurrences(englishHtmlSource, sharePosterUrl)).toBe(2);
     expect(chineseHtmlSource).toContain(
       '<meta property="og:image:width" content="1448" />',
     );

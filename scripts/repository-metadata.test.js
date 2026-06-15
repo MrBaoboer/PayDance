@@ -96,6 +96,12 @@ describe("repository metadata", () => {
     expect(existsInWorktree(posterPath)).toBe(true);
   });
 
+  it("keeps production URLs out of dynamically constructed regular expressions", () => {
+    const webPreviewTest = read("src/web-preview.test.ts");
+
+    expect(webPreviewTest).not.toContain("new RegExp(sharePosterUrl");
+  });
+
   it("keeps the root LICENSE recognizable as canonical AGPL-3.0", () => {
     const license = read("LICENSE");
     const normalizedLicense = license.replace(/\s+/g, " ");
