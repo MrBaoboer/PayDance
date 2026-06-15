@@ -24,7 +24,7 @@ PayDance (薪跳) is a desktop real-time salary dashboard. Set your salary and w
 The main window shows today's earnings, work progress, time remaining, and daily estimate. The mini floating window keeps only the amount, ready for a quick glance from the corner of your screen.
 
 <p align="center">
-  <img src="posters/poster-02-three-step-setup-v3.png" alt="PayDance three-step setup" width="100%">
+  <img src="posters/poster-02-three-step-setup-en-v1.png" alt="PayDance first-time setup in three steps" width="100%">
 </p>
 
 <p align="center">

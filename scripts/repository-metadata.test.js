@@ -86,6 +86,16 @@ describe("repository metadata", () => {
     expect(readme).not.toContain("masterbao66.github.io/PayDance/pay-dance.exe");
   });
 
+  it("keeps the English README on its dedicated first-time setup poster", () => {
+    const posterPath = "docs/posters/poster-02-three-step-setup-en-v1.png";
+    const englishReadme = read("docs/README_EN.md");
+
+    expect(englishReadme).toContain(
+      'src="posters/poster-02-three-step-setup-en-v1.png"',
+    );
+    expect(existsInWorktree(posterPath)).toBe(true);
+  });
+
   it("keeps the root LICENSE recognizable as canonical AGPL-3.0", () => {
     const license = read("LICENSE");
     const normalizedLicense = license.replace(/\s+/g, " ");
