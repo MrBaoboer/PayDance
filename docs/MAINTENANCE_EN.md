@@ -42,6 +42,12 @@ The Release workflow also runs `scripts/smoke-windows-exe.ps1` to confirm that t
 - Every GitHub Actions `uses:` reference must be pinned to a 40-character commit SHA with a version comment.
 - The CodeQL workflow must explicitly analyze `javascript-typescript` and `rust`.
 
+## Main Branch Pushes
+
+- Maintainers may push copy, images, README changes, and low-risk documentation directly to `main` after running `npm run verify:metadata`.
+- Product features, bug fixes, dependency upgrades, release workflows, and security-related changes should normally use a PR and wait for CI and CodeQL.
+- Documentation-only changes still report `CI gate` and `CodeQL gate`, while CodeQL skips the expensive JavaScript and Rust analysis jobs.
+
 ## Renovate
 
 - Configuration lives in `.github/renovate.json`; validate it with `npx --yes --package renovate renovate-config-validator .github/renovate.json`.
