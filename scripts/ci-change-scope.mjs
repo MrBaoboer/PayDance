@@ -49,7 +49,10 @@ function isLightweightFile(file) {
 function affectsWebPreview(file) {
   return (
     file.startsWith("src/") ||
+    file.startsWith("en/") ||
+    file.startsWith("public/") ||
     file === "index.html" ||
+    file === "scripts/web-seo.mjs" ||
     file === "package.json" ||
     file === "package-lock.json" ||
     file === "npm-shrinkwrap.json" ||

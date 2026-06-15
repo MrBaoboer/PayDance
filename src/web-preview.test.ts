@@ -119,28 +119,40 @@ describe("PayDance Web Preview", () => {
     const sharePoster = statSync(
       new URL("../docs/posters/poster-02-three-step-setup-v3.png", import.meta.url),
     );
-    const htmlSource = read("index.html");
+    const chineseHtmlSource = read("index.html");
+    const englishHtmlSource = read("en/index.html");
     const sharePosterUrl =
       "https://raw.githubusercontent.com/MasterBao66/PayDance/main/docs/posters/poster-02-three-step-setup-v3.png";
 
     expect(webPreviewSource).toContain("productLogoUrl");
     expect(webPreviewSource).toContain("appVersion");
-    expect(htmlSource).toContain('rel="icon"');
-    expect(htmlSource).toContain("%BASE_URL%favicon.png");
+    expect(chineseHtmlSource).toContain('rel="icon"');
+    expect(chineseHtmlSource).toContain("%BASE_URL%favicon.png");
+    expect(englishHtmlSource).toContain("%BASE_URL%favicon.png");
     expect(favicon.size).toBeGreaterThan(1_000);
     expect(sharePoster.size).toBeGreaterThan(20_000);
     expect(pngSize("docs/posters/poster-02-three-step-setup-v3.png")).toEqual({
       width: 1448,
       height: 1086,
     });
-    expect(htmlSource.match(new RegExp(sharePosterUrl, "g"))).toHaveLength(2);
-    expect(htmlSource).toContain('<meta property="og:image:width" content="1448" />');
-    expect(htmlSource).toContain('<meta property="og:image:height" content="1086" />');
-    expect(htmlSource).toContain("薪跳 PayDance 三步设置界面");
-    expect(htmlSource).toContain(
+    expect(chineseHtmlSource.match(new RegExp(sharePosterUrl, "g"))).toHaveLength(2);
+    expect(englishHtmlSource.match(new RegExp(sharePosterUrl, "g"))).toHaveLength(2);
+    expect(chineseHtmlSource).toContain(
+      '<meta property="og:image:width" content="1448" />',
+    );
+    expect(chineseHtmlSource).toContain(
+      '<meta property="og:image:height" content="1086" />',
+    );
+    expect(chineseHtmlSource).toContain("薪跳 PayDance 三步设置界面");
+    expect(englishHtmlSource).toContain("PayDance three-step setup");
+    expect(chineseHtmlSource).toContain(
       "<title>薪跳 PayDance — Windows 桌面实时工资看板</title>",
     );
-    expect(htmlSource).toContain('"applicationCategory": "UtilitiesApplication"');
+    expect(englishHtmlSource).toContain(
+      "<title>PayDance — Real-Time Salary Dashboard for Windows</title>",
+    );
+    expect(chineseHtmlSource).toContain('"applicationCategory": "UtilitiesApplication"');
+    expect(englishHtmlSource).toContain('"applicationCategory": "UtilitiesApplication"');
     expect(webPreviewSource).toContain('class="web-preview__brand"');
     expect(webPreviewSource).toContain('class="web-preview__brand-logo"');
     expect(webPreviewSource).not.toContain("web-preview__brand-icon");
@@ -162,9 +174,50 @@ describe("PayDance Web Preview", () => {
     expect(cssBlock(".web-preview__status")).toContain("gap: 8px");
   });
 
+  it("publishes independent Chinese and English SEO entry points", () => {
+    const chineseHtmlSource = read("index.html");
+    const englishHtmlSource = read("en/index.html");
+    const chineseUrl = "https://masterbao66.github.io/PayDance/";
+    const englishUrl = "https://masterbao66.github.io/PayDance/en/";
+
+    expect(chineseHtmlSource).toContain('<html lang="zh-CN">');
+    expect(englishHtmlSource).toContain('<html lang="en">');
+    expect(chineseHtmlSource).toContain(`<link rel="canonical" href="${chineseUrl}" />`);
+    expect(englishHtmlSource).toContain(`<link rel="canonical" href="${englishUrl}" />`);
+
+    for (const htmlSource of [chineseHtmlSource, englishHtmlSource]) {
+      const compactHtml = htmlSource.replace(/\s+/g, " ");
+
+      expect(compactHtml).toContain(
+        `<link rel="alternate" hreflang="zh-CN" href="${chineseUrl}" />`,
+      );
+      expect(compactHtml).toContain(
+        `<link rel="alternate" hreflang="en" href="${englishUrl}" />`,
+      );
+      expect(compactHtml).toContain(
+        `<link rel="alternate" hreflang="x-default" href="${chineseUrl}" />`,
+      );
+      expect(htmlSource).toContain('"softwareVersion": "__PAYDANCE_VERSION__"');
+      expect(htmlSource).toContain('"dateModified": "__PAYDANCE_DATE_MODIFIED__"');
+    }
+
+    expect(chineseHtmlSource).toContain(
+      `<meta property="og:url" content="${chineseUrl}" />`,
+    );
+    expect(englishHtmlSource).toContain(
+      `<meta property="og:url" content="${englishUrl}" />`,
+    );
+    expect(chineseHtmlSource).toContain('"inLanguage": "zh-CN"');
+    expect(englishHtmlSource).toContain('"inLanguage": "en"');
+    expect(chineseHtmlSource).not.toContain(
+      "PayDance — Real-Time Salary Dashboard for Windows",
+    );
+    expect(englishHtmlSource).not.toContain("薪跳 PayDance — Windows 桌面实时工资看板");
+  });
+
   it("keeps the brand logo on the product homepage", () => {
     expect(webPreviewPageSource).toContain(
-      "const productHomepageUrl = import.meta.env.BASE_URL",
+      "const productHomepageUrl = computed(() => localeUrl(locale.value, baseUrl))",
     );
     expect(webPreviewPageSource).toContain(':product-homepage-url="productHomepageUrl"');
     expect(webPreviewTopbarSource).toContain(':href="productHomepageUrl"');
@@ -174,11 +227,14 @@ describe("PayDance Web Preview", () => {
   it("uses a segmented language switcher instead of a tiny single-label button", () => {
     expect(webPreviewPageSource).toContain("const { locale } = provideI18n");
     expect(webPreviewPageSource).toContain(':data-locale="locale"');
-    expect(webPreviewPageSource).toContain("document.documentElement.lang = next");
     expect(webPreviewPageSource).toContain(
       "document.documentElement.lang = locale.value",
     );
+    expect(webPreviewPageSource).toContain("resolveWebLocale");
     expect(webPreviewTopbarSource).toContain("<LanguageSwitcher />");
+    expect(languageSwitcherSource).toContain("<a");
+    expect(languageSwitcherSource).toContain(':href="alternateLocaleUrl"');
+    expect(languageSwitcherSource).toContain("localeUrl");
     expect(webPreviewSource).toContain('class="lang-switcher__track"');
     expect(webPreviewSource).toContain('class="lang-switcher__option"');
     expect(webPreviewSource).toContain("'is-active': locale === 'zh-CN'");
@@ -640,8 +696,12 @@ describe("PayDance Web Preview", () => {
   it("builds the web preview for GitHub Pages", () => {
     const viteConfig = read("vite.config.ts");
 
-    expect(viteConfig).toContain('base: mode === "web" ? "/PayDance/" : "./"');
-    expect(viteConfig).toContain('entries: ["index.html"]');
+    expect(viteConfig).toContain('base: isWeb ? "/PayDance/" : "./"');
+    expect(viteConfig).toContain(
+      'entries: isWeb ? ["index.html", "en/index.html"] : ["index.html"]',
+    );
+    expect(viteConfig).toContain('en: resolve(projectRoot, "en/index.html")');
+    expect(viteConfig).toContain("createWebSeoPlugin");
     expect(viteConfig).toContain("src-tauri/target/**");
     expect(read(".github/workflows/web-preview.yml")).toContain("npm run build:web");
     expect(read(".github/workflows/web-preview.yml")).toContain(

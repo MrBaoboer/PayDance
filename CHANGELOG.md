@@ -8,6 +8,7 @@
 
 ## Unreleased
 
+- **中英文独立官网入口**：中文保留 `/PayDance/`，英文使用 `/PayDance/en/`；两页分别提供标题、描述、Canonical、Open Graph 和 JSON-LD，并通过双向 `hreflang` 与自动生成的 Sitemap 建立搜索入口。结构化数据版本与 `dateModified` 在构建时自动注入。
 - **官网刷新稳定性**：Web Preview 在首帧同步恢复已保存主题，并在设置初始化完成前暂停颜色过渡，避免刷新时短暂出现浅色页面与黑色控件混合的画面。
 - **依赖与 CI 基线更新**：前端依赖升级到当前兼容最新版；CI、CodeQL 与发布流程切换至 Node 24 和 Windows 2025，Pages 产物读取升级至 `actions/download-artifact` 8.0.1。
 - **推送提速**：日常推送只在本地执行元数据、格式、代码规范和单元测试，耗时较长的构建、浏览器 QA、Rust 检查和安全审计交给 GitHub CI；正式发布继续通过 `npm run verify:release` 执行完整检查。

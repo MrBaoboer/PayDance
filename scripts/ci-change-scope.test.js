@@ -76,6 +76,9 @@ describe("CI change scope", () => {
 
   it("deploys Web Preview only for web-affecting full-CI changes", () => {
     expect(classifyChangedFiles(["src/WebPreviewApp.vue"]).deployWebPreview).toBe(true);
+    expect(classifyChangedFiles(["en/index.html"]).deployWebPreview).toBe(true);
+    expect(classifyChangedFiles(["public/robots.txt"]).deployWebPreview).toBe(true);
+    expect(classifyChangedFiles(["scripts/web-seo.mjs"]).deployWebPreview).toBe(true);
     expect(classifyChangedFiles(["package-lock.json"]).deployWebPreview).toBe(true);
     expect(classifyChangedFiles(["vite.config.ts"]).deployWebPreview).toBe(true);
     expect(

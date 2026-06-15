@@ -14,7 +14,8 @@ This document records PayDance's development direction. It is not a release-date
 - Supply-chain, brand, and licensing baseline governance: `cargo audit`, `cargo deny`, gitleaks, locked dependencies, metadata tests, official asset boundaries, and bilingual documentation mirrors.
 - First-run and settings recovery: the mobile onboarding footer stays visible, Web Preview always opens in the full dashboard, and damaged or future-version settings are silently repaired field by field and written back.
 - Release and supply-chain automation: real Rust unit tests cover update helpers; Release runs an automated Windows EXE launch smoke and single-instance check, generates an SPDX SBOM, and CodeQL analyzes TypeScript and Rust. All GitHub Actions are pinned to commit SHAs.
-- Website discovery: the 1200 × 630 sharing image now uses the product logo as its main visual and is substantially smaller, while the title and structured data describe a Windows desktop utility more accurately.
+- Website discovery: the sharing image now uses the three-step setup poster, while the title and structured data describe a Windows desktop utility more accurately.
+- Bilingual website entries: Chinese remains at `/PayDance/`, English now has `/PayDance/en/`, and both pages expose independent SEO metadata, reciprocal hreflang links, automatic dates, and sitemap entries.
 - Maintenance evidence: Web Preview now has deterministic time/viewport pixel-diff gates; Rust tray actions have behavior-level tests, and EXE smoke records window responsiveness and single-instance results as JSON.
 - Contributor entry points: bilingual architecture change maps connect common work to files and checks, while starter issues require a user-visible result, before evidence, acceptance criteria, and a verification command.
 
@@ -36,7 +37,6 @@ This document records PayDance's development direction. It is not a release-date
 
 ## Later
 
-- English website entry: `/en/`, `hreflang`, and language switching.
 - Multi-currency support, while keeping the main interface lightweight and avoiding exchange-rate, tax, or financial-analysis complexity.
 
 ## Long-Term Exclusions

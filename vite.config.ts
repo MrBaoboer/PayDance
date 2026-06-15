@@ -7,65 +7,89 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import tailwindcss from "@tailwindcss/vite";
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { fileURLToPath, URL } from "node:url";
+import { createWebSeoPlugin, resolveBuildDate } from "./scripts/web-seo.mjs";
 
 const packageMetadata = JSON.parse(
   readFileSync(new URL("./package.json", import.meta.url), "utf8"),
 ) as { version: string };
+const projectRoot = fileURLToPath(new URL(".", import.meta.url));
 
-export default defineConfig(({ mode }) => ({
-  base: mode === "web" ? "/PayDance/" : "./",
-  define: {
-    __PAYDANCE_VERSION__: JSON.stringify(packageMetadata.version),
-  },
-  plugins: [vue(), tailwindcss()],
-  resolve: {
-    alias: {
-      "#opener": fileURLToPath(
-        new URL(
-          mode === "web" ? "./src/platform/opener.web.ts" : "./src/platform/opener.ts",
-          import.meta.url,
-        ),
-      ),
-      "#runtime-app": fileURLToPath(
-        new URL(
-          mode === "web" ? "./src/WebPreviewApp.vue" : "./src/DesktopApp.vue",
-          import.meta.url,
-        ),
-      ),
-      "#settings-store": fileURLToPath(
-        new URL(
-          mode === "web"
-            ? "./src/platform/settings-store.web.ts"
-            : "./src/platform/settings-store.ts",
-          import.meta.url,
-        ),
-      ),
-      "#updater": fileURLToPath(
-        new URL(
-          mode === "web" ? "./src/platform/updater.web.ts" : "./src/platform/updater.ts",
-          import.meta.url,
-        ),
-      ),
+export default defineConfig(({ mode }) => {
+  const isWeb = mode === "web";
+  const dateModified = resolveBuildDate();
+
+  return {
+    base: isWeb ? "/PayDance/" : "./",
+    define: {
+      __PAYDANCE_VERSION__: JSON.stringify(packageMetadata.version),
     },
-  },
-  clearScreen: false,
-  optimizeDeps: {
-    entries: ["index.html"],
-  },
-  build: {
-    rolldownOptions: {
-      checks: {
-        pluginTimings: false,
+    plugins: [
+      createWebSeoPlugin({
+        dateModified,
+        emitSitemap: isWeb,
+        version: packageMetadata.version,
+      }),
+      vue(),
+      tailwindcss(),
+    ],
+    resolve: {
+      alias: {
+        "#opener": fileURLToPath(
+          new URL(
+            isWeb ? "./src/platform/opener.web.ts" : "./src/platform/opener.ts",
+            import.meta.url,
+          ),
+        ),
+        "#runtime-app": fileURLToPath(
+          new URL(
+            isWeb ? "./src/WebPreviewApp.vue" : "./src/DesktopApp.vue",
+            import.meta.url,
+          ),
+        ),
+        "#settings-store": fileURLToPath(
+          new URL(
+            isWeb
+              ? "./src/platform/settings-store.web.ts"
+              : "./src/platform/settings-store.ts",
+            import.meta.url,
+          ),
+        ),
+        "#updater": fileURLToPath(
+          new URL(
+            isWeb ? "./src/platform/updater.web.ts" : "./src/platform/updater.ts",
+            import.meta.url,
+          ),
+        ),
       },
     },
-  },
-  server: {
-    strictPort: true,
-    port: 1420,
-    host: "127.0.0.1",
-    watch: {
-      ignored: ["**/src-tauri/target/**"],
+    clearScreen: false,
+    optimizeDeps: {
+      entries: isWeb ? ["index.html", "en/index.html"] : ["index.html"],
     },
-  },
-}));
+    build: {
+      rolldownOptions: {
+        ...(isWeb
+          ? {
+              input: {
+                main: resolve(projectRoot, "index.html"),
+                en: resolve(projectRoot, "en/index.html"),
+              },
+            }
+          : {}),
+        checks: {
+          pluginTimings: false,
+        },
+      },
+    },
+    server: {
+      strictPort: true,
+      port: 1420,
+      host: "127.0.0.1",
+      watch: {
+        ignored: ["**/src-tauri/target/**"],
+      },
+    },
+  };
+});

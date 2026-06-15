@@ -42,6 +42,10 @@ const runId = sanitizeRunId(
 );
 const port = Number(process.env.PAYDANCE_WEB_QA_PORT ?? 4174);
 const localUrl = `http://127.0.0.1:${port}/PayDance/`;
+const localeUrls = {
+  "zh-CN": localUrl,
+  en: `${localUrl}en/`,
+};
 const qaRoot = process.env.RUNNER_TEMP ?? tmpdir();
 const qaDir = join(qaRoot, `paydance-web-preview-qa-${version}-${runId}`);
 const visualBaselineDir = resolve("tests", "visual-baselines");
@@ -54,7 +58,6 @@ const viewports = [
 ];
 const locales = ["zh-CN", "en"];
 const themes = ["light", "dark"];
-const localeStorageKey = "paydance-web-locale";
 const localeExpectations = {
   "zh-CN": {
     downloadName: /下载 Windows 版/,
@@ -66,6 +69,64 @@ const localeExpectations = {
     headline: "See Your Pay",
     themeToggleLabels: ["Switch to dark mode", "Switch to light mode"],
   },
+};
+const seoExpectations = {
+  "zh-CN": {
+    canonical: "https://masterbao66.github.io/PayDance/",
+    title: "薪跳 PayDance — Windows 桌面实时工资看板",
+  },
+  en: {
+    canonical: "https://masterbao66.github.io/PayDance/en/",
+    title: "PayDance — Real-Time Salary Dashboard for Windows",
+  },
+};
+const alternateUrls = {
+  "zh-CN": "https://masterbao66.github.io/PayDance/",
+  en: "https://masterbao66.github.io/PayDance/en/",
+  "x-default": "https://masterbao66.github.io/PayDance/",
+};
+
+const assertSeoMetadata = async (page, viewportName, locale) => {
+  const metadata = await page.evaluate(() => {
+    const structuredData = document.querySelector(
+      'script[type="application/ld+json"]',
+    )?.textContent;
+
+    return {
+      alternates: Object.fromEntries(
+        [...document.querySelectorAll('link[rel="alternate"][hreflang]')].map((link) => [
+          link.getAttribute("hreflang"),
+          link.getAttribute("href"),
+        ]),
+      ),
+      canonical: document.querySelector('link[rel="canonical"]')?.getAttribute("href"),
+      structuredData: structuredData ? JSON.parse(structuredData) : null,
+      title: document.title,
+    };
+  });
+  const expected = seoExpectations[locale];
+
+  if (metadata.title !== expected.title) {
+    throw new Error(`${viewportName}: SEO title mismatch "${metadata.title}"`);
+  }
+  if (metadata.canonical !== expected.canonical) {
+    throw new Error(`${viewportName}: canonical mismatch "${metadata.canonical}"`);
+  }
+  for (const [hreflang, url] of Object.entries(alternateUrls)) {
+    if (metadata.alternates[hreflang] !== url) {
+      throw new Error(
+        `${viewportName}: hreflang ${hreflang} mismatch "${metadata.alternates[hreflang]}"`,
+      );
+    }
+  }
+  if (metadata.structuredData?.inLanguage !== locale) {
+    throw new Error(
+      `${viewportName}: JSON-LD language mismatch "${metadata.structuredData?.inLanguage}"`,
+    );
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(metadata.structuredData?.dateModified ?? "")) {
+    throw new Error(`${viewportName}: JSON-LD dateModified is not a build date`);
+  }
 };
 
 const createPreviewState = (themeMode) => ({
@@ -297,7 +358,7 @@ const assertDom = async (page, viewportName, locale) => {
   const viewport = page.viewportSize();
   const expectedText = localeExpectations[locale];
   const title = await page.title();
-  if (title !== "薪跳 PayDance — Windows 桌面实时工资看板") {
+  if (title !== seoExpectations[locale].title) {
     throw new Error(`${viewportName}: unexpected title "${title}"`);
   }
 
@@ -839,14 +900,14 @@ const assertThemeToggleEdge = async (page, viewportName, locale) => {
   }
 };
 
-const seedPreviewContext = async (browser, locale, themeMode, viewport) => {
+const seedPreviewContext = async (browser, themeMode, viewport) => {
   const context = await browser.newContext({
     deviceScaleFactor: 1,
     timezoneId: "Asia/Shanghai",
     viewport: { width: viewport.width, height: viewport.height },
   });
   await context.addInitScript(
-    ({ fixedTime, key, localeKey, localeValue, state }) => {
+    ({ fixedTime, key, state }) => {
       const NativeDate = Date;
       class FixedDate extends NativeDate {
         constructor(...args) {
@@ -863,14 +924,11 @@ const seedPreviewContext = async (browser, locale, themeMode, viewport) => {
         configurable: true,
         value: () => 0,
       });
-      window.localStorage.setItem(localeKey, localeValue);
       window.localStorage.setItem(key, JSON.stringify(state));
     },
     {
       fixedTime: Date.parse("2026-06-15T02:00:00.000Z"),
       key: storageKey,
-      localeKey: localeStorageKey,
-      localeValue: locale,
       state: createPreviewState(themeMode),
     },
   );
@@ -880,7 +938,7 @@ const seedPreviewContext = async (browser, locale, themeMode, viewport) => {
 
 const assertLanguageSwitchFlow = async (browser, consoleFindings, pageErrors) => {
   const viewport = { name: "mobile", width: 390, height: 844 };
-  const context = await seedPreviewContext(browser, "zh-CN", "light", viewport);
+  const context = await seedPreviewContext(browser, "light", viewport);
   const page = await context.newPage();
 
   page.on("console", (message) => {
@@ -907,7 +965,10 @@ const assertLanguageSwitchFlow = async (browser, consoleFindings, pageErrors) =>
       );
     }
 
-    await page.getByRole("button", { name: "Switch to English" }).click();
+    await Promise.all([
+      page.waitForURL(localeUrls.en, { timeout: 10_000 }),
+      page.getByRole("link", { name: "Switch to English" }).click(),
+    ]);
     await page.getByText(localeExpectations.en.headline, { exact: true }).waitFor({
       state: "visible",
       timeout: 10_000,
@@ -920,6 +981,7 @@ const assertLanguageSwitchFlow = async (browser, consoleFindings, pageErrors) =>
       );
     }
 
+    await assertSeoMetadata(page, "language-switch/mobile", "en");
     const observedCopy = await assertDom(page, "language-switch/mobile", "en");
     await assertAccessibility(page, "language-switch/mobile");
 
@@ -960,7 +1022,7 @@ const runQa = async () => {
     for (const locale of locales) {
       for (const themeMode of themes) {
         for (const viewport of viewports) {
-          const context = await seedPreviewContext(browser, locale, themeMode, viewport);
+          const context = await seedPreviewContext(browser, themeMode, viewport);
           const page = await context.newPage();
           page.on("console", (message) => {
             if (message.type() === "error") {
@@ -973,7 +1035,10 @@ const runQa = async () => {
             pageErrors.push(`${locale}/${themeMode}/${viewport.name}: ${error.message}`);
           });
 
-          await page.goto(localUrl, { timeout: 60_000, waitUntil: "domcontentloaded" });
+          await page.goto(localeUrls[locale], {
+            timeout: 60_000,
+            waitUntil: "domcontentloaded",
+          });
           await page.locator("#paydance-preview").waitFor({
             state: "visible",
             timeout: 45_000,
@@ -983,6 +1048,11 @@ const runQa = async () => {
             `${locale}/${themeMode}/${viewport.name}`,
           );
           await stabilizeVisualPage(page);
+          await assertSeoMetadata(
+            page,
+            `${locale}/${themeMode}/${viewport.name}`,
+            locale,
+          );
           const observedCopy = await assertDom(
             page,
             `${locale}/${themeMode}/${viewport.name}`,

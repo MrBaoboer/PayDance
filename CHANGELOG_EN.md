@@ -8,6 +8,7 @@ Build artifacts and verification files are available in [GitHub Releases](https:
 
 ## Unreleased
 
+- **Independent Chinese and English website entries**: Chinese stays at `/PayDance/` and English now lives at `/PayDance/en/`. Each page has its own title, description, canonical URL, Open Graph metadata, and JSON-LD, connected by reciprocal hreflang links and a generated sitemap. Version and `dateModified` values are injected at build time.
 - **Stable website refreshes**: Web Preview restores the saved theme before first paint and pauses color transitions until settings initialization finishes, preventing mixed light-page and black-control frames during refresh.
 - **Dependency and CI baseline refresh**: Frontend dependencies move to their latest compatible versions; CI, CodeQL, and release workflows now use Node 24 and Windows 2025, while Pages artifact retrieval uses `actions/download-artifact` 8.0.1.
 - **Faster daily pushes**: local push checks now cover metadata, formatting, lint, and unit tests, while GitHub CI handles slower builds, browser QA, Rust checks, and security audits. Formal releases still run the complete `npm run verify:release` path.

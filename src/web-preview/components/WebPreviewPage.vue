@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import productLogoUrl from "../../../src-tauri/icons/icon.png";
-import { detectLocale, provideI18n, type Locale } from "../../composables/useI18n";
+import { provideI18n } from "../../composables/useI18n";
 import {
   appCopyright,
   appEnglishName,
@@ -16,25 +16,20 @@ import {
 } from "../../lib/app-meta";
 import { readBrowserThemeMode } from "../../platform/settings-store.web";
 import WebPreviewFeatureStrip from "../WebPreviewFeatureStrip.vue";
+import { localeUrl, resolveWebLocale } from "../locale-routing";
 import WebPreviewFooter from "./WebPreviewFooter.vue";
 import WebPreviewHeroCopy from "./WebPreviewHeroCopy.vue";
 import WebPreviewShowcase from "./WebPreviewShowcase.vue";
 import WebPreviewTopbar from "./WebPreviewTopbar.vue";
 
-const savedLocale =
-  typeof localStorage !== "undefined"
-    ? localStorage.getItem("paydance-web-locale")
-    : null;
-const initialLocale = ref<Locale>(detectLocale(savedLocale));
-const { locale } = provideI18n(initialLocale, (next) => {
-  localStorage.setItem("paydance-web-locale", next);
-  document.documentElement.lang = next;
-});
+const baseUrl = import.meta.env.BASE_URL;
+const initialLocale = ref(resolveWebLocale(window.location.pathname, baseUrl));
+const { locale } = provideI18n(initialLocale);
 
 const shellClass = ref(`theme-${readBrowserThemeMode()}`);
 const isThemeReady = ref(false);
 const documentScrollClass = "is-web-preview-page";
-const productHomepageUrl = import.meta.env.BASE_URL;
+const productHomepageUrl = computed(() => localeUrl(locale.value, baseUrl));
 let themeReadyFrame = 0;
 
 const toggleDocumentScroll = (enabled: boolean) => {

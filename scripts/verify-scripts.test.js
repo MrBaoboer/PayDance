@@ -35,6 +35,10 @@ describe("verification scripts", () => {
     expect(packageJson.scripts["verify:fast"]).toContain("npm run lint");
     expect(packageJson.scripts["verify:fast"]).toContain("npm run build:desktop");
     expect(packageJson.scripts.verify).toBe("npm run verify:fast");
+    expect(packageJson.scripts["verify:metadata"]).toContain(
+      "scripts/assert-build-target.test.js",
+    );
+    expect(packageJson.scripts["verify:metadata"]).toContain("scripts/web-seo.test.js");
     expect(packageJson.scripts["verify:push"]).toBe(
       "node scripts/push-workflow.mjs --verify-only",
     );
@@ -136,8 +140,10 @@ describe("verification scripts", () => {
     expect(qaScript).toContain("observedCopies");
     expect(qaScript).toContain("assertAccessibility");
     expect(qaScript).toContain("assertLanguageSwitchFlow");
+    expect(qaScript).toContain("assertSeoMetadata");
     expect(qaScript).toContain("Switch to English");
     expect(qaScript).toContain("data-locale");
+    expect(qaScript).toContain("en: `${localUrl}en/`");
     expect(qaScript).toContain("paydance-web-preview-qa-${version}-${runId}");
     expect(qaScript).toContain(".web-preview__chip");
     expect(qaScript).toContain(".web-preview__action");
@@ -148,11 +154,11 @@ describe("verification scripts", () => {
     expect(qaScript).toContain(
       'page.goto(localUrl, { timeout: 60_000, waitUntil: "domcontentloaded" })',
     );
-    expect(qaScript).toContain("paydance-web-locale");
+    expect(qaScript).toContain('getByRole("link", { name: "Switch to English" })');
 
     const qaGuide = readRoot("docs/web-preview-qa.md");
     expect(qaGuide).toContain("Web Preview QA 用来确认官网橱窗");
-    expect(qaGuide).toContain("中文移动端进入页面，点击 `Switch to English`");
+    expect(qaGuide).toContain("从 `/PayDance/` 进入中文页，点击 `Switch to English`");
     expect(qaGuide).toContain("PLAYWRIGHT_NODE_MODULES");
     expect(qaGuide).toContain("@axe-core/playwright");
     expect(qaGuide).toContain("不要用 headless Chrome、CDP 或命令行截图");
