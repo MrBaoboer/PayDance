@@ -8,6 +8,9 @@ Build artifacts and verification files are available in [GitHub Releases](https:
 
 ## Unreleased
 
+### v0.9.7
+
+- **Language-first onboarding**: first-run setup now starts with usage preferences, then salary mode, then work time, so non-Chinese users can switch language on the first screen before entering salary and workday settings.
 - **Independent Chinese and English website entries**: Chinese stays at `/PayDance/` and English now lives at `/PayDance/en/`. Each page has its own title, description, canonical URL, Open Graph metadata, and JSON-LD, connected by reciprocal hreflang links and a generated sitemap. Version and `dateModified` values are injected at build time.
 - **Stable website refreshes**: Web Preview restores the saved theme before first paint and pauses color transitions until settings initialization finishes, preventing mixed light-page and black-control frames during refresh.
 - **Dependency and CI baseline refresh**: Frontend dependencies move to their latest compatible versions; CI, CodeQL, and release workflows now use Node 24 and Windows 2025, while Pages artifact retrieval uses `actions/download-artifact` 8.0.1.

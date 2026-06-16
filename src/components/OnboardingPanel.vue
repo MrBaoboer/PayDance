@@ -44,9 +44,9 @@ const { t } = useI18n();
 const step = ref(0);
 
 const stepTitles = computed(() => [
+  t.value("onboarding.stepPreferences"),
   t.value("onboarding.stepSalaryMode"),
   t.value("onboarding.stepWorkTime"),
-  t.value("onboarding.stepPreferences"),
 ]);
 const issues = computed(() => validateSalaryConfig(props.config, t.value));
 const currentStepIssues = computed(() =>
@@ -92,27 +92,27 @@ const goBack = () => {
       </header>
 
       <div class="onboarding-body">
-        <StepSalaryMode
+        <StepPreferences
           v-if="step === 0"
-          :config="config"
-          :has-issue="hasIssue"
-          @update:config="emit('update:config', $event)"
+          :autostart-enabled="autostartEnabled"
+          :show-desktop-features="showDesktopFeatures"
+          :theme-mode="themeMode"
+          @update:autostart-enabled="emit('update:autostartEnabled', $event)"
+          @update:theme-mode="emit('update:themeMode', $event)"
         />
 
-        <StepWorkTime
+        <StepSalaryMode
           v-else-if="step === 1"
           :config="config"
           :has-issue="hasIssue"
           @update:config="emit('update:config', $event)"
         />
 
-        <StepPreferences
+        <StepWorkTime
           v-else
-          :autostart-enabled="autostartEnabled"
-          :show-desktop-features="showDesktopFeatures"
-          :theme-mode="themeMode"
-          @update:autostart-enabled="emit('update:autostartEnabled', $event)"
-          @update:theme-mode="emit('update:themeMode', $event)"
+          :config="config"
+          :has-issue="hasIssue"
+          @update:config="emit('update:config', $event)"
         />
       </div>
 

@@ -30,12 +30,16 @@ export function getOnboardingStepIssues(
   issues: SalaryConfigIssue[],
 ) {
   if (step === 0) {
+    return [];
+  }
+
+  if (step === 1) {
     const salaryIssueFields =
       salaryIssueFieldsByType[config.salaryType] ?? salaryIssueFieldsByType.monthly;
     return issues.filter((issue) => salaryIssueFields.has(issue.field));
   }
 
-  if (step === 1) {
+  if (step === 2) {
     return issues.filter((issue) => workTimeIssueFields.has(issue.field));
   }
 
