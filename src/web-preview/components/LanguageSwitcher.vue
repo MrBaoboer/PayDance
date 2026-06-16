@@ -3,22 +3,24 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
+import { computed } from "vue";
 import { useI18n } from "../../composables/useI18n";
+import { localeUrl } from "../locale-routing";
 
-const { locale, setLocale } = useI18n();
-
-const toggle = () => {
-  setLocale(locale.value === "zh-CN" ? "en" : "zh-CN");
-};
+const { locale } = useI18n();
+const alternateLocale = computed(() => (locale.value === "zh-CN" ? "en" : "zh-CN"));
+const alternateLocaleUrl = computed(() =>
+  localeUrl(alternateLocale.value, import.meta.env.BASE_URL),
+);
 </script>
 
 <template>
-  <button
+  <a
     class="lang-switcher"
+    :href="alternateLocaleUrl"
+    :hreflang="alternateLocale"
     :aria-label="locale === 'zh-CN' ? 'Switch to English' : '切换到中文'"
     :title="locale === 'zh-CN' ? 'English' : '中文'"
-    type="button"
-    @click="toggle"
   >
     <span class="lang-switcher__track" aria-hidden="true">
       <span class="lang-switcher__option" :class="{ 'is-active': locale === 'zh-CN' }">
@@ -28,7 +30,7 @@ const toggle = () => {
         EN
       </span>
     </span>
-  </button>
+  </a>
 </template>
 
 <style scoped>
@@ -48,6 +50,7 @@ const toggle = () => {
   color: var(--muted);
   font-family: var(--web-font-action, var(--font-dashboard, inherit));
   padding: 2px;
+  text-decoration: none;
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease,

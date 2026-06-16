@@ -19,7 +19,19 @@ const vt = (key: string) => {
 };
 
 describe("onboarding step validation", () => {
-  it("blocks salary step issues before moving to work time", () => {
+  it("does not block language and preference setup with salary issues", () => {
+    const config = {
+      ...defaultSalaryConfig,
+      monthlySalary: 0,
+      workDaysPerMonth: 0,
+    };
+
+    expect(getOnboardingStepIssues(0, config, validateSalaryConfig(config, vt))).toEqual(
+      [],
+    );
+  });
+
+  it("blocks salary issues on the salary step", () => {
     const config = {
       ...defaultSalaryConfig,
       monthlySalary: 0,
@@ -27,13 +39,13 @@ describe("onboarding step validation", () => {
     };
 
     expect(
-      getOnboardingStepIssues(0, config, validateSalaryConfig(config, vt)).map(
+      getOnboardingStepIssues(1, config, validateSalaryConfig(config, vt)).map(
         (issue) => issue.field,
       ),
     ).toEqual(["monthlySalary", "workDaysPerMonth"]);
   });
 
-  it("blocks work time issues on the work time step", () => {
+  it("blocks work time issues on the final work time step", () => {
     const config = {
       ...defaultSalaryConfig,
       workdays: [],
@@ -42,21 +54,21 @@ describe("onboarding step validation", () => {
     };
 
     expect(
-      getOnboardingStepIssues(1, config, validateSalaryConfig(config, vt)).map(
+      getOnboardingStepIssues(2, config, validateSalaryConfig(config, vt)).map(
         (issue) => issue.field,
       ),
     ).toEqual(["workdays", "workTime"]);
   });
 
-  it("keeps the appearance step as a final guard for any remaining issue", () => {
+  it("does not carry salary issues onto the final work time step", () => {
     const config = {
       ...defaultSalaryConfig,
       salaryType: "daily" as const,
       dailySalary: 0,
     };
 
-    expect(getOnboardingStepIssues(2, config, validateSalaryConfig(config, vt))).toEqual([
-      { field: "dailySalary", message: "日薪需大于 0" },
-    ]);
+    expect(getOnboardingStepIssues(2, config, validateSalaryConfig(config, vt))).toEqual(
+      [],
+    );
   });
 });

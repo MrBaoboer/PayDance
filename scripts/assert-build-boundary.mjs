@@ -47,6 +47,16 @@ const textAssets = files.map((file) => ({
   file,
   source: readFileSync(resolve(assetsDir, file), "utf8"),
 }));
+const packageMetadataSentinels = ["verify:release", "@tauri-apps/plugin-updater"];
+const metadataAsset = textAssets.find(({ source }) =>
+  packageMetadataSentinels.every((sentinel) => source.includes(sentinel)),
+);
+
+if (metadataAsset) {
+  throw new Error(
+    `${target} build contains package manifest metadata in ${metadataAsset.file}`,
+  );
+}
 
 const markerAsset = textAssets.find(({ source }) => source.includes(marker));
 if (!markerAsset) {

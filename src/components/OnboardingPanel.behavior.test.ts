@@ -23,9 +23,18 @@ const mountOnboardingPanel = () =>
   });
 
 describe("OnboardingPanel behavior", () => {
+  it("shows language preferences before salary fields on first launch", () => {
+    const wrapper = mountOnboardingPanel();
+
+    expect(wrapper.text()).toContain("语言");
+    expect(wrapper.text()).toContain("English");
+    expect(wrapper.text()).not.toContain("月薪");
+  });
+
   it("keeps lunch time fields hidden until lunch exclusion is enabled", async () => {
     const wrapper = mountOnboardingPanel();
 
+    await wrapper.get(".primary-button").trigger("click");
     await wrapper.get(".primary-button").trigger("click");
 
     expect(wrapper.text()).toContain("剔除午休");
@@ -41,8 +50,6 @@ describe("OnboardingPanel behavior", () => {
   it("emits theme preference changes from the usage preference step", async () => {
     const wrapper = mountOnboardingPanel();
 
-    await wrapper.get(".primary-button").trigger("click");
-    await wrapper.get(".primary-button").trigger("click");
     await wrapper
       .findAll(".segmented-control button")
       .find((button) => button.text() === "深色")

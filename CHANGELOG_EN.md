@@ -8,6 +8,17 @@ Build artifacts and verification files are available in [GitHub Releases](https:
 
 ## Unreleased
 
+### v0.9.7
+
+- **Language-first onboarding**: first-run setup now starts with usage preferences, then salary mode, then work time, so non-Chinese users can switch language on the first screen before entering salary and workday settings.
+- **Independent Chinese and English website entries**: Chinese stays at `/PayDance/` and English now lives at `/PayDance/en/`. Each page has its own title, description, canonical URL, Open Graph metadata, and JSON-LD, connected by reciprocal hreflang links and a generated sitemap. Version and `dateModified` values are injected at build time.
+- **Stable website refreshes**: Web Preview restores the saved theme before first paint and pauses color transitions until settings initialization finishes, preventing mixed light-page and black-control frames during refresh.
+- **Dependency and CI baseline refresh**: Frontend dependencies move to their latest compatible versions; CI, CodeQL, and release workflows now use Node 24 and Windows 2025, while Pages artifact retrieval uses `actions/download-artifact` 8.0.1.
+- **Faster daily pushes**: local push checks now cover metadata, formatting, lint, and unit tests, while GitHub CI handles slower builds, browser QA, Rust checks, and security audits. Formal releases still run the complete `npm run verify:release` path.
+- **Maintenance foundation**: Renovate now runs immediately with unlimited concurrent PRs and human merge assessment; Web Preview has deterministic pixel-diff gates; Windows EXE smoke emits JSON evidence for window responsiveness and single-instance behavior.
+- **Focused ownership**: tray and portable updater Rust, Web Preview styles, and the Settings repository footer are split by responsibility. Web builds receive only the version string instead of the complete `package.json`.
+- **Contributor navigation**: bilingual architecture change maps now connect common changes to files and checks, while starter issues require a user-visible result, before evidence, acceptance criteria, and a verification command.
+
 ### v0.9.6
 
 - **First-run fixes**: the mobile onboarding footer remains visible, and Web Preview always returns to the full dashboard instead of restoring the previous mini mode.

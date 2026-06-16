@@ -3,7 +3,7 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -21,8 +21,20 @@ const desktopCapability = JSON.parse(
   readFileSync(resolve(tauriDir, "capabilities", "desktop.json"), "utf8"),
 );
 const libRs = readFileSync(resolve(tauriDir, "src", "lib.rs"), "utf8");
+const readOptional = (path) => (existsSync(path) ? readFileSync(path, "utf8") : "");
+const trayRs = readOptional(resolve(tauriDir, "src", "tray.rs"));
+const portableUpdateRs = readOptional(resolve(tauriDir, "src", "portable_update.rs"));
 
 describe("desktop window chrome", () => {
+  it("keeps native responsibilities in focused Rust modules", () => {
+    expect(libRs).toContain("mod tray;");
+    expect(libRs).toContain("mod portable_update;");
+    expect(trayRs).toContain("enum TrayAction");
+    expect(trayRs).toContain("tray_action_for_menu_id");
+    expect(portableUpdateRs).toContain("install_portable_update");
+    expect(libRs.split(/\r?\n/).length).toBeLessThanOrEqual(120);
+  });
+
   it("disables the native shadow on the transparent main window", () => {
     const mainWindow = tauriConfig.app.windows.find((window) => window.label === "main");
 
@@ -33,22 +45,22 @@ describe("desktop window chrome", () => {
   });
 
   it("uses left tray click to show the main window and right click for the menu", () => {
-    expect(libRs).toContain(".show_menu_on_left_click(false)");
-    expect(libRs).toContain("TrayIconEvent::Click");
-    expect(libRs).toContain("MouseButton::Left");
-    expect(libRs).toContain("MouseButtonState::Up");
-    expect(libRs).toContain("show_window(&window)");
+    expect(trayRs).toContain(".show_menu_on_left_click(false)");
+    expect(trayRs).toContain("TrayIconEvent::Click");
+    expect(trayRs).toContain("MouseButton::Left");
+    expect(trayRs).toContain("MouseButtonState::Up");
+    expect(trayRs).toContain("show_window(&window)");
   });
 
   it("names the first tray action as opening the main window", () => {
-    expect(libRs).toContain("打开主界面");
-    expect(libRs).toContain('.text("show"');
+    expect(trayRs).toContain("打开主界面");
+    expect(trayRs).toContain('.text("show"');
   });
 
   it("hides immediately and delegates process exit when the tray quit action is selected", () => {
-    const quitBranch = libRs.slice(
-      libRs.indexOf('"quit" => {'),
-      libRs.indexOf("_ => {}", libRs.indexOf('"quit" => {')),
+    const quitBranch = trayRs.slice(
+      trayRs.indexOf("TrayAction::Quit => {"),
+      trayRs.indexOf("\n        }\n    }\n}", trayRs.indexOf("TrayAction::Quit => {")),
     );
 
     expect(quitBranch).toContain("window.hide()");
@@ -103,18 +115,18 @@ describe("desktop window chrome", () => {
 
   it("uses a portable updater command for in-place exe replacement", () => {
     expect(libRs).toContain("install_portable_update");
-    expect(libRs).toContain("tauri_plugin_updater::UpdaterExt");
-    expect(libRs).toContain(".download(|_, _| {}, || {})");
-    expect(libRs).toContain("apply-update.ps1");
-    expect(libRs).toContain(
+    expect(portableUpdateRs).toContain("tauri_plugin_updater::UpdaterExt");
+    expect(portableUpdateRs).toContain(".download(|_, _| {}, || {})");
+    expect(portableUpdateRs).toContain("apply-update.ps1");
+    expect(portableUpdateRs).toContain(
       "Copy-Item -LiteralPath $Source -Destination $Destination -Force",
     );
     expect(defaultCapability.permissions).toContain("updater:allow-check");
     expect(defaultCapability.permissions).not.toContain(
       "updater:allow-download-and-install",
     );
-    expect(libRs).not.toContain("ShellExecuteW");
-    expect(libRs).not.toContain("/UPDATE");
+    expect(portableUpdateRs).not.toContain("ShellExecuteW");
+    expect(portableUpdateRs).not.toContain("/UPDATE");
   });
 
   it("limits the mini opacity companion window to slider-only permissions", () => {

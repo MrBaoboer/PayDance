@@ -35,6 +35,10 @@ describe("verification scripts", () => {
     expect(packageJson.scripts["verify:fast"]).toContain("npm run lint");
     expect(packageJson.scripts["verify:fast"]).toContain("npm run build:desktop");
     expect(packageJson.scripts.verify).toBe("npm run verify:fast");
+    expect(packageJson.scripts["verify:metadata"]).toContain(
+      "scripts/assert-build-target.test.js",
+    );
+    expect(packageJson.scripts["verify:metadata"]).toContain("scripts/web-seo.test.js");
     expect(packageJson.scripts["verify:push"]).toBe(
       "node scripts/push-workflow.mjs --verify-only",
     );
@@ -56,9 +60,11 @@ describe("verification scripts", () => {
     expect(packageJson.scripts["verify:release"]).toContain(
       "cargo clippy --all-targets -- -D warnings",
     );
+    expect(packageJson.scripts["verify:release"]).toContain("cargo audit");
+    expect(packageJson.scripts["verify:release"]).toContain("cargo deny check");
   });
 
-  it("keeps the maintainer push workflow guarded end to end", () => {
+  it("keeps daily pushes fast while release verification stays complete", () => {
     const pushWorkflow = readRoot("scripts/push-workflow.mjs");
 
     expect(pushWorkflow).toContain("npm run verify:push");
@@ -66,13 +72,12 @@ describe("verification scripts", () => {
     expect(pushWorkflow).toContain("npm_execpath");
     expect(pushWorkflow).toContain("npm-cli.js");
     expect(pushWorkflow).not.toContain("npm.cmd");
-    expect(pushWorkflow).toContain("cargo install cargo-audit --locked");
-    expect(pushWorkflow).toContain("cargo install cargo-deny --version 0.19.8 --locked");
-    expect(pushWorkflow).toContain('"build:desktop"');
-    expect(pushWorkflow).toContain('"build:web"');
-    expect(pushWorkflow).toContain('"audit", "--omit=dev"');
-    expect(pushWorkflow).toContain('"audit"');
-    expect(pushWorkflow).toContain('"deny", "check"');
+    expect(pushWorkflow).toContain('"lint"');
+    expect(pushWorkflow).toContain('"unit tests"');
+    expect(pushWorkflow).not.toContain('"build:desktop"');
+    expect(pushWorkflow).not.toContain('"build:web"');
+    expect(pushWorkflow).not.toContain('"audit", "--omit=dev"');
+    expect(pushWorkflow).not.toContain('"deny", "check"');
     expect(pushWorkflow).toContain('"diff", "--check"');
     expect(pushWorkflow).toContain("Working tree is not clean");
     expect(pushWorkflow).toContain("Refusing to push from");
@@ -129,12 +134,16 @@ describe("verification scripts", () => {
     expect(qaScript).toContain("--force");
     expect(qaScript).toContain("Web Preview");
     expect(qaScript).toContain("PAYDANCE_WEB_QA_RUN_ID");
+    expect(qaScript).toContain("process.env.RUNNER_TEMP ?? tmpdir()");
+    expect(qaScript).toContain('timezoneId: "Asia/Shanghai"');
     expect(qaScript).toContain("commitSha");
     expect(qaScript).toContain("observedCopies");
     expect(qaScript).toContain("assertAccessibility");
     expect(qaScript).toContain("assertLanguageSwitchFlow");
+    expect(qaScript).toContain("assertSeoMetadata");
     expect(qaScript).toContain("Switch to English");
     expect(qaScript).toContain("data-locale");
+    expect(qaScript).toContain("en: `${localUrl}en/`");
     expect(qaScript).toContain("paydance-web-preview-qa-${version}-${runId}");
     expect(qaScript).toContain(".web-preview__chip");
     expect(qaScript).toContain(".web-preview__action");
@@ -145,17 +154,18 @@ describe("verification scripts", () => {
     expect(qaScript).toContain(
       'page.goto(localUrl, { timeout: 60_000, waitUntil: "domcontentloaded" })',
     );
-    expect(qaScript).toContain("paydance-web-locale");
+    expect(qaScript).toContain('getByRole("link", { name: "Switch to English" })');
 
     const qaGuide = readRoot("docs/web-preview-qa.md");
     expect(qaGuide).toContain("Web Preview QA 用来确认官网橱窗");
-    expect(qaGuide).toContain("中文移动端进入页面，点击 `Switch to English`");
+    expect(qaGuide).toContain("从 `/PayDance/` 进入中文页，点击 `Switch to English`");
     expect(qaGuide).toContain("PLAYWRIGHT_NODE_MODULES");
     expect(qaGuide).toContain("@axe-core/playwright");
     expect(qaGuide).toContain("不要用 headless Chrome、CDP 或命令行截图");
     expect(qaGuide).toContain(
       "C:\\Users\\mrbao\\AppData\\Local\\Temp\\paydance-web-preview-qa-{version}-{commit}-{timestamp}",
     );
-    expect(qaGuide).toContain("页面实际读取到的中英文文案和截图路径");
+    expect(qaGuide).toContain("页面实际读取到的中英文文案");
+    expect(qaGuide).toContain("截图路径和视觉比较结果");
   });
 });

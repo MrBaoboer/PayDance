@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import productLogoUrl from "../../../src-tauri/icons/icon.png";
-import { detectLocale, provideI18n, type Locale } from "../../composables/useI18n";
+import { provideI18n } from "../../composables/useI18n";
 import {
   appCopyright,
   appEnglishName,
@@ -14,45 +14,58 @@ import {
   repositoryUrl,
   windowsDownloadUrl,
 } from "../../lib/app-meta";
+import { readBrowserThemeMode } from "../../platform/settings-store.web";
 import WebPreviewFeatureStrip from "../WebPreviewFeatureStrip.vue";
+import { localeUrl, resolveWebLocale } from "../locale-routing";
 import WebPreviewFooter from "./WebPreviewFooter.vue";
 import WebPreviewHeroCopy from "./WebPreviewHeroCopy.vue";
 import WebPreviewShowcase from "./WebPreviewShowcase.vue";
 import WebPreviewTopbar from "./WebPreviewTopbar.vue";
 
-const savedLocale =
-  typeof localStorage !== "undefined"
-    ? localStorage.getItem("paydance-web-locale")
-    : null;
-const initialLocale = ref<Locale>(detectLocale(savedLocale));
-const { locale } = provideI18n(initialLocale, (next) => {
-  localStorage.setItem("paydance-web-locale", next);
-  document.documentElement.lang = next;
-});
+const baseUrl = import.meta.env.BASE_URL;
+const initialLocale = ref(resolveWebLocale(window.location.pathname, baseUrl));
+const { locale } = provideI18n(initialLocale);
 
-const shellClass = ref("theme-light");
+const shellClass = ref(`theme-${readBrowserThemeMode()}`);
+const isThemeReady = ref(false);
 const documentScrollClass = "is-web-preview-page";
+const productHomepageUrl = computed(() => localeUrl(locale.value, baseUrl));
+let themeReadyFrame = 0;
 
 const toggleDocumentScroll = (enabled: boolean) => {
   document.documentElement.classList.toggle(documentScrollClass, enabled);
   document.body.classList.toggle(documentScrollClass, enabled);
 };
 
+const markThemeReady = () => {
+  window.cancelAnimationFrame(themeReadyFrame);
+  themeReadyFrame = window.requestAnimationFrame(() => {
+    isThemeReady.value = true;
+  });
+};
+
 onMounted(() => {
   document.documentElement.lang = locale.value;
   toggleDocumentScroll(true);
 });
-onBeforeUnmount(() => toggleDocumentScroll(false));
+onBeforeUnmount(() => {
+  window.cancelAnimationFrame(themeReadyFrame);
+  toggleDocumentScroll(false);
+});
 </script>
 
 <template>
-  <main class="web-preview" :class="shellClass" :data-locale="locale">
+  <main
+    class="web-preview"
+    :class="[shellClass, { 'is-theme-booting': !isThemeReady }]"
+    :data-locale="locale"
+  >
     <WebPreviewTopbar
       :app-english-name="appEnglishName"
       :app-name="appName"
       :app-version="appVersion"
+      :product-homepage-url="productHomepageUrl"
       :product-logo-url="productLogoUrl"
-      :repository-url="repositoryUrl"
     />
 
     <section class="web-preview__hero" aria-label="PayDance Web Preview">
@@ -61,7 +74,10 @@ onBeforeUnmount(() => toggleDocumentScroll(false));
         :windows-download-url="windowsDownloadUrl"
       />
 
-      <WebPreviewShowcase @shell-class-change="shellClass = $event" />
+      <WebPreviewShowcase
+        @shell-class-change="shellClass = $event"
+        @theme-ready="markThemeReady"
+      />
 
       <WebPreviewFeatureStrip />
     </section>

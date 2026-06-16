@@ -5,6 +5,7 @@ src-tauri/gen
 .npm-cache
 release-assets/
 .tools
+/tmp/
 *.log
 .claude/
 paydance-updater-key

@@ -12,9 +12,26 @@ import salaryAmountFieldsSource from "./settings/SalaryAmountFields.vue?raw";
 import workTimeFieldsSource from "./settings/WorkTimeFields.vue?raw";
 
 describe("onboarding panel", () => {
-  it("renames the final setup step to usage preferences", () => {
-    expect(onboardingPanelSource).toContain('t.value("onboarding.stepSalaryMode")');
-    expect(onboardingPanelSource).toContain('t.value("onboarding.stepPreferences")');
+  it("starts first-run setup with usage preferences so language is available first", () => {
+    const preferencesTitleIndex = onboardingPanelSource.indexOf(
+      't.value("onboarding.stepPreferences")',
+    );
+    const salaryTitleIndex = onboardingPanelSource.indexOf(
+      't.value("onboarding.stepSalaryMode")',
+    );
+    const workTimeTitleIndex = onboardingPanelSource.indexOf(
+      't.value("onboarding.stepWorkTime")',
+    );
+
+    expect(preferencesTitleIndex).toBeGreaterThanOrEqual(0);
+    expect(preferencesTitleIndex).toBeLessThan(salaryTitleIndex);
+    expect(salaryTitleIndex).toBeLessThan(workTimeTitleIndex);
+    const preferencesComponentIndex = onboardingPanelSource.indexOf("<StepPreferences");
+    const salaryComponentIndex = onboardingPanelSource.indexOf("<StepSalaryMode");
+    const workTimeComponentIndex = onboardingPanelSource.indexOf("<StepWorkTime");
+
+    expect(preferencesComponentIndex).toBeLessThan(salaryComponentIndex);
+    expect(salaryComponentIndex).toBeLessThan(workTimeComponentIndex);
     expect(onboardingPanelSource).not.toContain(
       'const stepTitles = ["薪资模式", "工作时间", "外观风格"]',
     );

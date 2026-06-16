@@ -20,7 +20,10 @@ import {
   type WindowPosition,
   type WindowSize,
 } from "../lib/window-mode";
-import { createBrowserSettingsStore } from "../platform/settings-store.web";
+import {
+  createBrowserSettingsStore,
+  readBrowserThemeMode,
+} from "../platform/settings-store.web";
 
 const miniStagePaddingX = 34;
 const miniStageHeight = 188;
@@ -44,6 +47,7 @@ export function useWebPreviewState() {
     saveSettings,
     themeMode,
   } = useSalarySettings(() => Promise.resolve(previewStore));
+  themeMode.value = readBrowserThemeMode();
 
   const { locale, t } = useI18n();
 
@@ -222,7 +226,6 @@ export function useWebPreviewState() {
     fullSize.value = windowPreferences.fullSize;
     miniSize.value = windowPreferences.miniSize;
     miniOpacityPercent.value = windowPreferences.miniOpacityPercent;
-    await applyThemeMode(themeMode.value, { persist: false });
     if (isMiniMode.value) resetMiniPosition();
     startTicker();
   });
@@ -247,6 +250,7 @@ export function useWebPreviewState() {
     hasConfigIssues,
     hasIssue,
     isAutostartUpdating,
+    isSettingsReady,
     isThemeSwitching,
     isWorkingStatus,
     middleStat,

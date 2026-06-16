@@ -39,6 +39,9 @@ describe("CI workflow routing", () => {
     expect(pushWorkflow).toContain("verify:metadata");
     expect(pushWorkflow).toContain("scope.requiresFullCi");
     expect(pushWorkflow).toContain("scope.deployWebPreview");
+    expect(pushWorkflow).toContain("Fast daily checks");
+    expect(pushWorkflow).not.toContain('"build:desktop"');
+    expect(pushWorkflow).not.toContain('"build:web"');
     expect(pushWorkflow).toContain('watchWorkflow("CI"');
     expect(pushWorkflow).toContain('watchWorkflow("Web Preview"');
   });
@@ -63,6 +66,10 @@ describe("CI workflow routing", () => {
     expect(ciWorkflow).toContain("Security audit");
     expect(ciWorkflow).toContain("Run Rust tests");
     expect(ciWorkflow).toContain("cargo test");
+    expect(ciWorkflow).toContain("name: CI gate");
+    expect(ciWorkflow).toContain("if: always()");
+    expect(ciWorkflow).toContain("needs.verify.result");
+    expect(ciWorkflow).toContain("needs.security.result");
 
     expect(webPreviewWorkflow).toContain("Read CI change scope");
     expect(webPreviewWorkflow).toContain("actions/download-artifact");
@@ -88,12 +95,24 @@ describe("CI workflow routing", () => {
     expect(codeqlWorkflow).toContain("github/codeql-action/analyze@");
     expect(codeqlWorkflow).toContain("javascript-typescript");
     expect(codeqlWorkflow).toContain("rust");
+    expect(codeqlWorkflow).toContain("Detect CodeQL change scope");
+    expect(codeqlWorkflow).toContain("node scripts/ci-change-scope.mjs");
+    expect(codeqlWorkflow).toContain("needs.changes.outputs.requires_full_ci");
+    expect(codeqlWorkflow).toContain("github.event_name == 'schedule'");
+    expect(codeqlWorkflow).toContain("name: CodeQL gate");
+    expect(codeqlWorkflow).toContain("needs.changes.result");
+    expect(codeqlWorkflow).toContain("needs.analyze.result");
+    expect(codeqlWorkflow).toContain('[ "$ANALYZE_RESULT" != "skipped" ]');
     expect(releaseWorkflow).toContain("Smoke test Windows executable");
     expect(releaseWorkflow).toContain("scripts/smoke-windows-exe.ps1");
     expect(releaseWorkflow).toContain("Generate release SBOM");
     expect(releaseWorkflow).toContain("pay-dance-sbom.spdx.json");
     expect(smokeScript).toContain("MainWindowHandle");
     expect(smokeScript).toContain("single-instance");
+    expect(smokeScript).toContain("[string]$ReportPath");
+    expect(smokeScript).toContain("ConvertTo-Json");
+    expect(smokeScript).toContain("Responding");
+    expect(releaseWorkflow).toContain("paydance-exe-smoke-report.json");
   });
 
   it("pins every GitHub Action to a full commit SHA", () => {

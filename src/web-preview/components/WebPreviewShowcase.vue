@@ -23,6 +23,7 @@ const {
   hasConfigIssues,
   hasIssue,
   isAutostartUpdating,
+  isSettingsReady,
   isThemeSwitching,
   middleStat,
   miniLayerStyle,
@@ -53,9 +54,25 @@ const {
 
 const emit = defineEmits<{
   shellClassChange: [value: string];
+  themeReady: [];
 }>();
 
-watch(shellClass, (value) => emit("shellClassChange", value), { immediate: true });
+watch(
+  shellClass,
+  (value) => {
+    if (isSettingsReady.value) emit("shellClassChange", value);
+  },
+  { immediate: true },
+);
+watch(
+  isSettingsReady,
+  (ready) => {
+    if (!ready) return;
+    emit("shellClassChange", shellClass.value);
+    emit("themeReady");
+  },
+  { immediate: true },
+);
 </script>
 
 <template>

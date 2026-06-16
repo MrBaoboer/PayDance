@@ -4,12 +4,17 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 import { execFileSync, spawn } from "node:child_process";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import packageMetadata from "../package.json" with { type: "json" };
 import { resolvePlaywright } from "./resolve-playwright.mjs";
+import {
+  comparePngFiles,
+  isVisualRegression,
+  visualMaxDiffRatio,
+} from "./visual-diff.mjs";
 
 const version = packageMetadata.version;
 const sanitizeRunId = (value) =>
@@ -37,7 +42,14 @@ const runId = sanitizeRunId(
 );
 const port = Number(process.env.PAYDANCE_WEB_QA_PORT ?? 4174);
 const localUrl = `http://127.0.0.1:${port}/PayDance/`;
-const qaDir = join(tmpdir(), `paydance-web-preview-qa-${version}-${runId}`);
+const localeUrls = {
+  "zh-CN": localUrl,
+  en: `${localUrl}en/`,
+};
+const qaRoot = process.env.RUNNER_TEMP ?? tmpdir();
+const qaDir = join(qaRoot, `paydance-web-preview-qa-${version}-${runId}`);
+const visualBaselineDir = resolve("tests", "visual-baselines");
+const updateVisualBaselines = process.argv.includes("--update-visual-baselines");
 const storageKey = "paydance-web-preview-settings";
 const viewports = [
   { name: "desktop", width: 1440, height: 900 },
@@ -46,7 +58,6 @@ const viewports = [
 ];
 const locales = ["zh-CN", "en"];
 const themes = ["light", "dark"];
-const localeStorageKey = "paydance-web-locale";
 const localeExpectations = {
   "zh-CN": {
     downloadName: /下载 Windows 版/,
@@ -58,6 +69,64 @@ const localeExpectations = {
     headline: "See Your Pay",
     themeToggleLabels: ["Switch to dark mode", "Switch to light mode"],
   },
+};
+const seoExpectations = {
+  "zh-CN": {
+    canonical: "https://masterbao66.github.io/PayDance/",
+    title: "薪跳 PayDance — Windows 桌面实时工资看板",
+  },
+  en: {
+    canonical: "https://masterbao66.github.io/PayDance/en/",
+    title: "PayDance — Real-Time Salary Dashboard for Windows",
+  },
+};
+const alternateUrls = {
+  "zh-CN": "https://masterbao66.github.io/PayDance/",
+  en: "https://masterbao66.github.io/PayDance/en/",
+  "x-default": "https://masterbao66.github.io/PayDance/",
+};
+
+const assertSeoMetadata = async (page, viewportName, locale) => {
+  const metadata = await page.evaluate(() => {
+    const structuredData = document.querySelector(
+      'script[type="application/ld+json"]',
+    )?.textContent;
+
+    return {
+      alternates: Object.fromEntries(
+        [...document.querySelectorAll('link[rel="alternate"][hreflang]')].map((link) => [
+          link.getAttribute("hreflang"),
+          link.getAttribute("href"),
+        ]),
+      ),
+      canonical: document.querySelector('link[rel="canonical"]')?.getAttribute("href"),
+      structuredData: structuredData ? JSON.parse(structuredData) : null,
+      title: document.title,
+    };
+  });
+  const expected = seoExpectations[locale];
+
+  if (metadata.title !== expected.title) {
+    throw new Error(`${viewportName}: SEO title mismatch "${metadata.title}"`);
+  }
+  if (metadata.canonical !== expected.canonical) {
+    throw new Error(`${viewportName}: canonical mismatch "${metadata.canonical}"`);
+  }
+  for (const [hreflang, url] of Object.entries(alternateUrls)) {
+    if (metadata.alternates[hreflang] !== url) {
+      throw new Error(
+        `${viewportName}: hreflang ${hreflang} mismatch "${metadata.alternates[hreflang]}"`,
+      );
+    }
+  }
+  if (metadata.structuredData?.inLanguage !== locale) {
+    throw new Error(
+      `${viewportName}: JSON-LD language mismatch "${metadata.structuredData?.inLanguage}"`,
+    );
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(metadata.structuredData?.dateModified ?? "")) {
+    throw new Error(`${viewportName}: JSON-LD dateModified is not a build date`);
+  }
 };
 
 const createPreviewState = (themeMode) => ({
@@ -81,6 +150,104 @@ const createPreviewState = (themeMode) => ({
   settingsVersion: 3,
   themeMode,
 });
+
+const isVisualBaselineCase = (locale, themeMode, viewportName) =>
+  ((locale === "zh-CN" && themeMode === "light") ||
+    (locale === "en" && themeMode === "dark")) &&
+  ["desktop", "mobile"].includes(viewportName);
+
+const stabilizeVisualPage = async (page) => {
+  await page.addStyleTag({
+    content: `
+      *,
+      *::before,
+      *::after {
+        animation-delay: 0s !important;
+        animation-duration: 0s !important;
+        caret-color: transparent !important;
+        transition-delay: 0s !important;
+        transition-duration: 0s !important;
+      }
+    `,
+  });
+  await page.evaluate(() => document.fonts.ready.then(() => true));
+  await page.waitForTimeout(150);
+};
+
+const readThemePaint = (page) =>
+  page.evaluate(() => {
+    const read = (selector, property) => {
+      const element = document.querySelector(selector);
+      return element ? window.getComputedStyle(element)[property] : null;
+    };
+
+    return {
+      frameBackground: read(".web-preview__frame", "backgroundColor"),
+      languageBackground: read(".lang-switcher", "backgroundColor"),
+      rootBackground: read(".web-preview", "backgroundImage"),
+      rootColor: read(".web-preview", "color"),
+      themeClass: document.querySelector(".web-preview")?.className ?? null,
+    };
+  });
+
+const assertStableInitialThemePaint = async (page, caseName) => {
+  const initialPaint = await readThemePaint(page);
+  await page.waitForTimeout(220);
+  const settledPaint = await readThemePaint(page);
+
+  if (JSON.stringify(initialPaint) !== JSON.stringify(settledPaint)) {
+    throw new Error(
+      `${caseName}: theme colors changed after first paint ${JSON.stringify({
+        initialPaint,
+        settledPaint,
+      })}`,
+    );
+  }
+};
+
+const assertVisualBaseline = ({ locale, screenshotPath, themeMode, viewport }) => {
+  if (!isVisualBaselineCase(locale, themeMode, viewport.name)) return null;
+
+  const fileName = `web-preview-${locale}-${themeMode}-${viewport.name}-${viewport.width}x${viewport.height}.png`;
+  const baselinePath = join(visualBaselineDir, fileName);
+
+  if (updateVisualBaselines) {
+    mkdirSync(visualBaselineDir, { recursive: true });
+    copyFileSync(screenshotPath, baselinePath);
+    return {
+      baselinePath,
+      mode: "updated",
+      name: fileName,
+    };
+  }
+
+  const expectedPath = join(qaDir, `expected-${fileName}`);
+  const diffPath = join(qaDir, `diff-${fileName}`);
+  const result = comparePngFiles({
+    actualPath: screenshotPath,
+    baselinePath,
+    diffPath,
+  });
+  copyFileSync(baselinePath, expectedPath);
+
+  if (isVisualRegression(result.ratio)) {
+    throw new Error(
+      `Visual regression ${fileName}: ${result.diffPixels} pixels changed (${(
+        result.ratio * 100
+      ).toFixed(3)}%, budget ${(visualMaxDiffRatio * 100).toFixed(
+        1,
+      )}%). Expected: ${expectedPath}. Actual: ${screenshotPath}. Diff: ${diffPath}.`,
+    );
+  }
+
+  return {
+    ...result,
+    baselinePath,
+    expectedPath,
+    mode: "compared",
+    name: fileName,
+  };
+};
 
 const waitForServer = async () => {
   const deadline = Date.now() + 30_000;
@@ -191,7 +358,7 @@ const assertDom = async (page, viewportName, locale) => {
   const viewport = page.viewportSize();
   const expectedText = localeExpectations[locale];
   const title = await page.title();
-  if (title !== "薪跳 PayDance — Windows 桌面实时工资看板") {
+  if (title !== seoExpectations[locale].title) {
     throw new Error(`${viewportName}: unexpected title "${title}"`);
   }
 
@@ -733,20 +900,35 @@ const assertThemeToggleEdge = async (page, viewportName, locale) => {
   }
 };
 
-const seedPreviewContext = async (browser, locale, themeMode, viewport) => {
+const seedPreviewContext = async (browser, themeMode, viewport) => {
   const context = await browser.newContext({
     deviceScaleFactor: 1,
+    timezoneId: "Asia/Shanghai",
     viewport: { width: viewport.width, height: viewport.height },
   });
   await context.addInitScript(
-    ({ key, localeKey, localeValue, state }) => {
-      window.localStorage.setItem(localeKey, localeValue);
+    ({ fixedTime, key, state }) => {
+      const NativeDate = Date;
+      class FixedDate extends NativeDate {
+        constructor(...args) {
+          super(...(args.length === 0 ? [fixedTime] : args));
+        }
+
+        static now() {
+          return fixedTime;
+        }
+      }
+      Object.setPrototypeOf(FixedDate, NativeDate);
+      Object.defineProperty(window, "Date", { configurable: true, value: FixedDate });
+      Object.defineProperty(performance, "now", {
+        configurable: true,
+        value: () => 0,
+      });
       window.localStorage.setItem(key, JSON.stringify(state));
     },
     {
+      fixedTime: Date.parse("2026-06-15T02:00:00.000Z"),
       key: storageKey,
-      localeKey: localeStorageKey,
-      localeValue: locale,
       state: createPreviewState(themeMode),
     },
   );
@@ -756,7 +938,7 @@ const seedPreviewContext = async (browser, locale, themeMode, viewport) => {
 
 const assertLanguageSwitchFlow = async (browser, consoleFindings, pageErrors) => {
   const viewport = { name: "mobile", width: 390, height: 844 };
-  const context = await seedPreviewContext(browser, "zh-CN", "light", viewport);
+  const context = await seedPreviewContext(browser, "light", viewport);
   const page = await context.newPage();
 
   page.on("console", (message) => {
@@ -774,6 +956,7 @@ const assertLanguageSwitchFlow = async (browser, consoleFindings, pageErrors) =>
       state: "visible",
       timeout: 45_000,
     });
+    await stabilizeVisualPage(page);
 
     const initialLocale = await page.locator(".web-preview").getAttribute("data-locale");
     if (initialLocale !== "zh-CN") {
@@ -782,7 +965,10 @@ const assertLanguageSwitchFlow = async (browser, consoleFindings, pageErrors) =>
       );
     }
 
-    await page.getByRole("button", { name: "Switch to English" }).click();
+    await Promise.all([
+      page.waitForURL(localeUrls.en, { timeout: 10_000 }),
+      page.getByRole("link", { name: "Switch to English" }).click(),
+    ]);
     await page.getByText(localeExpectations.en.headline, { exact: true }).waitFor({
       state: "visible",
       timeout: 10_000,
@@ -795,6 +981,7 @@ const assertLanguageSwitchFlow = async (browser, consoleFindings, pageErrors) =>
       );
     }
 
+    await assertSeoMetadata(page, "language-switch/mobile", "en");
     const observedCopy = await assertDom(page, "language-switch/mobile", "en");
     await assertAccessibility(page, "language-switch/mobile");
 
@@ -830,11 +1017,12 @@ const runQa = async () => {
     const consoleFindings = [];
     const pageErrors = [];
     const observations = [];
+    const visualComparisons = [];
 
     for (const locale of locales) {
       for (const themeMode of themes) {
         for (const viewport of viewports) {
-          const context = await seedPreviewContext(browser, locale, themeMode, viewport);
+          const context = await seedPreviewContext(browser, themeMode, viewport);
           const page = await context.newPage();
           page.on("console", (message) => {
             if (message.type() === "error") {
@@ -847,11 +1035,24 @@ const runQa = async () => {
             pageErrors.push(`${locale}/${themeMode}/${viewport.name}: ${error.message}`);
           });
 
-          await page.goto(localUrl, { timeout: 60_000, waitUntil: "domcontentloaded" });
+          await page.goto(localeUrls[locale], {
+            timeout: 60_000,
+            waitUntil: "domcontentloaded",
+          });
           await page.locator("#paydance-preview").waitFor({
             state: "visible",
             timeout: 45_000,
           });
+          await assertStableInitialThemePaint(
+            page,
+            `${locale}/${themeMode}/${viewport.name}`,
+          );
+          await stabilizeVisualPage(page);
+          await assertSeoMetadata(
+            page,
+            `${locale}/${themeMode}/${viewport.name}`,
+            locale,
+          );
           const observedCopy = await assertDom(
             page,
             `${locale}/${themeMode}/${viewport.name}`,
@@ -875,6 +1076,13 @@ const runQa = async () => {
             `web-preview-${locale}-${themeMode}-${viewport.name}-${viewport.width}x${viewport.height}.png`,
           );
           await page.screenshot({ fullPage: true, path: screenshotPath });
+          const visualComparison = assertVisualBaseline({
+            locale,
+            screenshotPath,
+            themeMode,
+            viewport,
+          });
+          if (visualComparison) visualComparisons.push(visualComparison);
           await context.close();
         }
       }
@@ -919,6 +1127,7 @@ const runQa = async () => {
               })),
             ),
           ),
+          visualComparisons,
           version,
         },
         null,

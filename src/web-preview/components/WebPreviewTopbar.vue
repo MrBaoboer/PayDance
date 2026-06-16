@@ -11,14 +11,14 @@ defineProps<{
   appEnglishName: string;
   appName: string;
   appVersion: string;
+  productHomepageUrl: string;
   productLogoUrl: string;
-  repositoryUrl: string;
 }>();
 </script>
 
 <template>
   <header class="web-preview__topbar" :aria-label="t('web.topbarAriaLabel')">
-    <a class="web-preview__brand" :href="repositoryUrl">
+    <a class="web-preview__brand" :href="productHomepageUrl">
       <img
         class="web-preview__brand-logo"
         :src="productLogoUrl"

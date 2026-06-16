@@ -4,6 +4,7 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 import { describe, expect, it } from "vitest";
+import packageMetadata from "../../package.json";
 import {
   appAuthor,
   appCopyright,
@@ -34,6 +35,7 @@ describe("app metadata", () => {
 
   it("exposes the current app version for about surfaces", () => {
     expect(appVersion).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(appVersion).toBe(packageMetadata.version);
   });
 
   it("exposes the versioned Windows release download", () => {

@@ -27,6 +27,8 @@ import appMetaSource from "./lib/app-meta.ts?raw";
 
 const read = (path: string) =>
   readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
+const countLiteralOccurrences = (source: string, value: string) =>
+  source.split(value).length - 1;
 const pngSize = (path: string) => {
   const source = readFileSync(new URL(`../${path}`, import.meta.url));
   const pngSignature = "89504e470d0a1a0a";
@@ -39,7 +41,13 @@ const pngSize = (path: string) => {
   };
 };
 const appStyles = read("src/style.css");
-const webPreviewStyles = read("src/web-preview/web-preview.css");
+const webPreviewStyles = [
+  read("src/web-preview/web-preview.css"),
+  read("src/web-preview/styles/foundation.css"),
+  read("src/web-preview/styles/hero.css"),
+  read("src/web-preview/styles/showcase.css"),
+  read("src/web-preview/styles/responsive.css"),
+].join("\n");
 const cssBlockFrom = (source: string, selector: string) =>
   source.match(
     new RegExp(`${selector.split(".").join("\\.")} \\{[\\s\\S]*?\\n\\}`),
@@ -78,9 +86,21 @@ describe("PayDance Web Preview", () => {
     const desktopSettingsStore = read("src/platform/settings-store.ts");
 
     expect(webSettingsStore).toContain("createBrowserSettingsStore");
+    expect(webSettingsStore).toContain("readBrowserThemeMode");
     expect(webSettingsStore).toContain("window.localStorage");
     expect(webSettingsStore).toContain("paydance-web-preview-settings");
     expect(desktopSettingsStore).toContain('import("@tauri-apps/plugin-store")');
+  });
+
+  it("hydrates the saved web theme before enabling visual transitions", () => {
+    expect(webPreviewPageSource).toContain("readBrowserThemeMode");
+    expect(webPreviewStateSource).toContain("readBrowserThemeMode");
+    expect(webPreviewPageSource).toContain("is-theme-booting");
+    expect(webPreviewPageSource).toContain("@theme-ready");
+    expect(webPreviewShowcaseSource).toContain("themeReady");
+    expect(webPreviewShowcaseSource).toContain("isSettingsReady");
+    expect(webPreviewStyles).toContain(".web-preview.is-theme-booting");
+    expect(webPreviewStyles).toContain("transition: none !important");
   });
 
   it("presents web preview as a bounded online experience", () => {
@@ -96,24 +116,45 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).not.toContain("@tauri-apps");
   });
 
-  it("brands the web storefront with the product logo and current version", () => {
+  it("brands the web storefront with the setup poster and current version", () => {
     const favicon = statSync(new URL("../public/favicon.png", import.meta.url));
-    const ogImage = statSync(new URL("../public/og-image.png", import.meta.url));
-    const htmlSource = read("index.html");
+    const sharePoster = statSync(
+      new URL("../docs/posters/poster-02-three-step-setup-v3.png", import.meta.url),
+    );
+    const chineseHtmlSource = read("index.html");
+    const englishHtmlSource = read("en/index.html");
+    const sharePosterUrl =
+      "https://raw.githubusercontent.com/MasterBao66/PayDance/main/docs/posters/poster-02-three-step-setup-v3.png";
 
     expect(webPreviewSource).toContain("productLogoUrl");
     expect(webPreviewSource).toContain("appVersion");
-    expect(htmlSource).toContain('rel="icon"');
-    expect(htmlSource).toContain("%BASE_URL%favicon.png");
+    expect(chineseHtmlSource).toContain('rel="icon"');
+    expect(chineseHtmlSource).toContain("%BASE_URL%favicon.png");
+    expect(englishHtmlSource).toContain("%BASE_URL%favicon.png");
     expect(favicon.size).toBeGreaterThan(1_000);
-    expect(ogImage.size).toBeGreaterThan(20_000);
-    expect(pngSize("public/og-image.png")).toEqual({ width: 1200, height: 630 });
-    expect(htmlSource).toContain("https://masterbao66.github.io/PayDance/og-image.png");
-    expect(ogImage.size).toBeLessThan(450_000);
-    expect(htmlSource).toContain(
+    expect(sharePoster.size).toBeGreaterThan(20_000);
+    expect(pngSize("docs/posters/poster-02-three-step-setup-v3.png")).toEqual({
+      width: 1448,
+      height: 1086,
+    });
+    expect(countLiteralOccurrences(chineseHtmlSource, sharePosterUrl)).toBe(2);
+    expect(countLiteralOccurrences(englishHtmlSource, sharePosterUrl)).toBe(2);
+    expect(chineseHtmlSource).toContain(
+      '<meta property="og:image:width" content="1448" />',
+    );
+    expect(chineseHtmlSource).toContain(
+      '<meta property="og:image:height" content="1086" />',
+    );
+    expect(chineseHtmlSource).toContain("薪跳 PayDance 三步设置界面");
+    expect(englishHtmlSource).toContain("PayDance three-step setup");
+    expect(chineseHtmlSource).toContain(
       "<title>薪跳 PayDance — Windows 桌面实时工资看板</title>",
     );
-    expect(htmlSource).toContain('"applicationCategory": "UtilitiesApplication"');
+    expect(englishHtmlSource).toContain(
+      "<title>PayDance — Real-Time Salary Dashboard for Windows</title>",
+    );
+    expect(chineseHtmlSource).toContain('"applicationCategory": "UtilitiesApplication"');
+    expect(englishHtmlSource).toContain('"applicationCategory": "UtilitiesApplication"');
     expect(webPreviewSource).toContain('class="web-preview__brand"');
     expect(webPreviewSource).toContain('class="web-preview__brand-logo"');
     expect(webPreviewSource).not.toContain("web-preview__brand-icon");
@@ -135,14 +176,67 @@ describe("PayDance Web Preview", () => {
     expect(cssBlock(".web-preview__status")).toContain("gap: 8px");
   });
 
+  it("publishes independent Chinese and English SEO entry points", () => {
+    const chineseHtmlSource = read("index.html");
+    const englishHtmlSource = read("en/index.html");
+    const chineseUrl = "https://masterbao66.github.io/PayDance/";
+    const englishUrl = "https://masterbao66.github.io/PayDance/en/";
+
+    expect(chineseHtmlSource).toContain('<html lang="zh-CN">');
+    expect(englishHtmlSource).toContain('<html lang="en">');
+    expect(chineseHtmlSource).toContain(`<link rel="canonical" href="${chineseUrl}" />`);
+    expect(englishHtmlSource).toContain(`<link rel="canonical" href="${englishUrl}" />`);
+
+    for (const htmlSource of [chineseHtmlSource, englishHtmlSource]) {
+      const compactHtml = htmlSource.replace(/\s+/g, " ");
+
+      expect(compactHtml).toContain(
+        `<link rel="alternate" hreflang="zh-CN" href="${chineseUrl}" />`,
+      );
+      expect(compactHtml).toContain(
+        `<link rel="alternate" hreflang="en" href="${englishUrl}" />`,
+      );
+      expect(compactHtml).toContain(
+        `<link rel="alternate" hreflang="x-default" href="${chineseUrl}" />`,
+      );
+      expect(htmlSource).toContain('"softwareVersion": "__PAYDANCE_VERSION__"');
+      expect(htmlSource).toContain('"dateModified": "__PAYDANCE_DATE_MODIFIED__"');
+    }
+
+    expect(chineseHtmlSource).toContain(
+      `<meta property="og:url" content="${chineseUrl}" />`,
+    );
+    expect(englishHtmlSource).toContain(
+      `<meta property="og:url" content="${englishUrl}" />`,
+    );
+    expect(chineseHtmlSource).toContain('"inLanguage": "zh-CN"');
+    expect(englishHtmlSource).toContain('"inLanguage": "en"');
+    expect(chineseHtmlSource).not.toContain(
+      "PayDance — Real-Time Salary Dashboard for Windows",
+    );
+    expect(englishHtmlSource).not.toContain("薪跳 PayDance — Windows 桌面实时工资看板");
+  });
+
+  it("keeps the brand logo on the product homepage", () => {
+    expect(webPreviewPageSource).toContain(
+      "const productHomepageUrl = computed(() => localeUrl(locale.value, baseUrl))",
+    );
+    expect(webPreviewPageSource).toContain(':product-homepage-url="productHomepageUrl"');
+    expect(webPreviewTopbarSource).toContain(':href="productHomepageUrl"');
+    expect(webPreviewTopbarSource).not.toContain(':href="repositoryUrl"');
+  });
+
   it("uses a segmented language switcher instead of a tiny single-label button", () => {
     expect(webPreviewPageSource).toContain("const { locale } = provideI18n");
     expect(webPreviewPageSource).toContain(':data-locale="locale"');
-    expect(webPreviewPageSource).toContain("document.documentElement.lang = next");
     expect(webPreviewPageSource).toContain(
       "document.documentElement.lang = locale.value",
     );
+    expect(webPreviewPageSource).toContain("resolveWebLocale");
     expect(webPreviewTopbarSource).toContain("<LanguageSwitcher />");
+    expect(languageSwitcherSource).toContain("<a");
+    expect(languageSwitcherSource).toContain(':href="alternateLocaleUrl"');
+    expect(languageSwitcherSource).toContain("localeUrl");
     expect(webPreviewSource).toContain('class="lang-switcher__track"');
     expect(webPreviewSource).toContain('class="lang-switcher__option"');
     expect(webPreviewSource).toContain("'is-active': locale === 'zh-CN'");
@@ -218,9 +312,7 @@ describe("PayDance Web Preview", () => {
     );
     expect(webPreviewSource).toContain("overflow-wrap: normal");
     expect(webPreviewSource).toContain("@media (max-width: 1180px)");
-    expect(webPreviewSource).toContain(
-      ".web-preview__hero {\n    grid-template-columns: 1fr;",
-    );
+    expect(webPreviewStyles).toContain("grid-template-columns: 1fr");
     expect(webPreviewSource).not.toContain(
       '@media (max-width: 1180px) {\n  .web-preview[data-locale="en"] .web-preview__hero',
     );
@@ -274,13 +366,9 @@ describe("PayDance Web Preview", () => {
       "grid-template-columns: minmax(330px, 0.9fr) minmax(390px, 460px)",
     );
     expect(webPreviewSource).toContain("@media (max-width: 1180px)");
-    expect(webPreviewSource).toContain(
-      ".web-preview__hero {\n    grid-template-columns: 1fr;",
-    );
+    expect(webPreviewStyles).toContain("grid-template-columns: 1fr");
     expect(webPreviewSource).toContain("gap: clamp(34px, 5.6vw, 54px)");
-    expect(webPreviewSource).toContain(
-      ".web-preview__copy {\n    justify-items: center;",
-    );
+    expect(webPreviewStyles).toContain("justify-items: center");
     expect(webPreviewSource).toContain("@media (max-width: 820px)");
   });
 
@@ -378,7 +466,7 @@ describe("PayDance Web Preview", () => {
     expect(cssBlock(".web-preview__action-label")).toContain(
       "transform: translateY(-0.75px)",
     );
-    expect(webPreviewSource).toContain(".web-preview__action--quiet {\n  gap: 3px;");
+    expect(cssBlock(".web-preview__action--quiet")).toContain("gap: 3px");
     expect(cssBlock(".web-preview__action")).toContain(
       "transition: box-shadow 160ms ease",
     );
@@ -610,8 +698,12 @@ describe("PayDance Web Preview", () => {
   it("builds the web preview for GitHub Pages", () => {
     const viteConfig = read("vite.config.ts");
 
-    expect(viteConfig).toContain('base: mode === "web" ? "/PayDance/" : "./"');
-    expect(viteConfig).toContain('entries: ["index.html"]');
+    expect(viteConfig).toContain('base: isWeb ? "/PayDance/" : "./"');
+    expect(viteConfig).toContain(
+      'entries: isWeb ? ["index.html", "en/index.html"] : ["index.html"]',
+    );
+    expect(viteConfig).toContain('en: resolve(projectRoot, "en/index.html")');
+    expect(viteConfig).toContain("createWebSeoPlugin");
     expect(viteConfig).toContain("src-tauri/target/**");
     expect(read(".github/workflows/web-preview.yml")).toContain("npm run build:web");
     expect(read(".github/workflows/web-preview.yml")).toContain(

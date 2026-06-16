@@ -51,13 +51,21 @@ npm run push:main
 该命令会根据待推送文件路径自动分流：
 
 - **轻量路径**（`docs/**`、`legal/**`、`README*`、`CHANGELOG*` 等）：仅运行版本一致性、品牌与密钥卫生、格式检查、仓库元数据测试和 `git diff --check`。
-- **代码路径**（`src/**`、`src-tauri/**`、`package*.json`、`scripts/**`、`.github/workflows/**` 等）：自动升级为完整验证，追加 lint、测试、桌面构建、Web Preview 构建、`npm audit`、`cargo fmt/check/clippy/audit/deny`。
+- **代码路径**（`src/**`、`src-tauri/**`、`package*.json`、`scripts/**`、`.github/workflows/**` 等）：追加 lint 和单元测试。桌面构建、Web Preview 构建、浏览器 QA、Rust 检查和安全审计由推送后的 GitHub CI 完成。
 
 如只需验证、不推送：`npm run verify:push`
 
+正式发布前使用完整验证：
+
+```powershell
+npm run verify:release
+```
+
+该命令会完整执行桌面与 Web 构建、npm/Rust 安全审计、Rust 格式、编译检查、Clippy 和测试。
+
 > 注意：`npm run build:desktop` 和 `npm run build:web` 会写入同一个 `dist/` 目录，不要并行跑。
 
-安全审计步骤需要提前安装以下工具：
+正式发布的安全审计需要提前安装以下工具；日常推送不再要求每次重复运行它们：
 
 ```powershell
 cargo install cargo-audit --locked
@@ -81,14 +89,17 @@ gh auth login
 
 ## 第一次贡献指引
 
-对于低风险的第一次 PR，建议选择一个文档或 QA 相关 Issue，并保持改动范围收窄：
+第一次贡献不再限定为纯文档。优先选择用户能看到的小改进，同时保持范围可控：
 
 1. 阅读关联 Issue，确认它仍然处于打开状态。
-2. 只编辑一个聚焦文件，例如文档页面、检查清单或社区模板。
-3. 文档、法务、品牌或社区模板改动请运行 `npm run verify:metadata`。
-4. 打开 PR 时写清简短摘要、已运行的验证命令，并包含 `Signed-off-by:` 行。
+2. Issue 必须写明**用户能看到的结果**、当前问题的截图或复现证据、涉及范围、**验收标准**和一条明确的**验证命令**。
+3. 入门任务通常限制在 1–2 个主要文件；需要理解发布密钥、更新签名或跨模块迁移的任务不标记为 `good first issue`。
+4. UI 改进需附修改前后截图；行为修复需附能先失败、修复后通过的测试。
+5. 打开 PR 时写清简短摘要、已运行的验证命令，并包含 `Signed-off-by:` 行。
 
-除非 Issue 明确要求，不要在同一个第一次 PR 中混合代码、截图、发布说明和文档清理。
+维护者不会为了增加标签数量而制造任务。新的用户可见任务应先确认符合产品边界，再发布 Issue。认领后 7 天没有方案、提交或进度说明时，维护者可以释放认领。
+
+除非 Issue 明确要求，不要在同一个第一次 PR 中混合功能修改、无关重构、发布说明和文档清理。
 
 ## 我们不接受
 

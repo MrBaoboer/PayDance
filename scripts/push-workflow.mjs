@@ -11,7 +11,6 @@ import { setTimeout as delay } from "node:timers/promises";
 import { classifyChangedFiles } from "./ci-change-scope.mjs";
 
 const rootDir = resolve(import.meta.dirname, "..");
-const tauriDir = resolve(rootDir, "src-tauri");
 const args = new Set(process.argv.slice(2));
 const repo = process.env.GITHUB_REPOSITORY || "MasterBao66/PayDance";
 const mainBranch = "main";
@@ -126,19 +125,6 @@ function splitLines(output) {
   return output.split(/\r?\n/).filter(Boolean);
 }
 
-function ensureCargoSubcommand(name, installHint) {
-  const result = spawnSync("cargo", [name, "--version"], {
-    cwd: tauriDir,
-    env: process.env,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-
-  if (result.status !== 0) {
-    fail(`Missing cargo-${name}. Install it with:\n${installHint}`);
-  }
-}
-
 function ensureGhAvailable() {
   const result = spawnSync("gh", ["auth", "status", "--hostname", "github.com"], {
     cwd: rootDir,
@@ -214,35 +200,17 @@ function verifyLocalReadiness(scope) {
 
   if (!scope.requiresFullCi) {
     console.log(
-      "\n[push-workflow] Lightweight change detected; skipping desktop, Web Preview, Rust, and audit builds locally.",
+      "\n[push-workflow] Lightweight change detected; metadata checks are sufficient locally.",
     );
     return;
   }
 
-  ensureCargoSubcommand("audit", "cargo install cargo-audit --locked");
-  ensureCargoSubcommand("deny", "cargo install cargo-deny --version 0.19.8 --locked");
-
+  console.log(
+    "\n[push-workflow] Fast daily checks: lint and unit tests run locally; GitHub CI handles builds, browser QA, Rust checks, and security audits.",
+  );
   const steps = [
     ["lint", npmInvocation.command, npmArgs("run", "lint"), rootDir],
     ["unit tests", npmInvocation.command, npmArgs("test"), rootDir],
-    ["desktop build", npmInvocation.command, npmArgs("run", "build:desktop"), rootDir],
-    ["web preview build", npmInvocation.command, npmArgs("run", "build:web"), rootDir],
-    [
-      "production npm audit",
-      npmInvocation.command,
-      npmArgs("audit", "--omit=dev"),
-      rootDir,
-    ],
-    ["Rust formatting", "cargo", ["fmt", "--all", "--", "--check"], tauriDir],
-    ["Rust check", "cargo", ["check"], tauriDir],
-    [
-      "Rust clippy",
-      "cargo",
-      ["clippy", "--all-targets", "--", "-D", "warnings"],
-      tauriDir,
-    ],
-    ["Rust security audit", "cargo", ["audit"], tauriDir],
-    ["Rust dependency policy", "cargo", ["deny", "check"], tauriDir],
   ];
 
   for (const [label, command, commandArgs, cwd] of steps) {

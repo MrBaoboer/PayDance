@@ -47,7 +47,7 @@
 | &nbsp; | 入口 | 说明 |
 |:---:|:---:|:---:|
 | 🌐 | **[在线体验](https://masterbao66.github.io/PayDance/)** | 网页端，含所有核心功能 |
-| ⬇️ | **[Windows 桌面版](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.6-windows-x64.exe)** | 便携 EXE，含托盘、置顶、迷你悬浮、开机自启动等完整能力 |
+| ⬇️ | **[Windows 桌面版](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.7-windows-x64.exe)** | 便携 EXE，含托盘、置顶、迷你悬浮、开机自启动等完整能力 |
 
 </div>
 
@@ -116,6 +116,7 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json"
 ## 相关文档
 
 - [常见问题](docs/FAQ.md)
+- [架构与修改导航](docs/ARCHITECTURE.md)
 - [产品定位与边界](docs/PRODUCT.md)
 - [路线图](docs/ROADMAP.md)
 - [更新日志](CHANGELOG.md)
