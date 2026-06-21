@@ -40,9 +40,16 @@ describe("CI workflow routing", () => {
     expect(pushWorkflow).toContain("scope.requiresFullCi");
     expect(pushWorkflow).toContain("scope.deployWebPreview");
     expect(pushWorkflow).toContain("Fast daily checks");
+    expect(pushWorkflow).toContain("--strict-untracked");
+    expect(pushWorkflow).toContain("--untracked-files=no");
+    expect(pushWorkflow).toContain("Untracked files are present");
+    expect(pushWorkflow).toContain("readVerificationEvidence");
+    expect(pushWorkflow).toContain("same HEAD");
+    expect(pushWorkflow).not.toContain('"ls-files", "--others"');
     expect(pushWorkflow).not.toContain('"build:desktop"');
     expect(pushWorkflow).not.toContain('"build:web"');
     expect(pushWorkflow).toContain('watchWorkflow("CI"');
+    expect(pushWorkflow).toContain('watchWorkflow("CodeQL"');
     expect(pushWorkflow).toContain('watchWorkflow("Web Preview"');
   });
 
@@ -54,21 +61,37 @@ describe("CI workflow routing", () => {
     expect(ciWorkflow).toContain("node scripts/ci-change-scope.mjs");
     expect(ciWorkflow).toContain("ci-change-scope");
     expect(ciWorkflow).toContain("requires_full_ci");
+    expect(ciWorkflow).toContain("requires_frontend");
+    expect(ciWorkflow).toContain("requires_rust");
+    expect(ciWorkflow).toContain("requires_web_preview_qa");
+    expect(ciWorkflow).toContain("requires_security");
+    expect(ciWorkflow).toContain("shared-key: paydance-ci-rust-windows");
+    expect(ciWorkflow).toContain("add-job-id-key: false");
     expect(ciWorkflow).toContain("deploy_web_preview");
     expect(ciWorkflow).toContain("npm run verify:metadata");
-    expect(ciWorkflow).toContain("if: needs.changes.outputs.requires_full_ci == 'true'");
+    expect(ciWorkflow).toContain("name: Frontend lint, tests, and builds");
+    expect(ciWorkflow).toContain("if: needs.changes.outputs.requires_frontend == 'true'");
     expect(ciWorkflow).toContain("Build frontend");
     expect(ciWorkflow).toContain("Build Web Preview");
+    expect(ciWorkflow).toContain("name: Web Preview QA");
+    expect(ciWorkflow).toContain(
+      "if: needs.changes.outputs.requires_web_preview_qa == 'true'",
+    );
     expect(ciWorkflow).toContain("Web Preview QA");
     expect(ciWorkflow).toContain("npm run qa:web-preview");
     expect(ciWorkflow).toContain("paydance-web-preview-qa-*");
     expect(ciWorkflow).toContain("Upload Web Preview QA evidence");
     expect(ciWorkflow).toContain("Security audit");
+    expect(ciWorkflow).toContain("if: needs.changes.outputs.requires_security == 'true'");
+    expect(ciWorkflow).toContain("name: Rust checks");
+    expect(ciWorkflow).toContain("if: needs.changes.outputs.requires_rust == 'true'");
     expect(ciWorkflow).toContain("Run Rust tests");
     expect(ciWorkflow).toContain("cargo test");
     expect(ciWorkflow).toContain("name: CI gate");
     expect(ciWorkflow).toContain("if: always()");
-    expect(ciWorkflow).toContain("needs.verify.result");
+    expect(ciWorkflow).toContain("needs.frontend.result");
+    expect(ciWorkflow).toContain("needs.web_preview_qa.result");
+    expect(ciWorkflow).toContain("needs.rust.result");
     expect(ciWorkflow).toContain("needs.security.result");
 
     expect(webPreviewWorkflow).toContain("Read CI change scope");
@@ -97,7 +120,8 @@ describe("CI workflow routing", () => {
     expect(codeqlWorkflow).toContain("rust");
     expect(codeqlWorkflow).toContain("Detect CodeQL change scope");
     expect(codeqlWorkflow).toContain("node scripts/ci-change-scope.mjs");
-    expect(codeqlWorkflow).toContain("needs.changes.outputs.requires_full_ci");
+    expect(codeqlWorkflow).toContain("requires_codeql");
+    expect(codeqlWorkflow).toContain("needs.changes.outputs.requires_codeql");
     expect(codeqlWorkflow).toContain("github.event_name == 'schedule'");
     expect(codeqlWorkflow).toContain("name: CodeQL gate");
     expect(codeqlWorkflow).toContain("needs.changes.result");
@@ -106,6 +130,11 @@ describe("CI workflow routing", () => {
     expect(releaseWorkflow).toContain("Smoke test Windows executable");
     expect(releaseWorkflow).toContain("scripts/smoke-windows-exe.ps1");
     expect(releaseWorkflow).toContain("Generate release SBOM");
+    expect(releaseWorkflow).toContain("shared-key: paydance-release-rust-windows");
+    expect(releaseWorkflow).toContain("add-job-id-key: false");
+    expect(releaseWorkflow).toContain("Generate release manifest");
+    expect(releaseWorkflow).toContain("release-manifest.json");
+    expect(releaseWorkflow).toContain("Get-AuthenticodeSignature");
     expect(releaseWorkflow).toContain("pay-dance-sbom.spdx.json");
     expect(smokeScript).toContain("MainWindowHandle");
     expect(smokeScript).toContain("single-instance");

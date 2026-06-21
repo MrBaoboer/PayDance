@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       requires_full_ci: ${{ steps.scope.outputs.requires_full_ci }}
+      requires_codeql: ${{ steps.scope.outputs.requires_codeql }}
 
     steps:
       - name: Checkout
@@ -49,7 +50,7 @@ jobs:
   analyze:
     name: Analyze ${{ matrix.language }}
     needs: changes
-    if: github.event_name == 'schedule' || needs.changes.outputs.requires_full_ci == 'true'
+    if: github.event_name == 'schedule' || needs.changes.outputs.requires_codeql == 'true'
     runs-on: windows-2025
     strategy:
       fail-fast: false
@@ -86,13 +87,13 @@ jobs:
         env:
           CHANGES_RESULT: ${{ needs.changes.result }}
           ANALYZE_RESULT: ${{ needs.analyze.result }}
-          REQUIRES_FULL_CI: ${{ needs.changes.outputs.requires_full_ci }}
+          REQUIRES_CODEQL: ${{ needs.changes.outputs.requires_codeql }}
         run: |
           if [ "$CHANGES_RESULT" != "success" ]; then
             exit 1
           fi
 
-          if [ "$REQUIRES_FULL_CI" = "true" ]; then
+          if [ "$REQUIRES_CODEQL" = "true" ]; then
             test "$ANALYZE_RESULT" = "success"
             exit
           fi

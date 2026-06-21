@@ -43,6 +43,12 @@ describe("verification scripts", () => {
       "node scripts/push-workflow.mjs --verify-only",
     );
     expect(packageJson.scripts["push:main"]).toBe("node scripts/push-workflow.mjs");
+    expect(packageJson.scripts["verify:release:record"]).toBe(
+      "npm run verify:release && node scripts/verification-evidence.mjs write verify:release",
+    );
+    expect(packageJson.scripts["release:publish"]).toBe(
+      "node scripts/release-workflow.mjs",
+    );
 
     expect(readRoot("src-tauri/tauri.conf.json")).toContain(
       '"beforeBuildCommand": "npm run build:desktop"',
@@ -79,12 +85,25 @@ describe("verification scripts", () => {
     expect(pushWorkflow).not.toContain('"audit", "--omit=dev"');
     expect(pushWorkflow).not.toContain('"deny", "check"');
     expect(pushWorkflow).toContain('"diff", "--check"');
-    expect(pushWorkflow).toContain("Working tree is not clean");
+    expect(pushWorkflow).toContain("Tracked working tree changes must be committed");
+    expect(pushWorkflow).toContain("Untracked files are present");
+    expect(pushWorkflow).toContain("--strict-untracked");
+    expect(pushWorkflow).toContain("readVerificationEvidence");
+    expect(pushWorkflow).toContain("Skipping local verification because");
     expect(pushWorkflow).toContain("Refusing to push from");
     expect(pushWorkflow).toContain("dependabot/alerts");
     expect(pushWorkflow).toContain("Open Dependabot alerts found");
     expect(pushWorkflow).toContain('watchWorkflow("CI"');
+    expect(pushWorkflow).toContain('watchWorkflow("CodeQL"');
     expect(pushWorkflow).toContain('watchWorkflow("Web Preview"');
+
+    const releaseWorkflowScript = readRoot("scripts/release-workflow.mjs");
+    expect(releaseWorkflowScript).toContain("npm run release:publish");
+    expect(releaseWorkflowScript).toContain("Verify CI passed on the release commit");
+    expect(releaseWorkflowScript).toContain("watchWorkflow(\"Release\"");
+    expect(releaseWorkflowScript).toContain("watchWorkflow(\"Post-Release Smoke\"");
+    expect(releaseWorkflowScript).toContain("release-manifest.json");
+    expect(releaseWorkflowScript).toContain("assertTagDoesNotExist");
 
     expect(readRoot(".github/CONTRIBUTING.md")).toContain("npm run push:main");
     expect(readRoot("docs/CONTRIBUTING_EN.md")).toContain("npm run push:main");

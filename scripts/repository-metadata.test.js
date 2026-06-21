@@ -157,6 +157,9 @@ describe("repository metadata", () => {
     expect(releaseWorkflow).toContain("windows-x64");
     expect(releaseWorkflow).not.toContain("pay-dance.exe.sha256");
     expect(releaseWorkflow).toContain("latest.json");
+    expect(releaseWorkflow).toContain("Generate release manifest");
+    expect(releaseWorkflow).toContain("release-manifest.json");
+    expect(releaseWorkflow).toContain("authenticodeStatus");
     expect(releaseWorkflow).toContain("Build artifact smoke");
     expect(releaseWorkflow).toContain("Verify dry-run release assets");
     expect(releaseWorkflow).toContain("Verify updater signature");
@@ -171,6 +174,9 @@ describe("repository metadata", () => {
     expect(postReleaseSmoke).toContain(
       "Verify latest.json points at the checksummed asset",
     );
+    expect(postReleaseSmoke).toContain("Resolve release tag from workflow artifact");
+    expect(postReleaseSmoke).toContain("release-manifest.json");
+    expect(postReleaseSmoke).toContain("EXPECTED_TAG");
     expect(postReleaseSmoke).toContain("GitHub asset digest");
   });
 

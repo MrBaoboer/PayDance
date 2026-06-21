@@ -11,8 +11,8 @@ permissions:
   actions: read
 
 concurrency:
-  group: smoke-${{ github.ref }}
-  cancel-in-progress: true
+  group: smoke-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
 
 jobs:
   smoke:
@@ -31,42 +31,59 @@ jobs:
         with:
           node-version: 24
 
-      - name: Fetch latest release info
+      - name: Resolve release tag from workflow artifact
         run: |
-          echo "=== Latest Release ==="
-          gh release view --repo ${{ github.repository }} --json tagName,name,publishedAt,assets | tee latest-release.json
+          mkdir -p /tmp/release-artifact /tmp/smoke
+          gh run download "${{ github.event.workflow_run.id }}" \
+            --repo ${{ github.repository }} \
+            --name pay-dance-windows-release \
+            --dir /tmp/release-artifact
 
-      - name: Confirm this workflow published a release
+          MANIFEST_PATH=$(find /tmp/release-artifact -name release-manifest.json -print -quit)
+          if [ -z "$MANIFEST_PATH" ]; then
+            echo "ERROR: release-manifest.json was not found in the Release workflow artifact"
+            exit 1
+          fi
+
+          EXPECTED_TAG=$(jq -r '.tag // ""' "$MANIFEST_PATH")
+          if ! echo "$EXPECTED_TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$'; then
+            echo "ERROR: invalid EXPECTED_TAG from release manifest: $EXPECTED_TAG"
+            exit 1
+          fi
+
+          echo "EXPECTED_TAG=$EXPECTED_TAG" >> "$GITHUB_ENV"
+          echo "MANIFEST_PATH=$MANIFEST_PATH" >> "$GITHUB_ENV"
+          echo "Resolved expected release tag: $EXPECTED_TAG"
+
+      - name: Fetch expected release info
         id: public_release
         run: |
-          RUN_CREATED="${{ github.event.workflow_run.created_at }}"
-          PUBLISHED_AT=$(jq -r '.publishedAt // ""' latest-release.json)
-
-          echo "Release workflow created at: $RUN_CREATED"
-          echo "Latest public release published at: $PUBLISHED_AT"
-
-          if [ -z "$PUBLISHED_AT" ] || [ "$PUBLISHED_AT" \< "$RUN_CREATED" ]; then
+          echo "=== Expected Release: $EXPECTED_TAG ==="
+          if ! gh release view "$EXPECTED_TAG" \
+            --repo ${{ github.repository }} \
+            --json tagName,name,publishedAt,assets |
+            tee expected-release.json; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "No new public release was created by this workflow run; skipping published Release smoke."
+            echo "No public release exists for $EXPECTED_TAG; this was likely a dry-run build."
             exit 0
           fi
 
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
-      - name: Verify latest release exists
+      - name: Verify expected release exists
         if: steps.public_release.outputs.skip != 'true'
         run: |
-          TAG=$(gh release view --repo ${{ github.repository }} --json tagName -q '.tagName')
-          echo "Latest release tag: $TAG"
-          if [ -z "$TAG" ]; then
-            echo "ERROR: No release found"
+          TAG=$(jq -r '.tagName // ""' expected-release.json)
+          echo "Expected release tag: $TAG"
+          if [ "$TAG" != "$EXPECTED_TAG" ]; then
+            echo "ERROR: expected $EXPECTED_TAG but GitHub returned $TAG"
             exit 1
           fi
 
       - name: Verify critical assets exist
         if: steps.public_release.outputs.skip != 'true'
         run: |
-          ASSETS=$(gh release view --repo ${{ github.repository }} --json assets -q '.assets[].name')
+          ASSETS=$(jq -r '.assets[].name' expected-release.json)
           echo "Release assets:"
           echo "$ASSETS"
 
@@ -82,16 +99,19 @@ jobs:
           echo "$ASSETS" | grep -q "latest.json" \
             || { echo "ERROR: latest.json is missing"; exit 1; }
 
+          echo "$ASSETS" | grep -q "release-manifest.json" \
+            || { echo "ERROR: release-manifest.json is missing"; exit 1; }
+
           echo "All critical assets present."
 
       - name: Verify SHA256 checksum
         if: steps.public_release.outputs.skip != 'true'
         run: |
-          VERSION=$(gh release view --repo ${{ github.repository }} --json tagName -q '.tagName' | sed 's/^v//')
+          VERSION=$(echo "$EXPECTED_TAG" | sed 's/^v//')
           EXE="pay-dance-v${VERSION}-windows-x64.exe"
 
-          gh release download --repo ${{ github.repository }} --pattern "${EXE}" --dir /tmp/smoke --clobber
-          gh release download --repo ${{ github.repository }} --pattern "${EXE}.sha256" --dir /tmp/smoke --clobber
+          gh release download "$EXPECTED_TAG" --repo ${{ github.repository }} --pattern "${EXE}" --dir /tmp/smoke --clobber
+          gh release download "$EXPECTED_TAG" --repo ${{ github.repository }} --pattern "${EXE}.sha256" --dir /tmp/smoke --clobber
 
           cd /tmp/smoke
           EXPECTED=$(cat "${EXE}.sha256" | awk '{print $1}')
@@ -105,10 +125,31 @@ jobs:
           fi
           echo "SHA256 verified: $ACTUAL"
 
+      - name: Validate release manifest
+        if: steps.public_release.outputs.skip != 'true'
+        run: |
+          VERSION=$(echo "$EXPECTED_TAG" | sed 's/^v//')
+          EXE="pay-dance-v${VERSION}-windows-x64.exe"
+
+          gh release download "$EXPECTED_TAG" --repo ${{ github.repository }} --pattern release-manifest.json --dir /tmp/smoke --clobber
+
+          cd /tmp/smoke
+          jq -e --arg tag "$EXPECTED_TAG" --arg version "$VERSION" --arg exe "$EXE" '
+            .tag == $tag and
+            .version == $version and
+            .assets.executable.name == $exe and
+            (.assets.executable.sha256 | type == "string" and length == 64) and
+            (.updater.signatureLength | type == "number" and . > 0) and
+            (.authenticodeStatus | type == "string" and length > 0)
+          ' release-manifest.json > /dev/null
+
+          cmp "$MANIFEST_PATH" release-manifest.json
+          echo "release-manifest.json matches the workflow artifact and expected tag."
+
       - name: Validate latest.json structure
         if: steps.public_release.outputs.skip != 'true'
         run: |
-          gh release download --repo ${{ github.repository }} --pattern latest.json --dir /tmp/smoke --clobber
+          gh release download "$EXPECTED_TAG" --repo ${{ github.repository }} --pattern latest.json --dir /tmp/smoke --clobber
 
           cd /tmp/smoke
           if ! jq -e '.version' latest.json > /dev/null; then
@@ -128,7 +169,7 @@ jobs:
       - name: Verify latest.json points at the checksummed asset
         if: steps.public_release.outputs.skip != 'true'
         run: |
-          VERSION=$(gh release view --repo ${{ github.repository }} --json tagName -q '.tagName' | sed 's/^v//')
+          VERSION=$(echo "$EXPECTED_TAG" | sed 's/^v//')
           EXE="pay-dance-v${VERSION}-windows-x64.exe"
           EXPECTED_URL="https://github.com/${{ github.repository }}/releases/latest/download/${EXE}"
 
@@ -150,7 +191,7 @@ jobs:
             exit 1
           fi
 
-          ASSET_DIGEST=$(jq -r --arg name "$EXE" '.assets[] | select(.name == $name) | .digest // ""' "${{ github.workspace }}/latest-release.json")
+          ASSET_DIGEST=$(jq -r --arg name "$EXE" '.assets[] | select(.name == $name) | .digest // ""' "${{ github.workspace }}/expected-release.json")
           if [ -n "$ASSET_DIGEST" ] && [ "$ASSET_DIGEST" != "null" ]; then
             echo "GitHub asset digest: $ASSET_DIGEST"
             NORMALIZED_DIGEST="${ASSET_DIGEST#sha256:}"
@@ -179,7 +220,7 @@ jobs:
       - name: Verify README download link
         if: steps.public_release.outputs.skip != 'true'
         run: |
-          VERSION=$(gh release view --repo ${{ github.repository }} --json tagName -q '.tagName' | sed 's/^v//')
+          VERSION=$(echo "$EXPECTED_TAG" | sed 's/^v//')
           DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/latest/download/pay-dance-v${VERSION}-windows-x64.exe"
           echo "Checking: $DOWNLOAD_URL"
           HTTP_CODE=$(curl -sL -o /dev/null -w "%{http_code}" "$DOWNLOAD_URL")
