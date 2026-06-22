@@ -109,6 +109,22 @@ describe("CI workflow routing", () => {
     );
   });
 
+  it("does not cancel main validation or deployment runs", () => {
+    const ciWorkflow = readRoot(".github/workflows/ci.yml");
+    const codeqlWorkflow = readRoot(".github/workflows/codeql.yml");
+    const webPreviewWorkflow = readRoot(".github/workflows/web-preview.yml");
+
+    expect(ciWorkflow).toContain(
+      "cancel-in-progress: ${{ github.event_name == 'pull_request' }}",
+    );
+    expect(ciWorkflow).not.toContain("cancel-in-progress: true");
+    expect(codeqlWorkflow).toContain(
+      "cancel-in-progress: ${{ github.event_name == 'pull_request' }}",
+    );
+    expect(codeqlWorkflow).not.toContain("cancel-in-progress: true");
+    expect(webPreviewWorkflow).toContain("cancel-in-progress: false");
+  });
+
   it("runs CodeQL, Windows executable smoke, and release SBOM generation", () => {
     const codeqlWorkflow = readRoot(".github/workflows/codeql.yml");
     const releaseWorkflow = readRoot(".github/workflows/release.yml");
