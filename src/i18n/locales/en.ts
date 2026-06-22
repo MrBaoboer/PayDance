@@ -60,6 +60,8 @@ const en: Messages = {
   "settings.autostart": "Launch at startup",
   "settings.autostartError": "Failed to update autostart setting",
   "settings.language": "Language",
+  "settings.onboarding": "First-time setup",
+  "settings.openOnboarding": "Open first-time setup",
   "settings.saveFailed": "Settings could not be saved. Please try again.",
 
   // ── Settings → salary mode ─────────────────────────────────────────────

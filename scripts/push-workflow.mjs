@@ -9,6 +9,10 @@ import { dirname, join, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 
 import { classifyChangedFiles } from "./ci-change-scope.mjs";
+import {
+  readVerificationEvidence,
+  verificationEvidenceCovers,
+} from "./verification-evidence.mjs";
 
 const rootDir = resolve(import.meta.dirname, "..");
 const args = new Set(process.argv.slice(2));
@@ -22,6 +26,7 @@ const options = {
   noWatch: args.has("--no-watch") || args.has("--verify-only"),
   skipDependabot: args.has("--skip-dependabot") || args.has("--verify-only"),
   skipVerify: args.has("--skip-verify"),
+  strictUntracked: args.has("--strict-untracked"),
   verifyOnly: args.has("--verify-only"),
 };
 
@@ -35,7 +40,8 @@ Options:
   --skip-verify      Push and watch without rerunning local checks.
   --no-push          Run checks but do not push.
   --no-watch         Push without waiting for GitHub Actions.
-  --skip-dependabot  Skip GitHub Dependabot open-alert checks.`);
+  --skip-dependabot  Skip GitHub Dependabot open-alert checks.
+  --strict-untracked Treat untracked files as a blocking dirty worktree.`);
 }
 
 if (args.has("--help") || args.has("-h")) {
@@ -141,12 +147,37 @@ function ensureGhAvailable() {
 }
 
 function assertCleanWorktree() {
-  const status = capture("git", ["status", "--short"]);
-  if (status) {
+  const trackedStatus = capture("git", ["status", "--short", "--untracked-files=no"]);
+  if (trackedStatus) {
     fail(
-      `Working tree is not clean. Commit or stash these changes before pushing:\n${status}`,
+      `Tracked working tree changes must be committed or stashed before pushing:\n${trackedStatus}`,
     );
   }
+
+  const untrackedStatus = capture("git", [
+    "status",
+    "--short",
+    "--untracked-files=normal",
+  ]);
+  const untrackedFiles = splitLines(untrackedStatus).filter((line) =>
+    line.startsWith("?? "),
+  );
+
+  if (untrackedFiles.length === 0) {
+    return;
+  }
+
+  const message = [
+    "Untracked files are present. They will not be pushed and will not affect change-scope detection:",
+    ...untrackedFiles.map((line) => `  ${line}`),
+    "Use --strict-untracked if you want untracked files to block this workflow.",
+  ].join("\n");
+
+  if (options.strictUntracked) {
+    fail(message);
+  }
+
+  console.log(`\n[push-workflow] ${message}`);
 }
 
 function assertMainBranch() {
@@ -177,7 +208,6 @@ function localChangedFiles() {
     ...splitLines(capture("git", ["diff", "--name-only", `${remoteRef}..HEAD`, "--"])),
     ...splitLines(capture("git", ["diff", "--name-only", "--cached", "--"])),
     ...splitLines(capture("git", ["diff", "--name-only", "--"])),
-    ...splitLines(capture("git", ["ls-files", "--others", "--exclude-standard"])),
   ];
 }
 
@@ -193,7 +223,24 @@ function resolveLocalChangeScope() {
   return scope;
 }
 
-function verifyLocalReadiness(scope) {
+function hasTrackedWorkingChanges() {
+  return Boolean(capture("git", ["status", "--short", "--untracked-files=no"]).trim());
+}
+
+function verifyLocalReadiness(scope, headSha) {
+  const requiredCommand = scope.requiresFullCi ? "verify:push" : "verify:metadata";
+  const evidence = readVerificationEvidence();
+
+  if (
+    !hasTrackedWorkingChanges() &&
+    verificationEvidenceCovers(requiredCommand, headSha, evidence)
+  ) {
+    console.log(
+      `\n[push-workflow] Skipping local verification because ${evidence.command} already passed for the same HEAD (${headSha.slice(0, 7)}).`,
+    );
+    return;
+  }
+
   // Keep git whitespace validation in verify:metadata via `git diff --check`.
   // Legacy metadata guard: "diff", "--check".
   run("metadata verification", npmInvocation.command, npmArgs("run", "verify:metadata"));
@@ -291,9 +338,10 @@ async function main() {
 
   assertNotBehindRemote();
   const scope = resolveLocalChangeScope();
+  const headSha = capture("git", ["rev-parse", "HEAD"]);
 
   if (!options.skipVerify) {
-    verifyLocalReadiness(scope);
+    verifyLocalReadiness(scope, headSha);
   }
 
   if (options.verifyOnly) {
@@ -313,10 +361,9 @@ async function main() {
     run("push origin/main", "git", ["push", "origin", mainBranch]);
   }
 
-  const headSha = capture("git", ["rev-parse", "HEAD"]);
-
   if (!options.noWatch) {
     await watchWorkflow("CI", headSha);
+    await watchWorkflow("CodeQL", headSha);
     if (scope.deployWebPreview) {
       await watchWorkflow("Web Preview", headSha);
     } else {

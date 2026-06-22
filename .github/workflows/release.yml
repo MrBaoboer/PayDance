@@ -96,6 +96,8 @@ jobs:
         with:
           workspaces: src-tauri -> target
           cache-on-failure: true
+          shared-key: paydance-release-rust-windows
+          add-job-id-key: false
 
       - name: Install frontend dependencies
         run: npm ci
@@ -234,6 +236,9 @@ jobs:
           }
           "- Updater signature metadata verified." | Out-File -Encoding utf8 -Append $reportPath
 
+          $authenticode = Get-AuthenticodeSignature -LiteralPath $portablePath
+          "- Authenticode status: $($authenticode.Status)" | Out-File -Encoding utf8 -Append $reportPath
+
       - name: Smoke test Windows executable
         shell: pwsh
         run: |
@@ -252,6 +257,77 @@ jobs:
           upload-artifact: false
           upload-release-assets: false
 
+      - name: Generate release manifest
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
+          $portableName = "pay-dance-v$version-windows-x64.exe"
+          $portablePath = "src-tauri/target/release/$portableName"
+          $checksumPath = "$portablePath.sha256"
+          $signaturePath = "release-assets/$portableName.sig"
+          $latestPath = "release-assets/latest.json"
+          $sbomPath = "release-assets/pay-dance-sbom.spdx.json"
+          $smokeReportPath = "release-assets/paydance-exe-smoke-report.json"
+          $manifestPath = "release-assets/release-manifest.json"
+
+          foreach ($path in @($portablePath, $checksumPath, $signaturePath, $latestPath, $sbomPath, $smokeReportPath)) {
+            if (-not (Test-Path $path)) {
+              Write-Error "Missing release manifest input: $path"
+              exit 1
+            }
+          }
+
+          $portableHash = (Get-FileHash $portablePath -Algorithm SHA256).Hash.ToLowerInvariant()
+          $expectedHash = ((Get-Content -LiteralPath $checksumPath -Raw).Trim() -split "\s+")[0].ToLowerInvariant()
+          if ($portableHash -ne $expectedHash) {
+            Write-Error "Release manifest hash check failed for $portableName"
+            exit 1
+          }
+
+          $signature = (Get-Content -LiteralPath $signaturePath -Raw).Trim()
+          $latest = Get-Content -LiteralPath $latestPath -Raw | ConvertFrom-Json
+          $platform = $latest.platforms.'windows-x86_64'
+          $authenticode = Get-AuthenticodeSignature -LiteralPath $portablePath
+          $authenticodeSigner = $null
+          if ($authenticode.SignerCertificate) {
+            $authenticodeSigner = $authenticode.SignerCertificate.Subject
+          }
+
+          $manifest = [ordered]@{
+            schemaVersion = 1
+            tag = "${{ env.RELEASE_TAG }}"
+            version = $version
+            commit = (git rev-parse HEAD).Trim()
+            generatedAt = (Get-Date).ToUniversalTime().ToString("o")
+            assets = [ordered]@{
+              executable = [ordered]@{
+                name = $portableName
+                sha256 = $portableHash
+              }
+              checksum = [ordered]@{
+                name = "$portableName.sha256"
+                sha256 = (Get-FileHash $checksumPath -Algorithm SHA256).Hash.ToLowerInvariant()
+              }
+              updaterSignature = [ordered]@{
+                name = "$portableName.sig"
+                length = $signature.Length
+              }
+              latestJson = "latest.json"
+              sbom = "pay-dance-sbom.spdx.json"
+              smokeReport = "paydance-exe-smoke-report.json"
+            }
+            updater = [ordered]@{
+              platform = "windows-x86_64"
+              url = $platform.url
+              signatureLength = $signature.Length
+            }
+            authenticodeStatus = $authenticode.Status.ToString()
+            authenticodeSigner = $authenticodeSigner
+          }
+
+          $manifest | ConvertTo-Json -Depth 8 | Out-File -Encoding utf8 $manifestPath
+
       - name: Upload build artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
@@ -264,6 +340,7 @@ jobs:
             release-assets/build-artifact-smoke.md
             release-assets/paydance-exe-smoke-report.json
             release-assets/pay-dance-sbom.spdx.json
+            release-assets/release-manifest.json
           if-no-files-found: error
 
       - name: Create GitHub Release
@@ -280,6 +357,7 @@ jobs:
             release-assets/pay-dance-v*-windows-x64.exe.sig
             release-assets/latest.json
             release-assets/pay-dance-sbom.spdx.json
+            release-assets/release-manifest.json
 
       - name: Dry run summary
         if: env.DRY_RUN == 'true'

@@ -11,6 +11,10 @@ const ZERO_SHA = /^0+$/;
 const ROOT_LIGHTWEIGHT_FILE =
   /^(README|LICENSE|SECURITY|CONTRIBUTING|CHANGELOG|PRODUCT|DESIGN|CODE_OF_CONDUCT|SUPPORT|NOTICE|TRADEMARKS)(?:[._-].*)?$/i;
 const WEB_PREVIEW_WORKFLOW = ".github/workflows/web-preview.yml";
+const SHARED_CI_WORKFLOW = ".github/workflows/ci.yml";
+const RELEASE_WORKFLOW = ".github/workflows/release.yml";
+const CODEQL_WORKFLOW = ".github/workflows/codeql.yml";
+const POST_RELEASE_SMOKE_WORKFLOW = ".github/workflows/post-release-smoke.yml";
 
 function normalizeChangedFile(file) {
   return file.trim().replaceAll("\\", "/").replace(/^\.\//, "");
@@ -63,6 +67,61 @@ function affectsWebPreview(file) {
   );
 }
 
+function affectsFrontend(file) {
+  return (
+    affectsWebPreview(file) ||
+    file === SHARED_CI_WORKFLOW ||
+    file === "scripts/assert-build-target.mjs" ||
+    file === "scripts/assert-build-boundary.mjs" ||
+    file === "scripts/qa-web-preview.mjs" ||
+    file === "scripts/resolve-playwright.mjs"
+  );
+}
+
+function affectsRust(file) {
+  return file.startsWith("src-tauri/") || file === SHARED_CI_WORKFLOW;
+}
+
+function affectsSecurity(file) {
+  return (
+    file === "package.json" ||
+    file === "package-lock.json" ||
+    file === "npm-shrinkwrap.json" ||
+    file === ".gitleaks.toml" ||
+    file === ".github/dependabot.yml" ||
+    file === ".github/renovate.json" ||
+    file === SHARED_CI_WORKFLOW ||
+    file === RELEASE_WORKFLOW ||
+    file === CODEQL_WORKFLOW ||
+    file === POST_RELEASE_SMOKE_WORKFLOW ||
+    file === "src-tauri/Cargo.toml" ||
+    file === "src-tauri/Cargo.lock" ||
+    file === "src-tauri/deny.toml" ||
+    file === "src-tauri/.cargo/audit.toml"
+  );
+}
+
+function affectsCodeql(file) {
+  return (
+    file.startsWith("src/") ||
+    file.startsWith("src-tauri/") ||
+    file.startsWith("scripts/") ||
+    file.startsWith("vite.config.") ||
+    file.startsWith("tsconfig") ||
+    file === CODEQL_WORKFLOW
+  );
+}
+
+function isKnownFullCiFile(file) {
+  return (
+    affectsFrontend(file) ||
+    affectsRust(file) ||
+    affectsSecurity(file) ||
+    affectsCodeql(file) ||
+    file.startsWith("scripts/")
+  );
+}
+
 export function classifyChangedFiles(files) {
   const changedFiles = uniqueNormalizedFiles(files);
 
@@ -73,6 +132,11 @@ export function classifyChangedFiles(files) {
       isLightweight: false,
       requiresFullCi: true,
       requiresWindowsBuild: true,
+      requiresFrontend: true,
+      requiresRust: true,
+      requiresWebPreviewQa: true,
+      requiresSecurity: true,
+      requiresCodeql: true,
       deployWebPreview: true,
       reasons: ["no changed files detected"],
     };
@@ -80,14 +144,30 @@ export function classifyChangedFiles(files) {
 
   const fullCiFiles = changedFiles.filter((file) => !isLightweightFile(file));
   const requiresFullCi = fullCiFiles.length > 0;
+  const unknownFullCiFiles = fullCiFiles.filter((file) => !isKnownFullCiFile(file));
+  const failClosed = unknownFullCiFiles.length > 0;
+  const requiresFrontend =
+    requiresFullCi && (failClosed || changedFiles.some(affectsFrontend));
+  const requiresRust = requiresFullCi && (failClosed || changedFiles.some(affectsRust));
+  const requiresWebPreviewQa =
+    requiresFullCi && (failClosed || changedFiles.some(affectsWebPreview));
+  const requiresSecurity =
+    requiresFullCi && (failClosed || changedFiles.some(affectsSecurity));
+  const requiresCodeql =
+    requiresFullCi && (failClosed || changedFiles.some(affectsCodeql));
 
   return {
     changedFiles,
     scope: requiresFullCi ? "full" : "lightweight",
     isLightweight: !requiresFullCi,
     requiresFullCi,
-    requiresWindowsBuild: requiresFullCi,
-    deployWebPreview: requiresFullCi && changedFiles.some(affectsWebPreview),
+    requiresWindowsBuild: requiresFrontend || requiresRust || requiresWebPreviewQa,
+    requiresFrontend,
+    requiresRust,
+    requiresWebPreviewQa,
+    requiresSecurity,
+    requiresCodeql,
+    deployWebPreview: requiresWebPreviewQa,
     reasons: requiresFullCi
       ? fullCiFiles.map((file) => `requires full CI: ${file}`)
       : ["all changed files are lightweight"],
@@ -177,6 +257,11 @@ function writeGithubOutput(path, result) {
       `is_lightweight=${result.isLightweight}`,
       `requires_full_ci=${result.requiresFullCi}`,
       `requires_windows_build=${result.requiresWindowsBuild}`,
+      `requires_frontend=${result.requiresFrontend}`,
+      `requires_rust=${result.requiresRust}`,
+      `requires_web_preview_qa=${result.requiresWebPreviewQa}`,
+      `requires_security=${result.requiresSecurity}`,
+      `requires_codeql=${result.requiresCodeql}`,
       `deploy_web_preview=${result.deployWebPreview}`,
       `changed_count=${result.changedFiles.length}`,
       "",

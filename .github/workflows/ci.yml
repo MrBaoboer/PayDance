@@ -24,6 +24,10 @@ jobs:
       is_lightweight: ${{ steps.scope.outputs.is_lightweight }}
       requires_full_ci: ${{ steps.scope.outputs.requires_full_ci }}
       requires_windows_build: ${{ steps.scope.outputs.requires_windows_build }}
+      requires_frontend: ${{ steps.scope.outputs.requires_frontend }}
+      requires_rust: ${{ steps.scope.outputs.requires_rust }}
+      requires_web_preview_qa: ${{ steps.scope.outputs.requires_web_preview_qa }}
+      requires_security: ${{ steps.scope.outputs.requires_security }}
       deploy_web_preview: ${{ steps.scope.outputs.deploy_web_preview }}
 
     steps:
@@ -76,12 +80,12 @@ jobs:
       - name: Run metadata verification
         run: npm run verify:metadata
 
-  verify:
-    name: Test and build
+  frontend:
+    name: Frontend lint, tests, and builds
     needs:
       - changes
       - metadata
-    if: needs.changes.outputs.requires_full_ci == 'true'
+    if: needs.changes.outputs.requires_frontend == 'true'
     runs-on: windows-2025
 
     steps:
@@ -93,15 +97,6 @@ jobs:
         with:
           node-version: 24
           cache: npm
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
-
-      - name: Cache Rust build
-        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
-        with:
-          workspaces: src-tauri -> target
-          cache-on-failure: true
 
       - name: Install frontend dependencies
         run: npm ci
@@ -118,6 +113,27 @@ jobs:
       - name: Build Web Preview
         run: npm run build:web
 
+  web_preview_qa:
+    name: Web Preview QA
+    needs:
+      - changes
+      - metadata
+    if: needs.changes.outputs.requires_web_preview_qa == 'true'
+    runs-on: windows-2025
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
       - name: Install Playwright Chromium
         run: npx playwright install chromium
 
@@ -132,6 +148,29 @@ jobs:
           path: ${{ runner.temp }}/paydance-web-preview-qa-*
           if-no-files-found: ignore
 
+  rust:
+    name: Rust checks
+    needs:
+      - changes
+      - metadata
+    if: needs.changes.outputs.requires_rust == 'true'
+    runs-on: windows-2025
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
+        with:
+          workspaces: src-tauri -> target
+          cache-on-failure: true
+          shared-key: paydance-ci-rust-windows
+          add-job-id-key: false
+
       - name: Check Rust formatting
         run: cargo fmt --all -- --check
         working-directory: src-tauri
@@ -144,15 +183,12 @@ jobs:
         run: cargo test
         working-directory: src-tauri
 
-      - name: Audit production dependencies
-        run: npm audit --omit=dev
-
   security:
     name: Security audit
     needs:
       - changes
       - metadata
-    if: needs.changes.outputs.requires_full_ci == 'true'
+    if: needs.changes.outputs.requires_security == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -160,6 +196,18 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
 
       - name: Install gitleaks (pre-built)
         run: |
@@ -207,7 +255,9 @@ jobs:
     needs:
       - changes
       - metadata
-      - verify
+      - frontend
+      - web_preview_qa
+      - rust
       - security
     runs-on: ubuntu-latest
 
@@ -215,17 +265,29 @@ jobs:
       - name: Verify required jobs
         env:
           CHANGES_RESULT: ${{ needs.changes.result }}
+          FRONTEND_RESULT: ${{ needs.frontend.result }}
           METADATA_RESULT: ${{ needs.metadata.result }}
-          REQUIRES_FULL_CI: ${{ needs.changes.outputs.requires_full_ci }}
+          REQUIRES_FRONTEND: ${{ needs.changes.outputs.requires_frontend }}
+          REQUIRES_RUST: ${{ needs.changes.outputs.requires_rust }}
+          REQUIRES_SECURITY: ${{ needs.changes.outputs.requires_security }}
+          REQUIRES_WEB_PREVIEW_QA: ${{ needs.changes.outputs.requires_web_preview_qa }}
+          RUST_RESULT: ${{ needs.rust.result }}
           SECURITY_RESULT: ${{ needs.security.result }}
-          VERIFY_RESULT: ${{ needs.verify.result }}
+          WEB_PREVIEW_QA_RESULT: ${{ needs.web_preview_qa.result }}
         run: |
           if [ "$CHANGES_RESULT" != "success" ] || [ "$METADATA_RESULT" != "success" ]; then
             exit 1
           fi
 
-          if [ "$REQUIRES_FULL_CI" = "true" ] && {
-            [ "$VERIFY_RESULT" != "success" ] || [ "$SECURITY_RESULT" != "success" ];
-          }; then
+          if [ "$REQUIRES_FRONTEND" = "true" ] && [ "$FRONTEND_RESULT" != "success" ]; then
+            exit 1
+          fi
+          if [ "$REQUIRES_WEB_PREVIEW_QA" = "true" ] && [ "$WEB_PREVIEW_QA_RESULT" != "success" ]; then
+            exit 1
+          fi
+          if [ "$REQUIRES_RUST" = "true" ] && [ "$RUST_RESULT" != "success" ]; then
+            exit 1
+          fi
+          if [ "$REQUIRES_SECURITY" = "true" ] && [ "$SECURITY_RESULT" != "success" ]; then
             exit 1
           fi

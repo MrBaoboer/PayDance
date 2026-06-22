@@ -578,6 +578,24 @@ describe("PayDance Web Preview", () => {
     );
   });
 
+  it("starts with a seven-day demo dashboard and keeps onboarding available", () => {
+    const demoConfigSource = read("src/web-preview/demo-config.ts");
+
+    expect(demoConfigSource).toContain("ensureWebPreviewDemoSettings");
+    expect(demoConfigSource).toContain("workdays: [0, 1, 2, 3, 4, 5, 6]");
+    expect(demoConfigSource).toContain("settingsStoreKeys.hasCompletedOnboarding");
+    expect(webPreviewStateSource).toContain(
+      "await ensureWebPreviewDemoSettings(previewStore)",
+    );
+    expect(webPreviewStateSource).toContain("openOnboarding");
+    expect(webPreviewStateSource).toContain("completeWebOnboarding");
+    expect(webPreviewShowcaseSource).toContain(':show-onboarding-action="true"');
+    expect(webPreviewShowcaseSource).toContain('@open-onboarding="openOnboarding"');
+    expect(webPreviewShowcaseSource).toContain(
+      '@complete-onboarding="completeWebOnboarding"',
+    );
+  });
+
   it("keeps Tauri modules out of the browser platform adapters", () => {
     const viteConfig = read("vite.config.ts");
     const webSettingsStore = read("src/platform/settings-store.web.ts");

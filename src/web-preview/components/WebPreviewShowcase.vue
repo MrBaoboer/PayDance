@@ -15,7 +15,7 @@ const {
   amountMode,
   autostartEnabled,
   autostartError,
-  completeOnboarding,
+  completeWebOnboarding,
   config,
   dailyEarnText,
   earnedText,
@@ -31,6 +31,7 @@ const {
   miniPosition,
   miniSize,
   miniStyle,
+  openOnboarding,
   previewFrameClass,
   salaryModeLabel,
   setMiniMode,
@@ -107,15 +108,17 @@ watch(
         :salary-mode-label="salaryModeLabel"
         :should-show-onboarding="shouldShowOnboarding"
         :show-desktop-features="false"
+        :show-onboarding-action="true"
         :update-status="{ kind: 'unavailable' }"
         :snapshot="snapshot"
         :status-text="statusText"
         :theme-mode="themeMode"
         :worked-time-text="workedTimeText"
         @close="showSettings = false"
-        @complete-onboarding="completeOnboarding"
+        @complete-onboarding="completeWebOnboarding"
         @drag-start="showWebMiniOpacityPanel = false"
         @minimize="showSettings = false"
+        @open-onboarding="openOnboarding"
         @set-mini-mode="setMiniMode"
         @toggle-always-on-top="toggleAlwaysOnTop"
         @toggle-mini-mode="toggleMiniMode"

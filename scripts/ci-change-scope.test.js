@@ -50,28 +50,105 @@ describe("CI change scope", () => {
     expect(result.scope).toBe("lightweight");
     expect(result.requiresFullCi).toBe(false);
     expect(result.requiresWindowsBuild).toBe(false);
+    expect(result.requiresFrontend).toBe(false);
+    expect(result.requiresRust).toBe(false);
+    expect(result.requiresWebPreviewQa).toBe(false);
+    expect(result.requiresSecurity).toBe(false);
+    expect(result.requiresCodeql).toBe(false);
     expect(result.deployWebPreview).toBe(false);
     expect(result.reasons).toContain("all changed files are lightweight");
   });
 
-  it("requires full CI for app, Tauri, dependency, script, workflow, and unknown files", () => {
-    for (const file of [
-      "src/App.vue",
-      "src-tauri/src/lib.rs",
-      "package.json",
-      "package-lock.json",
-      "scripts/push-workflow.mjs",
-      ".github/workflows/ci.yml",
-      "vite.config.ts",
-      ".gitleaks.toml",
-    ]) {
-      const result = classifyChangedFiles([file]);
+  it("routes full-CI files to the smallest required job set", () => {
+    expect(classifyChangedFiles(["src/App.vue"])).toMatchObject({
+      scope: "full",
+      requiresFullCi: true,
+      requiresFrontend: true,
+      requiresRust: false,
+      requiresWebPreviewQa: true,
+      requiresSecurity: false,
+      requiresCodeql: true,
+      requiresWindowsBuild: true,
+    });
 
-      expect(result.scope, file).toBe("full");
-      expect(result.requiresFullCi, file).toBe(true);
-      expect(result.requiresWindowsBuild, file).toBe(true);
-      expect(result.reasons.join("\n"), file).toContain(file);
-    }
+    expect(classifyChangedFiles(["src-tauri/src/lib.rs"])).toMatchObject({
+      scope: "full",
+      requiresFullCi: true,
+      requiresFrontend: false,
+      requiresRust: true,
+      requiresWebPreviewQa: false,
+      requiresSecurity: false,
+      requiresCodeql: true,
+      requiresWindowsBuild: true,
+    });
+
+    expect(classifyChangedFiles(["package-lock.json"])).toMatchObject({
+      scope: "full",
+      requiresFullCi: true,
+      requiresFrontend: true,
+      requiresRust: false,
+      requiresWebPreviewQa: true,
+      requiresSecurity: true,
+      requiresCodeql: false,
+      requiresWindowsBuild: true,
+    });
+
+    expect(classifyChangedFiles(["scripts/push-workflow.mjs"])).toMatchObject({
+      scope: "full",
+      requiresFullCi: true,
+      requiresFrontend: false,
+      requiresRust: false,
+      requiresWebPreviewQa: false,
+      requiresSecurity: false,
+      requiresCodeql: true,
+      requiresWindowsBuild: false,
+    });
+
+    expect(classifyChangedFiles([".github/workflows/release.yml"])).toMatchObject({
+      scope: "full",
+      requiresFullCi: true,
+      requiresFrontend: false,
+      requiresRust: false,
+      requiresWebPreviewQa: false,
+      requiresSecurity: true,
+      requiresCodeql: false,
+      requiresWindowsBuild: false,
+    });
+
+    expect(
+      classifyChangedFiles([".github/workflows/post-release-smoke.yml"]),
+    ).toMatchObject({
+      scope: "full",
+      requiresFullCi: true,
+      requiresFrontend: false,
+      requiresRust: false,
+      requiresWebPreviewQa: false,
+      requiresSecurity: true,
+      requiresCodeql: false,
+      requiresWindowsBuild: false,
+    });
+
+    expect(classifyChangedFiles([".github/workflows/codeql.yml"])).toMatchObject({
+      scope: "full",
+      requiresFullCi: true,
+      requiresFrontend: false,
+      requiresRust: false,
+      requiresWebPreviewQa: false,
+      requiresSecurity: true,
+      requiresCodeql: true,
+      requiresWindowsBuild: false,
+    });
+
+    expect(classifyChangedFiles(["mystery.config"])).toMatchObject({
+      scope: "full",
+      requiresFullCi: true,
+      requiresFrontend: true,
+      requiresRust: true,
+      requiresWebPreviewQa: true,
+      requiresSecurity: true,
+      requiresCodeql: true,
+      requiresWindowsBuild: true,
+    });
   });
 
   it("deploys Web Preview only for web-affecting full-CI changes", () => {
@@ -95,6 +172,11 @@ describe("CI change scope", () => {
     expect(result.scope).toBe("full");
     expect(result.requiresFullCi).toBe(true);
     expect(result.requiresWindowsBuild).toBe(true);
+    expect(result.requiresFrontend).toBe(true);
+    expect(result.requiresRust).toBe(true);
+    expect(result.requiresWebPreviewQa).toBe(true);
+    expect(result.requiresSecurity).toBe(true);
+    expect(result.requiresCodeql).toBe(true);
     expect(result.reasons).toContain("no changed files detected");
   });
 
@@ -123,6 +205,11 @@ describe("CI change scope", () => {
 
       expect(output).toContain("scope=lightweight");
       expect(output).toContain("requires_full_ci=false");
+      expect(output).toContain("requires_frontend=false");
+      expect(output).toContain("requires_rust=false");
+      expect(output).toContain("requires_web_preview_qa=false");
+      expect(output).toContain("requires_security=false");
+      expect(output).toContain("requires_codeql=false");
       expect(output).toContain("deploy_web_preview=false");
       expect(summary.changedFiles).toEqual(["README.md", "legal/ADDITIONAL_TERMS.md"]);
     });
