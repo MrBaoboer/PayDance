@@ -28,6 +28,7 @@ defineEmits<{
   border: 1px solid var(--line);
   border-radius: var(--ui-radius-sm, 10px);
   background: color-mix(in srgb, var(--panel) 86%, var(--subtle));
+  margin-inline-end: clamp(5px, 1.15cqw, 5.5px);
   padding: 0 var(--ui-pad-sm, 12px);
   color: var(--text);
   font-family: var(--font-dashboard);

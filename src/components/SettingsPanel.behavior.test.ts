@@ -87,4 +87,17 @@ describe("SettingsPanel behavior", () => {
 
     expect(wrapper.emitted("openOnboarding")).toHaveLength(1);
   });
+
+  it("keeps the first-time setup title and action in one title row", () => {
+    const wrapper = mountSettingsPanel(
+      { ...defaultSalaryConfig, workdays: [...defaultSalaryConfig.workdays] },
+      () => false,
+      true,
+    );
+    const actionButton = wrapper.get(".onboarding-action-button");
+    const titleRow = actionButton.element.parentElement;
+
+    expect(titleRow?.classList.contains("group-title--split")).toBe(true);
+    expect(titleRow?.querySelector("strong")?.textContent).toContain("首次启动向导");
+  });
 });

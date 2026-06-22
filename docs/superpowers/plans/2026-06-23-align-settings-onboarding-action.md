@@ -4,7 +4,7 @@
 
 **目标：** 让 Web Preview 设置页的首次启动向导标题和按钮处于同一行，并使按钮右边缘与 GitHub 按钮一致。
 
-**架构：** 使用 `SettingsGroup` 现有 `action` 插槽承载按钮，不增加新的布局组件。按钮通过复用 GitHub 区域的响应式列宽与按钮宽度表达式计算右侧留白，适配中英文和不同面板宽度。
+**架构：** 使用 `SettingsGroup` 现有 `action` 插槽承载按钮，不增加新的布局组件。按钮使用经桌面与移动尺寸实测的 5px 至 5.5px 响应式右侧留白，适配中英文和不同面板宽度。
 
 **技术栈：** Vue 3、TypeScript、Scoped CSS、Vitest、Vue Test Utils、Playwright Web Preview QA
 
@@ -13,8 +13,8 @@
 ## 文件结构
 
 - 修改 `src/components/SettingsPanel.vue`：将向导按钮移入 `SettingsGroup` 标题操作插槽。
-- 修改 `src/components/settings/SettingsOnboardingAction.vue`：计算与 GitHub 按钮一致的右边缘偏移。
-- 修改 `src/components/SettingsPanel.test.ts`：锁定插槽结构和偏移公式。
+- 修改 `src/components/settings/SettingsOnboardingAction.vue`：应用与 GitHub 按钮一致的右边缘偏移。
+- 修改 `src/components/SettingsPanel.test.ts`：锁定插槽结构和响应式偏移规则。
 - 修改 `src/components/SettingsPanel.behavior.test.ts`：验证标题与按钮渲染在同一个标题行。
 - 按视觉 QA 结果更新 `tests/visual-baselines/` 中受影响的设置面板基线（仅当工具报告预期差异时）。
 
@@ -26,12 +26,12 @@
 
 - [ ] **步骤 1：编写失败的源码结构测试**
 
-在 `offers the first-time setup only when the host enables it` 测试中断言向导组件位于操作插槽，并断言按钮包含与 GitHub 区域相同宽度公式计算出的 `margin-inline-end`：
+在 `offers the first-time setup only when the host enables it` 测试中断言向导组件位于操作插槽，并断言按钮包含校准后的 `margin-inline-end`：
 
 ```ts
 expect(settingsPanelSource).toContain('<template #action>\n        <SettingsOnboardingAction');
 expect(settingsOnboardingActionSource).toContain(
-  "margin-inline-end: calc((clamp(92px, 20cqw, 112px) - clamp(92px, 20cqw, 108px)) / 2)",
+  "margin-inline-end: clamp(5px, 1.15cqw, 5.5px)",
 );
 ```
 
@@ -78,9 +78,7 @@ npx vitest run src/components/SettingsPanel.test.ts src/components/SettingsPanel
 在 `.onboarding-action-button` 中加入：
 
 ```css
-margin-inline-end: calc(
-  (clamp(92px, 20cqw, 112px) - clamp(92px, 20cqw, 108px)) / 2
-);
+margin-inline-end: clamp(5px, 1.15cqw, 5.5px);
 ```
 
 - [ ] **步骤 3：运行目标测试验证通过**
