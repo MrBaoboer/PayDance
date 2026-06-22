@@ -64,6 +64,8 @@ export interface Messages {
   "settings.autostart": string;
   "settings.autostartError": string;
   "settings.language": string;
+  "settings.onboarding": string;
+  "settings.openOnboarding": string;
   "settings.saveFailed": string;
 
   // ── Settings → salary mode ─────────────────────────────────────────────

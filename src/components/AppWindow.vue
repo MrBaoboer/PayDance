@@ -49,6 +49,7 @@ withDefaults(
     settingsSaveError?: string;
     shouldShowOnboarding: boolean;
     showDesktopFeatures?: boolean;
+    showOnboardingAction?: boolean;
     showSalaryInfo: boolean;
     showSettings: boolean;
     snapshot: SalarySnapshot;
@@ -60,6 +61,7 @@ withDefaults(
   {
     settingsSaveError: "",
     showDesktopFeatures: true,
+    showOnboardingAction: false,
   },
 );
 
@@ -68,6 +70,7 @@ const emit = defineEmits<{
   completeOnboarding: [];
   dragStart: [event: MouseEvent];
   minimize: [];
+  openOnboarding: [];
   resizeStart: [direction: ResizeDirection];
   setMiniMode: [value: boolean];
   toggleAlwaysOnTop: [];
@@ -154,7 +157,9 @@ const emit = defineEmits<{
               :is-autostart-updating="isAutostartUpdating"
               :settings-save-error="settingsSaveError"
               :show-desktop-features="showDesktopFeatures"
+              :show-onboarding-action="showOnboardingAction"
               :update-status="updateStatus"
+              @open-onboarding="emit('openOnboarding')"
               @update:amount-mode="emit('update:amountMode', $event)"
               @update:autostart-enabled="emit('update:autostartEnabled', $event)"
               @update:config="emit('update:config', $event)"

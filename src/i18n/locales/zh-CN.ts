@@ -59,6 +59,8 @@ const zhCN: Messages = {
   "settings.autostart": "开机自动启动",
   "settings.autostartError": "自启动设置失败",
   "settings.language": "语言",
+  "settings.onboarding": "首次启动向导",
+  "settings.openOnboarding": "打开首次启动向导",
   "settings.saveFailed": "设置未能保存，请重试。",
 
   // ── Settings → salary mode ─────────────────────────────────────────────

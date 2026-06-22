@@ -10,6 +10,7 @@ import switchRowSource from "./ui/SwitchRow.vue?raw";
 import lunchBreakFieldsSource from "./settings/LunchBreakFields.vue?raw";
 import salaryAmountFieldsSource from "./settings/SalaryAmountFields.vue?raw";
 import settingsAboutFooterSource from "./settings/SettingsAboutFooter.vue?raw";
+import settingsOnboardingActionSource from "./settings/SettingsOnboardingAction.vue?raw";
 import updateActionBadgeSource from "./settings/UpdateActionBadge.vue?raw";
 import workTimeFieldsSource from "./settings/WorkTimeFields.vue?raw";
 
@@ -65,6 +66,17 @@ describe("settings panel", () => {
 
   it("keeps modified attribution footer but removes the about heading copy", () => {
     expect(settingsPanelSource).toContain("<SettingsAboutFooter");
+  });
+
+  it("offers the first-time setup only when the host enables it", () => {
+    expect(settingsPanelSource).toContain("showOnboardingAction?: boolean");
+    expect(settingsPanelSource).toContain("showOnboardingAction: false");
+    expect(settingsPanelSource).toContain('v-if="showOnboardingAction"');
+    expect(settingsPanelSource).toContain("t('settings.onboarding')");
+    expect(settingsPanelSource).toContain("<SettingsOnboardingAction");
+    expect(settingsPanelSource).toContain("@open=\"emit('openOnboarding')\"");
+    expect(settingsOnboardingActionSource).toContain('t("settings.openOnboarding")');
+    expect(settingsOnboardingActionSource).toContain("onboarding-action-button");
   });
 
   it("adds a lightweight autostart card without unrelated desktop controls", () => {

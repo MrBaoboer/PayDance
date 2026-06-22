@@ -24,6 +24,7 @@ import {
   createBrowserSettingsStore,
   readBrowserThemeMode,
 } from "../platform/settings-store.web";
+import { ensureWebPreviewDemoSettings } from "./demo-config";
 
 const miniStagePaddingX = 34;
 const miniStageHeight = 188;
@@ -92,9 +93,8 @@ export function useWebPreviewState() {
   const applyWindowMode = async () => {};
   const {
     activeView,
-    completeOnboarding,
+    completeOnboarding: completeAppOnboarding,
     setMiniMode,
-    shouldShowOnboarding,
     showSalaryInfo,
     showSettings,
     toggleMiniMode,
@@ -112,6 +112,19 @@ export function useWebPreviewState() {
     setAlwaysOnTop,
     themeMode,
   });
+  const isOnboardingOpen = ref(false);
+  const shouldShowOnboarding = computed(() => isOnboardingOpen.value);
+
+  const openOnboarding = () => {
+    showSettings.value = false;
+    showSalaryInfo.value = false;
+    isOnboardingOpen.value = true;
+  };
+
+  const completeWebOnboarding = async () => {
+    await completeAppOnboarding();
+    isOnboardingOpen.value = false;
+  };
   const {
     dailyEarnText,
     earnedText,
@@ -221,6 +234,7 @@ export function useWebPreviewState() {
   });
 
   onMounted(async () => {
+    await ensureWebPreviewDemoSettings(previewStore);
     const windowPreferences = await loadWindowPreferences();
     isMiniMode.value = false;
     fullSize.value = windowPreferences.fullSize;
@@ -242,7 +256,7 @@ export function useWebPreviewState() {
     amountMode,
     autostartEnabled,
     autostartError,
-    completeOnboarding,
+    completeWebOnboarding,
     config,
     dailyEarnText,
     earnedText,
@@ -259,6 +273,7 @@ export function useWebPreviewState() {
     miniPosition,
     miniSize,
     miniStyle,
+    openOnboarding,
     previewFrameClass,
     salaryModeLabel,
     setMiniMode,

@@ -21,6 +21,7 @@ import SettingsPanel from "./SettingsPanel.vue";
 const mountSettingsPanel = (
   config = defaultSalaryConfig,
   hasIssue: () => boolean = () => false,
+  showOnboardingAction = false,
 ) =>
   mount(SettingsPanel, {
     props: {
@@ -32,6 +33,7 @@ const mountSettingsPanel = (
       hasIssue,
       isAutostartUpdating: false,
       showDesktopFeatures: true,
+      showOnboardingAction,
       updateStatus: { kind: "upToDate" },
     },
   });
@@ -66,5 +68,23 @@ describe("SettingsPanel behavior", () => {
     expect(wrapper.emitted("update:config")?.[0]?.[0]).toMatchObject({
       workdays: [1, 2, 3, 4, 5, 6],
     });
+  });
+
+  it("hides the first-time setup action by default", () => {
+    const wrapper = mountSettingsPanel();
+
+    expect(wrapper.find(".onboarding-action-button").exists()).toBe(false);
+  });
+
+  it("opens the first-time setup when the Web Preview enables it", async () => {
+    const wrapper = mountSettingsPanel(
+      { ...defaultSalaryConfig, workdays: [...defaultSalaryConfig.workdays] },
+      () => false,
+      true,
+    );
+
+    await wrapper.get(".onboarding-action-button").trigger("click");
+
+    expect(wrapper.emitted("openOnboarding")).toHaveLength(1);
   });
 });
