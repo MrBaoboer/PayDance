@@ -184,7 +184,9 @@ const updateConfig = <Key extends keyof SalaryConfig>(
     </SettingsGroup>
 
     <SettingsGroup v-if="showOnboardingAction" :title="t('settings.onboarding')">
-      <SettingsOnboardingAction @open="emit('openOnboarding')" />
+      <template #action>
+        <SettingsOnboardingAction @open="emit('openOnboarding')" />
+      </template>
     </SettingsGroup>
 
     <SettingsAboutFooter :update-status="updateStatus" />

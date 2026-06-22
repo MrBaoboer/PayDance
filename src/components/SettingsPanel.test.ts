@@ -69,14 +69,23 @@ describe("settings panel", () => {
   });
 
   it("offers the first-time setup only when the host enables it", () => {
+    const onboardingSection = settingsPanelSource.slice(
+      settingsPanelSource.indexOf('v-if="showOnboardingAction"'),
+      settingsPanelSource.indexOf("<SettingsAboutFooter"),
+    );
+
     expect(settingsPanelSource).toContain("showOnboardingAction?: boolean");
     expect(settingsPanelSource).toContain("showOnboardingAction: false");
     expect(settingsPanelSource).toContain('v-if="showOnboardingAction"');
     expect(settingsPanelSource).toContain("t('settings.onboarding')");
-    expect(settingsPanelSource).toContain("<SettingsOnboardingAction");
-    expect(settingsPanelSource).toContain("@open=\"emit('openOnboarding')\"");
+    expect(onboardingSection).toContain("<template #action>");
+    expect(onboardingSection).toContain("<SettingsOnboardingAction");
+    expect(onboardingSection).toContain("@open=\"emit('openOnboarding')\"");
     expect(settingsOnboardingActionSource).toContain('t("settings.openOnboarding")');
     expect(settingsOnboardingActionSource).toContain("onboarding-action-button");
+    expect(settingsOnboardingActionSource).toContain(
+      "margin-inline-end: clamp(5px, 1.15cqw, 5.5px)",
+    );
   });
 
   it("adds a lightweight autostart card without unrelated desktop controls", () => {

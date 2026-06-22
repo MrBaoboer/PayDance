@@ -8,5 +8,6 @@ release-assets/
 /tmp/
 *.log
 .claude/
+.worktrees/
 paydance-updater-key
 paydance-updater-key.pub
