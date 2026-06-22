@@ -17,6 +17,7 @@ import LunchBreakFields from "./settings/LunchBreakFields.vue";
 import SalaryAmountFields from "./settings/SalaryAmountFields.vue";
 import SalaryModeControl from "./settings/SalaryModeControl.vue";
 import SettingsAboutFooter from "./settings/SettingsAboutFooter.vue";
+import SettingsOnboardingAction from "./settings/SettingsOnboardingAction.vue";
 import WorkdayPicker from "./settings/WorkdayPicker.vue";
 import WorkTimeFields from "./settings/WorkTimeFields.vue";
 import SegmentedControl from "./ui/SegmentedControl.vue";
@@ -36,15 +37,18 @@ const props = withDefaults(
     isAutostartUpdating: boolean;
     settingsSaveError?: string;
     showDesktopFeatures?: boolean;
+    showOnboardingAction?: boolean;
     updateStatus: UpdaterStatus;
   }>(),
   {
     settingsSaveError: "",
     showDesktopFeatures: true,
+    showOnboardingAction: false,
   },
 );
 
 const emit = defineEmits<{
+  openOnboarding: [];
   "update:autostartEnabled": [enabled: boolean];
   "update:amountMode": [mode: "rolling" | "plain"];
   "update:config": [config: SalaryConfig];
@@ -177,6 +181,10 @@ const updateConfig = <Key extends keyof SalaryConfig>(
       <p v-if="autostartError" class="settings-inline-error">
         {{ autostartError }}
       </p>
+    </SettingsGroup>
+
+    <SettingsGroup v-if="showOnboardingAction" :title="t('settings.onboarding')">
+      <SettingsOnboardingAction @open="emit('openOnboarding')" />
     </SettingsGroup>
 
     <SettingsAboutFooter :update-status="updateStatus" />
