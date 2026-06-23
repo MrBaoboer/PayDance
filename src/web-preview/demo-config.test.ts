@@ -31,10 +31,17 @@ describe("Web Preview demo config", () => {
 
     expect(config).toEqual({
       ...defaultSalaryConfig,
+      salaryType: "monthly",
+      monthlySalary: 10000,
       workdays: [0, 1, 2, 3, 4, 5, 6],
+      startTime: "09:00",
+      endTime: "22:00",
     });
     expect(config.workdays).not.toBe(defaultSalaryConfig.workdays);
     expect(defaultSalaryConfig.workdays).toEqual([1, 2, 3, 4, 5]);
+    expect(defaultSalaryConfig.monthlySalary).toBe(8000);
+    expect(defaultSalaryConfig.startTime).toBe("09:30");
+    expect(defaultSalaryConfig.endTime).toBe("18:30");
   });
 
   it("seeds a first browser visit and skips the automatic onboarding", async () => {

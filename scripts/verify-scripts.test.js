@@ -157,6 +157,10 @@ describe("verification scripts", () => {
     expect(qaScript).toContain('timezoneId: "Asia/Shanghai"');
     expect(qaScript).toContain("commitSha");
     expect(qaScript).toContain("observedCopies");
+    expect(qaScript).toContain("monthlySalary: 10000");
+    expect(qaScript).toContain('startTime: "09:00"');
+    expect(qaScript).toContain('endTime: "22:00"');
+    expect(qaScript).toContain("workdays: [0, 1, 2, 3, 4, 5, 6]");
     expect(qaScript).toContain("assertAccessibility");
     expect(qaScript).toContain("assertLanguageSwitchFlow");
     expect(qaScript).toContain("assertSeoMetadata");

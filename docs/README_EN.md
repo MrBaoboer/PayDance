@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://masterbao66.github.io/PayDance/"><strong>Live Preview</strong></a>
+  <a href="https://masterbao66.github.io/PayDance/en/"><strong>Live Preview</strong></a>
   &nbsp;&nbsp;·&nbsp;&nbsp;
   <a href="https://github.com/MasterBao66/PayDance/releases/latest"><strong>Download</strong></a>
   &nbsp;&nbsp;·&nbsp;&nbsp;
@@ -46,7 +46,7 @@ The main window shows today's earnings, work progress, time remaining, and daily
 
 | &nbsp; | Link | Notes |
 |:---:|:---:|:---:|
-| 🌐 | **[Live Preview](https://masterbao66.github.io/PayDance/)** | Browser-based, all core features available |
+| 🌐 | **[Live Preview](https://masterbao66.github.io/PayDance/en/)** | Browser-based, all core features available |
 | ⬇️ | **[Windows Desktop](https://github.com/MasterBao66/PayDance/releases/latest)** | Portable EXE with tray, pinning, mini float, auto-start |
 
 </div>

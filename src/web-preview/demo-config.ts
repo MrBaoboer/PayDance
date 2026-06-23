@@ -9,7 +9,11 @@ import type { SettingsStoreAdapter } from "../platform/settings-store.web";
 
 export const createWebPreviewDemoConfig = (): SalaryConfig => ({
   ...defaultSalaryConfig,
+  salaryType: "monthly",
+  monthlySalary: 10000,
   workdays: [0, 1, 2, 3, 4, 5, 6],
+  startTime: "09:00",
+  endTime: "22:00",
 });
 
 export async function ensureWebPreviewDemoSettings(
