@@ -8,7 +8,7 @@ Build artifacts and verification files are available in [GitHub Releases](https:
 
 ## Unreleased
 
-- **Website demo mode**: Web Preview now opens directly into the full wage dashboard with the default salary and preferences plus all seven workdays selected, making portfolio and interview demos immediate without overwriting existing browser settings.
+- **Website demo mode**: Web Preview now opens directly into the full wage dashboard with neutral demo salary, schedule, and preference defaults plus all seven workdays selected, without overwriting existing browser settings.
 - **Onboarding remains available**: Web Preview Settings now includes a First-time setup action that reopens the existing three-step flow; Windows desktop first-run behavior is unchanged.
 
 ### v0.9.7
