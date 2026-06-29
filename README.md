@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://masterbao66.github.io/PayDance/"><strong>在线体验</strong></a>
+  <a href="https://paydance.vercel.app/"><strong>在线体验</strong></a>
   &nbsp;&nbsp;·&nbsp;&nbsp;
   <a href="https://github.com/MasterBao66/PayDance/releases/latest"><strong>下载桌面版</strong></a>
   &nbsp;&nbsp;·&nbsp;&nbsp;
@@ -46,7 +46,7 @@
 
 | &nbsp; | 入口 | 说明 |
 |:---:|:---:|:---:|
-| 🌐 | **[在线体验](https://masterbao66.github.io/PayDance/)** | 网页端，含所有核心功能 |
+| 🌐 | **[在线体验](https://paydance.vercel.app/)** | 网页端，含所有核心功能 |
 | ⬇️ | **[Windows 桌面版](https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v0.9.7-windows-x64.exe)** | 便携 EXE，含托盘、置顶、迷你悬浮、开机自启动等完整能力 |
 
 </div>
@@ -67,7 +67,7 @@ Release 页面同时提供 SHA256 校验文件，下载后可验证完整性。
 
 </div>
 
-Web Preview 与桌面端共享核心薪资逻辑和前端界面，部署在 GitHub Pages 上作为在线体验入口。
+Web Preview 与桌面端共享核心薪资逻辑和前端界面，当前主站部署在 Vercel，GitHub Pages 可作为仓库镜像与发布验证入口。
 
 ## 开发
 

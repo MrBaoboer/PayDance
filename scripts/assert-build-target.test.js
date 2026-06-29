@@ -35,4 +35,28 @@ describe("build target assertion", () => {
       rmSync(cwd, { recursive: true, force: true });
     }
   });
+
+  it("accepts a root-relative Vercel entry", () => {
+    const cwd = join(tmpdir(), `paydance-target-vercel-${process.pid}-${Date.now()}`);
+    const assetsDir = join(cwd, "dist", "assets");
+    mkdirSync(assetsDir, { recursive: true });
+    writeFileSync(
+      join(cwd, "dist", "index.html"),
+      '<script type="module" src="/assets/main-example123.js"></script>',
+      "utf8",
+    );
+    writeFileSync(join(assetsDir, "main-example123.js"), "PayDance Web Preview", "utf8");
+
+    try {
+      expect(
+        execFileSync("node", [scriptPath, "web"], {
+          cwd,
+          encoding: "utf8",
+          stdio: "pipe",
+        }),
+      ).toContain("web build entry includes web runtime");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
 });

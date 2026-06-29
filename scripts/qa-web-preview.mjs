@@ -72,18 +72,18 @@ const localeExpectations = {
 };
 const seoExpectations = {
   "zh-CN": {
-    canonical: "https://masterbao66.github.io/PayDance/",
+    canonical: "https://paydance.vercel.app/",
     title: "薪跳 PayDance — Windows 桌面实时工资看板",
   },
   en: {
-    canonical: "https://masterbao66.github.io/PayDance/en/",
+    canonical: "https://paydance.vercel.app/en/",
     title: "PayDance — Real-Time Salary Dashboard for Windows",
   },
 };
 const alternateUrls = {
-  "zh-CN": "https://masterbao66.github.io/PayDance/",
-  en: "https://masterbao66.github.io/PayDance/en/",
-  "x-default": "https://masterbao66.github.io/PayDance/",
+  "zh-CN": "https://paydance.vercel.app/",
+  en: "https://paydance.vercel.app/en/",
+  "x-default": "https://paydance.vercel.app/",
 };
 
 const assertSeoMetadata = async (page, viewportName, locale) => {

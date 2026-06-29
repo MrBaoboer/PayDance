@@ -19,9 +19,11 @@ const projectRoot = fileURLToPath(new URL(".", import.meta.url));
 export default defineConfig(({ mode }) => {
   const isWeb = mode === "web";
   const dateModified = resolveBuildDate();
+  const webBase =
+    process.env.PAYDANCE_WEB_BASE ?? (process.env.VERCEL ? "/" : "/PayDance/");
 
   return {
-    base: isWeb ? "/PayDance/" : "./",
+    base: isWeb ? webBase : "./",
     define: {
       __PAYDANCE_VERSION__: JSON.stringify(packageMetadata.version),
     },

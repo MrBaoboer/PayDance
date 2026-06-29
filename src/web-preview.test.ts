@@ -179,8 +179,8 @@ describe("PayDance Web Preview", () => {
   it("publishes independent Chinese and English SEO entry points", () => {
     const chineseHtmlSource = read("index.html");
     const englishHtmlSource = read("en/index.html");
-    const chineseUrl = "https://masterbao66.github.io/PayDance/";
-    const englishUrl = "https://masterbao66.github.io/PayDance/en/";
+    const chineseUrl = "https://paydance.vercel.app/";
+    const englishUrl = "https://paydance.vercel.app/en/";
 
     expect(chineseHtmlSource).toContain('<html lang="zh-CN">');
     expect(englishHtmlSource).toContain('<html lang="en">');
@@ -713,15 +713,18 @@ describe("PayDance Web Preview", () => {
     expect(readmeSource).not.toContain("Web Preview 是产品橱窗，不替代桌面版");
   });
 
-  it("builds the web preview for GitHub Pages", () => {
+  it("builds the web preview for the Vercel primary site and GitHub Pages mirror", () => {
     const viteConfig = read("vite.config.ts");
 
-    expect(viteConfig).toContain('base: isWeb ? "/PayDance/" : "./"');
+    expect(viteConfig).toContain("process.env.VERCEL ?");
+    expect(viteConfig).toContain('"/PayDance/"');
+    expect(viteConfig).toContain("PAYDANCE_WEB_BASE");
     expect(viteConfig).toContain(
       'entries: isWeb ? ["index.html", "en/index.html"] : ["index.html"]',
     );
     expect(viteConfig).toContain('en: resolve(projectRoot, "en/index.html")');
     expect(viteConfig).toContain("createWebSeoPlugin");
+    expect(read("vercel.json")).toContain('"buildCommand": "npm run build:web"');
     expect(viteConfig).toContain("src-tauri/target/**");
     expect(read(".github/workflows/web-preview.yml")).toContain("npm run build:web");
     expect(read(".github/workflows/web-preview.yml")).toContain(

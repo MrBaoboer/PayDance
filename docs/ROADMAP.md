@@ -15,7 +15,7 @@
 - 首次体验与设置恢复：移动端首次向导 Footer 固定可见，Web Preview 每次默认打开完整看板；损坏或未来版本设置会静默按项修复并写回。
 - 发布与供应链自动化：Rust 核心更新逻辑已有真实单元测试；Release 会执行 Windows EXE 自动启动冒烟、单实例检查并生成 SPDX SBOM；CodeQL 已覆盖 TypeScript 与 Rust，GitHub Actions 全部固定到 Commit SHA。
 - 官网发现性：分享图改为三步设置海报，页面标题与结构化数据调整为 Windows 桌面效率工具语义。
-- 中英文官网入口：中文保留 `/PayDance/`，英文新增 `/PayDance/en/`，两页拥有独立 SEO 元数据、双向 `hreflang`、自动日期与 Sitemap。
+- 中英文官网入口：Vercel 主站使用 `/` 与 `/en/`，GitHub Pages 镜像保留 `/PayDance/` 与 `/PayDance/en/`，两页拥有独立 SEO 元数据、双向 `hreflang`、自动日期与 Sitemap。
 - 维护证据链：Web Preview 已加入固定时间、固定视口的像素差异门禁；桌面 Rust 托盘动作可按行为测试，EXE 冒烟会记录窗口响应与单实例 JSON 结果。
 - 贡献者入口：新增中英文架构修改地图，新手任务要求用户可见结果、修改前证据、验收标准和验证命令。
 

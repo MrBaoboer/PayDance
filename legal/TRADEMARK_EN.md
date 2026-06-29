@@ -14,7 +14,7 @@ The following names, marks, and source-identifying elements are reserved by the 
 - PayDance logo, application icon, and tray icon
 - Official marketing posters, social preview images, and website visual identity
 - Complete product visual composition visible in official screenshots
-- Official GitHub repository, GitHub Pages website, Release download channels, update endpoints, and signed release chain
+- Official GitHub repository, Vercel primary website, GitHub Pages mirror, Release download channels, update endpoints, and signed release chain
 - Application identifiers, package metadata, and official release asset names that identify official versions
 
 ## Permitted factual uses
@@ -64,7 +64,7 @@ Unacceptable examples:
 
 ## Official version statement
 
-Unless otherwise announced, only the `MasterBao66/PayDance` repository, that repository's GitHub Releases, and the `masterbao66.github.io/PayDance` website represent official PayDance release channels.
+Unless otherwise announced, only the `MasterBao66/PayDance` repository, that repository's GitHub Releases, the `paydance.vercel.app` primary website, and the `masterbao66.github.io/PayDance` mirror represent official PayDance release channels. The canonical user-facing and search-facing website is `https://paydance.vercel.app/`.
 
 ## Authorization
 

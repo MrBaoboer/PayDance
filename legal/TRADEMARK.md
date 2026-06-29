@@ -14,7 +14,7 @@
 - PayDance Logo、应用图标与托盘图标
 - 官方宣传海报、社交预览图、官网视觉识别
 - 官方截图中可识别的完整产品视觉组合
-- 官方 GitHub 仓库、GitHub Pages 官网、Release 下载渠道、更新端点和签名发布链路
+- 官方 GitHub 仓库、Vercel 主站、GitHub Pages 镜像、Release 下载渠道、更新端点和签名发布链路
 - 应用标识符、包元数据和官方发布资产命名中用于识别官方版本的元素
 
 ## 允许的事实性使用
@@ -64,7 +64,7 @@
 
 ## 官方版本说明
 
-除非另有公告，只有 `MasterBao66/PayDance` 仓库、该仓库 GitHub Releases、以及 `masterbao66.github.io/PayDance` 官网代表 PayDance 官方发布渠道。
+除非另有公告，只有 `MasterBao66/PayDance` 仓库、该仓库 GitHub Releases、`paydance.vercel.app` 主站以及 `masterbao66.github.io/PayDance` 镜像代表 PayDance 官方发布渠道。面向用户与搜索引擎的规范官网是 `https://paydance.vercel.app/`。
 
 ## 授权
 

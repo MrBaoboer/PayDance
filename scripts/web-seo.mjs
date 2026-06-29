@@ -3,7 +3,7 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
-const siteUrl = "https://masterbao66.github.io/PayDance/";
+const siteUrl = "https://paydance.vercel.app/";
 const englishSiteUrl = `${siteUrl}en/`;
 
 export function resolveBuildDate(environment = process.env, now = new Date()) {

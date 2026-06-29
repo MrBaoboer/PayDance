@@ -4,9 +4,13 @@ src-tauri/target
 src-tauri/gen
 .npm-cache
 release-assets/
+.vercel/
 .tools
 /tmp/
 *.log
+.env
+.env.*
+!.env.example
 .claude/
 .worktrees/
 paydance-updater-key

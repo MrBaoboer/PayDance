@@ -26,7 +26,7 @@
 
 ### 我应该用 Web Preview 还是 Windows 桌面版？
 
-想先体验核心界面和计算逻辑，可以打开 [Web Preview](https://masterbao66.github.io/PayDance/)。想使用托盘、置顶、迷你悬浮、开机自启动等完整桌面能力，请下载 Windows 桌面版。
+想先体验核心界面和计算逻辑，可以打开 [Web Preview](https://paydance.vercel.app/)。想使用托盘、置顶、迷你悬浮、开机自启动等完整桌面能力，请下载 Windows 桌面版。
 
 ### Windows 桌面版下载哪个文件？
 

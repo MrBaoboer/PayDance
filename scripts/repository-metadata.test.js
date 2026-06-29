@@ -90,9 +90,9 @@ describe("repository metadata", () => {
     const posterPath = "docs/posters/poster-02-three-step-setup-en-v1.png";
     const englishReadme = read("docs/README_EN.md");
 
-    expect(englishReadme).toContain("https://masterbao66.github.io/PayDance/en/");
+    expect(englishReadme).toContain("https://paydance.vercel.app/en/");
     expect(englishReadme).not.toContain(
-      '<a href="https://masterbao66.github.io/PayDance/"><strong>Live Preview</strong></a>',
+      '<a href="https://paydance.vercel.app/"><strong>Live Preview</strong></a>',
     );
     expect(englishReadme).toContain(
       'src="posters/poster-02-three-step-setup-en-v1.png"',

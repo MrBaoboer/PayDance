@@ -29,8 +29,8 @@ describe("web SEO build helpers", () => {
   it("creates a sitemap for the Chinese and English canonical URLs", () => {
     const sitemap = createSitemap("2030-01-02");
 
-    expect(sitemap).toContain("<loc>https://masterbao66.github.io/PayDance/</loc>");
-    expect(sitemap).toContain("<loc>https://masterbao66.github.io/PayDance/en/</loc>");
+    expect(sitemap).toContain("<loc>https://paydance.vercel.app/</loc>");
+    expect(sitemap).toContain("<loc>https://paydance.vercel.app/en/</loc>");
     expect(sitemap.match(/<lastmod>2030-01-02<\/lastmod>/g)).toHaveLength(2);
   });
 });

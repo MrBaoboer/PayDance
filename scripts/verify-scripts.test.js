@@ -181,7 +181,7 @@ describe("verification scripts", () => {
 
     const qaGuide = readRoot("docs/web-preview-qa.md");
     expect(qaGuide).toContain("Web Preview QA 用来确认官网橱窗");
-    expect(qaGuide).toContain("从 `/PayDance/` 进入中文页，点击 `Switch to English`");
+    expect(qaGuide).toContain("本地和 GitHub Pages 镜像从 `/PayDance/` 进入中文页");
     expect(qaGuide).toContain("PLAYWRIGHT_NODE_MODULES");
     expect(qaGuide).toContain("@axe-core/playwright");
     expect(qaGuide).toContain("不要用 headless Chrome、CDP 或命令行截图");

@@ -47,6 +47,6 @@ This is not a rejection of every suggestion. It protects the core experience. An
 
 ## Platform Strategy
 
-The current official release and validation priority is Windows 11. The project uses Vue 3, TypeScript, and Tauri 2. Web Preview is deployed to GitHub Pages as an online experience entry point, providing browser-based simulations of core calculation, first-run setup, settings, and mini floating mode.
+The current official release and validation priority is Windows 11. The project uses Vue 3, TypeScript, and Tauri 2. Web Preview is published primarily on Vercel as the online experience entry point, providing browser-based simulations of core calculation, first-run setup, settings, and mini floating mode; GitHub Pages may remain available as a repository mirror and release-validation entry.
 
 This does not exclude macOS, Linux, or other platforms. Community contributors can first submit platform-adaptation proposals and validation results. Before an official release, the project still needs clear build, validation, updater, and maintenance boundaries. The Windows desktop app currently carries the complete capabilities, including tray support, always-on-top mode, transparent windows, mini floating mode, system materials, and autostart.

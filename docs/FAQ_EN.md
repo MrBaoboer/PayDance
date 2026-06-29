@@ -26,7 +26,7 @@ Those directions would move PayDance toward time management, attendance, or clou
 
 ### Should I use the Web Preview or the Windows desktop app?
 
-Use the [Web Preview](https://masterbao66.github.io/PayDance/) if you want to try the core interface and calculation logic first. Use the Windows desktop app if you want the full tray, always-on-top, mini floating window, and auto-start experience.
+Use the [Web Preview](https://paydance.vercel.app/) if you want to try the core interface and calculation logic first. Use the Windows desktop app if you want the full tray, always-on-top, mini floating window, and auto-start experience.
 
 ### Which Windows file should I download?
 
