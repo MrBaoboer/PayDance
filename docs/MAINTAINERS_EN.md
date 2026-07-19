@@ -6,8 +6,8 @@ PayDance is currently maintained by one person.
 
 ## Current Maintainer
 
-- Mr.Baoboer / MasterBao66
-- GitHub profile: <https://github.com/MasterBao66>
+- Mr.Baoboer / MrBaoboer
+- GitHub profile: <https://github.com/MrBaoboer>
 
 ## Response Priorities
 

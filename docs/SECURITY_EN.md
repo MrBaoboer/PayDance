@@ -21,8 +21,8 @@ The currently released and security-supported surfaces are the **Windows 11 desk
 
 Please report via either of the following private channels:
 
-- **GitHub Security Advisory** (recommended): submit at [Security Advisories](https://github.com/MasterBao66/PayDance/security/advisories/new)
-- **Email**: see the email listed on the [author's GitHub profile](https://github.com/MasterBao66), and include `[SECURITY]` in the subject line
+- **GitHub Security Advisory** (recommended): submit at [Security Advisories](https://github.com/MrBaoboer/PayDance/security/advisories/new)
+- **Email**: see the email listed on the [author's GitHub profile](https://github.com/MrBaoboer), and include `[SECURITY]` in the subject line
 
 ### What to Include
 

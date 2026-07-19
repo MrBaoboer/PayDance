@@ -1,6 +1,6 @@
 # 参与贡献
 
-> [English version →](https://github.com/MasterBao66/PayDance/blob/main/docs/CONTRIBUTING_EN.md)
+> [English version →](https://github.com/MrBaoboer/PayDance/blob/main/docs/CONTRIBUTING_EN.md)
 
 感谢你愿意参与薪跳 PayDance。这个项目刻意保持很小：只做一件事，把“今天正在挣到的钱”安静、清楚地放在桌面上。提交 Issue 或 PR 前，请先了解下面的边界和流程。
 
@@ -75,7 +75,7 @@ gh auth login
 
 ## 我们欢迎
 
-所有贡献都应符合 [PRODUCT.md](https://github.com/MasterBao66/PayDance/blob/main/docs/PRODUCT.md) 中记录的产品边界。
+所有贡献都应符合 [PRODUCT.md](https://github.com/MrBaoboer/PayDance/blob/main/docs/PRODUCT.md) 中记录的产品边界。
 
 - 附带复现步骤的 Bug 修复
 - 桌面端可靠性改进：窗口管理、托盘、自启动、单实例
@@ -133,7 +133,7 @@ gh auth login
 
 ## 许可细则
 
-本项目代码采用 [AGPL-3.0-only](https://github.com/MasterBao66/PayDance/blob/main/LICENSE) 发布，另有 [AGPL 第 7 条附加条款](https://github.com/MasterBao66/PayDance/blob/main/legal/ADDITIONAL_TERMS.md)。
+本项目代码采用 [AGPL-3.0-only](https://github.com/MrBaoboer/PayDance/blob/main/LICENSE) 发布，另有 [AGPL 第 7 条附加条款](https://github.com/MrBaoboer/PayDance/blob/main/legal/ADDITIONAL_TERMS.md)。
 
 提交代码贡献即表示你确认：
 
@@ -141,13 +141,13 @@ gh auth login
 - 你同意你的贡献以 AGPL-3.0-only 及本项目附加条款并入项目；
 - 提交时包含 `Signed-off-by:` 行（DCO），确认你的贡献来源合法。
 
-> 普通贡献会按上述开源许可进入项目；如果维护者需要将某项贡献纳入商业授权、OEM 或白标授权范围，会在合并前请你签署 [贡献者许可协议（CLA）](https://github.com/MasterBao66/PayDance/blob/main/legal/CLA.md)。仅提交 Issue、建议或安全报告无需签署 CLA。
+> 普通贡献会按上述开源许可进入项目；如果维护者需要将某项贡献纳入商业授权、OEM 或白标授权范围，会在合并前请你签署 [贡献者许可协议（CLA）](https://github.com/MrBaoboer/PayDance/blob/main/legal/CLA.md)。仅提交 Issue、建议或安全报告无需签署 CLA。
 
 详见 `LICENSE`、`legal/ADDITIONAL_TERMS.md`、`legal/TRADEMARK.md` 和 `legal/BRAND-ASSETS.md`。
 
 ## 维护与治理
 
-- 行为准则：[CODE_OF_CONDUCT.md](https://github.com/MasterBao66/PayDance/blob/main/CODE_OF_CONDUCT.md)
-- 维护者说明：[docs/MAINTAINERS.md](https://github.com/MasterBao66/PayDance/blob/main/docs/MAINTAINERS.md)
-- 治理说明：[docs/GOVERNANCE.md](https://github.com/MasterBao66/PayDance/blob/main/docs/GOVERNANCE.md)
-- 维护约定：[docs/MAINTENANCE.md](https://github.com/MasterBao66/PayDance/blob/main/docs/MAINTENANCE.md)
+- 行为准则：[CODE_OF_CONDUCT.md](https://github.com/MrBaoboer/PayDance/blob/main/CODE_OF_CONDUCT.md)
+- 维护者说明：[docs/MAINTAINERS.md](https://github.com/MrBaoboer/PayDance/blob/main/docs/MAINTAINERS.md)
+- 治理说明：[docs/GOVERNANCE.md](https://github.com/MrBaoboer/PayDance/blob/main/docs/GOVERNANCE.md)
+- 维护约定：[docs/MAINTENANCE.md](https://github.com/MrBaoboer/PayDance/blob/main/docs/MAINTENANCE.md)

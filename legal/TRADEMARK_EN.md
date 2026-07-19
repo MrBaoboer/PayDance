@@ -64,11 +64,11 @@ Unacceptable examples:
 
 ## Official version statement
 
-Unless otherwise announced, only the `MasterBao66/PayDance` repository, that repository's GitHub Releases, the `paydance.vercel.app` primary website, and the `masterbao66.github.io/PayDance` mirror represent official PayDance release channels. The canonical user-facing and search-facing website is `https://paydance.vercel.app/`.
+Unless otherwise announced, only the `MrBaoboer/PayDance` repository, that repository's GitHub Releases, the `paydance.vercel.app` primary website, and the `mrbaoboer.github.io/PayDance` mirror represent official PayDance release channels. The canonical user-facing and search-facing website is `https://paydance.vercel.app/`.
 
 ## Authorization
 
-To use the PayDance name, logo, icon, visual assets, or official release channels beyond factual reference, contact via the email listed on the [author's GitHub profile](https://github.com/MasterBao66) for written permission. Authorization is granted case by case and may include limits on scope, term, territory, and presentation.
+To use the PayDance name, logo, icon, visual assets, or official release channels beyond factual reference, contact via the email listed on the [author's GitHub profile](https://github.com/MrBaoboer) for written permission. Authorization is granted case by case and may include limits on scope, term, territory, and presentation.
 
 ## Rationale
 

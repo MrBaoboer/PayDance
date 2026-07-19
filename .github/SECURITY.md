@@ -21,8 +21,8 @@
 
 请通过以下任一方式私下报告：
 
-- **GitHub 安全通告**（推荐）：访问 [Security Advisories](https://github.com/MasterBao66/PayDance/security/advisories/new) 提交
-- **电子邮件**：查看 [作者 GitHub 首页](https://github.com/MasterBao66) 上公示的邮箱，并在主题中注明 `[SECURITY]`
+- **GitHub 安全通告**（推荐）：访问 [Security Advisories](https://github.com/MrBaoboer/PayDance/security/advisories/new) 提交
+- **电子邮件**：查看 [作者 GitHub 首页](https://github.com/MrBaoboer) 上公示的邮箱，并在主题中注明 `[SECURITY]`
 
 ### 报告中应包含
 

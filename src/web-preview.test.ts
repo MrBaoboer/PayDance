@@ -124,7 +124,7 @@ describe("PayDance Web Preview", () => {
     const chineseHtmlSource = read("index.html");
     const englishHtmlSource = read("en/index.html");
     const sharePosterUrl =
-      "https://raw.githubusercontent.com/MasterBao66/PayDance/main/docs/posters/poster-02-three-step-setup-v3.png";
+      "https://raw.githubusercontent.com/MrBaoboer/PayDance/main/docs/posters/poster-02-three-step-setup-v3.png";
 
     expect(webPreviewSource).toContain("productLogoUrl");
     expect(webPreviewSource).toContain("appVersion");

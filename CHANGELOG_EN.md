@@ -4,7 +4,7 @@
 
 This file records official PayDance releases. README introduces the product to new users; full version history and GitHub Release notes are maintained here.
 
-Build artifacts and verification files are available in [GitHub Releases](https://github.com/MasterBao66/PayDance/releases).
+Build artifacts and verification files are available in [GitHub Releases](https://github.com/MrBaoboer/PayDance/releases).
 
 ## Unreleased
 

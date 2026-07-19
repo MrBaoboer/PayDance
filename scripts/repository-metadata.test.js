@@ -13,7 +13,7 @@ const read = (path) => readFileSync(resolve(repoRoot, path), "utf8");
 const packageJson = JSON.parse(read("package.json"));
 const renovateConfig = JSON.parse(read(".github/renovate.json"));
 const versionedDesktopAssetName = `pay-dance-v${packageJson.version}-windows-x64.exe`;
-const desktopDownloadUrl = `https://github.com/MasterBao66/PayDance/releases/latest/download/${versionedDesktopAssetName}`;
+const desktopDownloadUrl = `https://github.com/MrBaoboer/PayDance/releases/latest/download/${versionedDesktopAssetName}`;
 const legacyAdditionalTermsReference = `see /${["ADDITIONAL_TERMS", "md"].join(".")}`;
 const binaryExtensions = new Set([".ico", ".png", ".woff2"]);
 const existsInWorktree = (path) => existsSync(resolve(repoRoot, path));
@@ -72,7 +72,7 @@ describe("repository metadata", () => {
     const readme = read("README.md");
     const desktopDownloadLinks = readme.match(
       new RegExp(
-        `https://github\\.com/MasterBao66/PayDance/releases/latest/download/${versionedDesktopAssetName}`,
+        `https://github\\.com/MrBaoboer/PayDance/releases/latest/download/${versionedDesktopAssetName}`,
         "g",
       ),
     );
@@ -83,7 +83,7 @@ describe("repository metadata", () => {
     // versionedDesktopChecksumName is removed from README to prevent hardcoded version churn
     expect(read("src/lib/app-meta.ts")).toContain("windowsDownloadAssetName");
     expect(readme).not.toContain("releases/download/v0.7.16/pay-dance.exe");
-    expect(readme).not.toContain("masterbao66.github.io/PayDance/pay-dance.exe");
+    expect(readme).not.toContain("mrbaoboer.github.io/PayDance/pay-dance.exe");
   });
 
   it("keeps the English README on its dedicated first-time setup poster", () => {
@@ -237,7 +237,7 @@ describe("repository metadata", () => {
 
   it("keeps .github contributing governance links on canonical GitHub blob URLs", () => {
     const contributing = read(".github/CONTRIBUTING.md");
-    const githubBlobBase = "https://github.com/MasterBao66/PayDance/blob/main";
+    const githubBlobBase = "https://github.com/MrBaoboer/PayDance/blob/main";
 
     expect(contributing).toContain(
       `[CODE_OF_CONDUCT.md](${githubBlobBase}/CODE_OF_CONDUCT.md)`,
@@ -251,7 +251,7 @@ describe("repository metadata", () => {
     expect(contributing).toContain(
       `[docs/MAINTENANCE.md](${githubBlobBase}/docs/MAINTENANCE.md)`,
     );
-    expect(contributing).not.toContain("github.com/MasterBao66/PayDance/blob/docs/");
+    expect(contributing).not.toContain("github.com/MrBaoboer/PayDance/blob/docs/");
   });
 
   it("keeps issue template version hints aligned with the current release line", () => {
@@ -304,7 +304,7 @@ describe("repository metadata", () => {
   });
 
   it("keeps maintainer contact guidance on the public GitHub profile email", () => {
-    const githubProfile = "https://github.com/MasterBao66";
+    const githubProfile = "https://github.com/MrBaoboer";
     const blockedContactPhrases = [
       ["提交", "历史", "中的", "邮箱"].join(""),
       ["email", "found", "in", "commit", "history"].join(" "),

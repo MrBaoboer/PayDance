@@ -2,8 +2,8 @@
 
 ## 目标
 
-保留中文官网 `https://masterbao66.github.io/PayDance/`，新增独立英文入口
-`https://masterbao66.github.io/PayDance/en/`，让搜索引擎和社交平台无需执行
+保留中文官网 `https://mrbaoboer.github.io/PayDance/`，新增独立英文入口
+`https://mrbaoboer.github.io/PayDance/en/`，让搜索引擎和社交平台无需执行
 JavaScript 就能识别每个页面的语言与内容。
 
 ## 方案

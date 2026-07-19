@@ -27,7 +27,7 @@ README、PRODUCT、DESIGN、CHANGELOG 与治理文档中的原创内容采用 **
 
 ## 商业授权
 
-AGPL-3.0-only 允许在遵守许可证的前提下进行商业使用。如果你需要闭源集成、OEM、白标、官方品牌授权或其他不适合 AGPL-3.0-only 的授权模式，请通过 [作者 GitHub 首页](https://github.com/MasterBao66) 上公示的邮箱联系，获取单独商业许可。
+AGPL-3.0-only 允许在遵守许可证的前提下进行商业使用。如果你需要闭源集成、OEM、白标、官方品牌授权或其他不适合 AGPL-3.0-only 的授权模式，请通过 [作者 GitHub 首页](https://github.com/MrBaoboer) 上公示的邮箱联系，获取单独商业许可。
 
 ## 第三方组件
 

@@ -40,7 +40,7 @@ You may show official screenshots in factual references, but you may not use off
 
 ## Separate authorization
 
-For commercial promotion, courses, media kits, partnerships, OEM, white-label, or other uses beyond factual reference, contact via the email listed on the [author's GitHub profile](https://github.com/MasterBao66) for written authorization.
+For commercial promotion, courses, media kits, partnerships, OEM, white-label, or other uses beyond factual reference, contact via the email listed on the [author's GitHub profile](https://github.com/MrBaoboer) for written authorization.
 
 ---
 

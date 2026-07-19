@@ -27,7 +27,7 @@ Modified versions and derivative products must use clearly distinguishable names
 
 ## Commercial Licensing
 
-AGPL-3.0-only permits commercial use in compliance with the license. For closed-source integration, OEM, white-label, official brand licensing, or other licensing models that do not fit AGPL-3.0-only, contact via the email listed on the [author's GitHub profile](https://github.com/MasterBao66) for a separate commercial license.
+AGPL-3.0-only permits commercial use in compliance with the license. For closed-source integration, OEM, white-label, official brand licensing, or other licensing models that do not fit AGPL-3.0-only, contact via the email listed on the [author's GitHub profile](https://github.com/MrBaoboer) for a separate commercial license.
 
 ## Third-Party Components
 

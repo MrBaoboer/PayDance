@@ -4,7 +4,7 @@
   "version": "0.9.7",
   "author": "Mr.Baoboer",
   "license": "AGPL-3.0-only",
-  "repository": "github:MasterBao66/PayDance",
+  "repository": "github:MrBaoboer/PayDance",
   "type": "module",
   "scripts": {
     "dev": "vite --mode desktop",

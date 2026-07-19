@@ -6,8 +6,8 @@ PayDance 目前由单人维护。
 
 ## 当前维护者
 
-- Mr.Baoboer / MasterBao66
-- GitHub 主页：<https://github.com/MasterBao66>
+- Mr.Baoboer / MrBaoboer
+- GitHub 主页：<https://github.com/MrBaoboer>
 
 ## 响应优先级
 

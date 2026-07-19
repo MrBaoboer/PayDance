@@ -14,7 +14,7 @@
 
 ## 使用问题
 
-如果你只是想确认“这个功能是不是这样用”，可以先在 [GitHub Issues](https://github.com/MasterBao66/PayDance/issues) 搜索关键词。没有相关讨论时，提交一个普通 Issue，写清楚你的使用场景和期望结果即可。
+如果你只是想确认“这个功能是不是这样用”，可以先在 [GitHub Issues](https://github.com/MrBaoboer/PayDance/issues) 搜索关键词。没有相关讨论时，提交一个普通 Issue，写清楚你的使用场景和期望结果即可。
 
 ## Bug 反馈
 
@@ -40,4 +40,4 @@
 
 ## 联系作者
 
-项目由 Mr.Baoboer 独立开发与维护。你可以通过 [作者 GitHub 首页](https://github.com/MasterBao66) 上公示的邮箱联系，或在相关 Issue 中 at 作者。
+项目由 Mr.Baoboer 独立开发与维护。你可以通过 [作者 GitHub 首页](https://github.com/MrBaoboer) 上公示的邮箱联系，或在相关 Issue 中 at 作者。

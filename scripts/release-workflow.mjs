@@ -11,7 +11,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import packageMetadata from "../package.json" with { type: "json" };
 
 const rootDir = resolve(import.meta.dirname, "..");
-const repo = process.env.GITHUB_REPOSITORY || "MasterBao66/PayDance";
+const repo = process.env.GITHUB_REPOSITORY || "MrBaoboer/PayDance";
 const mainBranch = "main";
 const tagPattern = /^v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const npmInvocation = resolveNpmInvocation();

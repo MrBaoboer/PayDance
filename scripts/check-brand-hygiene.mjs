@@ -10,6 +10,8 @@ import { readFileSync } from "node:fs";
 const rootArgIndex = process.argv.indexOf("--root");
 const root = resolve(rootArgIndex >= 0 ? process.argv[rootArgIndex + 1] : ".");
 const blockedTerms = [
+  ["Master", "Bao", "66"].join(""),
+  ["master", "bao", "66"].join(""),
   "salary" + "-ticker",
   "Pay" + "Pulse",
   "Labor-Wage" + "-Live-Calc",
@@ -58,7 +60,7 @@ for (const file of files) {
 }
 
 if (findings.length > 0) {
-  console.error(`Legacy product wording found:\n${findings.join("\n")}`);
+  console.error(`Legacy product or account wording found:\n${findings.join("\n")}`);
   process.exit(1);
 }
 

@@ -16,7 +16,7 @@ import {
 
 const rootDir = resolve(import.meta.dirname, "..");
 const args = new Set(process.argv.slice(2));
-const repo = process.env.GITHUB_REPOSITORY || "MasterBao66/PayDance";
+const repo = process.env.GITHUB_REPOSITORY || "MrBaoboer/PayDance";
 const mainBranch = "main";
 
 const npmInvocation = resolveNpmInvocation();

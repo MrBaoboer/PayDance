@@ -64,11 +64,11 @@
 
 ## 官方版本说明
 
-除非另有公告，只有 `MasterBao66/PayDance` 仓库、该仓库 GitHub Releases、`paydance.vercel.app` 主站以及 `masterbao66.github.io/PayDance` 镜像代表 PayDance 官方发布渠道。面向用户与搜索引擎的规范官网是 `https://paydance.vercel.app/`。
+除非另有公告，只有 `MrBaoboer/PayDance` 仓库、该仓库 GitHub Releases、`paydance.vercel.app` 主站以及 `mrbaoboer.github.io/PayDance` 镜像代表 PayDance 官方发布渠道。面向用户与搜索引擎的规范官网是 `https://paydance.vercel.app/`。
 
 ## 授权
 
-如需在事实性引用范围之外使用 PayDance 名称、Logo、图标、视觉资产或官方发布渠道，请通过 [作者 GitHub 首页](https://github.com/MasterBao66) 上公示的邮箱联系，获取书面授权。授权按个案审批，可附带范围、期限、地区和展示方式限制。
+如需在事实性引用范围之外使用 PayDance 名称、Logo、图标、视觉资产或官方发布渠道，请通过 [作者 GitHub 首页](https://github.com/MrBaoboer) 上公示的邮箱联系，获取书面授权。授权按个案审批，可附带范围、期限、地区和展示方式限制。
 
 ## 设计理由
 

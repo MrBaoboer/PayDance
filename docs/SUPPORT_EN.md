@@ -14,7 +14,7 @@ When something feels off, use the paths below to decide whether you need a docum
 
 ## Usage Questions
 
-If you only want to confirm how a feature should work, search [GitHub Issues](https://github.com/MasterBao66/PayDance/issues) first. If there is no related discussion, open a regular Issue with your use case and expected outcome.
+If you only want to confirm how a feature should work, search [GitHub Issues](https://github.com/MrBaoboer/PayDance/issues) first. If there is no related discussion, open a regular Issue with your use case and expected outcome.
 
 ## Bug Reports
 
@@ -40,4 +40,4 @@ Do not report security vulnerabilities through public Issues. Follow the private
 
 ## Contact
 
-PayDance is independently developed and maintained by Mr.Baoboer. Contact via the email listed on the [author's GitHub profile](https://github.com/MasterBao66), or @-mention the author in a related Issue.
+PayDance is independently developed and maintained by Mr.Baoboer. Contact via the email listed on the [author's GitHub profile](https://github.com/MrBaoboer), or @-mention the author in a related Issue.
