@@ -29,7 +29,7 @@
     "core:window:allow-start-resize-dragging",
     {
       "identifier": "opener:allow-open-url",
-      "allow": [{ "url": "https://github.com/MasterBao66/PayDance" }]
+      "allow": [{ "url": "https://github.com/MrBaoboer/PayDance" }]
     },
     "store:allow-get",
     "store:allow-get-store",

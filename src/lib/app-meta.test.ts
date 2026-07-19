@@ -25,7 +25,7 @@ describe("app metadata", () => {
   });
 
   it("records the project repository", () => {
-    expect(repositoryUrl).toBe("https://github.com/MasterBao66/PayDance");
+    expect(repositoryUrl).toBe("https://github.com/MrBaoboer/PayDance");
   });
 
   it("records the product author attribution", () => {
@@ -41,7 +41,7 @@ describe("app metadata", () => {
   it("exposes the versioned Windows release download", () => {
     expect(windowsDownloadAssetName).toBe(`pay-dance-v${appVersion}-windows-x64.exe`);
     expect(windowsDownloadUrl).toBe(
-      `https://github.com/MasterBao66/PayDance/releases/latest/download/pay-dance-v${appVersion}-windows-x64.exe`,
+      `https://github.com/MrBaoboer/PayDance/releases/latest/download/pay-dance-v${appVersion}-windows-x64.exe`,
     );
   });
 });

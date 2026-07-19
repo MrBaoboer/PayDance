@@ -107,6 +107,16 @@ describe("desktop window chrome", () => {
     );
   });
 
+  it("allows the renamed GitHub repository to open from the desktop app", () => {
+    const openUrlPermission = defaultCapability.permissions.find(
+      (permission) => permission.identifier === "opener:allow-open-url",
+    );
+
+    expect(openUrlPermission.allow).toEqual([
+      { url: "https://github.com/MrBaoboer/PayDance" },
+    ]);
+  });
+
   it("allows the frontend to exit immediately after flushing tray quit state", () => {
     expect(desktopCapability.windows).toEqual(["main"]);
     expect(desktopCapability.permissions).toContain("process:allow-exit");
