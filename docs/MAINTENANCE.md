@@ -48,9 +48,18 @@ Release workflow 还会运行 `scripts/smoke-windows-exe.ps1`，自动确认便�
 - 程序功能、Bug 修复、依赖升级、发布流程和安全相关修改优先走 PR，并等待 CI 与 CodeQL 通过。
 - 纯文档变更仍保留 `CI gate` 与 `CodeQL gate`，但 CodeQL 会跳过耗时的 JavaScript 和 Rust 分析。
 
-## Renovate
+## 依赖更新
 
-- 配置位于 `.github/renovate.json`，可运行 `npx --yes --package renovate renovate-config-validator .github/renovate.json` 验证。
-- 当前采用立即检查、无限并发 PR、全部人工评估的模式；禁止 Renovate 自动合并。
-- Hosted App 正常运行的公开证据是 Renovate PR 或 `Dependency Dashboard` Issue；仅存在配置文件不等于机器人已经安装。
-- 配置合入 `main` 后应立即确认 Dashboard 和首轮 PR；没有活动时，在 GitHub App 设置中重新确认仓库授权。
+- **生效中的是 Dependabot**，配置位于 `.github/dependabot.yml`，覆盖 npm、cargo、github-actions 三个 ecosystem，每周一 09:00（Asia/Shanghai）检查，分组与人工评估策略照搬 renovate.json，不开自动合并。
+- `.github/renovate.json` 保留但**从未被执行过**：2026-08-08 查证，仓库内 `app/renovate` 活动数为 0，历史 PR 无一来自它，issue #25「依赖更新面板」是手写的占位 issue 而非 renovate[bot] 产出。上一条约定「仅存在配置文件不等于机器人已经安装」当时写对了，但一直没人去验证。
+- 若日后真的安装了 Renovate Hosted App，需同时删除 `.github/dependabot.yml`，否则两边会重复提 PR。
+- 被上游卡住、故意不升的依赖写在三处并保持同步：`dependabot.yml` 的 `ignore`、`renovate.json` 的 `allowedVersions`、以及 `scripts/repository-metadata.test.js` 里 “keeps the upgrades that are blocked upstream pinned with a reason”。当前有两条：`typescript` 锁在 6.x（TS 7 是原生移植版，vue-tsc 解析不到 `tsc.js`，typescript-eslint 拒绝加载），`@types/node` 锁在 24.x（跟随运行时主版本）。
+- **2026-10 待办**：Node 26 转为 LTS 后，把 CI 各处 `node-version` 推到 26，同步放开 `@types/node` 的 major 封锁并删掉对应测试断言。
+- `package.json` 的 `overrides` 是**临时措施**，上游补齐后必须撤掉，否则会长期把某个 major 硬塞进声明了低版本区间的依赖里。2026-08-08 已移除 `brace-expansion` 的 override：它当初是为清 ReDoS 公告加的，如今 `minimatch@10` 自己就依赖 `brace-expansion ^5.0.8`，而 `minimatch@9`（经 js-beautify → editorconfig 引入）声明的 `^2.0.2` 也已能解析到打过补丁的 `2.1.4`。撤掉前后 `npm audit` 都是 0 公告，撤掉后 `minimatch@9` 拿回的是上游本来打算给它的版本，而不是被强推的 v5。
+- `glob@10.5.0` 在依赖树里带 deprecated 标记，**属于已知且可接受**：链路是 `@vue/test-utils → js-beautify → glob`，而 `glob` 只在 `js-beautify/js/lib/cli.js` 里被 `require`，测试工具走的是库入口 `js/index.js`，这条路径在本仓库从不加载。它没有任何公告，强行用 override 顶到 glob 13 反而是把一个未跑过的 CLI 路径推上未验证的 major。等 js-beautify 自己升级即可。
+- 声明区间只是文档，真正决定安装结果的是提交进仓库的 `package-lock.json`。2026-08-08 把 `package.json` 里 20 处已经落后于锁定版本的 `^` 下限对齐到实际验证过的版本，其中只有 `@tauri-apps/api`（`^2.0.0` → `^2.11.1`）和 `@tauri-apps/plugin-store`（`^2.0.0` → `^2.4.4`）有实际意义——它们和 Rust 侧的 crate 是配套的，下限停在 2.0.0 会让人误以为一年前的 IPC 接口也在支持范围内。
+
+## 本地工具链对齐
+
+- CI 的 Rust 用 `stable`，本地落后会导致 `cargo clippy -D warnings` 的结论与 CI 不一致。定期 `rustup update stable`（含 `rustup check` 先看差距）。
+- `npm run verify:release` 调用的是**本地**的 cargo-audit / cargo-deny，而 CI 装的是固定版本。两边版本不一致时本地结论不作数，用 `cargo install cargo-audit cargo-deny --locked` 追平。
