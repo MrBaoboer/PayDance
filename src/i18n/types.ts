@@ -11,10 +11,6 @@
 // ---------------------------------------------------------------------------
 
 export interface Messages {
-  // ── App meta ────────────────────────────────────────────────────────────
-  "app.name": string;
-  "app.tagline": string;
-
   // ── Dashboard ───────────────────────────────────────────────────────────
   "dashboard.todayEarnings": string;
   "dashboard.tapToMini": string;
@@ -57,17 +53,18 @@ export interface Messages {
   "settings.salary": string;
   "settings.workdays": string;
   "settings.workTime": string;
-  "settings.lunchBreak": string;
   "settings.amountAnimation": string;
   "settings.amountAnimationDesc": string;
   "settings.currency": string;
   "settings.startup": string;
   "settings.autostart": string;
-  "settings.autostartError": string;
   "settings.language": string;
   "settings.onboarding": string;
   "settings.openOnboarding": string;
   "settings.saveFailed": string;
+  "settings.unsavedHint": string;
+  "settings.loadFailed": string;
+  "settings.loadRecovered": string;
 
   // ── Settings → salary mode ─────────────────────────────────────────────
   "salaryMode.label": string;
@@ -137,8 +134,6 @@ export interface Messages {
   "preferences.light": string;
   "preferences.dark": string;
   "preferences.autostart": string;
-  "preferences.alwaysOnTop": string;
-  "preferences.startInMini": string;
 
   // ── Title bar ──────────────────────────────────────────────────────────
   "titlebar.openSettings": string;
@@ -171,6 +166,7 @@ export interface Messages {
   "validation.dailyPositive": string;
   "validation.hourlyPositive": string;
   "validation.workDaysPositive": string;
+  "validation.workDaysRange": string;
   "validation.workdaysMinOne": string;
   "validation.workdaysError": string;
   "validation.startTimeError": string;
@@ -178,6 +174,7 @@ export interface Messages {
   "validation.timeSameError": string;
   "validation.lunchStartError": string;
   "validation.lunchEndError": string;
+  "validation.lunchSameError": string;
   "validation.nightLunchOutside": string;
   "validation.lunchOutside": string;
 
@@ -190,7 +187,6 @@ export interface Messages {
   "updater.failed": string;
   "updater.clickToDownload": string;
   "updater.retry": string;
-  "updater.installPrompt": string;
 
   // ── Web Preview ────────────────────────────────────────────────────────
   "web.heroHeadline1": string;

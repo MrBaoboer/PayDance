@@ -68,4 +68,15 @@ describe("SalaryAmountFields", () => {
       monthlySalary: 9000,
     });
   });
+
+  it("stores a cleared salary as NaN so validation can flag it", async () => {
+    const wrapper = mountSalaryAmountFields();
+
+    await wrapper.get('input[type="number"]').setValue("");
+
+    const emitted = wrapper.emitted("update:config")?.[0]?.[0] as {
+      monthlySalary: number;
+    };
+    expect(Number.isNaN(emitted.monthlySalary)).toBe(true);
+  });
 });

@@ -28,11 +28,11 @@ describe("useSalarySettings", () => {
     storeMocks.save.mockReset();
   });
 
-  it("falls back to defaults and marks settings ready when the store cannot be read", async () => {
+  it("falls back to in-memory defaults without touching a store it cannot read", async () => {
     storeMocks.get.mockRejectedValue(new Error("corrupt settings"));
 
     const settings = await import("./useSalarySettings").then((module) =>
-      module.useSalarySettings(createMockStore),
+      module.useSalarySettings(createMockStore, undefined, { retryDelayMs: 0 }),
     );
     const {
       config,
@@ -41,6 +41,7 @@ describe("useSalarySettings", () => {
       hasCompletedOnboarding,
       isSettingsReady,
       loadSettings,
+      settingsSaveError,
       themeMode,
     } = settings;
 
@@ -50,18 +51,73 @@ describe("useSalarySettings", () => {
     expect(alwaysOnTop.value).toBe(true);
     expect(themeMode.value).toBe("light");
     expect(amountMode.value).toBe("rolling");
-    expect(hasCompletedOnboarding.value).toBe(false);
+    // Onboarding is skipped: its first save must not overwrite a file that may only be locked.
+    expect(hasCompletedOnboarding.value).toBe(true);
     expect(isSettingsReady.value).toBe(true);
-    expect(settings).not.toHaveProperty("settingsRecoveryNotice");
-    expect(storeMocks.set).toHaveBeenCalledWith("config", defaultSalaryConfig);
-    expect(storeMocks.set).toHaveBeenCalledWith("settingsVersion", 4);
-    expect(storeMocks.save).toHaveBeenCalled();
+    expect(settingsSaveError.value).toBe("settings.loadFailed");
+    // Read once, then once more after the retry delay.
+    expect(storeMocks.get.mock.calls.filter(([key]) => key === "config")).toHaveLength(2);
+    expect(storeMocks.set).not.toHaveBeenCalled();
+    expect(storeMocks.save).not.toHaveBeenCalled();
     expect(windowPreferences).toEqual({
       fullSize: fullWindowSize,
       isMiniMode: false,
       miniOpacityPercent: defaultMiniOpacityPercent,
       miniSize: miniDefaultSize,
     });
+  });
+
+  it("recovers from a transient read failure on the retry", async () => {
+    storeMocks.get
+      .mockRejectedValueOnce(new Error("file locked"))
+      .mockResolvedValue(undefined);
+
+    const { hasCompletedOnboarding, loadSettings, settingsSaveError } =
+      await import("./useSalarySettings").then((module) =>
+        module.useSalarySettings(createMockStore, undefined, { retryDelayMs: 0 }),
+      );
+
+    await loadSettings();
+
+    expect(settingsSaveError.value).toBe("");
+    expect(hasCompletedOnboarding.value).toBe(false);
+  });
+
+  it("backs up an unreadable store before rebuilding it with defaults", async () => {
+    storeMocks.get.mockRejectedValue(new Error("corrupt settings"));
+    const backupUnreadable = vi.fn(async () => "C:/data/salary-settings.json.bak-1");
+    const createBackupStore = () => Promise.resolve({ ...storeMocks, backupUnreadable });
+
+    const { hasCompletedOnboarding, loadSettings, settingsSaveError } =
+      await import("./useSalarySettings").then((module) =>
+        module.useSalarySettings(createBackupStore, undefined, { retryDelayMs: 0 }),
+      );
+
+    await loadSettings();
+
+    expect(backupUnreadable).toHaveBeenCalledOnce();
+    expect(storeMocks.set).toHaveBeenCalledWith("config", defaultSalaryConfig);
+    expect(storeMocks.set).toHaveBeenCalledWith("settingsVersion", 4);
+    expect(storeMocks.save).toHaveBeenCalled();
+    expect(settingsSaveError.value).toBe("settings.loadRecovered");
+    expect(hasCompletedOnboarding.value).toBe(false);
+  });
+
+  it("does not cache a store loader that failed", async () => {
+    storeMocks.get.mockResolvedValue(undefined);
+    const storeLoader = vi
+      .fn<() => Promise<typeof storeMocks>>()
+      .mockRejectedValueOnce(new Error("plugin not ready"))
+      .mockImplementation(createMockStore);
+
+    const { loadSettings, settingsSaveError } = await import("./useSalarySettings").then(
+      (module) => module.useSalarySettings(storeLoader, undefined, { retryDelayMs: 0 }),
+    );
+
+    await loadSettings();
+
+    expect(storeLoader).toHaveBeenCalledTimes(2);
+    expect(settingsSaveError.value).toBe("");
   });
 
   it("silently writes repaired persisted values back to the store", async () => {

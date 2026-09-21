@@ -14,6 +14,8 @@ import type { Messages } from "../../i18n/types";
 
 const salaryTypes: SalaryType[] = ["monthly", "daily", "hourly"];
 
+export const maxWorkDaysPerMonth = 31;
+
 const hasPositiveNumber = (value: number) => Number.isFinite(value) && value > 0;
 
 const isValidWorkday = (day: number) => Number.isInteger(day) && day >= 0 && day <= 6;
@@ -60,6 +62,11 @@ export function validateSalaryConfig(
       field: "workDaysPerMonth",
       message: t("validation.workDaysPositive"),
     });
+  } else if (salaryType === "monthly" && config.workDaysPerMonth > maxWorkDaysPerMonth) {
+    issues.push({
+      field: "workDaysPerMonth",
+      message: t("validation.workDaysRange"),
+    });
   }
 
   if (!Array.isArray(config.workdays) || config.workdays.length <= 0) {
@@ -93,6 +100,15 @@ export function validateSalaryConfig(
 
   if (!Number.isFinite(lunchEnd)) {
     issues.push({ field: "lunchEnd", message: t("validation.lunchEndError") });
+  }
+
+  if (
+    Number.isFinite(lunchStart) &&
+    Number.isFinite(lunchEnd) &&
+    lunchStart === lunchEnd
+  ) {
+    issues.push({ field: "workTime", message: t("validation.lunchSameError") });
+    return issues;
   }
 
   if (

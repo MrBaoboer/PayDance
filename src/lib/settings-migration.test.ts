@@ -209,4 +209,14 @@ describe("settings migration", () => {
       recoveryReason: "invalid-values",
     });
   });
+
+  it("resets work days per month above 31 to the default", () => {
+    const result = recoverVersionedSalaryConfig({
+      config: { ...defaultSalaryConfig, workDaysPerMonth: 40 },
+      schemaVersion: settingsSchemaVersion,
+    });
+
+    expect(result.recoveryReason).toBe("invalid-values");
+    expect(result.config.workDaysPerMonth).toBe(defaultSalaryConfig.workDaysPerMonth);
+  });
 });

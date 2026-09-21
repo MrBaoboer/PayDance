@@ -46,6 +46,3 @@ export const toggleWorkdayValue = (workdays: SalaryConfig["workdays"], day: numb
   ).sort((a, b) => a - b);
 
 export const readInputText = (event: Event) => (event.target as HTMLInputElement).value;
-
-export const readInputChecked = (event: Event) =>
-  (event.target as HTMLInputElement).checked;

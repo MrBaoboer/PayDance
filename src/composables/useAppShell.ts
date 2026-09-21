@@ -75,7 +75,7 @@ export function useAppShell({
     const isChangingMode = value !== isMiniMode.value;
     let destinationPosition: WindowPosition | undefined;
 
-    if (value && !isMiniMode.value) {
+    if (value && !isMiniMode.value && window.innerWidth > 0 && window.innerHeight > 0) {
       fullSize.value = getCurrentWindowSize();
     }
 

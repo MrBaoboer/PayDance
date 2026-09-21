@@ -8,6 +8,13 @@ Build artifacts and verification files are available in [GitHub Releases](https:
 
 ## Unreleased
 
+- **Status dot colours per state**: the titlebar dot no longer borrows the income orange: working is green, night shift purple, lunch break teal, before work blue, off work slate grey, day off grey, and needs-setup red. The web preview used to show a grey dot in every state; it now matches the desktop app.
+- **Invalid settings now say "not saved"**: entering an invalid value such as a monthly salary of 0 shows that the change stays unsaved until fixed; previously the dashboard only said "Needs Setup" and a restart silently rolled the value back.
+- **A cleared number field no longer keeps the old value**: emptying the salary or work-days field left the box blank while the old number kept driving the dashboard; it is now treated as invalid and highlighted.
+- **Work days per month capped at 31** and **identical lunch start/end gets its own message**: 999 days used to pass validation, and a 12:00–12:00 lunch only reported "must fall within work hours".
+- **An unreadable settings file is no longer overwritten outright**: the read is retried once; if it still fails the original file is renamed to a `.bak` backup before defaults are restored, and when no backup is possible the file is left alone, defaults are used in memory, and Settings explains why. Previously one failed read replaced the file with defaults and re-opened onboarding.
+- **Switches no longer show the wrong state**: when the launch-at-startup write failed or a double click was dropped, the checkbox used to stay on the opposite of the real state.
+- **Language fallback after a failed read** now follows the system language instead of forcing Chinese.
 - **EXE file properties**: the portable EXE now carries publisher, description, copyright, and license fields, visible in the Windows file properties panel.
 
 ## Released

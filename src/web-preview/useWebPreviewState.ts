@@ -137,7 +137,6 @@ export function useWebPreviewState() {
     middleStat,
     salaryModeLabel,
     statusText,
-    isWorkingStatus,
     workedTimeText,
   } = useDashboardModel(config, snapshot, t.value, locale);
 
@@ -271,7 +270,6 @@ export function useWebPreviewState() {
     isAutostartUpdating,
     isSettingsReady,
     isThemeSwitching,
-    isWorkingStatus,
     middleStat,
     miniLayerStyle,
     miniOpacityPercent,

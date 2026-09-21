@@ -8,7 +8,7 @@
 import { mount } from "@vue/test-utils";
 import { defineComponent, h, ref } from "vue";
 import { describe, expect, it } from "vitest";
-import { provideI18n, useI18n, type Locale } from "./useI18n";
+import { createT, provideI18n, useI18n, type Locale } from "./useI18n";
 
 describe("provideI18n", () => {
   it("keeps the provided locale ref as the single source of truth", () => {
@@ -42,5 +42,14 @@ describe("provideI18n", () => {
     expect(childLocale).toBe(rootLocale);
     expect(rootLocale.value).toBe("en");
     expect(changes).toEqual(["en"]);
+  });
+});
+
+describe("createT", () => {
+  it("keeps dollar sequences in parameters literal", () => {
+    const t = createT("en");
+
+    expect(t("dashboard.tapToMini", { amount: "$$88.68" })).toContain("$$88.68");
+    expect(t("dashboard.tapToMini", { amount: "$&" })).toContain("$&");
   });
 });

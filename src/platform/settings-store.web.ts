@@ -6,6 +6,7 @@
 import type { ThemeMode } from "../lib/window-mode";
 
 export type SettingsStoreAdapter = {
+  backupUnreadable?: () => Promise<string | undefined>;
   delete?: (key: string) => Promise<void>;
   get: <Value>(key: string) => Promise<Value | undefined>;
   save: () => Promise<void>;

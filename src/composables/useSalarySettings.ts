@@ -50,6 +50,7 @@ const fallbackT: TFunc = (key) => key;
 export function useSalarySettings(
   storeLoader = () => createSettingsStore(settingsStoreFileName),
   getT: () => TFunc = () => fallbackT,
+  options: { retryDelayMs?: number } = {},
 ) {
   const config = ref<SalaryConfig>({ ...defaultSalaryConfig });
   const currencySymbol = ref(defaultCurrencySymbol);
@@ -60,10 +61,16 @@ export function useSalarySettings(
   const hasCompletedOnboarding = ref(false);
   const isSettingsReady = ref(false);
   const settingsSaveError = ref("");
+  const retryDelayMs = options.retryDelayMs ?? 250;
   let storePromise: Promise<SettingsStoreAdapter> | null = null;
 
   const getStore = () => {
-    storePromise ??= storeLoader();
+    // A rejected loader is not kept: caching it would make every later save inherit a failure
+    // that was only a transient lock or I/O error.
+    storePromise ??= storeLoader().catch((error) => {
+      storePromise = null;
+      throw error;
+    });
     return storePromise;
   };
 
@@ -76,7 +83,7 @@ export function useSalarySettings(
     alwaysOnTop.value = true;
     themeMode.value = "light";
     amountMode.value = "rolling";
-    locale.value = "zh-CN";
+    locale.value = detectLocale(undefined);
     hasCompletedOnboarding.value = false;
   };
 
@@ -149,109 +156,140 @@ export function useSalarySettings(
       );
       await store.set(settingsStoreKeys.settingsVersion, settingsSchemaVersion);
       await store.save();
+      return true;
     } catch (error) {
       console.error("Failed to replace unreadable settings with defaults", error);
-      settingsSaveError.value = "settings.saveFailed";
+      return false;
     }
+  };
+
+  // The unreadable file is moved to a .bak first, so rebuilding the store with defaults never
+  // destroys what the user had. Without a backup the file is left untouched.
+  const recoverUnreadableStore = async () => {
+    try {
+      const store = await getStore();
+      const backupPath = await store.backupUnreadable?.();
+      if (!backupPath) return false;
+
+      return await persistDefaultSettings();
+    } catch (error) {
+      console.error("Failed to back up unreadable settings", error);
+      return false;
+    }
+  };
+
+  const readSettings = async () => {
+    const store = await getStore();
+    const savedConfig = await store.get<Partial<SalaryConfig>>(settingsStoreKeys.config);
+    const savedCurrencySymbol = await store.get<string>(settingsStoreKeys.currencySymbol);
+    const savedTop = await store.get<boolean>(settingsStoreKeys.alwaysOnTop);
+    const savedTheme = await store.get<ThemeMode>(settingsStoreKeys.themeMode);
+    const savedAmountMode = await store.get<AmountMode>(settingsStoreKeys.amountMode);
+    const savedIsMiniMode = await store.get<boolean>(settingsStoreKeys.isMiniMode);
+    const savedFullSize = await store.get<WindowSize>(settingsStoreKeys.fullSize);
+    const savedMiniSize = await store.get<WindowSize>(settingsStoreKeys.miniSize);
+    const savedMiniOpacityPercent = await store.get<number>(
+      settingsStoreKeys.miniOpacityPercent,
+    );
+    const savedMainPosition = await store.get<WindowPosition>(
+      settingsStoreKeys.mainPosition,
+    );
+    const savedMiniPosition = await store.get<WindowPosition>(
+      settingsStoreKeys.miniPosition,
+    );
+    const savedSettingsVersion = await store.get<number>(
+      settingsStoreKeys.settingsVersion,
+    );
+    const savedHasCompletedOnboarding = await store.get<boolean>(
+      settingsStoreKeys.hasCompletedOnboarding,
+    );
+
+    const recoveredConfig = recoverVersionedSalaryConfig({
+      config: savedConfig,
+      schemaVersion: savedSettingsVersion,
+    });
+    config.value = recoveredConfig.config;
+    hasCompletedOnboarding.value = resolveOnboardingState(
+      savedConfig,
+      savedHasCompletedOnboarding,
+    );
+    if (recoveredConfig.recoveryReason) {
+      await persistRecoveredConfig(store, recoveredConfig.config);
+    }
+
+    // A missing key normalizes back to the default symbol, so upgrading from a build without
+    // this setting keeps showing ¥ instead of silently dropping it.
+    currencySymbol.value = normalizeCurrencySymbol(savedCurrencySymbol);
+
+    if (typeof savedTop === "boolean") {
+      alwaysOnTop.value = savedTop;
+    }
+
+    if (savedTheme === "dark" || savedTheme === "light") {
+      themeMode.value = savedTheme;
+    }
+
+    if (savedAmountMode === "plain" || savedAmountMode === "rolling") {
+      amountMode.value = savedAmountMode;
+    }
+
+    const savedLocale = await store.get<string>(settingsStoreKeys.locale);
+    locale.value = detectLocale(savedLocale);
+
+    try {
+      const purged = [
+        await purgeUnusableWindowPosition(
+          store,
+          settingsStoreKeys.mainPosition,
+          savedMainPosition,
+        ),
+        await purgeUnusableWindowPosition(
+          store,
+          settingsStoreKeys.miniPosition,
+          savedMiniPosition,
+        ),
+      ].some(Boolean);
+
+      if (purged) await store.save();
+    } catch (error) {
+      // A failed cleanup must not cost the user their settings; the value is inert anyway.
+      console.error("Failed to clear an unusable stored window position", error);
+    }
+
+    return resolveWindowPreferences({
+      savedIsMiniMode,
+      savedFullSize,
+      savedMiniSize,
+      savedMiniOpacityPercent,
+      savedMainPosition,
+      savedMiniPosition,
+      savedSettingsVersion,
+    });
   };
 
   const loadSettings = async () => {
     try {
-      const store = await getStore();
-      const savedConfig = await store.get<Partial<SalaryConfig>>(
-        settingsStoreKeys.config,
-      );
-      const savedCurrencySymbol = await store.get<string>(
-        settingsStoreKeys.currencySymbol,
-      );
-      const savedTop = await store.get<boolean>(settingsStoreKeys.alwaysOnTop);
-      const savedTheme = await store.get<ThemeMode>(settingsStoreKeys.themeMode);
-      const savedAmountMode = await store.get<AmountMode>(settingsStoreKeys.amountMode);
-      const savedIsMiniMode = await store.get<boolean>(settingsStoreKeys.isMiniMode);
-      const savedFullSize = await store.get<WindowSize>(settingsStoreKeys.fullSize);
-      const savedMiniSize = await store.get<WindowSize>(settingsStoreKeys.miniSize);
-      const savedMiniOpacityPercent = await store.get<number>(
-        settingsStoreKeys.miniOpacityPercent,
-      );
-      const savedMainPosition = await store.get<WindowPosition>(
-        settingsStoreKeys.mainPosition,
-      );
-      const savedMiniPosition = await store.get<WindowPosition>(
-        settingsStoreKeys.miniPosition,
-      );
-      const savedSettingsVersion = await store.get<number>(
-        settingsStoreKeys.settingsVersion,
-      );
-      const savedHasCompletedOnboarding = await store.get<boolean>(
-        settingsStoreKeys.hasCompletedOnboarding,
-      );
-
-      const recoveredConfig = recoverVersionedSalaryConfig({
-        config: savedConfig,
-        schemaVersion: savedSettingsVersion,
-      });
-      config.value = recoveredConfig.config;
-      hasCompletedOnboarding.value = resolveOnboardingState(
-        savedConfig,
-        savedHasCompletedOnboarding,
-      );
-      if (recoveredConfig.recoveryReason) {
-        await persistRecoveredConfig(store, recoveredConfig.config);
-      }
-
-      // A missing key normalizes back to the default symbol, so upgrading from a build without
-      // this setting keeps showing ¥ instead of silently dropping it.
-      currencySymbol.value = normalizeCurrencySymbol(savedCurrencySymbol);
-
-      if (typeof savedTop === "boolean") {
-        alwaysOnTop.value = savedTop;
-      }
-
-      if (savedTheme === "dark" || savedTheme === "light") {
-        themeMode.value = savedTheme;
-      }
-
-      if (savedAmountMode === "plain" || savedAmountMode === "rolling") {
-        amountMode.value = savedAmountMode;
-      }
-
-      const savedLocale = await store.get<string>(settingsStoreKeys.locale);
-      locale.value = detectLocale(savedLocale);
+      return await readSettings();
+    } catch (firstError) {
+      // Antivirus scans and sync clients lock the file for a moment; one retry absorbs that
+      // instead of treating a transient lock as a corrupt store.
+      console.error("Failed to load settings, retrying once", firstError);
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
 
       try {
-        const purged = [
-          await purgeUnusableWindowPosition(
-            store,
-            settingsStoreKeys.mainPosition,
-            savedMainPosition,
-          ),
-          await purgeUnusableWindowPosition(
-            store,
-            settingsStoreKeys.miniPosition,
-            savedMiniPosition,
-          ),
-        ].some(Boolean);
-
-        if (purged) await store.save();
+        return await readSettings();
       } catch (error) {
-        // A failed cleanup must not cost the user their settings; the value is inert anyway.
-        console.error("Failed to clear an unusable stored window position", error);
+        console.error("Failed to load settings, falling back to defaults", error);
+        resetToDefaults();
+        const recovered = await recoverUnreadableStore();
+        // Not recovered means the original file is still on disk: skip onboarding so its
+        // first save cannot overwrite settings that may only be temporarily unreadable.
+        hasCompletedOnboarding.value = !recovered;
+        settingsSaveError.value = recovered
+          ? "settings.loadRecovered"
+          : "settings.loadFailed";
+        return resolveWindowPreferences({});
       }
-
-      return resolveWindowPreferences({
-        savedIsMiniMode,
-        savedFullSize,
-        savedMiniSize,
-        savedMiniOpacityPercent,
-        savedMainPosition,
-        savedMiniPosition,
-        savedSettingsVersion,
-      });
-    } catch (error) {
-      console.error("Failed to load settings, falling back to defaults", error);
-      resetToDefaults();
-      await persistDefaultSettings();
-      return resolveWindowPreferences({});
     } finally {
       isSettingsReady.value = true;
     }

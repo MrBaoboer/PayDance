@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
-import { computed, useId } from "vue";
+import { computed, nextTick, ref, useId, watch } from "vue";
 
 const props = defineProps<{
   disabled?: boolean;
@@ -18,20 +18,41 @@ const emit = defineEmits<{
 }>();
 
 const inputId = `switch-${useId()}`;
+const input = ref<HTMLInputElement | null>(null);
 const classes = computed(() => ({
   "switch-row--panel": props.panel,
   "switch-row--title-action": props.titleAction,
 }));
+
+// The box is controlled by modelValue. A click flips the DOM on its own, and when the parent
+// keeps the old value (a failed or dropped update) Vue has nothing to re-patch, so the box
+// would stay out of sync until an unrelated render.
+const syncChecked = () => {
+  if (input.value && input.value.checked !== props.modelValue) {
+    input.value.checked = props.modelValue;
+  }
+};
+
+watch(
+  () => props.modelValue,
+  () => void nextTick(syncChecked),
+);
+
+const onChange = (event: Event) => {
+  emit("update:modelValue", (event.target as HTMLInputElement).checked);
+  void nextTick(syncChecked);
+};
 </script>
 
 <template>
   <label class="switch-row" :class="classes" :for="inputId">
     <input
       :id="inputId"
+      ref="input"
       :checked="modelValue"
       :disabled="disabled"
       type="checkbox"
-      @change="emit('update:modelValue', ($event.target as HTMLInputElement).checked)"
+      @change="onChange"
     />
     <span>{{ label }}</span>
   </label>

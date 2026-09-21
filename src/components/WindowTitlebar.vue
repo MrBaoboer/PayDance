@@ -3,25 +3,43 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
+import { computed } from "vue";
 import { Minus, Moon, Pin, Settings2, Shrink, Sun, X } from "@lucide/vue";
 import { useI18n } from "../composables/useI18n";
+import type { SalaryStatus } from "../lib/salary";
 
 const { t } = useI18n();
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     alwaysOnTop: boolean;
     hasConfigIssues: boolean;
-    isWorkingStatus?: boolean;
+    isNightWork?: boolean;
     showDesktopActions?: boolean;
+    status?: SalaryStatus;
     statusText: string;
     themeMode: "light" | "dark";
   }>(),
   {
-    isWorkingStatus: false,
+    isNightWork: false,
     showDesktopActions: true,
+    status: "rest-day",
   },
 );
+
+// One colour per status so the dot alone tells the state; orange stays reserved for income.
+const statusDotClass = computed(() => {
+  if (props.hasConfigIssues || props.status === "invalid-config") {
+    return "status-dot--invalid";
+  }
+  if (props.status === "working") {
+    return props.isNightWork ? "status-dot--night" : "status-dot--working";
+  }
+  if (props.status === "lunch-break") return "status-dot--break";
+  if (props.status === "before-work") return "status-dot--waiting";
+  if (props.status === "after-work") return "status-dot--done";
+  return "status-dot--idle";
+});
 
 defineEmits<{
   close: [];
@@ -38,16 +56,7 @@ defineEmits<{
   <!-- eslint-disable vuejs-accessibility/no-static-element-interactions -->
   <header class="titlebar" @mousedown.left="$emit('dragStart', $event)">
     <div class="status-chip">
-      <span
-        class="status-dot"
-        :class="
-          hasConfigIssues
-            ? 'status-dot--warning'
-            : isWorkingStatus
-              ? 'status-dot--working'
-              : 'status-dot--idle'
-        "
-      />
+      <span class="status-dot" :class="statusDotClass" />
       <span>{{ statusText }}</span>
     </div>
 
@@ -155,10 +164,30 @@ defineEmits<{
   white-space: nowrap;
 }
 
-.status-dot--warning,
 .status-dot--working {
-  background: var(--income-accent);
-  box-shadow: 0 0 0 3px var(--income-accent-ring);
+  background: var(--status-working);
+  box-shadow: 0 0 0 3px var(--status-working-ring);
+}
+
+.status-dot--night {
+  background: var(--status-night);
+  box-shadow: 0 0 0 3px var(--status-night-ring);
+}
+
+.status-dot--break {
+  background: var(--status-break);
+}
+
+.status-dot--waiting {
+  background: var(--status-waiting);
+}
+
+.status-dot--done {
+  background: var(--status-done);
+}
+
+.status-dot--invalid {
+  background: var(--danger);
 }
 
 .status-dot--idle {
