@@ -8,6 +8,8 @@ Before opening an Issue, check:
 - Release changes: [Changelog](../CHANGELOG_EN.md)
 - Feature scope: [Product Boundaries](PRODUCT_EN.md)
 - Known issues: [GitHub Issues](https://github.com/MrBaoboer/PayDance/issues)
+- Ideas, usage questions, and "is this a bug?": [GitHub Discussions](https://github.com/MrBaoboer/PayDance/discussions)
+- macOS build: open for contribution, see [#65](https://github.com/MrBaoboer/PayDance/issues/65)
 
 ## Open an Issue
 

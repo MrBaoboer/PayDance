@@ -46,7 +46,7 @@ PowerShell 出现中文乱码时，运行 `npm run setup:encoding`；它会向 P
 
 普通贡献只需要 DCO 签署行，不需要提前签 CLA。
 
-每个非合并提交都必须包含与提交作者邮箱一致的 `Signed-off-by:` 行，可用 `git commit -s` 自动添加；CI 会逐个提交检查。
+每个非合并提交都必须包含与提交作者邮箱一致的 `Signed-off-by:` 行，可用 `git commit -s` 自动添加；CI 会逐个提交检查。在 GitHub 网页编辑器里提交时，把 `Signed-off-by: 你的名字 <邮箱>` 手动写进提交说明的扩展描述即可。
 
 代码贡献按 [AGPL-3.0-only](https://github.com/MrBaoboer/PayDance/blob/main/LICENSE) 和 [AGPL 第 7 条附加条款](https://github.com/MrBaoboer/PayDance/blob/main/legal/ADDITIONAL_TERMS.md)并入项目；原创文档按 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) 并入，另有说明的除外。提交贡献即表示你有权提交相关内容，并同意适用的项目许可。
 

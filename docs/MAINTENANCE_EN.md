@@ -30,7 +30,7 @@ CI trims jobs by changed files (`scripts/ci-change-scope.mjs`), and both gates c
 - Documentation-only changes run the metadata job alone; frontend, Rust, Web Preview QA, security audit, and CodeQL are all skipped.
 - Security audits are scoped per ecosystem: npm audit runs only when `package.json` / `package-lock.json` change, cargo audit and cargo deny only when `src-tauri/Cargo.*`, `deny.toml`, or `.cargo/audit.toml` change, and gitleaks always runs. An npm-only Dependabot pull request is no longer blocked by a Rust advisory, and vice versa.
 - Every day at 06:00 Asia/Shanghai, CI reruns every audit against main; a failure opens or updates the issue "Scheduled dependency audit failed", which closes itself once the audit passes again.
-- Changes under `scripts/` trigger CodeQL, but Vitest belongs to the frontend job and runs only when frontend files change. Run `npm test` locally after editing a script.
+- The metadata job runs the whole Vitest suite on every run, so Rust, script, or workflow changes can no longer skip the tests that cover them; the frontend job runs it again when frontend files change.
 
 ## Dependency Updates
 
@@ -60,18 +60,27 @@ CI trims jobs by changed files (`scripts/ci-change-scope.mjs`), and both gates c
 2. In `CHANGELOG.md` and `CHANGELOG_EN.md`, move `## Unreleased` into `### vX.Y.Z`. `scripts/extract-release-notes.mjs` builds the GitHub Release body from that section of the Chinese changelog.
 3. Run `npm run verify:release` (includes npm audit and Rust fmt, clippy, test, audit, and deny), then complete [Web Preview QA](web-preview-qa_EN.md) and the pre-release sections of the [desktop smoke checklist](desktop-smoke-checklist_EN.md).
 4. `npm run push:main`, then wait for CI and CodeQL.
-5. `npm run release:publish`: it checks the branch, worktree, sync with origin, version and changelog section, that the tag does not exist yet, and the CI results; then creates and pushes the annotated tag `v<version>`, waits for the Release and Post-Release Smoke workflows, and verifies that every Release asset is present. `--dry-run` runs the local checks only.
+5. `npm run release:publish`: it checks the branch, worktree, sync with origin, version and changelog section, that the tag does not exist yet, and the CI results; then creates and pushes the annotated tag `v<version>`, waits for the Release and Post-Release Smoke workflows, and verifies that every Release asset is present. `--dry-run` runs the local checks only. When the Release workflow fails, the script deletes the local and remote tag so the fix can ship under the same version; if a draft release was already created, run `gh release delete v<version> --yes` first.
 6. After publishing, run the "Portable Update" section of the smoke checklist: update from the previous release's EXE to the new version.
 
-The Release workflow builds the portable EXE on `windows-2025` and attaches `.sha256`, the updater signature `.sig`, `latest.json`, an SPDX SBOM, the automated smoke report from `scripts/smoke-windows-exe.ps1`, and `release-manifest.json`. Post-Release Smoke downloads the published assets and re-checks hashes, manifests, and download links.
+The Release workflow builds the portable EXE on `windows-2025`, creates the Release as a draft, and publishes it only after every asset is uploaded, so `/releases/latest` never points at a half-uploaded release. It attaches `.sha256`, the updater signature `.sig`, the stable `pay-dance-windows-x64.exe` with its `.sha256`, `latest.json`, an SPDX SBOM, the automated smoke report from `scripts/smoke-windows-exe.ps1`, and `release-manifest.json`. Post-Release Smoke downloads the published assets and re-checks hashes, manifests, the stable copy, and download links.
 
 ### Release Chain Invariants
 
 - `latest.json` points at the versioned Windows EXE; the updater endpoint is fixed at `releases/latest/download/latest.json`.
+- Every Release also uploads the stable `pay-dance-windows-x64.exe`; the website and the docs link to it, and the link never changes with the version.
 - `.sha256` matches the actual EXE. `.sig` is the Tauri updater signature, not a Windows Authenticode publisher signature; before adding Authenticode, confirm cost, certificate source, renewal, and rollback.
 - `pay-dance-sbom.spdx.json` is archived with every Release.
 - Every GitHub Actions `uses:` is pinned to a 40-character commit SHA with a version comment.
 - The CodeQL workflow explicitly analyzes `javascript-typescript` and `rust`.
+
+### Withdrawing a Bad Release
+
+The updater only moves forward, so the way back is a fixed release with a new patch version, not deleting the published one: deleting only sends users who have not updated yet back to the previous version, while everyone who already updated cannot roll back automatically. Only when the assets are shown to be harmful, turn that Release into a draft and describe the manual rollback in the Release body and an issue.
+
+### Usage Snapshot
+
+The `Usage Snapshot` workflow appends the cumulative download count of every Release asset to `downloads.csv` on the `usage-data` branch once a day (date, tag, asset name, count). Reading it: the daily increase of `latest.json` approximates desktop launches (the updater fetches it once per launch), the increase of the EXE approximates new installs, and their ratio is the closest public signal to retention. Neither the app nor the website carries telemetry, so this is the only usage data source.
 
 ### Updater Signing Key Compromise
 

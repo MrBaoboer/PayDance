@@ -20,6 +20,12 @@ Get-FileHash .\pay-dance-v<版本>-windows-x64.exe -Algorithm SHA256
 
 输出的哈希与 `.sha256` 文件中的一致即可，大小写不影响。
 
+同一页面还有一份固定文件名的 `pay-dance-windows-x64.exe`，内容与带版本号的文件完全一致，官网下载按钮用的就是它。
+
+### 首次运行出现「Windows 已保护你的电脑」怎么办？
+
+这是 Windows SmartScreen 对没有代码签名证书的程序的默认提示，不代表文件有问题。点击「更多信息」，再点击「仍要运行」即可；同一个文件只会提示一次。担心文件被篡改时，先按上一条核对 `.sha256`。EXE 带有更新签名，但尚未购买 Authenticode 代码签名证书，进展见[路线图](ROADMAP.md)。
+
 ### 如何彻底删除 PayDance？
 
 1. 如果开启过开机自启动，先在设置中关闭。
@@ -53,6 +59,10 @@ Remove-Item "$env:APPDATA\com.masterbao.paydance\salary-settings.json"
 
 支持。下班时间早于上班时间时按跨零点班次处理，过零点后继续累计同一班次的收入。
 
+### 金额为 0 或一直不动？
+
+先看标题栏左侧的状态：「今日休息」说明今天不在设置的工作日里；「未到上班」「已下班」说明当前时间不在上下班区间内；「午休中」说明启用了午休剔除；「配置待修正」说明有设置项无效，打开设置会看到具体是哪一项。以上都不是时，检查系统时间和时区是否正确。
+
 ### 显示金额等于真实到账工资吗？
 
 不等于。它是基于你输入的薪资与时间设置得到的实时估算，不含税费、社保、公积金、奖金、请假、加班和公司内部薪资规则。
@@ -77,9 +87,21 @@ Windows 桌面版通过 Tauri Store 保存在 `%APPDATA%\com.masterbao.paydance\
 
 主窗口的关闭按钮会把应用隐藏到系统托盘。可以从托盘重新显示窗口或彻底退出；置顶和开机自启动可在设置中单独开关。
 
+### 开机自启动没有生效？
+
+自启动登记的是开启时 EXE 所在的路径。移动或重命名 EXE 后，先在设置里关闭再重新开启；部分安全软件会拦截该登记，需要放行。
+
+### 自动更新失败怎么办？
+
+更新需要能访问 GitHub，并且 EXE 所在文件夹可写。失败时设置底部会出现「更新失败，点击重试」；重试仍失败，从 [最新 Release](https://github.com/MrBaoboer/PayDance/releases/latest) 下载新版 EXE 覆盖旧文件即可，设置不会丢失。
+
+### 设置文件无法读取怎么办？
+
+应用会先重试一次；仍失败时把原文件改名为 `salary-settings.json.bak-<时间戳>` 备份，再用默认值重建。无法备份时保持原文件不动，设置页会说明原因。反复出现时，关闭应用后删除 `%APPDATA%\com.masterbao.paydance\salary-settings.json`，重新启动即可。
+
 ### 多显示器或高 DPI 下显示异常怎么办？
 
-按 [SUPPORT.md](SUPPORT.md) 提交反馈，附上应用版本、Windows 版本、显示器数量、DPI 缩放和复现步骤。截图或录屏会更有帮助。
+窗口停在看不见的位置时，先点击托盘图标，应用会把窗口拉回可见区域。仍不行时关闭应用，删除 `salary-settings.json` 里的 `mainPosition` 与 `miniPosition` 两个字段（或整个文件）后重启。问题依旧请按 [SUPPORT.md](SUPPORT.md) 提交反馈，附上应用版本、Windows 版本、显示器数量、DPI 缩放和复现步骤，截图或录屏会更有帮助。
 
 ## 开源、许可与品牌
 
@@ -90,6 +112,10 @@ Windows 桌面版通过 Tauri Store 保存在 `%APPDATA%\com.masterbao.paydance\
 ### 可以 fork 或修改后发布吗？
 
 可以，但修改版需要保留必要法律声明，标注不是官方版本，并使用能清楚区分的名称、图标、应用标识符和发布渠道，避免被误认为官方版本。商标与品牌素材边界见 [TRADEMARK.md](../legal/TRADEMARK.md) 和 [BRAND-ASSETS.md](../legal/BRAND-ASSETS.md)。
+
+### 有 macOS 或 Linux 版吗？
+
+目前只有 Windows 桌面版和网页版。macOS 版正在邀请社区贡献，方案讨论与进度见 [#65](https://github.com/MrBaoboer/PayDance/issues/65)。
 
 ## 贡献与反馈
 
@@ -103,4 +129,4 @@ Windows 桌面版通过 Tauri Store 保存在 `%APPDATA%\com.masterbao.paydance\
 
 ### 开发者从哪里开始？
 
-先读 [贡献指南](../.github/CONTRIBUTING.md)，再查看标有 `good first issue` 或 `help wanted` 的公开 Issue。文档和测试通常不需要完整的 Windows 桌面环境。
+先读 [贡献指南](../.github/CONTRIBUTING.md)。当前公开的协作入口是 macOS 版邀请（[#65](https://github.com/MrBaoboer/PayDance/issues/65)）和带 `help wanted` 标签的 Issue；想法和问题可以直接发到 [Discussions](https://github.com/MrBaoboer/PayDance/discussions)。文档和测试通常不需要完整的 Windows 桌面环境。

@@ -46,7 +46,7 @@ If a claimed Issue sees no plan, commit, or progress update for 7 days, a mainta
 
 Ordinary contributions only need a DCO sign-off; no CLA is required upfront.
 
-Every non-merge commit must contain a `Signed-off-by:` line whose email matches the commit author. Use `git commit -s` to add it; CI checks each commit.
+Every non-merge commit must contain a `Signed-off-by:` line whose email matches the commit author. Use `git commit -s` to add it; CI checks each commit. When committing from the GitHub web editor, type `Signed-off-by: Your Name <email>` into the extended description of the commit message.
 
 Code contributions enter the project under [AGPL-3.0-only](../LICENSE) with [additional terms under AGPL Section 7](../legal/ADDITIONAL_TERMS_EN.md). Original documentation enters under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) unless otherwise noted. By contributing, you confirm that you have the right to submit the material and accept the applicable project license.
 

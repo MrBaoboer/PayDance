@@ -9,6 +9,7 @@ Use this checklist before releasing the Windows portable build. Record the PayDa
 - [ ] Double-clicking the EXE opens exactly one main window. With no saved position, the window is centered and fully visible.
 - [ ] The three-step onboarding flow appears on first launch, and preferences, salary, and work time can all be completed.
 - [ ] After onboarding, today's earnings, current status, worked time, today's estimate, and progress display correctly.
+- [ ] The status dot matches the state: working green, night shift purple, lunch teal, before work blue, off work slate grey, day off grey, needs-setup red; legible in both themes.
 - [ ] After quitting from the tray and relaunching, onboarding does not reappear, and settings and window state are preserved.
 - [ ] Starting with settings created by the previous release opens the dashboard normally and preserves valid settings.
 
@@ -18,6 +19,7 @@ Use this checklist before releasing the Windows portable build. Record the PayDa
 - [ ] Changing or clearing the currency symbol updates the settings preview, dashboard, today's estimate, salary details, and mini window; the choice persists after restart.
 - [ ] Changing theme, amount display mode, or always-on-top state updates the UI immediately and persists after restart.
 - [ ] Invalid salary settings show a clear error and do not overwrite the last valid salary configuration; theme, language, and window preferences can still be saved.
+- [ ] Clearing the monthly salary field highlights it and shows "not saved"; entering a valid value clears the hint and the new value survives a restart.
 - [ ] Switching languages updates the dashboard, settings, and validation messages; the language persists after restart.
 - [ ] Enabling autostart launches PayDance after a Windows reboot. Disabling it removes the autostart registration.
 

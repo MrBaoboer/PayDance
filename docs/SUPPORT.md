@@ -8,6 +8,8 @@
 - 版本变化：[更新日志](../CHANGELOG.md)
 - 功能范围：[产品边界](PRODUCT.md)
 - 已知问题：[GitHub Issues](https://github.com/MrBaoboer/PayDance/issues)
+- 想法、用法交流和不确定算不算 Bug 的问题：[GitHub Discussions](https://github.com/MrBaoboer/PayDance/discussions)
+- macOS 版：邀请贡献中，见 [#65](https://github.com/MrBaoboer/PayDance/issues/65)
 
 ## 提交反馈
 

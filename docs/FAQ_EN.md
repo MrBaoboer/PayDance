@@ -20,6 +20,12 @@ Get-FileHash .\pay-dance-v<version>-windows-x64.exe -Algorithm SHA256
 
 The printed hash must match the one inside the `.sha256` file; case does not matter.
 
+The same page also carries a stable `pay-dance-windows-x64.exe`, byte-for-byte identical to the versioned file; the website download button points at it.
+
+### Windows says "Windows protected your PC" on first launch. Now what?
+
+That is the default SmartScreen prompt for programs without a code-signing certificate, not a verdict on the file. Click **More info**, then **Run anyway**; the prompt appears once per downloaded file. If you are worried about tampering, verify the `.sha256` first. The EXE carries an updater signature but no Authenticode certificate yet; see the [roadmap](ROADMAP_EN.md).
+
 ### How do I remove PayDance completely?
 
 1. If auto-start was ever enabled, turn it off in Settings.
@@ -53,6 +59,10 @@ It depends on your settings. With lunch-break exclusion on, the break is not cou
 
 Yes. When the end time is earlier than the start time, the shift is treated as crossing midnight, and earnings keep accumulating for that same shift past 00:00.
 
+### The amount is 0 or never moves
+
+Check the status at the left of the title bar first. "Day Off" means today is not one of your workdays; "Not Yet" and "Off Work" mean the current time is outside your working hours; "Lunch Break" means lunch exclusion is on; "Needs Setup" means a setting is invalid, and Settings shows which one. If none of these applies, check the system clock and time zone.
+
 ### Does the amount match my actual paycheck?
 
 No. It is a live estimate based on the salary and schedule you entered. It does not account for taxes, benefits, bonuses, leave, overtime, or employer-specific payroll rules.
@@ -77,9 +87,21 @@ Double-click the amount in the main window to switch to mini floating mode. The 
 
 The main window's close button hides PayDance to the system tray. Use the tray menu to reopen the window or quit the app. Always-on-top and auto-start can be changed independently in Settings.
 
+### Launch at startup does not work
+
+The startup entry records the EXE path at the moment you enable it. After moving or renaming the EXE, turn the switch off and on again. Some security software blocks the entry and needs an exception.
+
+### The update fails
+
+Updating needs access to GitHub and a writable folder around the EXE. On failure the bottom of Settings shows "Update failed, click to retry"; if that keeps failing, download the new EXE from the [latest Release](https://github.com/MrBaoboer/PayDance/releases/latest) and replace the old file. Your settings are kept.
+
+### The settings file cannot be read
+
+The app retries once; if the file still cannot be read it is renamed to `salary-settings.json.bak-<timestamp>` and rebuilt with defaults. When no backup is possible the file is left untouched and Settings explains why. If it keeps happening, quit the app, delete `%APPDATA%\com.masterbao.paydance\salary-settings.json`, and start again.
+
 ### Multi-monitor or high-DPI display looks wrong — what now?
 
-Report it through [SUPPORT_EN.md](SUPPORT_EN.md) with the app version, Windows version, monitor count, DPI scaling, and reproduction steps. Screenshots or a recording help.
+If the window is stuck somewhere invisible, click the tray icon: the app pulls it back into the visible area. If that does not help, quit the app and delete the `mainPosition` and `miniPosition` fields from `salary-settings.json` (or the whole file), then restart. If the problem persists, report it through [SUPPORT_EN.md](SUPPORT_EN.md) with the app version, Windows version, monitor count, DPI scaling, and reproduction steps; screenshots or a recording help.
 
 ## Open Source, License, and Branding
 
@@ -90,6 +112,10 @@ The code is released under [AGPL-3.0-only](../LICENSE) with additional terms per
 ### Can I fork it or publish a modified version?
 
 Yes, but a modified version must preserve the required legal notices, state that it is not an official release, and use distinguishable names, icons, application identifiers, and release channels so it is not mistaken for the official build. For trademark and brand asset boundaries, see [TRADEMARK_EN.md](../legal/TRADEMARK_EN.md) and [BRAND-ASSETS_EN.md](../legal/BRAND-ASSETS_EN.md).
+
+### Is there a macOS or Linux build?
+
+Only the Windows desktop app and the Web Preview exist today. A macOS build is open for community contribution; the proposal thread and progress live in [#65](https://github.com/MrBaoboer/PayDance/issues/65).
 
 ## Contributions and Feedback
 
@@ -103,4 +129,4 @@ Start with the product scope in [PRODUCT_EN.md](PRODUCT_EN.md). Describing the s
 
 ### Where can developers start?
 
-Read the [Contributing Guide](CONTRIBUTING_EN.md), then check open issues labeled `good first issue` or `help wanted`. Documentation and tests usually do not require a full Windows desktop environment.
+Read the [Contributing Guide](CONTRIBUTING_EN.md). The open collaboration entry points today are the macOS call for contributors ([#65](https://github.com/MrBaoboer/PayDance/issues/65)) and issues labeled `help wanted`; ideas and questions are welcome in [Discussions](https://github.com/MrBaoboer/PayDance/discussions). Documentation and tests usually do not require a full Windows desktop environment.

@@ -30,7 +30,7 @@ CI 按改动文件裁剪 job（`scripts/ci-change-scope.mjs`），两个 gate �
 - 纯文档改动只跑 metadata job，前端、Rust、Web Preview QA、安全审计和 CodeQL 全部跳过。
 - 安全审计按生态裁剪：npm audit 只在 `package.json` / `package-lock.json` 变化时跑，cargo audit 与 cargo deny 只在 `src-tauri/Cargo.*`、`deny.toml`、`.cargo/audit.toml` 变化时跑，gitleaks 始终跑。只改 npm 的 Dependabot PR 不会被一条 Rust 公告拦下，反之亦然。
 - 每天 06:00（Asia/Shanghai）CI 定时对 main 跑全部审计；失败时开或追加 issue「定时依赖审计失败」，恢复后自动关闭。
-- `scripts/` 下的改动会触发 CodeQL，但 Vitest 挂在前端 job 上，只在前端文件变化时运行；改完脚本要在本地跑 `npm test`。
+- metadata job 每次都跑全量 Vitest，改 Rust、脚本或 workflow 不会跳过覆盖它们的测试；前端 job 在前端文件变化时再跑一遍。
 
 ## 依赖更新
 
@@ -60,18 +60,27 @@ CI 按改动文件裁剪 job（`scripts/ci-change-scope.mjs`），两个 gate �
 2. 在 `CHANGELOG.md` 和 `CHANGELOG_EN.md` 中把 `## Unreleased` 收进 `### vX.Y.Z`；Release 正文由 `scripts/extract-release-notes.mjs` 从中文 CHANGELOG 的对应小节生成。
 3. 运行 `npm run verify:release`（含 npm audit 与 Rust 的 fmt、clippy、test、audit、deny），完成 [Web Preview QA](web-preview-qa.md) 和[桌面端冒烟清单](desktop-smoke-checklist.md)中发布前的章节。
 4. `npm run push:main`，等 CI 与 CodeQL 通过。
-5. `npm run release:publish`：校验分支、工作区、远端同步、版本与 CHANGELOG 小节、tag 未存在和 CI 结论，然后创建并推送附注 tag `v<版本>`，等待 Release 与 Post-Release Smoke 工作流，最后核对 Release 资产齐全。`--dry-run` 只做本地检查。
+5. `npm run release:publish`：校验分支、工作区、远端同步、版本与 CHANGELOG 小节、tag 未存在和 CI 结论，然后创建并推送附注 tag `v<版本>`，等待 Release 与 Post-Release Smoke 工作流，最后核对 Release 资产齐全。`--dry-run` 只做本地检查。Release 失败时脚本会删除本地与远端 tag，修好后用同一版本号重跑；若草稿 Release 已经建出来，先 `gh release delete v<版本> --yes`。
 6. 发布后按冒烟清单的“便携版更新”一节，用上一版 EXE 升级到新版本。
 
-Release workflow 在 `windows-2025` 上构建便携 EXE，并附带 `.sha256`、updater 签名 `.sig`、`latest.json`、SPDX SBOM、`scripts/smoke-windows-exe.ps1` 生成的自动冒烟报告和 `release-manifest.json`；Post-Release Smoke 下载已发布的资产，复核哈希、清单和下载链接。
+Release workflow 在 `windows-2025` 上构建便携 EXE，先以草稿创建 Release、传齐资产后再发布，避免 `/releases/latest` 指向资产还没传完的版本；附带 `.sha256`、updater 签名 `.sig`、固定文件名 `pay-dance-windows-x64.exe` 及其 `.sha256`、`latest.json`、SPDX SBOM、`scripts/smoke-windows-exe.ps1` 生成的自动冒烟报告和 `release-manifest.json`；Post-Release Smoke 下载已发布的资产，复核哈希、清单、固定名副本和下载链接。
 
 ### 发布链路不变量
 
 - `latest.json` 指向对应版本的 Windows EXE；updater 端点固定为 `releases/latest/download/latest.json`。
+- 每个 Release 同时上传固定文件名 `pay-dance-windows-x64.exe`，官网与文档链接用它，不随版本号变化。
 - `.sha256` 匹配实际 EXE。`.sig` 是 Tauri updater 签名，不是 Windows Authenticode 发布者签名；接入 Authenticode 前先确认成本、证书来源、续期方式和失败回滚路径。
 - `pay-dance-sbom.spdx.json` 随 Release 归档。
 - GitHub Actions 的 `uses:` 固定到 40 位 Commit SHA，并在行尾保留版本注释。
 - CodeQL workflow 显式分析 `javascript-typescript` 与 `rust`。
+
+### 撤回有问题的版本
+
+updater 只会向前升级，所以撤回的方式是尽快发布修复版（patch 版本号），而不是删除已发布的 Release：删除只会让还没更新的用户回到上一版，已经更新的用户无法自动回退。资产被证明有害时才把该 Release 改为草稿，并在 Release 正文和 issue 里说明手动回退步骤。
+
+### 使用数据快照
+
+`Usage Snapshot` workflow 每天把 Release 资产的累计下载数追加到 `usage-data` 分支的 `downloads.csv`（日期、tag、资产名、累计次数）。读法：`latest.json` 的增量约等于桌面应用的启动次数（updater 每次启动拉取一次），EXE 的增量约等于新装量；两者之比是最接近留存的公开信号。应用与官网都不含遥测，这是唯一的使用数据来源。
 
 ### 更新签名密钥泄露
 

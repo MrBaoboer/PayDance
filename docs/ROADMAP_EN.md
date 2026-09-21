@@ -15,6 +15,8 @@ Where the product stands today. For the per-version detail, see the [CHANGELOG](
 
 ## Now
 
+- Feedback and data loop: the website runs cookie-free analytics and Release download counts are snapshotted daily to the `usage-data` branch; next is turning them into a readable trend page and reading retention from it.
+- macOS build open for community contribution ([#65](https://github.com/MrBaoboer/PayDance/issues/65)): waiting for a proposal and real-device validation.
 - Only manual items remain in the release chain: a real-world check of the portable auto-update path, and an updater key-rotation drill.
 - Close the system-clock calibration gaps: large backward corrections, timezone changes, day crossing, and night-shift boundaries.
 - Make background updater failures visible: keep network failures low-noise, and give manifest and signature-verification failures a clear message.
