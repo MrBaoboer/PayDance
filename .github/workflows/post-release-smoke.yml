@@ -102,6 +102,9 @@ jobs:
           echo "$ASSETS" | grep -q "release-manifest.json" \
             || { echo "ERROR: release-manifest.json is missing"; exit 1; }
 
+          echo "$ASSETS" | grep -qx "pay-dance-windows-x64.exe" \
+            || { echo "ERROR: stable download alias pay-dance-windows-x64.exe is missing"; exit 1; }
+
           echo "All critical assets present."
 
       - name: Verify SHA256 checksum
@@ -124,6 +127,35 @@ jobs:
             exit 1
           fi
           echo "SHA256 verified: $ACTUAL"
+
+      - name: Verify stable download alias
+        if: steps.public_release.outputs.skip != 'true'
+        run: |
+          VERSION=$(echo "$EXPECTED_TAG" | sed 's/^v//')
+          EXE="pay-dance-v${VERSION}-windows-x64.exe"
+          ALIAS="pay-dance-windows-x64.exe"
+
+          gh release download "$EXPECTED_TAG" --repo ${{ github.repository }} --pattern "${ALIAS}" --dir /tmp/smoke --clobber
+          gh release download "$EXPECTED_TAG" --repo ${{ github.repository }} --pattern "${ALIAS}.sha256" --dir /tmp/smoke --clobber
+
+          cd /tmp/smoke
+          VERSIONED_SHA=$(sha256sum "${EXE}" | awk '{print $1}')
+          ALIAS_SHA=$(sha256sum "${ALIAS}" | awk '{print $1}')
+          DECLARED_SHA=$(awk '{print $1}' "${ALIAS}.sha256")
+          if [ "$ALIAS_SHA" != "$VERSIONED_SHA" ] || [ "$ALIAS_SHA" != "$DECLARED_SHA" ]; then
+            echo "ERROR: stable alias does not match the versioned EXE"
+            echo "  versioned: $VERSIONED_SHA"
+            echo "  alias:     $ALIAS_SHA"
+            echo "  declared:  $DECLARED_SHA"
+            exit 1
+          fi
+
+          HTTP_CODE=$(curl -sL -o /dev/null -w "%{http_code}" "https://github.com/${{ github.repository }}/releases/latest/download/${ALIAS}")
+          if [ "$HTTP_CODE" -ne 200 ] && [ "$HTTP_CODE" -ne 302 ]; then
+            echo "ERROR: stable alias link returned HTTP $HTTP_CODE"
+            exit 1
+          fi
+          echo "Stable alias verified: $ALIAS_SHA"
 
       - name: Validate release manifest
         if: steps.public_release.outputs.skip != 'true'

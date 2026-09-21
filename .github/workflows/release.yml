@@ -157,6 +157,12 @@ jobs:
           $sigDest = "release-assets/$portableName.sig"
           Copy-Item $sigPath $sigDest -Force
 
+          # Stable alias: the site and docs can link to it without a version number, and
+          # /releases/latest/download/<alias> keeps resolving across releases.
+          $aliasName = "pay-dance-windows-x64.exe"
+          Copy-Item $portablePath "release-assets/$aliasName" -Force
+          "$portableHash  $aliasName" | Out-File -Encoding ascii "release-assets/$aliasName.sha256"
+
       - name: Generate release notes
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         run: node scripts/extract-release-notes.mjs --version "${{ env.RELEASE_TAG }}" --output release-notes.md
@@ -336,6 +342,8 @@ jobs:
             src-tauri/target/release/pay-dance-v*-windows-x64.exe
             src-tauri/target/release/pay-dance-v*-windows-x64.exe.sha256
             release-assets/pay-dance-v*-windows-x64.exe.sig
+            release-assets/pay-dance-windows-x64.exe
+            release-assets/pay-dance-windows-x64.exe.sha256
             release-assets/latest.json
             release-assets/build-artifact-smoke.md
             release-assets/paydance-exe-smoke-report.json
@@ -343,21 +351,34 @@ jobs:
             release-assets/release-manifest.json
           if-no-files-found: error
 
-      - name: Create GitHub Release
+      # The release is created as a draft and published only after every asset is uploaded:
+      # a non-draft release becomes /releases/latest immediately, so updater clients and the
+      # download links would 404 while the uploads were still running.
+      - name: Create draft GitHub Release
         if: (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && env.DRY_RUN != 'true'
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           name: 薪跳 PayDance ${{ env.RELEASE_TAG }}
           tag_name: ${{ env.RELEASE_TAG }}
           body_path: release-notes.md
+          draft: true
           fail_on_unmatched_files: true
           files: |
             src-tauri/target/release/pay-dance-v*-windows-x64.exe
             src-tauri/target/release/pay-dance-v*-windows-x64.exe.sha256
             release-assets/pay-dance-v*-windows-x64.exe.sig
+            release-assets/pay-dance-windows-x64.exe
+            release-assets/pay-dance-windows-x64.exe.sha256
             release-assets/latest.json
             release-assets/pay-dance-sbom.spdx.json
             release-assets/release-manifest.json
+
+      - name: Publish GitHub Release
+        if: (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && env.DRY_RUN != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "$env:RELEASE_TAG" --repo "${{ github.repository }}" --draft=false --latest
+        shell: pwsh
 
       - name: Dry run summary
         if: env.DRY_RUN == 'true'

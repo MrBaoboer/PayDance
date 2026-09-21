@@ -9,7 +9,7 @@ import { pathToFileURL } from "node:url";
 
 const ZERO_SHA = /^0+$/;
 const ROOT_LIGHTWEIGHT_FILE =
-  /^(README|LICENSE|SECURITY|CONTRIBUTING|CHANGELOG|PRODUCT|DESIGN|CODE_OF_CONDUCT|SUPPORT|NOTICE|TRADEMARKS)(?:[._-].*)?$/i;
+  /^(README|LICENSE|SECURITY|CONTRIBUTING|CHANGELOG|PRODUCT|DESIGN|CODE_OF_CONDUCT|SUPPORT)(?:[._-].*)?$/i;
 const WEB_PREVIEW_WORKFLOW = ".github/workflows/web-preview.yml";
 const SHARED_CI_WORKFLOW = ".github/workflows/ci.yml";
 const RELEASE_WORKFLOW = ".github/workflows/release.yml";
@@ -41,7 +41,6 @@ function isLightweightFile(file) {
   return (
     file.startsWith("docs/") ||
     file.startsWith("legal/") ||
-    file.startsWith("marketing-posters/") ||
     file === ".github/CONTRIBUTING.md" ||
     file === ".github/ISSUE_TEMPLATE.md" ||
     file.startsWith(".github/ISSUE_TEMPLATE/") ||

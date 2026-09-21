@@ -3,16 +3,17 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
-import { existsSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { resolve } from "node:path";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const scriptPath = resolve(import.meta.dirname, "extract-release-notes.mjs");
-const outputPath = resolve(
-  import.meta.dirname,
-  "..",
-  ".tmp-release-notes-test.md",
+// Written outside the repository so a failing run never leaves an untracked file behind.
+const outputPath = join(
+  mkdtempSync(join(tmpdir(), "paydance-release-notes-")),
+  "notes.md",
 );
 
 describe("release notes extraction", () => {
@@ -21,11 +22,9 @@ describe("release notes extraction", () => {
       rmSync(outputPath);
     }
 
-    execFileSync(
-      "node",
-      [scriptPath, "--version", "v0.7.9", "--output", outputPath],
-      { encoding: "utf8" },
-    );
+    execFileSync("node", [scriptPath, "--version", "v0.7.9", "--output", outputPath], {
+      encoding: "utf8",
+    });
 
     const notes = readFileSync(outputPath, "utf8");
     const script = readFileSync(scriptPath, "utf8");
@@ -36,6 +35,8 @@ describe("release notes extraction", () => {
     expect(notes).toContain("### Download and verification");
     expect(notes).toContain("暗色模式");
     expect(notes).toContain("`.sha256`");
+    expect(notes).toContain("SmartScreen");
+    expect(notes).toContain("docs/FAQ.md");
     expect(notes).not.toContain("This release was built by GitHub Actions");
     expect(notes).not.toMatch(/### Changes\r?\n\r?\n/);
 

@@ -50,7 +50,7 @@ describe("web SEO build helpers", () => {
 });
 
 describe("web preview static hero", () => {
-  const downloadUrl = resolveWindowsDownloadUrl("1.2.3");
+  const downloadUrl = resolveWindowsDownloadUrl();
 
   it("keeps the placeholder copy identical to the i18n bundles", () => {
     for (const [locale, messages] of [
@@ -82,9 +82,9 @@ describe("web preview static hero", () => {
     expect(resolveHtmlLocale('<html lang="zh-CN">')).toBe("zh-CN");
   });
 
-  it("points the download link at the versioned portable EXE like the app does", () => {
+  it("points the download link at the stable alias like the app does", () => {
     expect(downloadUrl).toBe(
-      "https://github.com/MrBaoboer/PayDance/releases/latest/download/pay-dance-v1.2.3-windows-x64.exe",
+      "https://github.com/MrBaoboer/PayDance/releases/latest/download/pay-dance-windows-x64.exe",
     );
   });
 

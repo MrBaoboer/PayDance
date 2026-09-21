@@ -316,15 +316,38 @@ async function watchWorkflow(workflowName, headSha, options = {}) {
   console.log(
     `[release-workflow] Watching ${workflowName} #${runInfo.number}: ${runInfo.url}`,
   );
-  run(`${workflowName} #${runInfo.number}`, "gh", [
-    "run",
-    "watch",
-    String(runInfo.databaseId),
-    "--repo",
-    repo,
-    "--exit-status",
-  ]);
+  const result = spawnSync(
+    "gh",
+    ["run", "watch", String(runInfo.databaseId), "--repo", repo, "--exit-status"],
+    { cwd: rootDir, env: process.env, stdio: "inherit" },
+  );
+  if (result.error || result.status !== 0) {
+    options.onFailure?.();
+    fail(`${workflowName} #${runInfo.number} failed: ${runInfo.url}`);
+  }
   return runInfo;
+}
+
+// A failed Release leaves its tag behind, and assertTagDoesNotExist would then refuse the
+// retry. Remove the tag so the fix can ship under the same version number.
+function removeReleaseTag(releaseTag) {
+  console.log(`\n[release-workflow] Release failed; removing tag ${releaseTag}.`);
+  spawnSync("git", ["push", "origin", `:refs/tags/${releaseTag}`], {
+    cwd: rootDir,
+    env: process.env,
+    stdio: "inherit",
+  });
+  spawnSync("git", ["tag", "-d", releaseTag], {
+    cwd: rootDir,
+    env: process.env,
+    stdio: "inherit",
+  });
+  console.log(
+    [
+      `[release-workflow] Fix the failure on ${mainBranch}, push it, then run npm run release:publish again.`,
+      `[release-workflow] If a draft release for ${releaseTag} was already created, delete it first: gh release delete ${releaseTag} --repo ${repo} --yes`,
+    ].join("\n"),
+  );
 }
 
 function assertReleaseAssets(releaseTag) {
@@ -344,6 +367,8 @@ function assertReleaseAssets(releaseTag) {
     exe,
     `${exe}.sha256`,
     `${exe}.sig`,
+    "pay-dance-windows-x64.exe",
+    "pay-dance-windows-x64.exe.sha256",
     "latest.json",
     "pay-dance-sbom.spdx.json",
     "release-manifest.json",
@@ -380,7 +405,10 @@ async function main() {
   run(`push tag ${tag}`, "git", ["push", "origin", tag]);
 
   if (!options.noWatch) {
-    const releaseRun = await watchWorkflow("Release", headSha, { headBranch: tag });
+    const releaseRun = await watchWorkflow("Release", headSha, {
+      headBranch: tag,
+      onFailure: () => removeReleaseTag(tag),
+    });
     await watchWorkflow("Post-Release Smoke", headSha, {
       createdAfter: releaseRun.createdAt,
     });
