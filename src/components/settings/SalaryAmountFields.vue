@@ -46,8 +46,9 @@ const updateConfig = <Key extends keyof SalaryConfig>(
 };
 
 const updateNumberConfig = <Key extends keyof SalaryConfig>(key: Key, event: Event) => {
-  const value = parseNumberInput((event.target as HTMLInputElement).value);
-  if (value === null) return;
+  // A cleared field is stored as NaN so validation flags it; keeping the previous number
+  // would show an empty box while the old value silently kept driving the dashboard.
+  const value = parseNumberInput((event.target as HTMLInputElement).value) ?? Number.NaN;
   updateConfig(key, value as SalaryConfig[Key]);
 };
 </script>

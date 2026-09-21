@@ -28,6 +28,7 @@ const createShell = (initialMiniMode = false) => {
   const saveStateNow = vi.fn(async () => {
     events.push("save");
   });
+  const fullSize = ref({ ...fullWindowSize });
 
   const shell = useAppShell({
     alwaysOnTop: ref(false),
@@ -38,7 +39,7 @@ const createShell = (initialMiniMode = false) => {
     applyThemeMode: vi.fn(async () => undefined),
     applyWindowMode,
     captureWindowPosition,
-    fullSize: ref({ ...fullWindowSize }),
+    fullSize,
     hasCompletedOnboarding: ref(true),
     isMiniMode,
     isOpacityPanelWindow: false,
@@ -52,6 +53,7 @@ const createShell = (initialMiniMode = false) => {
 
   return {
     events,
+    fullSize,
     isMiniMode,
     restoreWindowPosition,
     shell,
@@ -74,5 +76,27 @@ describe("useAppShell window mode transitions", () => {
     await shell.openSettings();
 
     expect(events).toEqual(["capture:mini", "apply:main", "restore:main", "save"]);
+  });
+
+  it("keeps the saved full size when a minimized window reports no client area", async () => {
+    const { fullSize, shell } = createShell(false);
+    const { innerHeight, innerWidth } = window;
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 0 });
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 0 });
+
+    try {
+      await shell.setMiniMode(true);
+    } finally {
+      Object.defineProperty(window, "innerWidth", {
+        configurable: true,
+        value: innerWidth,
+      });
+      Object.defineProperty(window, "innerHeight", {
+        configurable: true,
+        value: innerHeight,
+      });
+    }
+
+    expect(fullSize.value).toEqual(fullWindowSize);
   });
 });

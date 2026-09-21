@@ -26,6 +26,7 @@ const props = withDefaults(
 const digitRows = Array.from({ length: 10 }, (_, digit) => String(digit));
 const isTicking = ref(false);
 let pulseTimer = 0;
+let pulseFrame = 0;
 
 const chars = computed(() =>
   [...props.value].map((char, index) => ({
@@ -64,9 +65,10 @@ watch(
     if (props.suspendPulse) return;
 
     window.clearTimeout(pulseTimer);
+    window.cancelAnimationFrame(pulseFrame);
     isTicking.value = false;
 
-    requestAnimationFrame(() => {
+    pulseFrame = window.requestAnimationFrame(() => {
       isTicking.value = true;
       pulseTimer = window.setTimeout(() => {
         isTicking.value = false;
@@ -81,12 +83,14 @@ watch(
     if (!suspendPulse) return;
 
     window.clearTimeout(pulseTimer);
+    window.cancelAnimationFrame(pulseFrame);
     isTicking.value = false;
   },
 );
 
 onBeforeUnmount(() => {
   window.clearTimeout(pulseTimer);
+  window.cancelAnimationFrame(pulseFrame);
 });
 </script>
 

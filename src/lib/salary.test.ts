@@ -19,6 +19,7 @@ const vt = (key: string) => {
     "validation.dailyPositive": "日薪需大于 0",
     "validation.hourlyPositive": "时薪需大于 0",
     "validation.workDaysPositive": "工作天数需大于 0",
+    "validation.workDaysRange": "工作天数不能超过 31",
     "validation.workdaysMinOne": "至少选 1 天",
     "validation.workdaysError": "工作日错误",
     "validation.startTimeError": "上班时间错误",
@@ -26,6 +27,7 @@ const vt = (key: string) => {
     "validation.timeSameError": "时间不能相同",
     "validation.lunchStartError": "午休开始错误",
     "validation.lunchEndError": "午休结束错误",
+    "validation.lunchSameError": "午休起止时间不能相同",
     "validation.nightLunchOutside": "夜班午休需在工时内",
     "validation.lunchOutside": "午休需在工时内",
   };
@@ -533,5 +535,32 @@ describe("validateSalaryConfig", () => {
       field: "workTime",
       message: "夜班午休需在工时内",
     });
+  });
+});
+
+describe("validateSalaryConfig bounds", () => {
+  it("rejects more than 31 work days per month", () => {
+    const issues = validateSalaryConfig(
+      { ...defaultSalaryConfig, workDaysPerMonth: 32 },
+      vt,
+    );
+
+    expect(issues).toEqual([
+      { field: "workDaysPerMonth", message: "工作天数不能超过 31" },
+    ]);
+  });
+
+  it("reports identical lunch start and end as their own error", () => {
+    const issues = validateSalaryConfig(
+      {
+        ...defaultSalaryConfig,
+        enableLunchBreak: true,
+        lunchEnd: "12:00",
+        lunchStart: "12:00",
+      },
+      vt,
+    );
+
+    expect(issues).toEqual([{ field: "workTime", message: "午休起止时间不能相同" }]);
   });
 });

@@ -7,6 +7,7 @@ import { X } from "@lucide/vue";
 import type { AmountMode } from "../composables/useSalarySettings";
 import type { DashboardMiddleStat } from "../composables/useDashboardModel";
 import type { SalaryConfig, SalaryConfigIssue, SalarySnapshot } from "../lib/salary";
+import type { ResizeDirection } from "../lib/resize-handles";
 import type { ThemeMode } from "../lib/window-mode";
 import type { UpdaterStatus } from "#updater";
 import MainDashboard from "./MainDashboard.vue";
@@ -15,16 +16,6 @@ import OnboardingPanel from "./OnboardingPanel.vue";
 import SalaryInfoSheet from "./SalaryInfoSheet.vue";
 import SettingsPanel from "./SettingsPanel.vue";
 import WindowTitlebar from "./WindowTitlebar.vue";
-
-type ResizeDirection =
-  | "East"
-  | "North"
-  | "NorthEast"
-  | "NorthWest"
-  | "South"
-  | "SouthEast"
-  | "SouthWest"
-  | "West";
 
 const { t } = useI18n();
 
@@ -44,7 +35,6 @@ withDefaults(
     hasIssue: (field: SalaryConfigIssue["field"]) => boolean;
     isAutostartUpdating: boolean;
     isThemeSwitching: boolean;
-    isWorkingStatus?: boolean;
     middleStat: DashboardMiddleStat;
     salaryModeLabel: string;
     settingsSaveError?: string;
@@ -95,8 +85,9 @@ const emit = defineEmits<{
     <WindowTitlebar
       :always-on-top="alwaysOnTop"
       :has-config-issues="hasConfigIssues"
-      :is-working-status="isWorkingStatus"
+      :is-night-work="snapshot.isNightWork"
       :show-desktop-actions="showDesktopFeatures"
+      :status="snapshot.status"
       :status-text="statusText"
       :theme-mode="themeMode"
       @close="emit('close')"

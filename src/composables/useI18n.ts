@@ -79,7 +79,8 @@ export function createT(
 
     let result = raw;
     for (const [paramKey, paramValue] of Object.entries(params)) {
-      result = result.replace(`{${paramKey}}`, String(paramValue));
+      // A function replacement keeps `$` sequences in values (a "$$" currency symbol) literal.
+      result = result.replace(`{${paramKey}}`, () => String(paramValue));
     }
     return result;
   };

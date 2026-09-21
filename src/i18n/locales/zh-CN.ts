@@ -6,10 +6,6 @@
 import type { Messages } from "../types";
 
 const zhCN: Messages = {
-  // ── App meta ────────────────────────────────────────────────────────────
-  "app.name": "薪跳",
-  "app.tagline": "桌面实时工资看板",
-
   // ── Dashboard ───────────────────────────────────────────────────────────
   "dashboard.todayEarnings": "今日入账",
   "dashboard.tapToMini": "今日入账 {amount}，双击或按 Enter 进入迷你悬浮模式",
@@ -52,17 +48,19 @@ const zhCN: Messages = {
   "settings.salary": "薪资",
   "settings.workdays": "每周工作日",
   "settings.workTime": "工作时间",
-  "settings.lunchBreak": "午休",
   "settings.amountAnimation": "金额变换",
   "settings.amountAnimationDesc": "金额数字变化方式",
   "settings.currency": "货币符号",
   "settings.startup": "启动",
   "settings.autostart": "开机自动启动",
-  "settings.autostartError": "自启动设置失败",
   "settings.language": "语言",
   "settings.onboarding": "首次启动向导",
   "settings.openOnboarding": "打开首次启动向导",
   "settings.saveFailed": "设置未能保存，请重试。",
+  "settings.unsavedHint": "更改未保存，修正后自动保存。",
+  "settings.loadFailed":
+    "设置文件无法读取，当前使用默认值。若反复出现，请删除 salary-settings.json 后重新打开应用。",
+  "settings.loadRecovered": "设置文件已损坏，已备份为 .bak 文件并恢复默认值。",
 
   // ── Settings → salary mode ─────────────────────────────────────────────
   "salaryMode.label": "薪资输入方式",
@@ -132,8 +130,6 @@ const zhCN: Messages = {
   "preferences.light": "浅色",
   "preferences.dark": "深色",
   "preferences.autostart": "开机自动启动",
-  "preferences.alwaysOnTop": "窗口始终置顶",
-  "preferences.startInMini": "进入迷你悬浮模式",
 
   // ── Title bar ──────────────────────────────────────────────────────────
   "titlebar.openSettings": "打开设置",
@@ -166,6 +162,7 @@ const zhCN: Messages = {
   "validation.dailyPositive": "日薪需大于 0",
   "validation.hourlyPositive": "时薪需大于 0",
   "validation.workDaysPositive": "工作天数需大于 0",
+  "validation.workDaysRange": "工作天数不能超过 31",
   "validation.workdaysMinOne": "至少选 1 天",
   "validation.workdaysError": "工作日错误",
   "validation.startTimeError": "上班时间错误",
@@ -173,6 +170,7 @@ const zhCN: Messages = {
   "validation.timeSameError": "时间不能相同",
   "validation.lunchStartError": "午休开始错误",
   "validation.lunchEndError": "午休结束错误",
+  "validation.lunchSameError": "午休起止时间不能相同",
   "validation.nightLunchOutside": "夜班午休需在工时内",
   "validation.lunchOutside": "午休需在工时内",
 
@@ -185,7 +183,6 @@ const zhCN: Messages = {
   "updater.failed": "更新失败",
   "updater.clickToDownload": "点击下载",
   "updater.retry": "点击重试",
-  "updater.installPrompt": "新版本已下载，是否立即重启安装？",
 
   // ── Web Preview ────────────────────────────────────────────────────────
   "web.heroHeadline1": "看见每一秒的",

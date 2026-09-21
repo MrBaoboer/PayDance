@@ -55,7 +55,6 @@ const emit = defineEmits<{
   "update:amountMode": [mode: "rolling" | "plain"];
   "update:config": [config: SalaryConfig];
   "update:currencySymbol": [symbol: string];
-  "update:locale": [locale: Locale];
 }>();
 
 const amountModeOptions = computed(
@@ -78,9 +77,7 @@ const langOptions = computed(() =>
 );
 
 const updateLocale = (val: string) => {
-  const next = val as Locale;
-  setLocale(next);
-  emit("update:locale", next);
+  setLocale(val as Locale);
 };
 
 const updateAmountMode = (mode: string) => {
@@ -98,7 +95,8 @@ const updateConfig = <Key extends keyof SalaryConfig>(
 <template>
   <section class="settings-panel">
     <div v-if="firstIssue" class="settings-alert">
-      {{ firstIssue }}
+      <span>{{ firstIssue }}</span>
+      <span class="settings-alert__hint">{{ t("settings.unsavedHint") }}</span>
     </div>
 
     <div v-if="settingsSaveErrorText" class="settings-save-error" role="status">
@@ -211,6 +209,12 @@ const updateConfig = <Key extends keyof SalaryConfig>(
   border-top: 1px solid var(--line);
   background: var(--panel-soft);
   padding: clamp(15px, 3.6cqw, 19px);
+}
+
+.settings-alert__hint {
+  display: block;
+  margin-top: 2px;
+  font-weight: 500;
 }
 
 .settings-alert {

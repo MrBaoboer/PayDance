@@ -16,6 +16,7 @@ import {
 } from "./lib/window-mode";
 import { appName } from "./lib/app-meta";
 import { localeChangedEventName } from "./lib/app-events";
+import type { ResizeDirection } from "./lib/resize-handles";
 import { useAppShell } from "./composables/useAppShell";
 import { useAppWindowLifecycle } from "./composables/useAppWindowLifecycle";
 import { useAutostart } from "./composables/useAutostart";
@@ -38,15 +39,6 @@ import MiniOpacityPanel from "./components/MiniOpacityPanel.vue";
 const appWindow = getCurrentWindow();
 const isOpacityPanelWindow = appWindow.label === "mini-opacity";
 const updateStatus = ref<UpdaterStatus>({ kind: "upToDate" });
-type ResizeDirection =
-  | "East"
-  | "North"
-  | "NorthEast"
-  | "NorthWest"
-  | "South"
-  | "SouthEast"
-  | "SouthWest"
-  | "West";
 const {
   amountMode,
   alwaysOnTop,
@@ -161,7 +153,6 @@ const {
   firstConfigIssue,
   hasConfigIssues,
   hasIssue,
-  isWorkingStatus,
   middleStat,
   salaryModeLabel,
   statusText,
@@ -322,7 +313,6 @@ onBeforeUnmount(() => {
       :has-issue="hasIssue"
       :is-autostart-updating="isAutostartUpdating"
       :is-theme-switching="isThemeSwitching"
-      :is-working-status="isWorkingStatus"
       :middle-stat="middleStat"
       :salary-mode-label="salaryModeLabel"
       :settings-save-error="settingsSaveError"

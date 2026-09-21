@@ -83,8 +83,6 @@ export function useDashboardModel(
     };
   });
 
-  const isWorkingStatus = computed(() => snapshot.value.status === "working");
-
   const hasIssue = (field: SalaryConfigIssue["field"]) =>
     configIssues.value.some((issue) => issue.field === field);
 
@@ -94,7 +92,6 @@ export function useDashboardModel(
     firstConfigIssue,
     hasConfigIssues,
     hasIssue,
-    isWorkingStatus,
     middleStat,
     salaryModeLabel,
     statusText,

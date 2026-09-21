@@ -5,6 +5,7 @@
 
 import {
   defaultSalaryConfig,
+  maxWorkDaysPerMonth,
   validateSalaryConfig,
   type SalaryConfig,
   type SalaryType,
@@ -29,6 +30,9 @@ const salaryTypes: SalaryType[] = ["monthly", "daily", "hourly"];
 
 const isPositiveNumber = (value: unknown): value is number =>
   typeof value === "number" && Number.isFinite(value) && value > 0;
+
+const isWorkDaysPerMonth = (value: unknown): value is number =>
+  isPositiveNumber(value) && value <= maxWorkDaysPerMonth;
 
 const isSalaryType = (value: unknown): value is SalaryType =>
   typeof value === "string" && salaryTypes.includes(value as SalaryType);
@@ -89,7 +93,7 @@ function normalizeSalaryConfig(
     hourlyRate: isPositiveNumber(savedConfig?.hourlyRate)
       ? savedConfig.hourlyRate
       : defaultSalaryConfig.hourlyRate,
-    workDaysPerMonth: isPositiveNumber(savedConfig?.workDaysPerMonth)
+    workDaysPerMonth: isWorkDaysPerMonth(savedConfig?.workDaysPerMonth)
       ? savedConfig.workDaysPerMonth
       : defaultSalaryConfig.workDaysPerMonth,
     workdays: normalizeWorkdays(savedConfig?.workdays),
@@ -115,7 +119,7 @@ function normalizeSalaryConfig(
     ["monthlySalary", isPositiveNumber],
     ["dailySalary", isPositiveNumber],
     ["hourlyRate", isPositiveNumber],
-    ["workDaysPerMonth", isPositiveNumber],
+    ["workDaysPerMonth", isWorkDaysPerMonth],
     [
       "workdays",
       (value) => Array.isArray(value) && value.length > 0 && value.every(isWorkday),

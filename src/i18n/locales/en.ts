@@ -6,10 +6,6 @@
 import type { Messages } from "../types";
 
 const en: Messages = {
-  // ── App meta ────────────────────────────────────────────────────────────
-  "app.name": "PayDance",
-  "app.tagline": "Desktop Real-Time Salary Dashboard",
-
   // ── Dashboard ───────────────────────────────────────────────────────────
   "dashboard.todayEarnings": "Today's Earnings",
   "dashboard.tapToMini":
@@ -53,17 +49,20 @@ const en: Messages = {
   "settings.salary": "Salary",
   "settings.workdays": "Workdays",
   "settings.workTime": "Work Hours",
-  "settings.lunchBreak": "Lunch Break",
   "settings.amountAnimation": "Animation",
   "settings.amountAnimationDesc": "Amount display animation",
   "settings.currency": "Currency symbol",
   "settings.startup": "Startup",
   "settings.autostart": "Launch at startup",
-  "settings.autostartError": "Failed to update autostart setting",
   "settings.language": "Language",
   "settings.onboarding": "First-time setup",
   "settings.openOnboarding": "Open first-time setup",
   "settings.saveFailed": "Settings could not be saved. Please try again.",
+  "settings.unsavedHint": "Changes are not saved until this is fixed.",
+  "settings.loadFailed":
+    "Settings could not be read, so defaults are in use. If this keeps happening, delete salary-settings.json and reopen the app.",
+  "settings.loadRecovered":
+    "The settings file was unreadable. It was backed up as a .bak file and reset to defaults.",
 
   // ── Settings → salary mode ─────────────────────────────────────────────
   "salaryMode.label": "Salary type",
@@ -133,8 +132,6 @@ const en: Messages = {
   "preferences.light": "Light",
   "preferences.dark": "Dark",
   "preferences.autostart": "Launch at startup",
-  "preferences.alwaysOnTop": "Always on top",
-  "preferences.startInMini": "Start in mini mode",
 
   // ── Title bar ──────────────────────────────────────────────────────────
   "titlebar.openSettings": "Open settings",
@@ -168,6 +165,7 @@ const en: Messages = {
   "validation.dailyPositive": "Daily wage must be greater than 0",
   "validation.hourlyPositive": "Hourly rate must be greater than 0",
   "validation.workDaysPositive": "Work days must be greater than 0",
+  "validation.workDaysRange": "Work days cannot exceed 31",
   "validation.workdaysMinOne": "Select at least 1 workday",
   "validation.workdaysError": "Invalid workday selection",
   "validation.startTimeError": "Invalid start time",
@@ -175,6 +173,7 @@ const en: Messages = {
   "validation.timeSameError": "Start and end times cannot be the same",
   "validation.lunchStartError": "Invalid lunch start time",
   "validation.lunchEndError": "Invalid lunch end time",
+  "validation.lunchSameError": "Lunch start and end times cannot be the same",
   "validation.nightLunchOutside": "Night shift lunch break must fall within work hours",
   "validation.lunchOutside": "Lunch break must fall within work hours",
 
@@ -187,7 +186,6 @@ const en: Messages = {
   "updater.failed": "Update failed",
   "updater.clickToDownload": "Click to download",
   "updater.retry": "Click to retry",
-  "updater.installPrompt": "A new version has been downloaded. Restart now to install?",
 
   // ── Web Preview ────────────────────────────────────────────────────────
   "web.heroHeadline1": "See Your Pay",
