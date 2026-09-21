@@ -53,9 +53,16 @@ try {
     throw "PayDance did not create a main window within $StartupTimeoutSeconds seconds."
   }
   $report.mainWindowHandle = $primary.MainWindowHandle.ToInt64()
-  $report.responding = $primary.Responding
+  # The window exists before the message loop goes idle (WebView2 is still initializing),
+  # so a one-shot Responding check races the startup; poll until the startup deadline.
+  do {
+    $primary.Refresh()
+    $report.responding = $primary.Responding
+    if ($report.responding) { break }
+    Start-Sleep -Milliseconds 500
+  } while ((Get-Date) -lt $deadline)
   if (-not $report.responding) {
-    throw "PayDance created a main window but is not responding."
+    throw "PayDance created a main window but did not respond within $StartupTimeoutSeconds seconds."
   }
 
   Write-Host "Main window detected. Verifying stable runtime for $StableSeconds seconds."
