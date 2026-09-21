@@ -31,6 +31,9 @@ export default defineConfig(({ mode }) => {
       createWebSeoPlugin({
         dateModified,
         emitSitemap: isWeb,
+        heroPlaceholder: isWeb,
+        preloadFonts: isWeb,
+        vercelAnalytics: isWeb && Boolean(process.env.VERCEL),
         version: packageMetadata.version,
       }),
       vue(),

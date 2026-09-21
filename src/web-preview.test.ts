@@ -40,6 +40,26 @@ const pngSize = (path: string) => {
     height: source.readUInt32BE(20),
   };
 };
+const jpegSize = (path: string) => {
+  const source = readFileSync(new URL(`../${path}`, import.meta.url));
+
+  expect(source.subarray(0, 2).toString("hex")).toBe("ffd8");
+
+  // Walk the JPEG segments until the start-of-frame marker that carries the dimensions.
+  let offset = 2;
+  while (offset < source.length) {
+    if (source[offset] !== 0xff) throw new Error(`${path}: unexpected JPEG segment`);
+    const marker = source[offset + 1];
+    if ([0xc0, 0xc1, 0xc2].includes(marker)) {
+      return {
+        width: source.readUInt16BE(offset + 7),
+        height: source.readUInt16BE(offset + 5),
+      };
+    }
+    offset += 2 + source.readUInt16BE(offset + 2);
+  }
+  throw new Error(`${path}: no JPEG frame header`);
+};
 const appStyles = read("src/style.css");
 const webPreviewStyles = [
   read("src/web-preview/web-preview.css"),
@@ -123,8 +143,8 @@ describe("PayDance Web Preview", () => {
     );
     const chineseHtmlSource = read("index.html");
     const englishHtmlSource = read("en/index.html");
-    const sharePosterUrl =
-      "https://raw.githubusercontent.com/MrBaoboer/PayDance/main/docs/posters/poster-02-three-step-setup-v3.png";
+    const shareImageUrl = "https://paydance.vercel.app/og-image.jpg";
+    const shareImage = statSync(new URL("../public/og-image.jpg", import.meta.url));
 
     expect(webPreviewSource).toContain("productLogoUrl");
     expect(webPreviewSource).toContain("appVersion");
@@ -137,14 +157,21 @@ describe("PayDance Web Preview", () => {
       width: 1448,
       height: 1086,
     });
-    expect(countLiteralOccurrences(chineseHtmlSource, sharePosterUrl)).toBe(2);
-    expect(countLiteralOccurrences(englishHtmlSource, sharePosterUrl)).toBe(2);
-    expect(chineseHtmlSource).toContain(
-      '<meta property="og:image:width" content="1448" />',
-    );
-    expect(chineseHtmlSource).toContain(
-      '<meta property="og:image:height" content="1086" />',
-    );
+    // Social cards want a 1.91:1 image under a few hundred KB, served from the site itself
+    // rather than raw.githubusercontent.com, which is unreliable from mainland China.
+    expect(countLiteralOccurrences(chineseHtmlSource, shareImageUrl)).toBe(2);
+    expect(countLiteralOccurrences(englishHtmlSource, shareImageUrl)).toBe(2);
+    expect(chineseHtmlSource).not.toContain("raw.githubusercontent.com");
+    expect(englishHtmlSource).not.toContain("raw.githubusercontent.com");
+    expect(jpegSize("public/og-image.jpg")).toEqual({ width: 1200, height: 630 });
+    expect(shareImage.size).toBeLessThan(200_000);
+    for (const htmlSource of [chineseHtmlSource, englishHtmlSource]) {
+      expect(htmlSource).toContain(
+        '<meta property="og:image:type" content="image/jpeg" />',
+      );
+      expect(htmlSource).toContain('<meta property="og:image:width" content="1200" />');
+      expect(htmlSource).toContain('<meta property="og:image:height" content="630" />');
+    }
     expect(chineseHtmlSource).toContain("薪跳 PayDance 三步设置界面");
     expect(englishHtmlSource).toContain("PayDance three-step setup");
     expect(chineseHtmlSource).toContain(
@@ -362,7 +389,8 @@ describe("PayDance Web Preview", () => {
     );
     expect(cssBlock(".web-preview__copy")).toContain("gap: clamp(18px, 2.1vw, 28px)");
     expect(webPreviewSource).toContain("@media (max-width: 1120px)");
-    expect(webPreviewSource).toContain(
+    // The 1180px block overrides any column layout below 1120px, so none is declared there.
+    expect(webPreviewSource).not.toContain(
       "grid-template-columns: minmax(330px, 0.9fr) minmax(390px, 460px)",
     );
     expect(webPreviewSource).toContain("@media (max-width: 1180px)");

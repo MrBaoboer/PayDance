@@ -16,6 +16,9 @@ Build artifacts and verification files are available in [GitHub Releases](https:
 - **Switches no longer show the wrong state**: when the launch-at-startup write failed or a double click was dropped, the checkbox used to stay on the opposite of the real state.
 - **Language fallback after a failed read** now follows the system language instead of forcing Chinese.
 - **EXE file properties**: the portable EXE now carries publisher, description, copyright, and license fields, visible in the Windows file properties panel.
+- **The website demo ticks all day**: the Web Preview demo schedule is now 00:00–23:59, seven days a week, at a monthly salary of 20000, so the amount is moving whenever someone visits; between 22:00 and 06:00 it honestly reads "Night Shift".
+- **Website share image and first paint**: the social share image is now a self-hosted 1200×630 file instead of a raw.githubusercontent.com link; the hero headline, lead and download button are pre-rendered as static HTML so crawlers that skip JavaScript still see the copy; both web fonts are preloaded.
+- **Cookie-free Vercel Web Analytics on the website**: injected only on the Vercel deployment; the GitHub Pages mirror and the desktop app carry no analytics.
 
 ## Released
 

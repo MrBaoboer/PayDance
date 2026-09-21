@@ -5,6 +5,28 @@
 
 const siteUrl = "https://paydance.vercel.app/";
 const englishSiteUrl = `${siteUrl}en/`;
+const repositoryUrl = "https://github.com/MrBaoboer/PayDance";
+
+// Mirrors web.heroHeadline1 / heroHeadline2 / heroLead / downloadWindows in src/i18n/locales;
+// scripts/web-seo.test.js keeps both in sync.
+export const heroCopy = {
+  "zh-CN": {
+    headline1: "看见每一秒的",
+    headline2: "收入跳动",
+    lead: "具象化你的劳动价值，专注工作，也看见回报",
+    download: "下载 Windows 版",
+  },
+  en: {
+    headline1: "See Your Pay",
+    headline2: "Tick Up Live",
+    lead: "A wage board that tracks today’s earnings.",
+    download: "Download for Windows",
+  },
+};
+
+export function resolveWindowsDownloadUrl(version) {
+  return `${repositoryUrl}/releases/latest/download/pay-dance-v${version}-windows-x64.exe`;
+}
 
 export function resolveBuildDate(environment = process.env, now = new Date()) {
   const sourceDateEpoch = Number(environment.SOURCE_DATE_EPOCH);
@@ -45,11 +67,100 @@ ${urls}
 `;
 }
 
-export function createWebSeoPlugin({ dateModified, emitSitemap, version }) {
+export function resolveHtmlLocale(html) {
+  return /<html[^>]*\slang="en"/i.test(html) ? "en" : "zh-CN";
+}
+
+const escapeHtml = (value) =>
+  value.replace(
+    /[&<>"]/g,
+    (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[character],
+  );
+
+// Static copy of the hero so crawlers that skip JavaScript still read the headline, the lead
+// and the download link. Vue replaces the whole #app subtree on mount.
+export function createHeroPlaceholder(locale, windowsDownloadUrl) {
+  const copy = heroCopy[locale] ?? heroCopy["zh-CN"];
+
+  return [
+    '<main class="web-preview theme-light">',
+    '<section class="web-preview__hero">',
+    '<div class="web-preview__copy">',
+    `<h1><span class="web-preview__headline-main">${escapeHtml(copy.headline1)}</span>`,
+    `<span class="web-preview__headline-accent">${escapeHtml(copy.headline2)}</span></h1>`,
+    `<p class="web-preview__lead">${escapeHtml(copy.lead)}</p>`,
+    '<nav class="web-preview__actions">',
+    `<a class="web-preview__action web-preview__action--primary" href="${escapeHtml(windowsDownloadUrl)}">${escapeHtml(copy.download)}</a>`,
+    "</nav></div></section></main>",
+  ].join("");
+}
+
+export function injectHeroPlaceholder(html, locale, windowsDownloadUrl) {
+  return html.replace(
+    '<div id="app"></div>',
+    `<div id="app">${createHeroPlaceholder(locale, windowsDownloadUrl)}</div>`,
+  );
+}
+
+export function createFontPreloadTags(bundle, base = "/") {
+  return Object.keys(bundle ?? {})
+    .filter((fileName) => fileName.endsWith(".woff2"))
+    .sort()
+    .map((fileName) => ({
+      tag: "link",
+      attrs: {
+        rel: "preload",
+        as: "font",
+        type: "font/woff2",
+        href: `${base}${fileName}`,
+        crossorigin: true,
+      },
+      injectTo: "head",
+    }));
+}
+
+// Vercel Web Analytics is cookie-free and only exists on the Vercel deployment; the GitHub
+// Pages mirror and the desktop app never load it.
+export const vercelAnalyticsTag = {
+  tag: "script",
+  attrs: { defer: true, src: "/_vercel/insights/script.js" },
+  injectTo: "body",
+};
+
+export function createWebSeoPlugin({
+  dateModified,
+  emitSitemap,
+  heroPlaceholder = false,
+  preloadFonts = false,
+  vercelAnalytics = false,
+  version,
+  windowsDownloadUrl = resolveWindowsDownloadUrl(version),
+}) {
+  let base = "/";
+
   return {
     name: "paydance-web-seo",
-    transformIndexHtml(html) {
-      return replaceSeoTokens(html, { version, dateModified });
+    configResolved(config) {
+      base = config.base;
+    },
+    transformIndexHtml: {
+      order: "post",
+      handler(html, context) {
+        let output = replaceSeoTokens(html, { version, dateModified });
+        if (heroPlaceholder) {
+          output = injectHeroPlaceholder(
+            output,
+            resolveHtmlLocale(output),
+            windowsDownloadUrl,
+          );
+        }
+
+        const tags = [];
+        if (preloadFonts) tags.push(...createFontPreloadTags(context?.bundle, base));
+        if (vercelAnalytics) tags.push(vercelAnalyticsTag);
+
+        return { html: output, tags };
+      },
     },
     generateBundle() {
       if (!emitSitemap) return;
