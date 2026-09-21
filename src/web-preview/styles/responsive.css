@@ -1,10 +1,6 @@
 @media (max-width: 1120px) {
   .web-preview__hero {
     min-height: auto;
-    grid-template-columns: minmax(330px, 0.9fr) minmax(390px, 460px);
-    column-gap: clamp(28px, 4vw, 44px);
-    row-gap: clamp(34px, 4vw, 48px);
-    padding-top: clamp(34px, 6vw, 58px);
   }
 
   .web-preview h1 {

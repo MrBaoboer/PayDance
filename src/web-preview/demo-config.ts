@@ -10,10 +10,12 @@ import type { SettingsStoreAdapter } from "../platform/settings-store.web";
 export const createWebPreviewDemoConfig = (): SalaryConfig => ({
   ...defaultSalaryConfig,
   salaryType: "monthly",
-  monthlySalary: 10000,
+  monthlySalary: 20000,
   workdays: [0, 1, 2, 3, 4, 5, 6],
-  startTime: "09:00",
-  endTime: "22:00",
+  // 00:00–23:59 keeps the demo ticking whenever someone visits; 24:00 is not a valid time,
+  // so the last minute of the day reads as "done" instead.
+  startTime: "00:00",
+  endTime: "23:59",
 });
 
 export async function ensureWebPreviewDemoSettings(

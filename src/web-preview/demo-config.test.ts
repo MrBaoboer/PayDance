@@ -32,14 +32,14 @@ describe("Web Preview demo config", () => {
     expect(config).toEqual({
       ...defaultSalaryConfig,
       salaryType: "monthly",
-      monthlySalary: 10000,
+      monthlySalary: 20000,
       workdays: [0, 1, 2, 3, 4, 5, 6],
-      startTime: "09:00",
-      endTime: "22:00",
+      startTime: "00:00",
+      endTime: "23:59",
     });
     expect(config.workdays).not.toBe(defaultSalaryConfig.workdays);
+    // The shared desktop defaults must not pick up the demo values.
     expect(defaultSalaryConfig.workdays).toEqual([1, 2, 3, 4, 5]);
-    // Matches the demo value on purpose; workdays and times below stay the mutation canaries.
     expect(defaultSalaryConfig.monthlySalary).toBe(10_000);
     expect(defaultSalaryConfig.startTime).toBe("09:30");
     expect(defaultSalaryConfig.endTime).toBe("18:30");
