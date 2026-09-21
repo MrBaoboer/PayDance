@@ -116,19 +116,19 @@ jobs:
       - name: Assert desktop frontend target
         run: node scripts/assert-build-target.mjs desktop && node scripts/assert-build-boundary.mjs desktop
 
-      - name: Prepare versioned release assets
+      - name: Prepare release assets
         shell: pwsh
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_UPDATER_PRIVKEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_UPDATER_PRIVKEY_PASSWORD }}
         run: |
           $ErrorActionPreference = "Stop"
-          $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
 
-          # Portable EXE
+          # One EXE per release under a fixed name; the version lives in the tag, the Release title and release-manifest.json.
+          New-Item -ItemType Directory -Force -Path release-assets
           $exePath = "src-tauri/target/release/pay-dance.exe"
-          $portableName = "pay-dance-v$version-windows-x64.exe"
-          $portablePath = "src-tauri/target/release/$portableName"
+          $portableName = "pay-dance-windows-x64.exe"
+          $portablePath = "release-assets/$portableName"
           Copy-Item $exePath $portablePath -Force
           $portableHash = (Get-FileHash $portablePath -Algorithm SHA256).Hash.ToLowerInvariant()
           "$portableHash  $portableName" | Out-File -Encoding ascii "$portablePath.sha256"
@@ -141,7 +141,6 @@ jobs:
 
           npx tauri signer sign "$portablePath"
 
-          New-Item -ItemType Directory -Force -Path release-assets
           $sigPath = "$portablePath.sig"
           if (-not (Test-Path $sigPath)) {
             Write-Error "Updater signature is missing: $sigPath"
@@ -154,15 +153,6 @@ jobs:
             exit 1
           }
 
-          $sigDest = "release-assets/$portableName.sig"
-          Copy-Item $sigPath $sigDest -Force
-
-          # Stable alias: the site and docs can link to it without a version number, and
-          # /releases/latest/download/<alias> keeps resolving across releases.
-          $aliasName = "pay-dance-windows-x64.exe"
-          Copy-Item $portablePath "release-assets/$aliasName" -Force
-          "$portableHash  $aliasName" | Out-File -Encoding ascii "release-assets/$aliasName.sha256"
-
       - name: Generate release notes
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         run: node scripts/extract-release-notes.mjs --version "${{ env.RELEASE_TAG }}" --output release-notes.md
@@ -172,7 +162,7 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
-          $sigFile = "release-assets/pay-dance-v$version-windows-x64.exe.sig"
+          $sigFile = "release-assets/pay-dance-windows-x64.exe.sig"
 
           if (-not (Test-Path $sigFile)) {
             Write-Error "Updater signature is missing: $sigFile"
@@ -192,10 +182,10 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
-          $portableName = "pay-dance-v$version-windows-x64.exe"
-          $portablePath = "src-tauri/target/release/$portableName"
+          $portableName = "pay-dance-windows-x64.exe"
+          $portablePath = "release-assets/$portableName"
           $checksumPath = "$portablePath.sha256"
-          $signaturePath = "release-assets/$portableName.sig"
+          $signaturePath = "$portablePath.sig"
           $latestPath = "release-assets/latest.json"
           $reportPath = "release-assets/build-artifact-smoke.md"
 
@@ -236,8 +226,9 @@ jobs:
             Write-Error "latest.json signature does not match the generated signature file"
             exit 1
           }
-          if ($platform.url -notlike "*$portableName") {
-            Write-Error "latest.json does not point to $portableName"
+          $expectedUrl = "https://github.com/${{ github.repository }}/releases/download/$env:RELEASE_TAG/$portableName"
+          if ($platform.url -ne $expectedUrl) {
+            Write-Error "latest.json points to $($platform.url), expected $expectedUrl"
             exit 1
           }
           "- Updater signature metadata verified." | Out-File -Encoding utf8 -Append $reportPath
@@ -248,9 +239,8 @@ jobs:
       - name: Smoke test Windows executable
         shell: pwsh
         run: |
-          $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
           ./scripts/smoke-windows-exe.ps1 `
-            -ExePath "src-tauri/target/release/pay-dance-v$version-windows-x64.exe" `
+            -ExePath "release-assets/pay-dance-windows-x64.exe" `
             -ReportPath "release-assets/paydance-exe-smoke-report.json"
 
       - name: Generate release SBOM
@@ -268,10 +258,10 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
-          $portableName = "pay-dance-v$version-windows-x64.exe"
-          $portablePath = "src-tauri/target/release/$portableName"
+          $portableName = "pay-dance-windows-x64.exe"
+          $portablePath = "release-assets/$portableName"
           $checksumPath = "$portablePath.sha256"
-          $signaturePath = "release-assets/$portableName.sig"
+          $signaturePath = "$portablePath.sig"
           $latestPath = "release-assets/latest.json"
           $sbomPath = "release-assets/pay-dance-sbom.spdx.json"
           $smokeReportPath = "release-assets/paydance-exe-smoke-report.json"
@@ -339,11 +329,9 @@ jobs:
         with:
           name: pay-dance-windows-release
           path: |
-            src-tauri/target/release/pay-dance-v*-windows-x64.exe
-            src-tauri/target/release/pay-dance-v*-windows-x64.exe.sha256
-            release-assets/pay-dance-v*-windows-x64.exe.sig
             release-assets/pay-dance-windows-x64.exe
             release-assets/pay-dance-windows-x64.exe.sha256
+            release-assets/pay-dance-windows-x64.exe.sig
             release-assets/latest.json
             release-assets/build-artifact-smoke.md
             release-assets/paydance-exe-smoke-report.json
@@ -364,11 +352,9 @@ jobs:
           draft: true
           fail_on_unmatched_files: true
           files: |
-            src-tauri/target/release/pay-dance-v*-windows-x64.exe
-            src-tauri/target/release/pay-dance-v*-windows-x64.exe.sha256
-            release-assets/pay-dance-v*-windows-x64.exe.sig
             release-assets/pay-dance-windows-x64.exe
             release-assets/pay-dance-windows-x64.exe.sha256
+            release-assets/pay-dance-windows-x64.exe.sig
             release-assets/latest.json
             release-assets/pay-dance-sbom.spdx.json
             release-assets/release-manifest.json

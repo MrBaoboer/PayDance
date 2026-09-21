@@ -12,15 +12,13 @@
 
 ### 该下载哪个文件？
 
-在 [最新 Release](https://github.com/MrBaoboer/PayDance/releases/latest) 里下载 `pay-dance-v<版本>-windows-x64.exe`。同一页面的 `.sha256` 文件用于核对完整性：
+在 [最新 Release](https://github.com/MrBaoboer/PayDance/releases/latest) 里下载 `pay-dance-windows-x64.exe`。文件名不带版本号，版本看 Release 标题或 EXE 的文件属性；官网下载按钮指向的也是这个文件。同一页面的 `.sha256` 文件用于核对完整性：
 
 ```powershell
-Get-FileHash .\pay-dance-v<版本>-windows-x64.exe -Algorithm SHA256
+Get-FileHash .\pay-dance-windows-x64.exe -Algorithm SHA256
 ```
 
 输出的哈希与 `.sha256` 文件中的一致即可，大小写不影响。
-
-同一页面还有一份固定文件名的 `pay-dance-windows-x64.exe`，内容与带版本号的文件完全一致，官网下载按钮用的就是它。
 
 ### 首次运行出现「Windows 已保护你的电脑」怎么办？
 

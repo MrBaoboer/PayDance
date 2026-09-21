@@ -19,8 +19,8 @@ const dependabotSettings = dependabotConfig
 // Collapsed so adjacency can be asserted with plain substring matching; building
 // a RegExp from these names would reintroduce js/incomplete-sanitization.
 const collapsedDependabotSettings = dependabotSettings.replace(/\s+/g, " ");
-const versionedDesktopAssetName = `pay-dance-v${packageJson.version}-windows-x64.exe`;
-const desktopDownloadUrl = `https://github.com/MrBaoboer/PayDance/releases/latest/download/${versionedDesktopAssetName}`;
+const desktopAssetName = "pay-dance-windows-x64.exe";
+const desktopDownloadUrl = `https://github.com/MrBaoboer/PayDance/releases/latest/download/${desktopAssetName}`;
 const legacyAdditionalTermsReference = `see /${["ADDITIONAL_TERMS", "md"].join(".")}`;
 const binaryExtensions = new Set([".ico", ".png", ".woff2"]);
 const existsInWorktree = (path) => existsSync(resolve(repoRoot, path));
@@ -100,20 +100,12 @@ describe("repository metadata", () => {
     }
   });
 
-  // 中英文 README 都用版本化直链，缺一个就会在发版后静默 404。
-  it("keeps README desktop download links on the versioned Windows release executable", () => {
+  // 中英文 README 都用固定名直链，不随版本号变化，发版窗口内也不会 404。
+  it("keeps README desktop download links on the fixed-name Windows release executable", () => {
     for (const path of ["README.md", "docs/README_EN.md"]) {
       const readme = read(path);
-      const desktopDownloadLinks = readme.match(
-        new RegExp(
-          `https://github\\.com/MrBaoboer/PayDance/releases/latest/download/${versionedDesktopAssetName}`,
-          "g",
-        ),
-      );
-
-      expect(desktopDownloadLinks?.length).toBeGreaterThanOrEqual(1);
       expect(readme).toContain(desktopDownloadUrl);
-      expect(readme).toContain(versionedDesktopAssetName);
+      expect(readme).not.toMatch(/pay-dance-v\d+\.\d+\.\d+-windows-x64\.exe/);
       expect(readme).not.toContain("releases/download/v0.7.16/pay-dance.exe");
       expect(readme).not.toContain("mrbaoboer.github.io/PayDance/pay-dance.exe");
     }
@@ -185,11 +177,13 @@ describe("repository metadata", () => {
     }
   });
 
-  it("publishes versioned Windows release assets from the release workflow", () => {
+  it("publishes exactly one fixed-name Windows EXE from the release workflow", () => {
     const releaseWorkflow = read(".github/workflows/release.yml");
     const postReleaseSmoke = read(".github/workflows/post-release-smoke.yml");
 
-    expect(releaseWorkflow).toContain("pay-dance-v$version-windows-x64.exe");
+    expect(releaseWorkflow).toContain('$portableName = "pay-dance-windows-x64.exe"');
+    expect(releaseWorkflow).not.toContain("pay-dance-v$version");
+    expect(releaseWorkflow).not.toContain("pay-dance-v*");
     expect(releaseWorkflow).toContain("portableName");
     expect(releaseWorkflow).toContain("allow_missing_ci_for_repair");
     expect(releaseWorkflow).toContain("ALLOW_MISSING_CI_FOR_REPAIR");
@@ -197,7 +191,6 @@ describe("repository metadata", () => {
     expect(releaseWorkflow).toContain("npx tauri signer sign");
     expect(releaseWorkflow).toContain("windows-x64.exe.sig");
     expect(releaseWorkflow).toContain("TAURI_SIGNING_PRIVATE_KEY");
-    expect(releaseWorkflow).toContain("pay-dance-v");
     expect(releaseWorkflow).toContain("windows-x64");
     expect(releaseWorkflow).not.toContain("pay-dance.exe.sha256");
     expect(releaseWorkflow).toContain("latest.json");
@@ -222,6 +215,10 @@ describe("repository metadata", () => {
     expect(postReleaseSmoke).toContain("release-manifest.json");
     expect(postReleaseSmoke).toContain("EXPECTED_TAG");
     expect(postReleaseSmoke).toContain("GitHub asset digest");
+    expect(postReleaseSmoke).toContain('EXE="pay-dance-windows-x64.exe"');
+    expect(postReleaseSmoke).toContain("expected exactly one .exe asset");
+    expect(postReleaseSmoke).toContain("releases/download/${EXPECTED_TAG}/${EXE}");
+    expect(postReleaseSmoke).not.toContain("pay-dance-v${VERSION}");
   });
 
   it("publishes a minimal community governance surface", () => {
