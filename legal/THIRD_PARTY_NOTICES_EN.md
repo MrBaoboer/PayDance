@@ -15,6 +15,7 @@ This file lists PayDance's direct dependencies and bundled fonts. Each is govern
 | [`@tauri-apps/plugin-process`](https://github.com/tauri-apps/plugins-workspace) | MIT OR Apache-2.0 | Process control |
 | [`@tauri-apps/plugin-store`](https://github.com/tauri-apps/plugins-workspace) | MIT OR Apache-2.0 | Settings persistence |
 | [`@tauri-apps/plugin-updater`](https://github.com/tauri-apps/plugins-workspace) | MIT OR Apache-2.0 | Application updates |
+| [`@vercel/analytics`](https://github.com/vercel/analytics) | MIT | Web analytics |
 | [`vue`](https://github.com/vuejs/core) | MIT | Frontend framework |
 
 ## npm development dependencies

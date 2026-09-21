@@ -46,6 +46,7 @@
     "@tauri-apps/plugin-process": "^2.3.1",
     "@tauri-apps/plugin-store": "^2.4.5",
     "@tauri-apps/plugin-updater": "^2.11.0",
+    "@vercel/analytics": "^2.0.1",
     "vue": "^3.5.43"
   },
   "devDependencies": {

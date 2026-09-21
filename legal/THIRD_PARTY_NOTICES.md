@@ -15,6 +15,7 @@
 | [`@tauri-apps/plugin-process`](https://github.com/tauri-apps/plugins-workspace) | MIT OR Apache-2.0 | 进程控制 |
 | [`@tauri-apps/plugin-store`](https://github.com/tauri-apps/plugins-workspace) | MIT OR Apache-2.0 | 设置持久化 |
 | [`@tauri-apps/plugin-updater`](https://github.com/tauri-apps/plugins-workspace) | MIT OR Apache-2.0 | 应用更新 |
+| [`@vercel/analytics`](https://github.com/vercel/analytics) | MIT | Web 分析 |
 | [`vue`](https://github.com/vuejs/core) | MIT | 前端框架 |
 
 ## npm 开发依赖
