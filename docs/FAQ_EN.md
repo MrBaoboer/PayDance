@@ -12,15 +12,13 @@ Use the [Web Preview](https://paydance.vercel.app/en/) to try the interface and 
 
 ### Which file should I download?
 
-From the [latest Release](https://github.com/MrBaoboer/PayDance/releases/latest), download `pay-dance-v<version>-windows-x64.exe`. Verify it against the `.sha256` file on the same page:
+From the [latest Release](https://github.com/MrBaoboer/PayDance/releases/latest), download `pay-dance-windows-x64.exe`. The file name carries no version; read it from the Release title or the EXE file properties. The website download button points at the same file. Verify it against the `.sha256` file on the same page:
 
 ```powershell
-Get-FileHash .\pay-dance-v<version>-windows-x64.exe -Algorithm SHA256
+Get-FileHash .\pay-dance-windows-x64.exe -Algorithm SHA256
 ```
 
 The printed hash must match the one inside the `.sha256` file; case does not matter.
-
-The same page also carries a stable `pay-dance-windows-x64.exe`, byte-for-byte identical to the versioned file; the website download button points at it.
 
 ### Windows says "Windows protected your PC" on first launch. Now what?
 

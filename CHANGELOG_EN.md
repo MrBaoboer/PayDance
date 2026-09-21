@@ -8,8 +8,9 @@ Build artifacts and verification files are available in [GitHub Releases](https:
 
 ## Unreleased
 
-## Released
+- **One EXE per Release**: every Release used to upload the same executable twice, once with the version in the name and once under a fixed name, plus two `.sha256` files, which read as duplicate files on the Release page. Only the fixed `pay-dance-windows-x64.exe` remains; the version is in the Release title, `release-manifest.json` and the EXE file properties. `latest.json` now pins its download URL to the tag, so a client can no longer fetch a file that does not match the signature during the moment a new release goes live; README and FAQ link to the fixed name and no longer need a per-release edit; Post-Release Smoke rejects a Release that carries a second `.exe`. The duplicate copies were removed from the v0.9.10 and v0.9.9 pages.
 
+## Released
 ### v0.9.10
 
 - **Status dot colours per state**: the titlebar dot no longer borrows the income orange: working is green, night shift purple, lunch break teal, before work blue, off work slate grey, day off grey, and needs-setup red. The web preview used to show a grey dot in every state; it now matches the desktop app.
