@@ -44,6 +44,8 @@ export async function resolveWindowsDownload(fetchImpl = fetch) {
   try {
     const response = await fetchImpl(releasesPageUrl, {
       redirect: "manual",
+      // GitHub normally answers in well under a second; a slow answer must not hold the visitor.
+      signal: AbortSignal.timeout(4000),
       headers: { "user-agent": "paydance-site-download-redirect" },
     });
     const tag = resolveLatestTag(response.headers.get("location"));

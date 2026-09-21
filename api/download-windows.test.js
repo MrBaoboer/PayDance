@@ -76,6 +76,7 @@ describe("site download endpoint", () => {
       releasesPageUrl,
       expect.objectContaining({ redirect: "manual" }),
     );
+    expect(fetchImpl.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
   });
 
   it("falls back to the Release page when the tag cannot be resolved", async () => {
