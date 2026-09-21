@@ -20,7 +20,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { join, win32 } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const repository = process.env.GITHUB_REPOSITORY || "MrBaoboer/PayDance";
@@ -30,7 +30,8 @@ export const csvHeader = "date,tag,asset,download_count";
 export function resolveUsageDirectory(env = process.env, platform = process.platform) {
   if (env.PAYDANCE_USAGE_DIR) return env.PAYDANCE_USAGE_DIR;
   if (platform === "win32" && env.LOCALAPPDATA) {
-    return join(env.LOCALAPPDATA, "PayDance", "usage");
+    // win32.join keeps the separators deterministic when the tests run on Linux CI.
+    return win32.join(env.LOCALAPPDATA, "PayDance", "usage");
   }
   return join(homedir(), ".local", "share", "paydance", "usage");
 }
