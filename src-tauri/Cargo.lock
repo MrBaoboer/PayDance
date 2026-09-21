@@ -2504,7 +2504,7 @@ dependencies = [
 
 [[package]]
 name = "pay-dance"
-version = "0.9.9"
+version = "0.9.10"
 dependencies = [
  "serde",
  "serde_json",

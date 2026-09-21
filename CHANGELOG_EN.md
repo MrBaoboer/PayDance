@@ -8,6 +8,10 @@ Build artifacts and verification files are available in [GitHub Releases](https:
 
 ## Unreleased
 
+## Released
+
+### v0.9.10
+
 - **Status dot colours per state**: the titlebar dot no longer borrows the income orange: working is green, night shift purple, lunch break teal, before work blue, off work slate grey, day off grey, and needs-setup red. The web preview used to show a grey dot in every state; it now matches the desktop app.
 - **Invalid settings now say "not saved"**: entering an invalid value such as a monthly salary of 0 shows that the change stays unsaved until fixed; previously the dashboard only said "Needs Setup" and a restart silently rolled the value back.
 - **A cleared number field no longer keeps the old value**: emptying the salary or work-days field left the box blank while the old number kept driving the dashboard; it is now treated as invalid and highlighted.
@@ -22,8 +26,6 @@ Build artifacts and verification files are available in [GitHub Releases](https:
 - **No more 404 download links during a release**: the Release is created as a draft and published only after every asset is uploaded, so the updater and the download links never hit a half-uploaded release; every Release also uploads a stable `pay-dance-windows-x64.exe` (with its `.sha256`), and the website download button now uses that name. Previously the site pointed at the new versioned file as soon as the version bump landed on main, a dozen minutes before the asset existed.
 - **SmartScreen guidance in every Release body**: the EXE is not code-signed yet, so the notes now say what to click on the first-launch "Windows protected your PC" prompt.
 - **Maintenance chain**: CI runs the whole unit-test suite on every run, so Rust, script or workflow changes can no longer skip the tests that cover them; a failed Release removes its tag so the fix can ship under the same version; a daily snapshot of Release asset download counts lands on the `usage-data` branch as a telemetry-free usage signal; the dependency bot switched from Renovate to Dependabot (since 2026-08-08).
-
-## Released
 
 ### v0.9.9
 

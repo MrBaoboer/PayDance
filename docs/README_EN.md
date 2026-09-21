@@ -51,7 +51,7 @@ The main window shows today's earnings, work progress, time remaining, and daily
 | &nbsp; | Link | Notes |
 |:---:|:---:|:---:|
 | 🌐 | **[Live Preview](https://paydance.vercel.app/en/)** | Browser-based, all core features available, nothing to install |
-| ⬇️ | **[Windows Desktop](https://github.com/MrBaoboer/PayDance/releases/latest/download/pay-dance-v0.9.9-windows-x64.exe)** | Portable EXE with tray, always-on-top, mini float, and auto-start |
+| ⬇️ | **[Windows Desktop](https://github.com/MrBaoboer/PayDance/releases/latest/download/pay-dance-v0.9.10-windows-x64.exe)** | Portable EXE with tray, always-on-top, mini float, and auto-start |
 
 </div>
 
