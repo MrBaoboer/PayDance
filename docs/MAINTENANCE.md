@@ -80,7 +80,7 @@ updater 只会向前升级，所以撤回的方式是尽快发布修复版（pat
 
 ### 使用数据快照
 
-`Usage Snapshot` workflow 每天把 Release 资产的累计下载数追加到 `usage-data` 分支的 `downloads.csv`（日期、tag、资产名、累计次数）。读法：`latest.json` 的增量约等于桌面应用的启动次数（updater 每次启动拉取一次），EXE 的增量约等于新装量；两者之比是最接近留存的公开信号。应用与官网都不含遥测，这是唯一的使用数据来源。
+`npm run usage:snapshot` 把 Release 资产的累计下载数追加到本机的 `%LOCALAPPDATA%\PayDance\usage\downloads.csv`（可用 `PAYDANCE_USAGE_DIR` 改目录；列为日期、tag、资产名、累计次数，同一天只记一次）。该文件只留在维护者本机，不进仓库也不上传。读法：`latest.json` 的增量约等于桌面应用的启动次数（updater 每次启动拉取一次），EXE 的增量约等于新装量；两者之比是最接近留存的公开信号。应用与官网都不含遥测，这是唯一的使用数据来源。
 
 ### 更新签名密钥泄露
 

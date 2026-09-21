@@ -29,6 +29,7 @@
     "release:publish": "node scripts/release-workflow.mjs",
     "qa:web-preview": "node scripts/qa-web-preview.mjs",
     "qa:web-preview:update": "node scripts/qa-web-preview.mjs --update-visual-baselines",
+    "usage:snapshot": "node scripts/usage-snapshot.mjs",
     "setup:encoding": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/setup-dev-encoding.ps1",
     "preview": "vite preview",
     "version:check": "node scripts/ensure-version-consistency.mjs",

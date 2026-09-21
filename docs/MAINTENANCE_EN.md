@@ -80,7 +80,7 @@ The updater only moves forward, so the way back is a fixed release with a new pa
 
 ### Usage Snapshot
 
-The `Usage Snapshot` workflow appends the cumulative download count of every Release asset to `downloads.csv` on the `usage-data` branch once a day (date, tag, asset name, count). Reading it: the daily increase of `latest.json` approximates desktop launches (the updater fetches it once per launch), the increase of the EXE approximates new installs, and their ratio is the closest public signal to retention. Neither the app nor the website carries telemetry, so this is the only usage data source.
+`npm run usage:snapshot` appends the cumulative download count of every Release asset to `%LOCALAPPDATA%\PayDance\usage\downloads.csv` on this machine (override the directory with `PAYDANCE_USAGE_DIR`; columns are date, tag, asset name, count; one record per day). The file stays on the maintainer's machine and is never committed or uploaded. Reading it: the daily increase of `latest.json` approximates desktop launches (the updater fetches it once per launch), the increase of the EXE approximates new installs, and their ratio is the closest public signal to retention. Neither the app nor the website carries telemetry, so this is the only usage data source.
 
 ### Updater Signing Key Compromise
 

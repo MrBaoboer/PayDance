@@ -228,7 +228,6 @@ describe("CI workflow routing", () => {
       ".github/workflows/codeql.yml",
       ".github/workflows/post-release-smoke.yml",
       ".github/workflows/release.yml",
-      ".github/workflows/usage-snapshot.yml",
       ".github/workflows/web-preview.yml",
     ];
 

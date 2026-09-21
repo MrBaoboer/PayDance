@@ -25,7 +25,7 @@
 - **官网接入 Vercel 无 Cookie 访问统计**：只在 Vercel 部署注入，GitHub Pages 镜像与桌面应用不含任何统计。
 - **发布不再出现下载链接 404**：Release 先以草稿创建、资产传齐后再发布，updater 与下载链接不再撞上资产还没传完的窗口；每个 Release 额外上传固定文件名 `pay-dance-windows-x64.exe` 及其 `.sha256`，官网下载按钮改用该固定名。此前版本号提交推上 main 后官网立即指向新版文件，而资产要十几分钟后才存在。
 - **Release 正文补充 SmartScreen 说明**：EXE 尚未做代码签名，首次运行的「Windows 已保护你的电脑」提示怎么处理写在每个 Release 里。
-- **维护链路**：CI 每次都跑全量单元测试，改 Rust、脚本或 workflow 不再跳过对应测试；发布失败时自动删除 tag，修复后可用同一版本号重发；每天把 Release 资产下载量快照到 `usage-data` 分支，作为零遥测的启动趋势数据源；依赖机器人已由 Renovate 换为 Dependabot（2026-08-08 起）。
+- **维护链路**：CI 每次都跑全量单元测试，改 Rust、脚本或 workflow 不再跳过对应测试；发布失败时自动删除 tag，修复后可用同一版本号重发；`npm run usage:snapshot` 把 Release 资产下载数记到维护者本机的 CSV，作为零遥测的启动趋势数据源；依赖机器人已由 Renovate 换为 Dependabot（2026-08-08 起）。
 
 ### v0.9.9
 
