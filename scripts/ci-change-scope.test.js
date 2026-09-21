@@ -40,7 +40,7 @@ describe("CI change scope", () => {
       "DESIGN.md",
       "docs/web-preview-qa.md",
       "legal/ADDITIONAL_TERMS.md",
-      "marketing-posters/poster.png",
+      "docs/posters/poster-02-three-step-setup-v3.png",
       ".github/CONTRIBUTING.md",
       ".github/ISSUE_TEMPLATE/bug_report.yml",
       ".github/PULL_REQUEST_TEMPLATE.md",

@@ -24,8 +24,9 @@ export const heroCopy = {
   },
 };
 
-export function resolveWindowsDownloadUrl(version) {
-  return `${repositoryUrl}/releases/latest/download/pay-dance-v${version}-windows-x64.exe`;
+// Same stable alias as windowsDownloadAssetName in src/lib/app-meta.ts.
+export function resolveWindowsDownloadUrl() {
+  return `${repositoryUrl}/releases/latest/download/pay-dance-windows-x64.exe`;
 }
 
 export function resolveBuildDate(environment = process.env, now = new Date()) {
@@ -134,7 +135,7 @@ export function createWebSeoPlugin({
   preloadFonts = false,
   vercelAnalytics = false,
   version,
-  windowsDownloadUrl = resolveWindowsDownloadUrl(version),
+  windowsDownloadUrl = resolveWindowsDownloadUrl(),
 }) {
   let base = "/";
 

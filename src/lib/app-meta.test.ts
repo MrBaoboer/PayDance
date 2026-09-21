@@ -38,10 +38,10 @@ describe("app metadata", () => {
     expect(appVersion).toBe(packageMetadata.version);
   });
 
-  it("exposes the versioned Windows release download", () => {
-    expect(windowsDownloadAssetName).toBe(`pay-dance-v${appVersion}-windows-x64.exe`);
+  it("exposes the stable Windows release download alias", () => {
+    expect(windowsDownloadAssetName).toBe("pay-dance-windows-x64.exe");
     expect(windowsDownloadUrl).toBe(
-      `https://github.com/MrBaoboer/PayDance/releases/latest/download/pay-dance-v${appVersion}-windows-x64.exe`,
+      "https://github.com/MrBaoboer/PayDance/releases/latest/download/pay-dance-windows-x64.exe",
     );
   });
 });

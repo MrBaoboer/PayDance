@@ -10,5 +10,7 @@ export const appVersion = __PAYDANCE_VERSION__;
 export const appAuthor = "Mr.Baoboer";
 export const appCopyright = "© 2026 Mr.Baoboer";
 export const repositoryUrl = "https://github.com/MrBaoboer/PayDance";
-export const windowsDownloadAssetName = `pay-dance-v${appVersion}-windows-x64.exe`;
+// Every Release also uploads this unversioned copy, so the link keeps working while a new
+// release is still being assembled and never needs a version bump in docs or on the site.
+export const windowsDownloadAssetName = "pay-dance-windows-x64.exe";
 export const windowsDownloadUrl = `${repositoryUrl}/releases/latest/download/${windowsDownloadAssetName}`;

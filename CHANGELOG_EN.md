@@ -19,6 +19,9 @@ Build artifacts and verification files are available in [GitHub Releases](https:
 - **The website demo ticks all day**: the Web Preview demo schedule is now 00:00–23:59, seven days a week, at a monthly salary of 20000, so the amount is moving whenever someone visits; between 22:00 and 06:00 it honestly reads "Night Shift".
 - **Website share image and first paint**: the social share image is now a self-hosted 1200×630 file instead of a raw.githubusercontent.com link; the hero headline, lead and download button are pre-rendered as static HTML so crawlers that skip JavaScript still see the copy; both web fonts are preloaded.
 - **Cookie-free Vercel Web Analytics on the website**: injected only on the Vercel deployment; the GitHub Pages mirror and the desktop app carry no analytics.
+- **No more 404 download links during a release**: the Release is created as a draft and published only after every asset is uploaded, so the updater and the download links never hit a half-uploaded release; every Release also uploads a stable `pay-dance-windows-x64.exe` (with its `.sha256`), and the website download button now uses that name. Previously the site pointed at the new versioned file as soon as the version bump landed on main, a dozen minutes before the asset existed.
+- **SmartScreen guidance in every Release body**: the EXE is not code-signed yet, so the notes now say what to click on the first-launch "Windows protected your PC" prompt.
+- **Maintenance chain**: CI runs the whole unit-test suite on every run, so Rust, script or workflow changes can no longer skip the tests that cover them; a failed Release removes its tag so the fix can ship under the same version; a daily snapshot of Release asset download counts lands on the `usage-data` branch as a telemetry-free usage signal; the dependency bot switched from Renovate to Dependabot (since 2026-08-08).
 
 ## Released
 

@@ -112,6 +112,11 @@ jobs:
       - name: Run metadata verification
         run: npm run verify:metadata
 
+      # The whole suite takes a few seconds; running it here means scoped runs (Rust-only,
+      # scripts-only, workflow-only changes) can no longer skip the tests that cover them.
+      - name: Run unit tests
+        run: npm test
+
   frontend:
     name: Frontend lint, tests, and builds
     needs:

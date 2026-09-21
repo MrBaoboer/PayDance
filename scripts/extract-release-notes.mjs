@@ -37,11 +37,19 @@ const writeNotes = (content) => {
   writeFileSync(resolve(projectRoot, outputPath), `${content.join("\n")}\n`, "utf8");
 };
 
+// The EXE carries an updater signature but no Authenticode certificate yet, so first launches
+// hit SmartScreen; every release body says what to click.
+const smartScreenNotes = [
+  "- 首次运行如出现 SmartScreen「Windows 已保护你的电脑」提示，点击「更多信息 → 仍要运行」。EXE 尚未做代码签名，说明见 https://github.com/MrBaoboer/PayDance/blob/main/docs/FAQ.md",
+  '- If Windows SmartScreen shows "Windows protected your PC" on first launch, choose **More info → Run anyway**. The EXE is not code-signed yet; see https://github.com/MrBaoboer/PayDance/blob/main/docs/FAQ_EN.md',
+];
+
 if (startIndex < 0) {
   writeNotes([
     `## PayDance ${normalizedVersion}`,
     "",
     "This release was built by GitHub Actions. Download the assets from this GitHub Release page, and verify the executable against its `.sha256` file before running it.",
+    ...smartScreenNotes,
   ]);
   console.warn(
     `Release notes section ${heading} was not found in CHANGELOG.md. Wrote fallback notes to ${outputPath}.`,
@@ -73,6 +81,7 @@ writeNotes([
   "",
   "- Download assets from this GitHub Release page.",
   "- If a `.sha256` file is provided, verify the executable before running it.",
+  ...smartScreenNotes,
 ]);
 
 console.log(`Wrote release notes from CHANGELOG.md to ${outputPath}`);
