@@ -24,9 +24,12 @@ export const heroCopy = {
   },
 };
 
-// Same stable alias as windowsDownloadAssetName in src/lib/app-meta.ts.
-export function resolveWindowsDownloadUrl() {
-  return `${repositoryUrl}/releases/latest/download/pay-dance-windows-x64.exe`;
+// On Vercel the button hits api/download-windows.js, which redirects to the newest versioned
+// EXE; static mirrors without functions (GitHub Pages) link to the Release page instead.
+export const windowsDownloadEndpoint = "/download/windows";
+export const releasesPageUrl = `${repositoryUrl}/releases/latest`;
+export function resolveWindowsDownloadUrl({ vercel = false } = {}) {
+  return vercel ? windowsDownloadEndpoint : releasesPageUrl;
 }
 
 export function resolveBuildDate(environment = process.env, now = new Date()) {

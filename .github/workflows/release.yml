@@ -123,11 +123,12 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_UPDATER_PRIVKEY_PASSWORD }}
         run: |
           $ErrorActionPreference = "Stop"
+          $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
 
-          # One EXE per release under a fixed name; the version lives in the tag, the Release title and release-manifest.json.
+          # One EXE per release, named after the tag; the site's /download/windows endpoint resolves the newest tag.
           New-Item -ItemType Directory -Force -Path release-assets
           $exePath = "src-tauri/target/release/pay-dance.exe"
-          $portableName = "pay-dance-windows-x64.exe"
+          $portableName = "pay-dance-v$version-windows-x64.exe"
           $portablePath = "release-assets/$portableName"
           Copy-Item $exePath $portablePath -Force
           $portableHash = (Get-FileHash $portablePath -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -162,7 +163,7 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
-          $sigFile = "release-assets/pay-dance-windows-x64.exe.sig"
+          $sigFile = "release-assets/pay-dance-v$version-windows-x64.exe.sig"
 
           if (-not (Test-Path $sigFile)) {
             Write-Error "Updater signature is missing: $sigFile"
@@ -182,7 +183,7 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
-          $portableName = "pay-dance-windows-x64.exe"
+          $portableName = "pay-dance-v$version-windows-x64.exe"
           $portablePath = "release-assets/$portableName"
           $checksumPath = "$portablePath.sha256"
           $signaturePath = "$portablePath.sig"
@@ -239,8 +240,9 @@ jobs:
       - name: Smoke test Windows executable
         shell: pwsh
         run: |
+          $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
           ./scripts/smoke-windows-exe.ps1 `
-            -ExePath "release-assets/pay-dance-windows-x64.exe" `
+            -ExePath "release-assets/pay-dance-v$version-windows-x64.exe" `
             -ReportPath "release-assets/paydance-exe-smoke-report.json"
 
       - name: Generate release SBOM
@@ -258,7 +260,7 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           $version = "${{ env.RELEASE_TAG }}".TrimStart("v")
-          $portableName = "pay-dance-windows-x64.exe"
+          $portableName = "pay-dance-v$version-windows-x64.exe"
           $portablePath = "release-assets/$portableName"
           $checksumPath = "$portablePath.sha256"
           $signaturePath = "$portablePath.sig"
@@ -329,9 +331,9 @@ jobs:
         with:
           name: pay-dance-windows-release
           path: |
-            release-assets/pay-dance-windows-x64.exe
-            release-assets/pay-dance-windows-x64.exe.sha256
-            release-assets/pay-dance-windows-x64.exe.sig
+            release-assets/pay-dance-v*-windows-x64.exe
+            release-assets/pay-dance-v*-windows-x64.exe.sha256
+            release-assets/pay-dance-v*-windows-x64.exe.sig
             release-assets/latest.json
             release-assets/build-artifact-smoke.md
             release-assets/paydance-exe-smoke-report.json
@@ -352,9 +354,9 @@ jobs:
           draft: true
           fail_on_unmatched_files: true
           files: |
-            release-assets/pay-dance-windows-x64.exe
-            release-assets/pay-dance-windows-x64.exe.sha256
-            release-assets/pay-dance-windows-x64.exe.sig
+            release-assets/pay-dance-v*-windows-x64.exe
+            release-assets/pay-dance-v*-windows-x64.exe.sha256
+            release-assets/pay-dance-v*-windows-x64.exe.sig
             release-assets/latest.json
             release-assets/pay-dance-sbom.spdx.json
             release-assets/release-manifest.json

@@ -63,12 +63,12 @@ CI 按改动文件裁剪 job（`scripts/ci-change-scope.mjs`），两个 gate �
 5. `npm run release:publish`：校验分支、工作区、远端同步、版本与 CHANGELOG 小节、tag 未存在和 CI 结论，然后创建并推送附注 tag `v<版本>`，等待 Release 与 Post-Release Smoke 工作流，最后核对 Release 资产齐全。`--dry-run` 只做本地检查。Release 失败时脚本会删除本地与远端 tag，修好后用同一版本号重跑；若草稿 Release 已经建出来，先 `gh release delete v<版本> --yes`。
 6. 发布后按冒烟清单的“便携版更新”一节，用上一版 EXE 升级到新版本。
 
-Release workflow 在 `windows-2025` 上构建便携 EXE，先以草稿创建 Release、传齐资产后再发布，避免 `/releases/latest` 指向资产还没传完的版本；便携 EXE 只有一份，固定命名为 `pay-dance-windows-x64.exe`，附带 `.sha256`、updater 签名 `.sig`、`latest.json`、SPDX SBOM、`scripts/smoke-windows-exe.ps1` 生成的自动冒烟报告和 `release-manifest.json`；Post-Release Smoke 下载已发布的资产，复核哈希、清单、下载链接，并拒绝带第二个 `.exe` 的 Release。
+Release workflow 在 `windows-2025` 上构建便携 EXE，先以草稿创建 Release、传齐资产后再发布，避免 `/releases/latest` 指向资产还没传完的版本；便携 EXE 只有一份，命名为 `pay-dance-v<版本>-windows-x64.exe`，附带 `.sha256`、updater 签名 `.sig`、`latest.json`、SPDX SBOM、`scripts/smoke-windows-exe.ps1` 生成的自动冒烟报告和 `release-manifest.json`；Post-Release Smoke 下载已发布的资产，复核哈希、清单、下载链接，并拒绝带第二个 `.exe` 的 Release。
 
 ### 发布链路不变量
 
-- `latest.json` 的下载地址钉在对应 tag：`releases/download/v<版本>/pay-dance-windows-x64.exe`；updater 端点固定为 `releases/latest/download/latest.json`。
-- 每个 Release 只带一个 EXE，文件名固定为 `pay-dance-windows-x64.exe`；官网、README 与 FAQ 链接 `releases/latest/download/pay-dance-windows-x64.exe`，不随版本号变化。
+- `latest.json` 的下载地址钉在对应 tag：`releases/download/v<版本>/pay-dance-v<版本>-windows-x64.exe`；updater 端点固定为 `releases/latest/download/latest.json`。
+- 每个 Release 只带一个 EXE，文件名带版本号。官网按钮与 README 的下载链接是 `https://paydance.vercel.app/download/windows`（`api/download-windows.js`，由 `vercel.json` 的 rewrite 挂载）：它读取 GitHub `releases/latest` 的跳转拿到最新 tag，再 302 到对应文件，边缘缓存 5 分钟；解析失败退回 Release 页面。GitHub Pages 镜像没有函数，按钮直接指向 Release 页面。
 - `.sha256` 匹配实际 EXE。`.sig` 是 Tauri updater 签名，不是 Windows Authenticode 发布者签名；接入 Authenticode 前先确认成本、证书来源、续期方式和失败回滚路径。
 - `pay-dance-sbom.spdx.json` 随 Release 归档。
 - GitHub Actions 的 `uses:` 固定到 40 位 Commit SHA，并在行尾保留版本注释。

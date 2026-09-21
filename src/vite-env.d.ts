@@ -6,3 +6,4 @@
 /// <reference types="vite/client" />
 
 declare const __PAYDANCE_VERSION__: string;
+declare const __PAYDANCE_WINDOWS_DOWNLOAD_URL__: string;

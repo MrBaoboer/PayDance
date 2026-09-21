@@ -57,5 +57,11 @@
       "destination": "/en/",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/download/windows",
+      "destination": "/api/download-windows"
+    }
   ]
 }

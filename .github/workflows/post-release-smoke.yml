@@ -83,18 +83,20 @@ jobs:
       - name: Verify critical assets exist
         if: steps.public_release.outputs.skip != 'true'
         run: |
+          VERSION=$(echo "$EXPECTED_TAG" | sed 's/^v//')
+          EXE="pay-dance-v${VERSION}-windows-x64.exe"
           ASSETS=$(jq -r '.assets[].name' expected-release.json)
           echo "Release assets:"
           echo "$ASSETS"
 
-          echo "$ASSETS" | grep -qx "pay-dance-windows-x64.exe" \
-            || { echo "ERROR: portable EXE pay-dance-windows-x64.exe is missing"; exit 1; }
+          echo "$ASSETS" | grep -qx "${EXE}" \
+            || { echo "ERROR: portable EXE ${EXE} is missing"; exit 1; }
 
-          echo "$ASSETS" | grep -qx "pay-dance-windows-x64.exe.sig" \
-            || { echo "ERROR: updater signature pay-dance-windows-x64.exe.sig is missing"; exit 1; }
+          echo "$ASSETS" | grep -qx "${EXE}.sig" \
+            || { echo "ERROR: updater signature ${EXE}.sig is missing"; exit 1; }
 
-          echo "$ASSETS" | grep -qx "pay-dance-windows-x64.exe.sha256" \
-            || { echo "ERROR: SHA256 checksum pay-dance-windows-x64.exe.sha256 is missing"; exit 1; }
+          echo "$ASSETS" | grep -qx "${EXE}.sha256" \
+            || { echo "ERROR: SHA256 checksum ${EXE}.sha256 is missing"; exit 1; }
 
           # One EXE per release: a second copy under another name is a duplicate, not a feature.
           EXE_COUNT=$(echo "$ASSETS" | grep -c "\.exe$" || true)
@@ -114,7 +116,8 @@ jobs:
       - name: Verify SHA256 checksum
         if: steps.public_release.outputs.skip != 'true'
         run: |
-          EXE="pay-dance-windows-x64.exe"
+          VERSION=$(echo "$EXPECTED_TAG" | sed 's/^v//')
+          EXE="pay-dance-v${VERSION}-windows-x64.exe"
 
           gh release download "$EXPECTED_TAG" --repo ${{ github.repository }} --pattern "${EXE}" --dir /tmp/smoke --clobber
           gh release download "$EXPECTED_TAG" --repo ${{ github.repository }} --pattern "${EXE}.sha256" --dir /tmp/smoke --clobber
@@ -131,23 +134,32 @@ jobs:
           fi
           echo "SHA256 verified: $ACTUAL"
 
-      - name: Verify the fixed download link used by the site and README
+      - name: Verify the site download endpoint resolves to this release
         if: steps.public_release.outputs.skip != 'true'
         run: |
-          URL="https://github.com/${{ github.repository }}/releases/latest/download/pay-dance-windows-x64.exe"
+          VERSION=$(echo "$EXPECTED_TAG" | sed 's/^v//')
+          EXPECTED="https://github.com/${{ github.repository }}/releases/download/${EXPECTED_TAG}/pay-dance-v${VERSION}-windows-x64.exe"
+          # The query string bypasses the endpoint's 5-minute edge cache so the check sees this release.
+          URL="https://paydance.vercel.app/download/windows?smoke=${EXPECTED_TAG}"
           echo "Checking: $URL"
-          HTTP_CODE=$(curl -sL -o /dev/null -w "%{http_code}" "$URL")
-          if [ "$HTTP_CODE" -ne 200 ] && [ "$HTTP_CODE" -ne 302 ]; then
-            echo "ERROR: fixed download link returned HTTP $HTTP_CODE"
+          LOCATION=$(curl -sI -o /dev/null -w "%{redirect_url}" "$URL")
+          if [ "$LOCATION" != "$EXPECTED" ]; then
+            echo "ERROR: download endpoint redirects to $LOCATION"
+            echo "  expected: $EXPECTED"
             exit 1
           fi
-          echo "Fixed download link accessible (HTTP $HTTP_CODE)."
+          HTTP_CODE=$(curl -sL -o /dev/null -w "%{http_code}" "$URL")
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "ERROR: download endpoint chain returned HTTP $HTTP_CODE"
+            exit 1
+          fi
+          echo "Download endpoint verified: $LOCATION"
 
       - name: Validate release manifest
         if: steps.public_release.outputs.skip != 'true'
         run: |
           VERSION=$(echo "$EXPECTED_TAG" | sed 's/^v//')
-          EXE="pay-dance-windows-x64.exe"
+          EXE="pay-dance-v${VERSION}-windows-x64.exe"
 
           gh release download "$EXPECTED_TAG" --repo ${{ github.repository }} --pattern release-manifest.json --dir /tmp/smoke --clobber
 
@@ -187,7 +199,8 @@ jobs:
       - name: Verify latest.json points at the checksummed asset
         if: steps.public_release.outputs.skip != 'true'
         run: |
-          EXE="pay-dance-windows-x64.exe"
+          VERSION=$(echo "$EXPECTED_TAG" | sed 's/^v//')
+          EXE="pay-dance-v${VERSION}-windows-x64.exe"
           EXPECTED_URL="https://github.com/${{ github.repository }}/releases/download/${EXPECTED_TAG}/${EXE}"
 
           cd /tmp/smoke

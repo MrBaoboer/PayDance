@@ -9,7 +9,11 @@ import tailwindcss from "@tailwindcss/vite";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath, URL } from "node:url";
-import { createWebSeoPlugin, resolveBuildDate } from "./scripts/web-seo.mjs";
+import {
+  createWebSeoPlugin,
+  resolveBuildDate,
+  resolveWindowsDownloadUrl,
+} from "./scripts/web-seo.mjs";
 
 const packageMetadata = JSON.parse(
   readFileSync(new URL("./package.json", import.meta.url), "utf8"),
@@ -21,11 +25,15 @@ export default defineConfig(({ mode }) => {
   const dateModified = resolveBuildDate();
   const webBase =
     process.env.PAYDANCE_WEB_BASE ?? (process.env.VERCEL ? "/" : "/PayDance/");
+  const windowsDownloadUrl = resolveWindowsDownloadUrl({
+    vercel: Boolean(process.env.VERCEL),
+  });
 
   return {
     base: isWeb ? webBase : "./",
     define: {
       __PAYDANCE_VERSION__: JSON.stringify(packageMetadata.version),
+      __PAYDANCE_WINDOWS_DOWNLOAD_URL__: JSON.stringify(windowsDownloadUrl),
     },
     plugins: [
       createWebSeoPlugin({
@@ -35,6 +43,7 @@ export default defineConfig(({ mode }) => {
         preloadFonts: isWeb,
         vercelAnalytics: isWeb && Boolean(process.env.VERCEL),
         version: packageMetadata.version,
+        windowsDownloadUrl,
       }),
       vue(),
       tailwindcss(),
@@ -103,6 +112,7 @@ export default defineConfig(({ mode }) => {
       include: [
         "src/**/*.test.{ts,js}",
         "scripts/**/*.test.{ts,js}",
+        "api/**/*.test.{ts,js}",
         "src-tauri/*.test.{ts,js}",
       ],
     },

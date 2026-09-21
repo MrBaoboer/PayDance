@@ -12,10 +12,10 @@ Use the [Web Preview](https://paydance.vercel.app/en/) to try the interface and 
 
 ### Which file should I download?
 
-From the [latest Release](https://github.com/MrBaoboer/PayDance/releases/latest), download `pay-dance-windows-x64.exe`. The file name carries no version; read it from the Release title or the EXE file properties. The website download button points at the same file. Verify it against the `.sha256` file on the same page:
+From the [latest Release](https://github.com/MrBaoboer/PayDance/releases/latest), download `pay-dance-v<version>-windows-x64.exe`; it is the only EXE on the Release. The website download button always redirects to this file for the newest version. Verify it against the `.sha256` file on the same page:
 
 ```powershell
-Get-FileHash .\pay-dance-windows-x64.exe -Algorithm SHA256
+Get-FileHash .\pay-dance-v<version>-windows-x64.exe -Algorithm SHA256
 ```
 
 The printed hash must match the one inside the `.sha256` file; case does not matter.

@@ -59,7 +59,7 @@ if (!signature) {
 // next release went live must still download the bytes this signature covers.
 const portableUrl =
   getArg("--url") ??
-  `https://github.com/MrBaoboer/PayDance/releases/download/v${version}/pay-dance-windows-x64.exe`;
+  `https://github.com/MrBaoboer/PayDance/releases/download/v${version}/pay-dance-v${version}-windows-x64.exe`;
 
 const latestJson = {
   version: `v${version}`,

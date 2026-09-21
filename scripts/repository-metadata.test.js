@@ -19,8 +19,7 @@ const dependabotSettings = dependabotConfig
 // Collapsed so adjacency can be asserted with plain substring matching; building
 // a RegExp from these names would reintroduce js/incomplete-sanitization.
 const collapsedDependabotSettings = dependabotSettings.replace(/\s+/g, " ");
-const desktopAssetName = "pay-dance-windows-x64.exe";
-const desktopDownloadUrl = `https://github.com/MrBaoboer/PayDance/releases/latest/download/${desktopAssetName}`;
+const siteWindowsDownloadUrl = "https://paydance.vercel.app/download/windows";
 const legacyAdditionalTermsReference = `see /${["ADDITIONAL_TERMS", "md"].join(".")}`;
 const binaryExtensions = new Set([".ico", ".png", ".woff2"]);
 const existsInWorktree = (path) => existsSync(resolve(repoRoot, path));
@@ -100,18 +99,18 @@ describe("repository metadata", () => {
     }
   });
 
-  // 中英文 README 都用固定名直链，不随版本号变化，发版窗口内也不会 404。
-  it("keeps README desktop download links on the fixed-name Windows release executable", () => {
+  // 中英文 README 的下载直链走官网跳转端点，它总是解析到最新 tag 的 EXE，发版窗口内也不会 404。
+  it("keeps README desktop download links on the site download endpoint", () => {
     for (const path of ["README.md", "docs/README_EN.md"]) {
       const readme = read(path);
-      expect(readme).toContain(desktopDownloadUrl);
-      expect(readme).not.toMatch(/pay-dance-v\d+\.\d+\.\d+-windows-x64\.exe/);
+      expect(readme).toContain(siteWindowsDownloadUrl);
+      expect(readme).not.toContain("releases/latest/download/");
       expect(readme).not.toContain("releases/download/v0.7.16/pay-dance.exe");
       expect(readme).not.toContain("mrbaoboer.github.io/PayDance/pay-dance.exe");
     }
 
     // versionedDesktopChecksumName is removed from README to prevent hardcoded version churn
-    expect(read("src/lib/app-meta.ts")).toContain("windowsDownloadAssetName");
+    expect(read("src/lib/app-meta.ts")).toContain("__PAYDANCE_WINDOWS_DOWNLOAD_URL__");
   });
 
   it("keeps the English README on its dedicated first-time setup poster", () => {
@@ -177,13 +176,15 @@ describe("repository metadata", () => {
     }
   });
 
-  it("publishes exactly one fixed-name Windows EXE from the release workflow", () => {
+  it("publishes exactly one versioned Windows EXE from the release workflow", () => {
     const releaseWorkflow = read(".github/workflows/release.yml");
     const postReleaseSmoke = read(".github/workflows/post-release-smoke.yml");
 
-    expect(releaseWorkflow).toContain('$portableName = "pay-dance-windows-x64.exe"');
-    expect(releaseWorkflow).not.toContain("pay-dance-v$version");
-    expect(releaseWorkflow).not.toContain("pay-dance-v*");
+    expect(releaseWorkflow).toContain(
+      '$portableName = "pay-dance-v$version-windows-x64.exe"',
+    );
+    expect(releaseWorkflow).not.toContain("$aliasName");
+    expect(releaseWorkflow).not.toContain("release-assets/pay-dance-windows-x64.exe");
     expect(releaseWorkflow).toContain("portableName");
     expect(releaseWorkflow).toContain("allow_missing_ci_for_repair");
     expect(releaseWorkflow).toContain("ALLOW_MISSING_CI_FOR_REPAIR");
@@ -215,10 +216,11 @@ describe("repository metadata", () => {
     expect(postReleaseSmoke).toContain("release-manifest.json");
     expect(postReleaseSmoke).toContain("EXPECTED_TAG");
     expect(postReleaseSmoke).toContain("GitHub asset digest");
-    expect(postReleaseSmoke).toContain('EXE="pay-dance-windows-x64.exe"');
+    expect(postReleaseSmoke).toContain('EXE="pay-dance-v${VERSION}-windows-x64.exe"');
     expect(postReleaseSmoke).toContain("expected exactly one .exe asset");
     expect(postReleaseSmoke).toContain("releases/download/${EXPECTED_TAG}/${EXE}");
-    expect(postReleaseSmoke).not.toContain("pay-dance-v${VERSION}");
+    expect(postReleaseSmoke).toContain("https://paydance.vercel.app/download/windows");
+    expect(postReleaseSmoke).not.toContain("pay-dance-windows-x64.exe");
   });
 
   it("publishes a minimal community governance surface", () => {

@@ -13,7 +13,6 @@ import {
   appTagline,
   appVersion,
   repositoryUrl,
-  windowsDownloadAssetName,
   windowsDownloadUrl,
 } from "./app-meta";
 
@@ -38,10 +37,9 @@ describe("app metadata", () => {
     expect(appVersion).toBe(packageMetadata.version);
   });
 
-  it("exposes the stable Windows release download alias", () => {
-    expect(windowsDownloadAssetName).toBe("pay-dance-windows-x64.exe");
+  it("links Windows downloads to the Release page outside Vercel builds", () => {
     expect(windowsDownloadUrl).toBe(
-      "https://github.com/MrBaoboer/PayDance/releases/latest/download/pay-dance-windows-x64.exe",
+      "https://github.com/MrBaoboer/PayDance/releases/latest",
     );
   });
 });

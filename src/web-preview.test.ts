@@ -130,7 +130,7 @@ describe("PayDance Web Preview", () => {
     expect(webPreviewSource).toContain('t("web.heroHeadline2")');
     expect(webPreviewSource).toContain('t("web.heroLead")');
     expect(webPreviewSource).toContain('t("web.downloadWindows")');
-    expect(webPreviewSource).toContain('"pay-dance-windows-x64.exe"');
+    expect(webPreviewSource).toContain("__PAYDANCE_WINDOWS_DOWNLOAD_URL__");
     expect(webPreviewSource).toContain(':show-desktop-features="false"');
     expect(webPreviewSource).not.toContain("Web Preview 只用于预览核心体验");
     expect(webPreviewSource).not.toContain("@tauri-apps");

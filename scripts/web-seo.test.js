@@ -82,10 +82,9 @@ describe("web preview static hero", () => {
     expect(resolveHtmlLocale('<html lang="zh-CN">')).toBe("zh-CN");
   });
 
-  it("points the download link at the stable alias like the app does", () => {
-    expect(downloadUrl).toBe(
-      "https://github.com/MrBaoboer/PayDance/releases/latest/download/pay-dance-windows-x64.exe",
-    );
+  it("sends Vercel visitors through the download endpoint and mirrors to the Release page", () => {
+    expect(resolveWindowsDownloadUrl({ vercel: true })).toBe("/download/windows");
+    expect(downloadUrl).toBe("https://github.com/MrBaoboer/PayDance/releases/latest");
   });
 
   it("preloads every emitted woff2 font under the configured base", () => {

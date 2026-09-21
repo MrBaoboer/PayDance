@@ -41,7 +41,7 @@ describe("latest.json generation", () => {
       expect(latestJson.notes).toBe("Release notes");
       expect(latestJson.platforms["windows-x86_64"].signature).toBe("trusted-signature");
       expect(latestJson.platforms["windows-x86_64"].url).toBe(
-        "https://github.com/MrBaoboer/PayDance/releases/download/v0.9.3/pay-dance-windows-x64.exe",
+        "https://github.com/MrBaoboer/PayDance/releases/download/v0.9.3/pay-dance-v0.9.3-windows-x64.exe",
       );
     } finally {
       rmSync(dir, { recursive: true, force: true });

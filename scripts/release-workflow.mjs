@@ -351,7 +351,8 @@ function removeReleaseTag(releaseTag) {
 }
 
 function assertReleaseAssets(releaseTag) {
-  const exe = "pay-dance-windows-x64.exe";
+  const version = releaseTag.replace(/^v/, "");
+  const exe = `pay-dance-v${version}-windows-x64.exe`;
   const release = captureJson("gh", [
     "release",
     "view",
