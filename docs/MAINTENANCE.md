@@ -46,6 +46,7 @@ CI 按改动文件裁剪 job（`scripts/ci-change-scope.mjs`），两个 gate �
 ## 工具链
 
 - CI 的 Rust 用 `stable`，本地落后会让 `cargo clippy -D warnings` 的结论与 CI 不一致：`rustup check` 看差距，`rustup update stable` 跟上。
+- runner 镜像钉版本（`windows-2025`、`ubuntu-24.04`），不用 `-latest`：GitHub 分批迁移这类标签（`ubuntu-latest` 2026-10-19 起换 26.04），新旧镜像混跑时的失败像随机抖动。升级镜像单独提交并跑一遍全量 CI。
 - `npm run verify:release` 调用本地的 cargo-audit 和 cargo-deny，版本必须与 CI 固定的一致，否则本地审计结论不作数：
 
   ```powershell

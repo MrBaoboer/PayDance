@@ -3,7 +3,7 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -171,6 +171,20 @@ describe("CI workflow routing", () => {
     // 机器人豁免必须挂在 GitHub 侧的 PR 作者上：提交里的作者字段谁都能伪造。
     expect(ciWorkflow).toContain("github.event.pull_request.user.login");
     expect(ciWorkflow).toContain('--pr-author "$PR_AUTHOR"');
+  });
+
+  // -latest 标签会被 GitHub 分批迁移（ubuntu-latest 2026-10-19 起换 26.04），新旧镜像
+  // 混跑时的失败像随机抖动；镜像一律钉版本，升级单独提交并跑全量 CI。
+  it("pins hosted runner images instead of -latest labels", () => {
+    const workflows = readdirSync(resolve(import.meta.dirname, "../.github/workflows"))
+      .filter((file) => file.endsWith(".yml"))
+      .map((file) => [file, readRoot(`.github/workflows/${file}`)]);
+
+    expect(workflows.length).toBeGreaterThan(0);
+    for (const [file, workflow] of workflows) {
+      expect(workflow, file).toMatch(/runs-on: /);
+      expect(workflow, file).not.toMatch(/runs-on: \S*-latest/);
+    }
   });
 
   it("does not cancel main validation or deployment runs", () => {

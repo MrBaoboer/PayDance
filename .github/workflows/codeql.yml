@@ -21,7 +21,7 @@ concurrency:
 jobs:
   changes:
     name: Detect CodeQL change scope
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       requires_full_ci: ${{ steps.scope.outputs.requires_full_ci }}
       requires_codeql: ${{ steps.scope.outputs.requires_codeql }}
@@ -80,7 +80,7 @@ jobs:
     needs:
       - changes
       - analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Verify all language scans

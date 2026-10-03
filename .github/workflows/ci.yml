@@ -24,7 +24,7 @@ concurrency:
 jobs:
   changes:
     name: Detect change scope
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       scope: ${{ steps.scope.outputs.scope }}
       is_lightweight: ${{ steps.scope.outputs.is_lightweight }}
@@ -72,7 +72,7 @@ jobs:
     name: DCO sign-off
     # 只有 PR 会引入外部提交；main 上的推送由维护者自己签署，跳过即可。
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -96,7 +96,7 @@ jobs:
   metadata:
     name: Metadata, format, and hygiene
     needs: changes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -228,7 +228,7 @@ jobs:
       - changes
       - metadata
     if: needs.changes.outputs.requires_security == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # issues: write 只为定时 / 手动审计写 issue；push / PR 事件里不会走到那一步。
     permissions:
       contents: read
@@ -351,7 +351,7 @@ jobs:
       - web_preview_qa
       - rust
       - security
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Verify required jobs

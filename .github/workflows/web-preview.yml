@@ -23,7 +23,7 @@ jobs:
   scope:
     name: Read CI change scope
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       deploy_web_preview: ${{ steps.scope.outputs.deploy_web_preview }}
 
@@ -52,7 +52,7 @@ jobs:
     name: Build and deploy Web Preview
     needs: scope
     if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && needs.scope.outputs.deploy_web_preview == 'true')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

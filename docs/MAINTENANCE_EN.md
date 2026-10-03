@@ -46,6 +46,7 @@ CI trims jobs by changed files (`scripts/ci-change-scope.mjs`), and both gates c
 ## Toolchain
 
 - CI uses Rust `stable`; a lagging local toolchain makes `cargo clippy -D warnings` disagree with CI. `rustup check` shows the gap, `rustup update stable` closes it.
+- Runner images are pinned (`windows-2025`, `ubuntu-24.04`) instead of `-latest`: GitHub migrates those labels in batches (`ubuntu-latest` moves to 26.04 from 2026-10-19), and failures while old and new images run side by side look like random flakiness. Upgrade an image in its own commit and run the full CI once.
 - `npm run verify:release` invokes the local cargo-audit and cargo-deny. Their versions must match the ones pinned in CI, or the local audit result does not count:
 
   ```powershell
