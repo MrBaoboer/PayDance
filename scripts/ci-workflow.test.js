@@ -143,10 +143,12 @@ describe("CI workflow routing", () => {
     expect(ciWorkflow).toMatch(
       /- name: Run gitleaks \(detect secrets in git history\)\r?\n\s+if: "!cancelled\(\)"\r?\n/,
     );
-    // 定时审计的结论写进 issue；issues: write 只给这一个 job。
+    // 定时 / 手动审计的结论写进 issue，只认 main；issues: write 只给这一个 job。
+    // 手动触发让修复推送后能立即复核：失败运行上的 Re-run 审计的是旧提交。
+    expect(ciWorkflow).toMatch(/^ {2}workflow_dispatch:\r?$/m);
     expect(ciWorkflow).toContain("Track scheduled audit result in an issue");
     expect(ciWorkflow).toContain(
-      "if: \"!cancelled() && github.event_name == 'schedule'\"",
+      "if: \"!cancelled() && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')\"",
     );
     expect(ciWorkflow).toContain("gh issue create");
     expect(ciWorkflow).toContain("gh issue close");

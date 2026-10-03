@@ -217,6 +217,9 @@ export function scheduledAuditScope() {
   };
 }
 
+// 手动触发（workflow_dispatch）跑同一套审计，供修复推送后立即复核。
+const AUDIT_ONLY_EVENTS = new Set(["schedule", "workflow_dispatch"]);
+
 function printUsage() {
   console.log(`Usage:
   node scripts/ci-change-scope.mjs --files README.md legal/ADDITIONAL_TERMS.md
@@ -226,7 +229,7 @@ function printUsage() {
 Options:
   --files <paths...>          Classify the provided file paths.
   --base <sha> --head <sha>   Classify files changed between two Git revisions.
-  --event <name>              GitHub event name; "schedule" selects the audit-only scope.
+  --event <name>              GitHub event name; "schedule" and "workflow_dispatch" select the audit-only scope.
   --github-output <path>      Append GitHub Actions output variables.
   --json-file <path>          Write the full JSON summary.
   --help                      Show this message.`);
@@ -331,14 +334,13 @@ function cli(argv) {
     return;
   }
 
-  const result =
-    args.event === "schedule"
-      ? scheduledAuditScope()
-      : classifyChangedFiles(
-          args.files.length > 0
-            ? args.files
-            : gitFilesForRange(args.base, args.head ?? "HEAD"),
-        );
+  const result = AUDIT_ONLY_EVENTS.has(args.event)
+    ? scheduledAuditScope()
+    : classifyChangedFiles(
+        args.files.length > 0
+          ? args.files
+          : gitFilesForRange(args.base, args.head ?? "HEAD"),
+      );
 
   if (args.githubOutput) {
     writeGithubOutput(args.githubOutput, result);

@@ -11,6 +11,8 @@ on:
   # 无关提交或 Dependabot PR 撞上才发现。只跑 security job，失败开 issue。
   schedule:
     - cron: "0 22 * * *"
+  # 手动跑同一套审计：修复推送后用它复核并关 issue（失败运行上的 Re-run 审计的是旧提交）。
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -227,7 +229,7 @@ jobs:
       - metadata
     if: needs.changes.outputs.requires_security == 'true'
     runs-on: ubuntu-latest
-    # issues: write 只为定时审计失败时开 issue；push / PR 事件里不会走到那一步。
+    # issues: write 只为定时 / 手动审计写 issue；push / PR 事件里不会走到那一步。
     permissions:
       contents: read
       issues: write
@@ -305,10 +307,10 @@ jobs:
         run: cargo deny check
         working-directory: src-tauri
 
-      # 定时审计的结论落到一个 issue 上：失败时开或追加评论，恢复后自动关闭。
-      # GitHub 公告库没收录的 RustSec 公告 Dependabot 不会开 PR，只有这里能看到。
+      # main 上定时 / 手动审计的结论落到一个 issue 上：失败时开或追加评论，恢复后自动关闭。
+      # Dependabot 告警可能缺失（RustSec 独有公告、2026-10 的 brace-expansion），只有这里能看到。
       - name: Track scheduled audit result in an issue
-        if: "!cancelled() && github.event_name == 'schedule'"
+        if: "!cancelled() && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')"
         env:
           GH_TOKEN: ${{ github.token }}
           JOB_STATUS: ${{ job.status }}
@@ -319,18 +321,18 @@ jobs:
 
           if [ "$JOB_STATUS" = "success" ]; then
             if [ -n "$number" ]; then
-              gh issue close "$number" --comment "定时审计已恢复通过：$RUN_URL"
+              gh issue close "$number" --comment "依赖审计已恢复通过：$RUN_URL"
             fi
             exit 0
           fi
 
-          body="main 的定时依赖审计失败：$RUN_URL
+          body="main 的依赖审计失败：$RUN_URL
 
-          - npm 公告：等 Dependabot 的安全更新 PR，或本地 \`npm audit fix\` 后推送。
-          - Rust 公告：日志里 cargo-deny 会给出 \`cargo update -p <crate>\`，在 \`src-tauri\` 下执行后 \`npm run push:main\`。
-          - 确认不影响 Windows 构建的公告：在 \`src-tauri/.cargo/audit.toml\` 里带理由忽略。
+          - npm 公告：本地 \`npm audit fix\` 后 \`npm run push:main\`。Dependabot 告警可能缺失，别等它的 PR。
+          - Rust 公告：在 \`src-tauri\` 下 \`cargo update -p <crate> --precise <修复版本>\`（不带 \`--precise\` 可能不升级），再 \`npm run push:main\`。
+          - 确认不影响 Windows 构建的公告：在 \`src-tauri/.cargo/audit.toml\` 与 \`src-tauri/deny.toml\` 里都带理由忽略。
 
-          审计恢复通过后本 issue 自动关闭。"
+          修复推送后在 Actions → CI → Run workflow 手动重跑，审计通过即自动关闭本 issue；失败运行上的 Re-run 审计的仍是旧提交。"
 
           if [ -n "$number" ]; then
             gh issue comment "$number" --body "$body"

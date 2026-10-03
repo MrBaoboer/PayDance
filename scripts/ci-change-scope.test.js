@@ -214,7 +214,8 @@ describe("CI change scope", () => {
 
   // 定时审计只跑 security job：公告随时发布，只有按时重跑才能在它拦住下一条
   // 无关提交之前发现；前端 / Rust / Web Preview / CodeQL 与改动无关，一律跳过。
-  it("runs only the security job for the scheduled audit", () => {
+  // 手动触发走同一套，修复推送后用它立即复核。
+  it("runs only the security job for the scheduled or manual audit", () => {
     expect(scheduledAuditScope()).toEqual({
       changedFiles: [],
       scope: "scheduled-audit",
@@ -232,42 +233,44 @@ describe("CI change scope", () => {
       reasons: ["scheduled dependency audit"],
     });
 
-    withTempDir((cwd) => {
-      const outputPath = join(cwd, "github-output.txt");
-      const jsonPath = join(cwd, "scope.json");
+    for (const event of ["schedule", "workflow_dispatch"]) {
+      withTempDir((cwd) => {
+        const outputPath = join(cwd, "github-output.txt");
+        const jsonPath = join(cwd, "scope.json");
 
-      execFileSync(
-        "node",
-        [
-          scriptPath,
-          "--event",
-          "schedule",
-          "--base",
-          "0123456789abcdef0123456789abcdef01234567",
-          "--head",
-          "HEAD",
-          "--github-output",
-          outputPath,
-          "--json-file",
-          jsonPath,
-        ],
-        { encoding: "utf8" },
-      );
+        execFileSync(
+          "node",
+          [
+            scriptPath,
+            "--event",
+            event,
+            "--base",
+            "0123456789abcdef0123456789abcdef01234567",
+            "--head",
+            "HEAD",
+            "--github-output",
+            outputPath,
+            "--json-file",
+            jsonPath,
+          ],
+          { encoding: "utf8" },
+        );
 
-      const output = readFileSync(outputPath, "utf8");
-      const summary = JSON.parse(readFileSync(jsonPath, "utf8"));
+        const output = readFileSync(outputPath, "utf8");
+        const summary = JSON.parse(readFileSync(jsonPath, "utf8"));
 
-      expect(output).toContain("scope=scheduled-audit");
-      expect(output).toContain("requires_frontend=false");
-      expect(output).toContain("requires_rust=false");
-      expect(output).toContain("requires_web_preview_qa=false");
-      expect(output).toContain("requires_security=true");
-      expect(output).toContain("requires_npm_audit=true");
-      expect(output).toContain("requires_cargo_audit=true");
-      expect(output).toContain("requires_codeql=false");
-      expect(output).toContain("deploy_web_preview=false");
-      expect(summary.deployWebPreview).toBe(false);
-    });
+        expect(output, event).toContain("scope=scheduled-audit");
+        expect(output, event).toContain("requires_frontend=false");
+        expect(output, event).toContain("requires_rust=false");
+        expect(output, event).toContain("requires_web_preview_qa=false");
+        expect(output, event).toContain("requires_security=true");
+        expect(output, event).toContain("requires_npm_audit=true");
+        expect(output, event).toContain("requires_cargo_audit=true");
+        expect(output, event).toContain("requires_codeql=false");
+        expect(output, event).toContain("deploy_web_preview=false");
+        expect(summary.deployWebPreview, event).toBe(false);
+      });
+    }
 
     // 其它事件名不改变按文件分类的结果。
     expect(
