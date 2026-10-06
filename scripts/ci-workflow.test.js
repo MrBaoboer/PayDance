@@ -115,13 +115,10 @@ describe("CI workflow routing", () => {
   });
 
   // 一条 Rust 公告曾把只改 npm 的 Dependabot PR 拦红（RUSTSEC-2026-0285，2026-09）：
-  // 审计结论只由各自锁文件决定，所以 npm / cargo 审计按清单裁剪，gitleaks 始终跑；
-  // 新公告靠每日定时审计发现并落到 issue，而不是等下一条无关提交撞上。
-  it("scopes dependency audits per ecosystem and reruns them on a schedule", () => {
+  // 审计结论只由各自锁文件决定，所以 npm / cargo 审计按清单裁剪，gitleaks 始终跑。
+  it("scopes dependency audits per ecosystem", () => {
     const ciWorkflow = readRoot(".github/workflows/ci.yml");
 
-    expect(ciWorkflow).toMatch(/schedule:\r?\n\s+- cron: "[^"]+"/);
-    expect(ciWorkflow).toContain('--event "${{ github.event_name }}"');
     expect(ciWorkflow).toContain("requires_npm_audit");
     expect(ciWorkflow).toContain("requires_cargo_audit");
     expect(ciWorkflow).toMatch(
@@ -143,16 +140,10 @@ describe("CI workflow routing", () => {
     expect(ciWorkflow).toMatch(
       /- name: Run gitleaks \(detect secrets in git history\)\r?\n\s+if: "!cancelled\(\)"\r?\n/,
     );
-    // 定时 / 手动审计的结论写进 issue，只认 main；issues: write 只给这一个 job。
-    // 手动触发让修复推送后能立即复核：失败运行上的 Re-run 审计的是旧提交。
-    expect(ciWorkflow).toMatch(/^ {2}workflow_dispatch:\r?$/m);
-    expect(ciWorkflow).toContain("Track scheduled audit result in an issue");
-    expect(ciWorkflow).toContain(
-      "if: \"!cancelled() && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')\"",
-    );
-    expect(ciWorkflow).toContain("gh issue create");
-    expect(ciWorkflow).toContain("gh issue close");
-    expect(ciWorkflow.match(/^\s+issues: write$/gm)).toHaveLength(1);
+    // 不设定时审计（2026-10 移除）：它报出的全是构建期工具链的传递依赖，不进 EXE
+    // 与官网产物；公告在清单变化时（每周 Dependabot PR）和 verify:release 暴露。
+    expect(ciWorkflow).not.toMatch(/^\s+schedule:/m);
+    expect(ciWorkflow).not.toContain("issues: write");
     expect(ciWorkflow).toMatch(/^permissions:\r?\n\s+contents: read\r?\n\r?\n/m);
   });
 

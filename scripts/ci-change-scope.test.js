@@ -9,7 +9,7 @@ import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { describe, expect, it } from "vitest";
 
-import { classifyChangedFiles, scheduledAuditScope } from "./ci-change-scope.mjs";
+import { classifyChangedFiles } from "./ci-change-scope.mjs";
 
 const scriptPath = resolve(import.meta.dirname, "ci-change-scope.mjs");
 
@@ -210,74 +210,6 @@ describe("CI change scope", () => {
         requiresCargoAudit: false,
       });
     }
-  });
-
-  // 定时审计只跑 security job：公告随时发布，只有按时重跑才能在它拦住下一条
-  // 无关提交之前发现；前端 / Rust / Web Preview / CodeQL 与改动无关，一律跳过。
-  // 手动触发走同一套，修复推送后用它立即复核。
-  it("runs only the security job for the scheduled or manual audit", () => {
-    expect(scheduledAuditScope()).toEqual({
-      changedFiles: [],
-      scope: "scheduled-audit",
-      isLightweight: false,
-      requiresFullCi: false,
-      requiresWindowsBuild: false,
-      requiresFrontend: false,
-      requiresRust: false,
-      requiresWebPreviewQa: false,
-      requiresSecurity: true,
-      requiresNpmAudit: true,
-      requiresCargoAudit: true,
-      requiresCodeql: false,
-      deployWebPreview: false,
-      reasons: ["scheduled dependency audit"],
-    });
-
-    for (const event of ["schedule", "workflow_dispatch"]) {
-      withTempDir((cwd) => {
-        const outputPath = join(cwd, "github-output.txt");
-        const jsonPath = join(cwd, "scope.json");
-
-        execFileSync(
-          "node",
-          [
-            scriptPath,
-            "--event",
-            event,
-            "--base",
-            "0123456789abcdef0123456789abcdef01234567",
-            "--head",
-            "HEAD",
-            "--github-output",
-            outputPath,
-            "--json-file",
-            jsonPath,
-          ],
-          { encoding: "utf8" },
-        );
-
-        const output = readFileSync(outputPath, "utf8");
-        const summary = JSON.parse(readFileSync(jsonPath, "utf8"));
-
-        expect(output, event).toContain("scope=scheduled-audit");
-        expect(output, event).toContain("requires_frontend=false");
-        expect(output, event).toContain("requires_rust=false");
-        expect(output, event).toContain("requires_web_preview_qa=false");
-        expect(output, event).toContain("requires_security=true");
-        expect(output, event).toContain("requires_npm_audit=true");
-        expect(output, event).toContain("requires_cargo_audit=true");
-        expect(output, event).toContain("requires_codeql=false");
-        expect(output, event).toContain("deploy_web_preview=false");
-        expect(summary.deployWebPreview, event).toBe(false);
-      });
-    }
-
-    // 其它事件名不改变按文件分类的结果。
-    expect(
-      execFileSync("node", [scriptPath, "--event", "push", "--files", "README.md"], {
-        encoding: "utf8",
-      }),
-    ).toContain('"scope": "lightweight"');
   });
 
   it("deploys Web Preview only for web-affecting full-CI changes", () => {

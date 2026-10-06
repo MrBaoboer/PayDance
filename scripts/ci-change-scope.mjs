@@ -196,40 +196,14 @@ export function classifyChangedFiles(files) {
   };
 }
 
-// 定时审计不看改动：公告随时会发布，只有按时重跑审计才能在它拦住下一条无关
-// 提交或 Dependabot PR 之前发现。除 security 之外的 job 全部跳过。
-export function scheduledAuditScope() {
-  return {
-    changedFiles: [],
-    scope: "scheduled-audit",
-    isLightweight: false,
-    requiresFullCi: false,
-    requiresWindowsBuild: false,
-    requiresFrontend: false,
-    requiresRust: false,
-    requiresWebPreviewQa: false,
-    requiresSecurity: true,
-    requiresNpmAudit: true,
-    requiresCargoAudit: true,
-    requiresCodeql: false,
-    deployWebPreview: false,
-    reasons: ["scheduled dependency audit"],
-  };
-}
-
-// 手动触发（workflow_dispatch）跑同一套审计，供修复推送后立即复核。
-const AUDIT_ONLY_EVENTS = new Set(["schedule", "workflow_dispatch"]);
-
 function printUsage() {
   console.log(`Usage:
   node scripts/ci-change-scope.mjs --files README.md legal/ADDITIONAL_TERMS.md
   node scripts/ci-change-scope.mjs --base <base-sha> --head <head-sha>
-  node scripts/ci-change-scope.mjs --event schedule
 
 Options:
   --files <paths...>          Classify the provided file paths.
   --base <sha> --head <sha>   Classify files changed between two Git revisions.
-  --event <name>              GitHub event name; "schedule" and "workflow_dispatch" select the audit-only scope.
   --github-output <path>      Append GitHub Actions output variables.
   --json-file <path>          Write the full JSON summary.
   --help                      Show this message.`);
@@ -240,7 +214,6 @@ function parseArgs(argv) {
     files: [],
     base: undefined,
     head: undefined,
-    event: undefined,
     githubOutput: undefined,
     jsonFile: undefined,
     help: false,
@@ -260,11 +233,6 @@ function parseArgs(argv) {
     }
     if (arg === "--head") {
       parsed.head = argv.at(index + 1);
-      index += 1;
-      continue;
-    }
-    if (arg === "--event") {
-      parsed.event = argv.at(index + 1);
       index += 1;
       continue;
     }
@@ -334,13 +302,9 @@ function cli(argv) {
     return;
   }
 
-  const result = AUDIT_ONLY_EVENTS.has(args.event)
-    ? scheduledAuditScope()
-    : classifyChangedFiles(
-        args.files.length > 0
-          ? args.files
-          : gitFilesForRange(args.base, args.head ?? "HEAD"),
-      );
+  const changedFiles =
+    args.files.length > 0 ? args.files : gitFilesForRange(args.base, args.head ?? "HEAD");
+  const result = classifyChangedFiles(changedFiles);
 
   if (args.githubOutput) {
     writeGithubOutput(args.githubOutput, result);
