@@ -753,6 +753,7 @@ describe("PayDance Web Preview", () => {
     expect(viteConfig).toContain('en: resolve(projectRoot, "en/index.html")');
     expect(viteConfig).toContain("createWebSeoPlugin");
     expect(read("vercel.json")).toContain('"buildCommand": "npm run build:web"');
+    expect(read("vercel.json")).toContain('"autoJobCancelation": false');
     expect(viteConfig).toContain("src-tauri/target/**");
     expect(read(".github/workflows/web-preview.yml")).toContain("npm run build:web");
     expect(read(".github/workflows/web-preview.yml")).toContain(
