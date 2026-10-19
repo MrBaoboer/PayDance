@@ -99,6 +99,15 @@ describe("repository metadata", () => {
     }
   });
 
+  it("keeps the updater's zip feature off because updates are bare signed EXEs", () => {
+    // portable_update.rs only accepts an EXE payload, so zip extraction is dead code that
+    // would pull zip 4.x (RUSTSEC-2026-0369) back into the lockfile.
+    expect(read("src-tauri/Cargo.toml")).toMatch(
+      /^tauri-plugin-updater = \{ [^}]*default-features = false/m,
+    );
+    expect(read("src-tauri/Cargo.lock")).not.toMatch(/^name = "zip"$/m);
+  });
+
   // 中英文 README 的下载直链走官网跳转端点，它总是解析到最新 tag 的 EXE，发版窗口内也不会 404。
   it("keeps README desktop download links on the site download endpoint", () => {
     for (const path of ["README.md", "docs/README_EN.md"]) {

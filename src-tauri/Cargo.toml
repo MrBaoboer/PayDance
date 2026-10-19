@@ -19,7 +19,8 @@ tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-opener = "2.5.4"
 tauri-plugin-store = "2"
 tauri-plugin-process = "2"
-tauri-plugin-updater = "2"
+# 更新包是签名的裸 EXE，用不到 zip 解包；关掉 zip 特性免得把 zip 4.x（RUSTSEC-2026-0369）编进来
+tauri-plugin-updater = { version = "2", default-features = false, features = ["rustls-tls", "system-proxy"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
