@@ -20,9 +20,9 @@ const props = defineProps<{
 const { t } = useI18n();
 const { currencySymbol } = useCurrency();
 
-// The mini window is a single control whose only content is aria-hidden digits, so the amount
-// has to live in its accessible name or it is invisible to a screen reader.
-const miniAriaLabel = computed(() =>
+// The mini window is a single control whose only visible content is aria-hidden digits, so the
+// amount has to live in this visually hidden name or it is invisible to a screen reader.
+const miniAccessibleName = computed(() =>
   t.value("mini.ariaLabel", {
     amount: withCurrencySymbol(currencySymbol.value, props.amount),
   }),
@@ -74,7 +74,6 @@ const handleOpacityMenu = (event: MouseEvent) => {
     class="mini-window"
     :class="{ 'is-opaque': isOpaque }"
     :style="panelStyle"
-    :aria-label="miniAriaLabel"
     role="button"
     tabindex="0"
     :title="t('mini.restoreTitle')"
@@ -84,7 +83,8 @@ const handleOpacityMenu = (event: MouseEvent) => {
     @keydown.enter.prevent="$emit('restore')"
     @keydown.space.prevent="$emit('restore')"
   >
-    <RollingAmount :mode="amountMode" :value="amount" variant="mini" />
+    <span class="sr-only">{{ miniAccessibleName }}</span>
+    <RollingAmount aria-hidden="true" :mode="amountMode" :value="amount" variant="mini" />
   </div>
 </template>
 

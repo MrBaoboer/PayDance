@@ -11,9 +11,9 @@ import { provideCurrency } from "../composables/useCurrency";
 import MainDashboard from "./MainDashboard.vue";
 import MiniWindow from "./MiniWindow.vue";
 
-// RollingAmount marks every digit aria-hidden, and both hosts set an explicit aria-label that
-// replaces their content for assistive tech. If the amount is missing from those labels, the
-// number this whole product exists to show is unreachable with a screen reader.
+// Both hosts hide RollingAmount from assistive tech and name themselves with visually hidden
+// text. If the amount is missing from that text, the number this whole product exists to show
+// is unreachable with a screen reader.
 const snapshot = {
   dailySalary: 800,
   earnedToday: 128.48,
@@ -38,6 +38,14 @@ const mountWithCurrency = (symbol: string, component: unknown, props: object) =>
     }),
   );
 
+const accessibleName = (wrapper: ReturnType<typeof mount>, selector: string) => {
+  const host = wrapper.get(selector);
+  // An aria-label would override the hidden text, and axe fails it against the digit strips.
+  expect(host.attributes("aria-label")).toBeUndefined();
+  expect(host.get(".rolling-amount").attributes("aria-hidden")).toBe("true");
+  return host.get(".sr-only").text();
+};
+
 describe("live amount accessible names", () => {
   it("puts today's earnings into the main dashboard button label", () => {
     const wrapper = mountWithCurrency("¥", MainDashboard, {
@@ -50,7 +58,7 @@ describe("live amount accessible names", () => {
       workedTimeText: "5h",
     });
 
-    expect(wrapper.get(".amount-display").attributes("aria-label")).toContain("¥128.48");
+    expect(accessibleName(wrapper, ".amount-display")).toContain("¥128.48");
   });
 
   it("puts the amount into the mini window label", () => {
@@ -60,7 +68,7 @@ describe("live amount accessible names", () => {
       opacityPercent: 85,
     });
 
-    expect(wrapper.get(".mini-window").attributes("aria-label")).toContain("$128.48");
+    expect(accessibleName(wrapper, ".mini-window")).toContain("$128.48");
   });
 
   it("omits the symbol from the label when the user hid it", () => {
@@ -70,7 +78,7 @@ describe("live amount accessible names", () => {
       opacityPercent: 85,
     });
 
-    const label = wrapper.get(".mini-window").attributes("aria-label") ?? "";
+    const label = accessibleName(wrapper, ".mini-window");
     expect(label).toContain("128.48");
     expect(label).not.toContain("¥");
   });

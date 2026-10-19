@@ -19,16 +19,26 @@ const alternateLocaleUrl = computed(() =>
     class="lang-switcher"
     :href="alternateLocaleUrl"
     :hreflang="alternateLocale"
-    :aria-label="locale === 'zh-CN' ? 'Switch to English' : '切换到中文'"
     :title="locale === 'zh-CN' ? 'English' : '中文'"
   >
-    <span class="lang-switcher__track" aria-hidden="true">
-      <span class="lang-switcher__option" :class="{ 'is-active': locale === 'zh-CN' }">
+    <span class="lang-switcher__track">
+      <span
+        class="lang-switcher__option"
+        lang="zh-CN"
+        :class="{ 'is-active': locale === 'zh-CN' }"
+      >
         中文
       </span>
-      <span class="lang-switcher__option" :class="{ 'is-active': locale === 'en' }">
+      <span
+        class="lang-switcher__option"
+        lang="en"
+        :class="{ 'is-active': locale === 'en' }"
+      >
         EN
       </span>
+    </span>
+    <span class="sr-only" :lang="alternateLocale">
+      {{ locale === "zh-CN" ? "Switch to English" : "切换到中文" }}
     </span>
   </a>
 </template>

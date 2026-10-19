@@ -32,10 +32,11 @@ const emit = defineEmits<{
   setMiniMode: [value: boolean];
 }>();
 
-// Every digit inside RollingAmount is aria-hidden, and this button's own label replaces its
-// content for assistive tech. Without the amount here, a screen reader user can reach the
-// control that shows today's earnings and never be told what those earnings are.
-const amountAriaLabel = computed(() =>
+// RollingAmount is hidden from assistive tech, so this visually hidden text names the button.
+// Without the amount here, a screen reader user can reach the control that shows today's
+// earnings and never be told what those earnings are. It is content rather than aria-label
+// because axe compares an aria-label with the 0-9 digit strips and fails at random.
+const amountAccessibleName = computed(() =>
   t.value("dashboard.tapToMini", {
     amount: withCurrencySymbol(currencySymbol.value, props.earnedText),
   }),
@@ -50,14 +51,15 @@ const amountAriaLabel = computed(() =>
 
     <button
       class="amount-display"
-      :aria-label="amountAriaLabel"
       :title="t('dashboard.doubleClickMini')"
       type="button"
       @dblclick="emit('setMiniMode', true)"
       @keydown.enter.prevent="emit('setMiniMode', true)"
       @keydown.space.prevent="emit('setMiniMode', true)"
     >
+      <span class="sr-only">{{ amountAccessibleName }}</span>
       <RollingAmount
+        aria-hidden="true"
         :mode="amountMode"
         :suspend-pulse="suspendAmountPulse"
         :value="earnedText"

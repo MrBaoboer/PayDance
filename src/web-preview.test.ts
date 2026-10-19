@@ -281,6 +281,15 @@ describe("PayDance Web Preview", () => {
     );
   });
 
+  it("keeps the visible 中文 / EN labels inside the switcher's accessible name", () => {
+    // WCAG 2.5.3: an aria-label would replace the visible text, and axe 4.14 blocks that.
+    expect(languageSwitcherSource).not.toContain("aria-label");
+    expect(languageSwitcherSource).not.toContain("aria-hidden");
+    expect(languageSwitcherSource).toContain(
+      '<span class="sr-only" :lang="alternateLocale">',
+    );
+  });
+
   it("uses a more expressive web typography system", () => {
     expect(webPreviewSource).not.toContain("fonts.googleapis.com");
     expect(webPreviewSource).not.toContain("@fontsource");
