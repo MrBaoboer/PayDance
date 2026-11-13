@@ -99,6 +99,14 @@ npm run dev:web
 npm run build:exe
 ```
 
+**Build macOS DMG**
+
+```bash
+npm run build:dmg
+```
+
+The installer is written to `src-tauri/target/release/bundle/dmg/`.
+
 **Build web preview**
 
 ```powershell

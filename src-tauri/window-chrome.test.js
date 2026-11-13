@@ -149,8 +149,30 @@ describe("desktop window chrome", () => {
 
   it("allows the frontend to exit immediately after flushing tray quit state", () => {
     expect(desktopCapability.windows).toEqual(["main"]);
+    expect(desktopCapability.platforms).toEqual(["windows", "macOS"]);
     expect(desktopCapability.permissions).toContain("process:allow-exit");
     expect(desktopCapability.permissions).toContain("process:allow-restart");
+  });
+
+  it("enables the macOS private API needed for transparent windows", () => {
+    expect(tauriConfig.app.macOSPrivateApi).toBe(true);
+  });
+
+  it("bundles a macOS DMG without portable updater artifacts", () => {
+    const macosConfig = JSON.parse(
+      readFileSync(resolve(tauriDir, "tauri.macos.conf.json"), "utf8"),
+    );
+
+    expect(macosConfig.bundle.targets).toEqual(["dmg"]);
+    expect(macosConfig.bundle.createUpdaterArtifacts).toBe(false);
+    expect(macosConfig.bundle.macOS.minimumSystemVersion).toBe("12.0");
+    expect(tauriConfig.bundle.icon).toEqual([
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico",
+    ]);
   });
 
   it("uses a portable updater command for in-place exe replacement", () => {

@@ -16,7 +16,7 @@ The two Noto CJK subset fonts embedded in the website are excluded from this lis
 
 | Asset | Location | Usage |
 | ----- | -------- | ----- |
-| Application icon | `src-tauri/icons/` | Windows app icon, tray icon |
+| Application icon | `src-tauri/icons/` | Windows and macOS app icon, tray icon |
 | Favicon | `public/favicon.png` | Website favicon and shortcuts |
 | Marketing posters | `docs/posters/` | README, and the Open Graph / Twitter Card image in `index.html` and `en/index.html` |
 

@@ -99,6 +99,14 @@ npm run dev:web
 npm run build:exe
 ```
 
+**构建 macOS 安装包**
+
+```bash
+npm run build:dmg
+```
+
+生成的 `.dmg` 在 `src-tauri/target/release/bundle/dmg/`。
+
 **构建网页体验版**
 
 ```powershell
