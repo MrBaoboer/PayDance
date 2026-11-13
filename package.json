@@ -36,6 +36,7 @@
     "release:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ensure-release-unlocked.ps1",
     "prebuild:exe": "npm run release:check && npm run version:check",
     "build:exe": "tauri build",
+    "build:dmg": "tauri build --bundles dmg",
     "tauri": "tauri"
   },
   "dependencies": {

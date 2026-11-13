@@ -44,7 +44,8 @@
     "security": {
       "csp": "default-src 'self'; script-src 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: asset: http://asset.localhost; font-src 'self'; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
       "devCsp": "default-src 'self' http://127.0.0.1:1420; script-src 'self' 'unsafe-eval' http://127.0.0.1:1420; style-src 'self' 'unsafe-inline' http://127.0.0.1:1420; img-src 'self' data: asset: http://asset.localhost; font-src 'self' data: http://127.0.0.1:1420; connect-src ipc: http://ipc.localhost http://127.0.0.1:1420 ws://127.0.0.1:1420; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
-    }
+    },
+    "macOSPrivateApi": true
   },
   "plugins": {
     "updater": {
@@ -66,6 +67,13 @@
     "shortDescription": "桌面实时工资看板",
     "longDescription": "薪跳 PayDance 是一款桌面实时工资看板。配置薪资与上下班时间后，实时显示当日已赚金额。",
     "copyright": "Copyright (C) 2026 Mr.Baoboer. Licensed under AGPL-3.0-only.",
-    "license": "AGPL-3.0-only"
+    "license": "AGPL-3.0-only",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
   }
 }

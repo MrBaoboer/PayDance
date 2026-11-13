@@ -49,6 +49,7 @@ describe("verification scripts", () => {
     expect(packageJson.scripts["release:publish"]).toBe(
       "node scripts/release-workflow.mjs",
     );
+    expect(packageJson.scripts["build:dmg"]).toBe("tauri build --bundles dmg");
 
     expect(readRoot("src-tauri/tauri.conf.json")).toContain(
       '"beforeBuildCommand": "npm run build:desktop"',
@@ -108,8 +109,8 @@ describe("verification scripts", () => {
     const releaseWorkflowScript = readRoot("scripts/release-workflow.mjs");
     expect(releaseWorkflowScript).toContain("npm run release:publish");
     expect(releaseWorkflowScript).toContain("Verify CI passed on the release commit");
-    expect(releaseWorkflowScript).toContain("watchWorkflow(\"Release\"");
-    expect(releaseWorkflowScript).toContain("watchWorkflow(\"Post-Release Smoke\"");
+    expect(releaseWorkflowScript).toContain('watchWorkflow("Release"');
+    expect(releaseWorkflowScript).toContain('watchWorkflow("Post-Release Smoke"');
     expect(releaseWorkflowScript).toContain("release-manifest.json");
     expect(releaseWorkflowScript).toContain("assertTagDoesNotExist");
 
