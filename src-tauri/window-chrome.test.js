@@ -40,6 +40,7 @@ describe("desktop window chrome", () => {
 
     expect(mainWindow).toBeDefined();
     expect(mainWindow.transparent).toBe(true);
+    expect(mainWindow.noRedirectionBitmap).toBe(true);
     expect(mainWindow.shadow).toBe(false);
     expect(mainWindow.windowEffects).toBeUndefined();
   });

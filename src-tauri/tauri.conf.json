@@ -21,6 +21,7 @@
         "center": true,
         "decorations": false,
         "transparent": true,
+        "noRedirectionBitmap": true,
         "shadow": false,
         "resizable": true,
         "theme": "Light",
