@@ -8,7 +8,7 @@
 
 ## Unreleased
 
-- **可选窗口阴影**：可在设置中打开主窗口阴影，使它在白色背景上更容易辨认。默认关闭。
+- **可选窗口阴影**：在设置中开启后，主窗口与迷你卡片会显示柔和的圆角阴影，在白色背景上更容易辨认。默认关闭。
 
 - **Release 只保留一个 EXE**：此前每个 Release 同时上传带版本号和固定名两份内容相同的 EXE 与 `.sha256`，页面上看起来是重复文件。现在只保留带版本号的 `pay-dance-v<版本>-windows-x64.exe`。官网下载按钮与 README 改走 `paydance.vercel.app/download/windows`：它先从 GitHub 拿到最新 tag 再跳到对应文件，发版窗口内不会 404，也不再每次发版手改；`latest.json` 的下载地址钉在对应 tag；Post-Release Smoke 会拒绝带第二个 `.exe` 的 Release，并核对跳转端点指向本次版本。v0.9.10 与 v0.9.9 页面上的固定名副本已移除。
 

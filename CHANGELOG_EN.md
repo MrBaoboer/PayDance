@@ -8,7 +8,7 @@ Build artifacts and verification files are available in [GitHub Releases](https:
 
 ## Unreleased
 
-- **Optional window shadow**: Enable the main window shadow in Settings to make its edge easier to see against white backgrounds. It is off by default.
+- **Optional window shadow**: Enable a soft, rounded shadow in Settings to make the main window and mini card easier to see against white backgrounds. It is off by default.
 
 - **One EXE per Release**: every Release used to upload the same executable twice, once with the version in the name and once under a fixed name, plus two `.sha256` files, which read as duplicate files on the Release page. Only the versioned `pay-dance-v<version>-windows-x64.exe` remains. The site button and the README now go through `paydance.vercel.app/download/windows`, which learns the newest tag from GitHub and redirects to that file, so the link never 404s while a release is being published and needs no per-release edit; `latest.json` pins its download URL to the tag; Post-Release Smoke rejects a Release that carries a second `.exe` and checks that the endpoint points at the release under test. The fixed-name copies were removed from the v0.9.10 and v0.9.9 pages.
 

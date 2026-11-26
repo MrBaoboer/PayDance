@@ -134,18 +134,28 @@ describe("main dashboard shell", () => {
     expect(appShellSource).not.toContain("opacity: 0.9");
   });
 
-  it("reserves space for the optional shadow only on the full desktop shell", () => {
+  it("applies the optional shadow to the shared native window without a shell inset", () => {
+    expect(desktopAppSource).toContain("watch([showWindowShadow, isMiniMode]");
+    expect(desktopAppSource).toContain('invoke("set_window_shadow", { enabled, mini })');
+    expect(desktopAppSource).not.toContain("app-shell--shadow");
+    expect(appShellSource).not.toContain(".app-shell--shadow");
+  });
+
+  it("clips the full desktop surface and its overlays together at the outer corners", () => {
     expect(desktopAppSource).toContain(
-      "'app-shell--shadow': showWindowShadow && activeView !== 'mini'",
+      "activeView === 'mini' ? 'is-mini' : 'app-shell--desktop'",
     );
     expect(appShellSource).toMatch(
-      /\.app-shell--shadow\s*\{[^}]+inset:[^}]+box-shadow:/s,
+      /\.app-shell--desktop\s*\{[^}]+border-radius: 0;[^}]+clip-path: inset\(0 round 22px\);/,
+    );
+    expect(appShellSource).toMatch(
+      /\.app-shell--desktop > \.app-window\s*\{[^}]+background: var\(--panel\);/,
     );
   });
 
   it("keeps shell radius ownership in one layer to avoid dark-mode corner halos", () => {
     const windowBlock = appShellSource.slice(
-      appShellSource.indexOf(".app-window {"),
+      appShellSource.indexOf("\n.app-window {"),
       appShellSource.indexOf(".settings-overlay {"),
     );
 

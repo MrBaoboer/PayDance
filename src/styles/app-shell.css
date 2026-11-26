@@ -6,15 +6,16 @@
   transition: background-color 150ms ease;
 }
 
-.app-shell--shadow {
-  /* Keep the shadow inside the transparent WebView bounds. */
-  position: absolute;
-  inset: 12px;
-  width: auto;
-  height: auto;
-  box-shadow:
-    0 2px 9px -1px rgb(15 23 42 / 0.24),
-    0 0 2px rgb(15 23 42 / 0.16);
+.app-shell--desktop {
+  /* Clip the background and its overlays together so their rounded edges do not leave a rim. */
+  border-radius: 0;
+  background: transparent;
+  clip-path: inset(0 round 22px);
+}
+
+.app-shell--desktop > .app-window {
+  background: var(--panel);
+  transition: background-color 150ms ease;
 }
 
 .app-shell::before {

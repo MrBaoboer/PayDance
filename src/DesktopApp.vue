@@ -4,6 +4,7 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   miniDefaultSize,
@@ -206,6 +207,9 @@ const { clearWindowLifecycleTimers, registerWindowLifecycle } = useAppWindowLife
 watch(config, scheduleSaveState, { deep: true });
 // Save display preferences even when no geometry or salary setting changes.
 watch([amountMode, currencySymbol, locale, showWindowShadow], scheduleSaveState);
+watch([showWindowShadow, isMiniMode], ([enabled, mini]) => {
+  void invoke("set_window_shadow", { enabled, mini }).catch(console.error);
+});
 const unlisteners: Array<() => void> = [];
 
 onMounted(async () => {
@@ -278,11 +282,8 @@ onBeforeUnmount(() => {
     class="app-shell h-full w-full select-none p-0"
     :class="[
       shellClass,
-      activeView === 'mini' ? 'is-mini' : '',
-      {
-        'is-theme-syncing': isThemeSwitching,
-        'app-shell--shadow': showWindowShadow && activeView !== 'mini',
-      },
+      activeView === 'mini' ? 'is-mini' : 'app-shell--desktop',
+      { 'is-theme-syncing': isThemeSwitching },
     ]"
     @contextmenu.prevent
   >

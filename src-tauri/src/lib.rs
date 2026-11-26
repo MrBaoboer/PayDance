@@ -8,6 +8,7 @@ use tauri::Manager;
 mod portable_update;
 mod settings_backup;
 mod tray;
+mod window_shadow;
 
 use portable_update::install_portable_update;
 use settings_backup::backup_unreadable_settings;
@@ -36,7 +37,8 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             install_portable_update,
-            backup_unreadable_settings
+            backup_unreadable_settings,
+            window_shadow::set_window_shadow
         ])
         .on_window_event(exit_when_main_window_destroyed)
         .setup(|app| {

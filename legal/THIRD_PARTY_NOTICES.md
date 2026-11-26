@@ -62,6 +62,7 @@
 | `tauri-plugin-single-instance` | Apache-2.0 OR MIT |
 | `tauri-plugin-store` | Apache-2.0 OR MIT |
 | `tauri-plugin-updater` | Apache-2.0 OR MIT |
+| `windows` | MIT OR Apache-2.0 |
 
 ## 字体
 
