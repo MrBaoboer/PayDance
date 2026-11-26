@@ -48,14 +48,11 @@ jobs:
           deploy="$(node -e "const scope = require('./ci-change-scope/ci-change-scope.json'); console.log(scope.deployWebPreview === true ? 'true' : 'false');")"
           echo "deploy_web_preview=${deploy}" >> "$GITHUB_OUTPUT"
 
-  deploy:
-    name: Build and deploy Web Preview
+  build:
+    name: Build Web Preview artifact
     needs: scope
     if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && needs.scope.outputs.deploy_web_preview == 'true')
     runs-on: ubuntu-24.04
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout validated commit
@@ -85,6 +82,17 @@ jobs:
         with:
           path: dist
 
+  deploy:
+    name: Deploy to GitHub Pages
+    needs:
+      - scope
+      - build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
