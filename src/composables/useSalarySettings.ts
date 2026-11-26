@@ -57,6 +57,7 @@ export function useSalarySettings(
   const alwaysOnTop = ref(true);
   const themeMode = ref<ThemeMode>("light");
   const amountMode = ref<AmountMode>("rolling");
+  const showWindowShadow = ref(false);
   const locale = ref<Locale>("zh-CN");
   const hasCompletedOnboarding = ref(false);
   const isSettingsReady = ref(false);
@@ -83,6 +84,7 @@ export function useSalarySettings(
     alwaysOnTop.value = true;
     themeMode.value = "light";
     amountMode.value = "rolling";
+    showWindowShadow.value = false;
     locale.value = detectLocale(undefined);
     hasCompletedOnboarding.value = false;
   };
@@ -142,6 +144,7 @@ export function useSalarySettings(
       await store.set(settingsStoreKeys.alwaysOnTop, alwaysOnTop.value);
       await store.set(settingsStoreKeys.themeMode, themeMode.value);
       await store.set(settingsStoreKeys.amountMode, amountMode.value);
+      await store.set(settingsStoreKeys.showWindowShadow, showWindowShadow.value);
       await store.set(settingsStoreKeys.locale, locale.value);
       await store.set(settingsStoreKeys.isMiniMode, windowPreferences.isMiniMode);
       await store.set(settingsStoreKeys.fullSize, windowPreferences.fullSize);
@@ -185,6 +188,9 @@ export function useSalarySettings(
     const savedTop = await store.get<boolean>(settingsStoreKeys.alwaysOnTop);
     const savedTheme = await store.get<ThemeMode>(settingsStoreKeys.themeMode);
     const savedAmountMode = await store.get<AmountMode>(settingsStoreKeys.amountMode);
+    const savedWindowShadow = await store.get<boolean>(
+      settingsStoreKeys.showWindowShadow,
+    );
     const savedIsMiniMode = await store.get<boolean>(settingsStoreKeys.isMiniMode);
     const savedFullSize = await store.get<WindowSize>(settingsStoreKeys.fullSize);
     const savedMiniSize = await store.get<WindowSize>(settingsStoreKeys.miniSize);
@@ -232,6 +238,7 @@ export function useSalarySettings(
     if (savedAmountMode === "plain" || savedAmountMode === "rolling") {
       amountMode.value = savedAmountMode;
     }
+    showWindowShadow.value = savedWindowShadow === true;
 
     const savedLocale = await store.get<string>(settingsStoreKeys.locale);
     locale.value = detectLocale(savedLocale);
@@ -324,6 +331,7 @@ export function useSalarySettings(
       await store.set(settingsStoreKeys.isMiniMode, isMiniMode);
       await store.set(settingsStoreKeys.themeMode, themeMode.value);
       await store.set(settingsStoreKeys.amountMode, amountMode.value);
+      await store.set(settingsStoreKeys.showWindowShadow, showWindowShadow.value);
       await store.set(settingsStoreKeys.locale, locale.value);
       await store.set(settingsStoreKeys.miniSize, miniSize);
       await store.set(settingsStoreKeys.miniOpacityPercent, miniOpacityPercent);
@@ -367,6 +375,7 @@ export function useSalarySettings(
     locale,
     saveSettings,
     settingsSaveError,
+    showWindowShadow,
     themeMode,
   };
 }

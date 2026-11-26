@@ -40,12 +40,14 @@ const props = withDefaults(
     settingsSaveError?: string;
     showDesktopFeatures?: boolean;
     showOnboardingAction?: boolean;
+    showWindowShadow?: boolean;
     updateStatus: UpdaterStatus;
   }>(),
   {
     settingsSaveError: "",
     showDesktopFeatures: true,
     showOnboardingAction: false,
+    showWindowShadow: false,
   },
 );
 
@@ -55,6 +57,7 @@ const emit = defineEmits<{
   "update:amountMode": [mode: "rolling" | "plain"];
   "update:config": [config: SalaryConfig];
   "update:currencySymbol": [symbol: string];
+  "update:showWindowShadow": [value: boolean];
 }>();
 
 const amountModeOptions = computed(
@@ -173,6 +176,14 @@ const updateConfig = <Key extends keyof SalaryConfig>(
         :model-value="locale"
         :options="langOptions"
         @update:model-value="updateLocale"
+      />
+    </SettingsGroup>
+
+    <SettingsGroup v-if="showDesktopFeatures">
+      <SwitchRow
+        :label="t('settings.windowShadow')"
+        :model-value="showWindowShadow"
+        @update:model-value="emit('update:showWindowShadow', $event)"
       />
     </SettingsGroup>
 

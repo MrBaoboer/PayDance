@@ -53,6 +53,7 @@ const en: Messages = {
   "settings.amountAnimationDesc": "Amount display animation",
   "settings.currency": "Currency symbol",
   "settings.startup": "Startup",
+  "settings.windowShadow": "Window shadow",
   "settings.autostart": "Launch at startup",
   "settings.language": "Language",
   "settings.onboarding": "First-time setup",

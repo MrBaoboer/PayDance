@@ -19,5 +19,6 @@ export const settingsStoreKeys = {
   miniSize: "miniSize",
   locale: "locale",
   settingsVersion: "settingsVersion",
+  showWindowShadow: "showWindowShadow",
   themeMode: "themeMode",
 } as const;

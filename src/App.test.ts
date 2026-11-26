@@ -122,7 +122,7 @@ describe("main dashboard shell", () => {
     expect(appShellSource).toContain("box-shadow: none");
   });
 
-  it("removes the full-window outer gutter while giving theme switches a synced shell surface", () => {
+  it("keeps the default shell flush and syncs the theme on its surface", () => {
     expect(desktopAppSource).toContain("app-shell h-full w-full select-none p-0");
     expect(desktopAppSource).not.toContain("bg-transparent p-2");
     expect(appShellSource).toContain("border: 0;");
@@ -132,6 +132,15 @@ describe("main dashboard shell", () => {
     expect(desktopAppSource).toContain("'is-theme-syncing': isThemeSwitching");
     expect(appShellSource).toContain(".app-shell.is-theme-syncing::before");
     expect(appShellSource).not.toContain("opacity: 0.9");
+  });
+
+  it("reserves space for the optional shadow only on the full desktop shell", () => {
+    expect(desktopAppSource).toContain(
+      "'app-shell--shadow': showWindowShadow && activeView !== 'mini'",
+    );
+    expect(appShellSource).toMatch(
+      /\.app-shell--shadow\s*\{[^}]+inset:[^}]+box-shadow:/s,
+    );
   });
 
   it("keeps shell radius ownership in one layer to avoid dark-mode corner halos", () => {

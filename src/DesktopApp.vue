@@ -50,6 +50,7 @@ const {
   locale,
   saveSettings,
   settingsSaveError,
+  showWindowShadow,
   themeMode,
 } = useSalarySettings(undefined, () => t.value);
 
@@ -203,10 +204,8 @@ const { clearWindowLifecycleTimers, registerWindowLifecycle } = useAppWindowLife
 );
 
 watch(config, scheduleSaveState, { deep: true });
-// These three live outside the window state the persistence layer watches, and nothing else
-// saves after they change: without this, picking a currency symbol, an amount animation or a
-// language and then losing the process would silently roll the choice back.
-watch([amountMode, currencySymbol, locale], scheduleSaveState);
+// Save display preferences even when no geometry or salary setting changes.
+watch([amountMode, currencySymbol, locale, showWindowShadow], scheduleSaveState);
 const unlisteners: Array<() => void> = [];
 
 onMounted(async () => {
@@ -280,7 +279,10 @@ onBeforeUnmount(() => {
     :class="[
       shellClass,
       activeView === 'mini' ? 'is-mini' : '',
-      { 'is-theme-syncing': isThemeSwitching },
+      {
+        'is-theme-syncing': isThemeSwitching,
+        'app-shell--shadow': showWindowShadow && activeView !== 'mini',
+      },
     ]"
     @contextmenu.prevent
   >
@@ -302,6 +304,7 @@ onBeforeUnmount(() => {
       v-model:currency-symbol="currencySymbol"
       v-model:show-salary-info="showSalaryInfo"
       v-model:show-settings="showSettings"
+      v-model:show-window-shadow="showWindowShadow"
       :app-name="appName"
       :update-status="updateStatus"
       :autostart-enabled="autostartEnabled"

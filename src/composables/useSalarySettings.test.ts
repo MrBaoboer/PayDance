@@ -28,6 +28,31 @@ describe("useSalarySettings", () => {
     storeMocks.save.mockReset();
   });
 
+  it.each([undefined, "true", false, true])(
+    "loads the window shadow preference %s and persists toggles",
+    async (savedValue) => {
+      storeMocks.get.mockImplementation(async (key: string) => {
+        if (key === "showWindowShadow") return savedValue;
+        if (key === "config") return defaultSalaryConfig;
+        return undefined;
+      });
+      const { useSalarySettings } = await import("./useSalarySettings");
+      const { loadSettings, saveSettings, showWindowShadow } =
+        useSalarySettings(createMockStore);
+
+      const windowState = await loadSettings();
+      expect(showWindowShadow.value).toBe(savedValue === true);
+
+      showWindowShadow.value = !showWindowShadow.value;
+      await saveSettings(windowState);
+      expect(storeMocks.set).toHaveBeenCalledWith(
+        "showWindowShadow",
+        savedValue !== true,
+      );
+      expect(storeMocks.save).toHaveBeenCalled();
+    },
+  );
+
   it("falls back to in-memory defaults without touching a store it cannot read", async () => {
     storeMocks.get.mockRejectedValue(new Error("corrupt settings"));
 

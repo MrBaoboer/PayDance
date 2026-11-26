@@ -43,6 +43,7 @@ withDefaults(
     showOnboardingAction?: boolean;
     showSalaryInfo: boolean;
     showSettings: boolean;
+    showWindowShadow?: boolean;
     snapshot: SalarySnapshot;
     statusText: string;
     themeMode: ThemeMode;
@@ -75,6 +76,7 @@ const emit = defineEmits<{
   "update:currencySymbol": [symbol: string];
   "update:showSalaryInfo": [value: boolean];
   "update:showSettings": [value: boolean];
+  "update:showWindowShadow": [value: boolean];
   "update:themeMode": [mode: ThemeMode];
 }>();
 </script>
@@ -151,6 +153,7 @@ const emit = defineEmits<{
               :is-autostart-updating="isAutostartUpdating"
               :settings-save-error="settingsSaveError"
               :show-desktop-features="showDesktopFeatures"
+              :show-window-shadow="showWindowShadow"
               :show-onboarding-action="showOnboardingAction"
               :update-status="updateStatus"
               @open-onboarding="emit('openOnboarding')"
@@ -158,6 +161,7 @@ const emit = defineEmits<{
               @update:autostart-enabled="emit('update:autostartEnabled', $event)"
               @update:config="emit('update:config', $event)"
               @update:currency-symbol="emit('update:currencySymbol', $event)"
+              @update:show-window-shadow="emit('update:showWindowShadow', $event)"
             />
           </div>
         </section>

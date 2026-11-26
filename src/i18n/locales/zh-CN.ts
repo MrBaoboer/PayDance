@@ -52,6 +52,7 @@ const zhCN: Messages = {
   "settings.amountAnimationDesc": "金额数字变化方式",
   "settings.currency": "货币符号",
   "settings.startup": "启动",
+  "settings.windowShadow": "窗口阴影",
   "settings.autostart": "开机自动启动",
   "settings.language": "语言",
   "settings.onboarding": "首次启动向导",

@@ -57,6 +57,7 @@ export interface Messages {
   "settings.amountAnimationDesc": string;
   "settings.currency": string;
   "settings.startup": string;
+  "settings.windowShadow": string;
   "settings.autostart": string;
   "settings.language": string;
   "settings.onboarding": string;
