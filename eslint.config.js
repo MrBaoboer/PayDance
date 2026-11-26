@@ -48,9 +48,9 @@ export default [
     },
     rules: {
       "vue/multi-word-component-names": "off",
-      "vue/no-v-html": "off",
-      "vuejs-accessibility/click-events-have-key-events": "warn",
-      "vuejs-accessibility/no-static-element-interactions": "warn",
+      "vue/no-v-html": "error",
+      "vuejs-accessibility/click-events-have-key-events": "error",
+      "vuejs-accessibility/no-static-element-interactions": "error",
     },
   },
   prettier,

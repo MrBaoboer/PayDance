@@ -25,19 +25,13 @@ updates:
       npm:
         patterns:
           - "*"
-    # 只挡主版本跳跃，6.x / 24.x 范围内的小版本照常提 PR。
+    # 只挡主版本跳跃，6.x 范围内的小版本照常提 PR。
     # 解除封锁时删掉对应条目即可。
     ignore:
       # TypeScript 7 是原生移植版：vue-tsc 无法从中解析 tsc.js
       # （ERR_PACKAGE_PATH_NOT_EXPORTED），typescript-eslint 直接抛
       # "does not support TS 7.0" 拒绝启动。等两者宣布支持后删掉本条。
       - dependency-name: typescript
-        update-types:
-          - version-update:semver-major
-      # @types/node 跟随运行时主版本：CI 与本地都是 Node 24 LTS，
-      # 类型版本超前会让编译期接受运行时并不存在的 API。
-      # 升级 CI 的 node-version 时同步放开本条。
-      - dependency-name: "@types/node"
         update-types:
           - version-update:semver-major
 

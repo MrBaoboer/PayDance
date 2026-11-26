@@ -1,39 +1,31 @@
+/* Desktop-only transparent host that reserves room for Fluent elevation shadows without
+   clipping against the frameless transparent window edge. Web Preview does not use this. */
+.desktop-stage {
+  width: 100%;
+  height: 100%;
+  padding: 10px 16px 20px;
+  background: transparent;
+}
+
+.desktop-stage.is-mini {
+  padding: 4px 6px 8px;
+}
+
+.desktop-stage .app-shell:not(.is-mini) {
+  box-shadow: var(--window-shadow);
+}
+
 .app-shell {
   position: relative;
   overflow: hidden;
   border-radius: 22px;
   background: var(--panel);
-  transition: background-color 150ms ease;
-}
-
-.app-shell::before {
-  position: absolute;
-  inset: 0;
-  z-index: 80;
-  border-radius: inherit;
-  background: color-mix(in srgb, var(--panel) 36%, transparent);
-  content: "";
-  opacity: 0;
-  pointer-events: none;
-  transition:
-    opacity 150ms ease,
-    backdrop-filter 150ms ease;
-  backdrop-filter: blur(0) brightness(1);
-}
-
-.app-shell.is-theme-syncing::before {
-  opacity: 0.22;
-  backdrop-filter: blur(6px) brightness(0.98);
 }
 
 .app-shell.is-mini {
   overflow: visible;
   border-radius: 0;
   background: transparent;
-}
-
-.app-shell.is-mini::before {
-  display: none;
 }
 
 .app-window {
@@ -48,7 +40,6 @@
   box-shadow: none;
   color: var(--text);
   container-type: size;
-  backdrop-filter: blur(28px);
   --ui-font-xs: clamp(12px, calc(10.4px + 0.42cqw), 14px);
   --ui-font-sm: clamp(13px, calc(10.8px + 0.52cqw), 15px);
   --ui-font-md: clamp(14px, calc(11px + 0.7cqw), 17px);
@@ -69,7 +60,7 @@
 }
 
 .is-mini {
-  padding: 4px;
+  padding: 0;
 }
 
 .settings-overlay {
@@ -123,7 +114,9 @@
   text-align: left;
 }
 
+.settings-sheet__header h2,
 .settings-sheet__header strong {
+  margin: 0;
   color: var(--text);
   font-size: var(--ui-font-lg);
   font-weight: 750;
@@ -186,31 +179,29 @@
 
 .settings-sheet-enter-active,
 .settings-sheet-leave-active {
-  transition:
-    opacity 180ms ease,
-    backdrop-filter 180ms ease;
+  transition: opacity 120ms ease;
 }
 
 .settings-sheet-enter-active .settings-sheet,
 .settings-sheet-leave-active .settings-sheet {
+  will-change: transform, opacity;
   transition:
-    opacity 220ms ease,
-    transform 220ms cubic-bezier(0.2, 0.72, 0.28, 1);
+    opacity 135ms ease,
+    transform 145ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .settings-sheet-enter-from,
 .settings-sheet-leave-to {
   opacity: 0;
-  backdrop-filter: blur(0);
 }
 
 .settings-sheet-enter-from .settings-sheet,
 .settings-sheet-leave-to .settings-sheet {
   opacity: 0;
-  transform: translateY(22px);
+  transform: translateY(14px);
 }
 
 .settings-sheet-enter-from .settings-sheet--top,
 .settings-sheet-leave-to .settings-sheet--top {
-  transform: translateY(-22px);
+  transform: translateY(-14px);
 }

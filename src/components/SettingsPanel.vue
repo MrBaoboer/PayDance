@@ -19,6 +19,7 @@ import SalaryAmountFields from "./settings/SalaryAmountFields.vue";
 import SalaryModeControl from "./settings/SalaryModeControl.vue";
 import SettingsAboutFooter from "./settings/SettingsAboutFooter.vue";
 import SettingsOnboardingAction from "./settings/SettingsOnboardingAction.vue";
+import SettingsReadOnlyActions from "./settings/SettingsReadOnlyActions.vue";
 import WorkdayPicker from "./settings/WorkdayPicker.vue";
 import WorkTimeFields from "./settings/WorkTimeFields.vue";
 import SegmentedControl from "./ui/SegmentedControl.vue";
@@ -37,20 +38,25 @@ const props = withDefaults(
     firstIssue: string;
     hasIssue: (field: SalaryConfigIssue["field"]) => boolean;
     isAutostartUpdating: boolean;
+    isSettingsReadOnly?: boolean;
     settingsSaveError?: string;
     showDesktopFeatures?: boolean;
     showOnboardingAction?: boolean;
-    updateStatus: UpdaterStatus;
+    updateStatus?: UpdaterStatus;
   }>(),
   {
+    isSettingsReadOnly: false,
     settingsSaveError: "",
     showDesktopFeatures: true,
     showOnboardingAction: false,
+    updateStatus: undefined,
   },
 );
 
 const emit = defineEmits<{
   openOnboarding: [];
+  rebuildSettingsDefaults: [];
+  retryLoadSettings: [];
   "update:autostartEnabled": [enabled: boolean];
   "update:amountMode": [mode: "rolling" | "plain"];
   "update:config": [config: SalaryConfig];
@@ -64,32 +70,19 @@ const amountModeOptions = computed(
       { label: t.value("amountMode.plain"), value: "plain" },
     ] as const,
 );
-
 const settingsSaveErrorText = computed(() =>
   props.settingsSaveError ? t.value(props.settingsSaveError as keyof Messages) : "",
 );
-
 const langOptions = computed(() =>
-  supportedLocales.map((loc) => ({
-    label: localeLabels[loc],
-    value: loc,
-  })),
+  supportedLocales.map((loc) => ({ label: localeLabels[loc], value: loc })),
 );
-
-const updateLocale = (val: string) => {
-  setLocale(val as Locale);
-};
-
-const updateAmountMode = (mode: string) => {
+const updateLocale = (val: string) => setLocale(val as Locale);
+const updateAmountMode = (mode: string) =>
   emit("update:amountMode", mode as "rolling" | "plain");
-};
-
 const updateConfig = <Key extends keyof SalaryConfig>(
   key: Key,
   value: SalaryConfig[Key],
-) => {
-  emit("update:config", { ...props.config, [key]: value });
-};
+) => emit("update:config", { ...props.config, [key]: value });
 </script>
 
 <template>
@@ -99,9 +92,16 @@ const updateConfig = <Key extends keyof SalaryConfig>(
       <span class="settings-alert__hint">{{ t("settings.unsavedHint") }}</span>
     </div>
 
-    <div v-if="settingsSaveErrorText" class="settings-save-error" role="status">
-      {{ settingsSaveErrorText }}
-    </div>
+    <SettingsReadOnlyActions
+      v-if="settingsSaveErrorText"
+      class="settings-save-error"
+      role="status"
+      :is-info="settingsSaveError === 'settings.loadRecovered'"
+      :is-read-only="isSettingsReadOnly"
+      :message="settingsSaveErrorText"
+      @rebuild-defaults="emit('rebuildSettingsDefaults')"
+      @retry-load="emit('retryLoadSettings')"
+    />
 
     <SettingsGroup :title="t('settings.salaryMode')">
       <SalaryModeControl
@@ -233,17 +233,6 @@ const updateConfig = <Key extends keyof SalaryConfig>(
   color: var(--danger);
   font-size: var(--ui-font-xs, 12px);
   font-weight: 600;
-  text-align: left;
-}
-
-.settings-save-error {
-  border: 1px solid rgb(231 76 60 / 0.28);
-  border-radius: var(--ui-radius-sm, 10px);
-  background: rgb(231 76 60 / 0.1);
-  padding: clamp(8px, 2cqh, 11px) var(--ui-pad-sm, 11px);
-  color: var(--danger);
-  font-size: var(--ui-font-sm, 14px);
-  font-weight: 650;
   text-align: left;
 }
 </style>

@@ -6,8 +6,7 @@
 import { useI18n } from "../../composables/useI18n";
 
 const { t } = useI18n();
-import { Download } from "@lucide/vue";
-import GitHubMark from "./GitHubMark.vue";
+import GitHubMark from "../../components/icons/GitHubMark.vue";
 import Windows11Mark from "./Windows11Mark.vue";
 
 defineProps<{
@@ -29,7 +28,6 @@ defineProps<{
       <span class="web-preview__action-label web-preview__action-label-short">
         {{ t("web.downloadShort") }}
       </span>
-      <Download :size="16" />
     </a>
     <a class="web-preview__action web-preview__action--quiet" :href="repositoryUrl">
       <GitHubMark />

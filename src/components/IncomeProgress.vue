@@ -21,7 +21,9 @@ const progressTooltip = computed(
 );
 const trackRef = ref<HTMLElement | null>(null);
 const trackWidth = ref(0);
+const isDotReady = ref(false);
 let resizeObserver: ResizeObserver | undefined;
+let readyFrame = 0;
 
 const updateTrackWidth = () => {
   trackWidth.value = trackRef.value?.clientWidth ?? 0;
@@ -34,6 +36,10 @@ const progressStyle = computed(() => ({
 
 onMounted(() => {
   updateTrackWidth();
+  readyFrame = window.requestAnimationFrame(() => {
+    updateTrackWidth();
+    isDotReady.value = true;
+  });
 
   if ("ResizeObserver" in window) {
     resizeObserver = new ResizeObserver(updateTrackWidth);
@@ -44,6 +50,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  window.cancelAnimationFrame(readyFrame);
   resizeObserver?.disconnect();
 });
 </script>
@@ -61,10 +68,12 @@ onBeforeUnmount(() => {
       :style="progressStyle"
       :title="progressTooltip"
     >
-      <div class="progress-fill">
-        <span class="progress-glow" />
+      <div class="progress-fill-mask">
+        <div class="progress-fill" :class="{ 'is-ready': isDotReady }">
+          <span class="progress-glow" />
+        </div>
       </div>
-      <span class="progress-dot" />
+      <span class="progress-dot" :class="{ 'is-ready': isDotReady }" />
     </div>
   </div>
 </template>
@@ -85,6 +94,15 @@ onBeforeUnmount(() => {
   box-shadow: var(--progress-track-shadow, none);
 }
 
+.progress-fill-mask {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+/* Translate a full-width rounded pill inside the track mask so the leading cap stays
+   perfectly circular without scaleX distortion AND updates run 100% on the GPU compositor. */
 .progress-fill {
   position: absolute;
   inset: 0;
@@ -94,9 +112,12 @@ onBeforeUnmount(() => {
     --progress-fill-bg,
     linear-gradient(90deg, var(--income-accent), var(--income-accent-bright))
   );
-  clip-path: inset(0 calc(100% - var(--progress-percent)) 0 0 round 999px);
-  transition: clip-path 260ms ease-out;
-  will-change: clip-path;
+  transform: translate3d(calc(var(--progress-percent) - 100%), 0, 0);
+  will-change: transform;
+}
+
+.progress-fill.is-ready {
+  transition: transform 260ms ease-out;
 }
 
 .progress-glow {
@@ -108,7 +129,7 @@ onBeforeUnmount(() => {
     rgb(255 255 255 / 0.34) 45%,
     transparent 72%
   );
-  transform: translateX(-100%);
+  transform: translate3d(-100%, 0, 0);
 }
 
 .income-progress.is-working .progress-glow {
@@ -130,6 +151,11 @@ onBeforeUnmount(() => {
     0 6px 16px var(--income-accent-shadow)
   );
   transform: translate3d(var(--progress-x), -50%, 0) translateX(-50%);
+  transition: opacity 160ms ease;
+  will-change: transform;
+}
+
+.progress-dot.is-ready {
   transition:
     transform 260ms ease-out,
     opacity 160ms ease;
@@ -154,12 +180,12 @@ onBeforeUnmount(() => {
 
 @keyframes progress-shine {
   0% {
-    transform: translateX(-100%);
+    transform: translate3d(-100%, 0, 0);
   }
 
   58%,
   100% {
-    transform: translateX(120%);
+    transform: translate3d(120%, 0, 0);
   }
 }
 </style>

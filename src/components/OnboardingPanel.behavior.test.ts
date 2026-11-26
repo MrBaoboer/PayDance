@@ -12,8 +12,6 @@ import OnboardingPanel from "./OnboardingPanel.vue";
 const mountOnboardingPanel = () =>
   mount(OnboardingPanel, {
     props: {
-      alwaysOnTop: true,
-      autostartEnabled: false,
       config: {
         ...defaultSalaryConfig,
         workdays: [...defaultSalaryConfig.workdays],
@@ -56,5 +54,17 @@ describe("OnboardingPanel behavior", () => {
       ?.trigger("click");
 
     expect(wrapper.emitted("update:themeMode")?.[0]).toEqual(["dark"]);
+  });
+
+  it("omits autostart and live earnings preview across all onboarding steps", async () => {
+    const wrapper = mountOnboardingPanel();
+    expect(wrapper.text()).not.toContain("开机自动启动");
+    expect(wrapper.find(".onboarding-preview").exists()).toBe(false);
+
+    await wrapper.get(".primary-button").trigger("click");
+    expect(wrapper.find(".onboarding-preview").exists()).toBe(false);
+
+    await wrapper.get(".primary-button").trigger("click");
+    expect(wrapper.find(".onboarding-preview").exists()).toBe(false);
   });
 });

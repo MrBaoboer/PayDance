@@ -5,7 +5,11 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 import { computed, useId } from "vue";
 import { parseNumberInput } from "../../lib/number-input";
-import type { SalaryConfig, SalaryConfigIssue } from "../../lib/salary";
+import {
+  maxWorkDaysPerMonth,
+  type SalaryConfig,
+  type SalaryConfigIssue,
+} from "../../lib/salary";
 import { createGetSalaryAmountLabel } from "../../lib/settings-form";
 import { defaultCurrencySymbol } from "../../lib/currency";
 import { useCurrency } from "../../composables/useCurrency";
@@ -28,14 +32,14 @@ const salaryAmountLabel = computed(() =>
   createGetSalaryAmountLabel(t.value)(props.config.salaryType),
 );
 
-// "元" / "CNY" is only correct while the user is on the default symbol. Once they pick another
-// one, that symbol is the honest unit; when they hide the symbol entirely there is nothing to
-// show instead, so the localized word stays.
-const amountUnit = computed(() =>
-  currencySymbol.value && currencySymbol.value !== defaultCurrencySymbol
-    ? currencySymbol.value
-    : t.value("salaryAmount.unitYuan"),
-);
+// Show the localized Yuan word only when using the default ¥ symbol; show custom symbols
+// verbatim; hide the unit when the user explicitly cleared the currency symbol.
+const amountUnit = computed(() => {
+  if (!currencySymbol.value) return "";
+  return currencySymbol.value === defaultCurrencySymbol
+    ? t.value("salaryAmount.unitYuan")
+    : currencySymbol.value;
+});
 const idPrefix = useId();
 
 const updateConfig = <Key extends keyof SalaryConfig>(
@@ -71,7 +75,7 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(key: Key, event: Eve
           type="number"
           @input="updateNumberConfig('monthlySalary', $event)"
         />
-        <span class="field-unit">{{ amountUnit }}</span>
+        <span v-if="amountUnit" class="field-unit">{{ amountUnit }}</span>
       </span>
     </label>
     <label
@@ -90,7 +94,7 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(key: Key, event: Eve
           type="number"
           @input="updateNumberConfig('dailySalary', $event)"
         />
-        <span class="field-unit">{{ amountUnit }}</span>
+        <span v-if="amountUnit" class="field-unit">{{ amountUnit }}</span>
       </span>
     </label>
     <label
@@ -109,7 +113,7 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(key: Key, event: Eve
           type="number"
           @input="updateNumberConfig('hourlyRate', $event)"
         />
-        <span class="field-unit">{{ amountUnit }}</span>
+        <span v-if="amountUnit" class="field-unit">{{ amountUnit }}</span>
       </span>
     </label>
     <label
@@ -123,6 +127,7 @@ const updateNumberConfig = <Key extends keyof SalaryConfig>(key: Key, event: Eve
         <input
           :id="`${idPrefix}-work-days-per-month`"
           :value="config.workDaysPerMonth"
+          :max="maxWorkDaysPerMonth"
           min="1"
           step="0.5"
           type="number"

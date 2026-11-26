@@ -108,8 +108,8 @@ describe("verification scripts", () => {
     const releaseWorkflowScript = readRoot("scripts/release-workflow.mjs");
     expect(releaseWorkflowScript).toContain("npm run release:publish");
     expect(releaseWorkflowScript).toContain("Verify CI passed on the release commit");
-    expect(releaseWorkflowScript).toContain("watchWorkflow(\"Release\"");
-    expect(releaseWorkflowScript).toContain("watchWorkflow(\"Post-Release Smoke\"");
+    expect(releaseWorkflowScript).toContain('watchWorkflow("Release"');
+    expect(releaseWorkflowScript).toContain('watchWorkflow("Post-Release Smoke"');
     expect(releaseWorkflowScript).toContain("release-manifest.json");
     expect(releaseWorkflowScript).toContain("assertTagDoesNotExist");
 

@@ -37,9 +37,8 @@ CI trims jobs by changed files (`scripts/ci-change-scope.mjs`), and both gates c
 - Dependabot is configured in `.github/dependabot.yml`: npm, cargo, and github-actions, checked every Monday at 09:00 Asia/Shanghai, one group per ecosystem, no automerge. Its own pull requests are exempt from the DCO gate as long as the commits stay within dependency manifests and workflow files; the rule lives in `scripts/check-dco.mjs`.
 - RustSec advisories missing from the GitHub Advisory Database (usually transitive crates behind tauri / reqwest, such as rustls in 2026-09) produce no Dependabot alert or pull request: run `cargo update -p <crate> --precise <fixed version>` in `src-tauri` (without `--precise` it may not upgrade), then `npm run push:main`. An advisory confirmed not to affect the Windows build is ignored, with a reason, in both `src-tauri/.cargo/audit.toml` and `src-tauri/deny.toml`.
 - Advisories that are in the database can still go days without a Dependabot alert: the three brace-expansion advisories of 2026-10 had none after more than three days, and the alert check in `push:main` passed throughout. For npm advisories, do not wait for a Dependabot pull request; run `npm audit fix` locally (it usually touches only `package-lock.json`), then `npm run push:main`.
-- Upgrades deliberately held back live in two places that must stay in sync: the `ignore` block in `dependabot.yml`, and the test "keeps the upgrades that are blocked upstream pinned with a reason" in `scripts/repository-metadata.test.js`. Two entries today:
+- Upgrades deliberately held back live in two places that must stay in sync: the `ignore` block in `dependabot.yml`, and the test "keeps the upgrades that are blocked upstream pinned with a reason" in `scripts/repository-metadata.test.js`. One entry today:
   - `typescript` stays on 6.x: TypeScript 7 is the native port, vue-tsc cannot resolve `tsc.js` from it, and typescript-eslint refuses to load.
-  - `@types/node` stays on 24.x to track the runtime major. Once Node 26 reaches LTS, move every CI `node-version` to 26, lift this block, and drop the matching test assertion.
 - When adding or removing a direct dependency, update `legal/THIRD_PARTY_NOTICES.md` and its English mirror; `npm run check:notices` compares both directions and runs inside `verify:metadata` and `verify:fast`.
 - Declared ranges are documentation; the committed `package-lock.json` decides installs. When raising a `^` floor, follow the locked and verified version. `@tauri-apps/*` moves in lockstep with the Rust crates, and a stale floor suggests an old IPC surface is still supported.
 
@@ -50,8 +49,8 @@ CI trims jobs by changed files (`scripts/ci-change-scope.mjs`), and both gates c
 - `npm run verify:release` invokes the local cargo-audit and cargo-deny. Their versions must match the ones pinned in CI, or the local audit result does not count:
 
   ```powershell
-  cargo install cargo-audit --version 0.22.2 --locked
-  cargo install cargo-deny --version 0.20.2 --locked
+  cargo install cargo-audit --version 0.23.0 --locked
+  cargo install cargo-deny --version 0.22.1 --locked
   ```
 
 - `npm run build:exe` first checks whether `src-tauri/target/release/pay-dance.exe` is still running. A running instance blocks the build from overwriting it; quit from the tray and retry.

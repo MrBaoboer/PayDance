@@ -3,22 +3,17 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
-export type UpdaterStatus =
-  | { kind: "upToDate" }
-  | { kind: "updateAvailable"; version: string; notes?: string }
-  | { kind: "downloading" }
-  | {
-      kind: "error";
-      message: string;
-      reason?: "manifest-invalid" | "network" | "signature-verification";
-    }
-  | { kind: "unavailable"; reason?: "dev-config" | "web" }
-  | { kind: "ready"; version: string };
+import type { UpdateDownloadProgress, UpdaterStatus } from "./types";
+
+export type { UpdateDownloadProgress, UpdaterStatus };
 
 export async function checkForUpdate(): Promise<UpdaterStatus> {
   return { kind: "unavailable", reason: "web" };
 }
 
-export async function downloadAndInstall(): Promise<UpdaterStatus> {
+export async function downloadAndInstall(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _onProgress?: (progress: UpdateDownloadProgress) => void,
+): Promise<UpdaterStatus> {
   return { kind: "unavailable", reason: "web" };
 }

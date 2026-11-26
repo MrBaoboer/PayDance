@@ -10,10 +10,94 @@ import {
   type SalaryStatus,
 } from "./config";
 import { isWithinNightWorkWindow, spansTouchNightWorkWindow } from "./night-shift";
-import { clamp } from "./time";
+import {
+  clamp,
+  normalizeBreakEnd,
+  normalizeTimeInsideWorkWindow,
+  normalizeWorkEnd,
+  parseTimeToMinutes,
+} from "./time";
 import { validateSalaryConfig, type ValidateT } from "./validation";
 import { resolveWorkSpans, type WorkSpan } from "./work-spans";
 import type { Messages } from "../../i18n/types";
+
+export type SalaryRates = {
+  dailySalary: number;
+  hourlyRate: number;
+  minuteRate: number;
+  secondRate: number;
+  workMsPerDay: number;
+};
+
+export const emptySalaryRates: SalaryRates = {
+  dailySalary: 0,
+  hourlyRate: 0,
+  minuteRate: 0,
+  secondRate: 0,
+  workMsPerDay: 0,
+};
+
+function getConfiguredWorkMsPerDay(config: SalaryConfig) {
+  const start = parseTimeToMinutes(config.startTime);
+  const end = parseTimeToMinutes(config.endTime);
+
+  if (![start, end].every(Number.isFinite) || start === end) {
+    return 0;
+  }
+
+  const workEnd = normalizeWorkEnd(start, end);
+  const totalMinutes = workEnd - start;
+
+  if (!config.enableLunchBreak) {
+    return totalMinutes * 60_000;
+  }
+
+  const lunchStart = parseTimeToMinutes(config.lunchStart);
+  const lunchEnd = parseTimeToMinutes(config.lunchEnd);
+  if (![lunchStart, lunchEnd].every(Number.isFinite)) {
+    return 0;
+  }
+
+  const normalizedLunchStart = normalizeTimeInsideWorkWindow(lunchStart, start);
+  const normalizedLunchEnd = normalizeBreakEnd(normalizedLunchStart, lunchEnd);
+  if (
+    start < normalizedLunchStart &&
+    normalizedLunchStart < normalizedLunchEnd &&
+    normalizedLunchEnd < workEnd
+  ) {
+    return (totalMinutes - (normalizedLunchEnd - normalizedLunchStart)) * 60_000;
+  }
+
+  return 0;
+}
+
+export function calculateSalaryRates(
+  config: SalaryConfig,
+  t: ValidateT = fallbackT,
+): SalaryRates {
+  if (validateSalaryConfig(config, t).length > 0) {
+    return { ...emptySalaryRates };
+  }
+
+  const workMsPerDay = getConfiguredWorkMsPerDay(config);
+  if (workMsPerDay <= 0) {
+    return { ...emptySalaryRates };
+  }
+
+  const dailySalary = getDailySalary(config, workMsPerDay);
+  const workHours = workMsPerDay / 3_600_000;
+  const hourlyRate = dailySalary / workHours;
+  const minuteRate = hourlyRate / 60;
+  const secondRate = minuteRate / 60;
+
+  return {
+    dailySalary,
+    hourlyRate,
+    minuteRate,
+    secondRate,
+    workMsPerDay,
+  };
+}
 
 function getDailySalary(config: SalaryConfig, totalWorkMs: number) {
   const workHours = totalWorkMs / 3_600_000;

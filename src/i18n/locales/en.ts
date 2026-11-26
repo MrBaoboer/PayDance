@@ -21,7 +21,7 @@ const en: Messages = {
   "salaryInfo.hourlyRate": "Hourly",
   "salaryInfo.minuteRate": "Per Minute",
   "salaryInfo.secondRate": "Per Second",
-  "salaryInfo.subtitleSuffix": "Breakdown",
+  "salaryInfo.subtitleSuffix": " Breakdown",
 
   // ── Status labels ──────────────────────────────────────────────────────
   "status.invalidConfig": "Needs Setup",
@@ -57,12 +57,14 @@ const en: Messages = {
   "settings.language": "Language",
   "settings.onboarding": "First-time setup",
   "settings.openOnboarding": "Open first-time setup",
-  "settings.saveFailed": "Settings could not be saved. Please try again.",
+  "settings.saveFailed": "Failed to save settings",
   "settings.unsavedHint": "Changes are not saved until this is fixed.",
-  "settings.loadFailed":
-    "Settings could not be read, so defaults are in use. If this keeps happening, delete salary-settings.json and reopen the app.",
-  "settings.loadRecovered":
-    "The settings file was unreadable. It was backed up as a .bak file and reset to defaults.",
+  "settings.loadFailed": "Settings unreadable; saving paused",
+  "settings.loadRecovered": "Settings backed up (.bak) and reset",
+  "settings.backupFailed": "Backup failed; reset canceled",
+  "settings.retryLoad": "Retry",
+  "settings.rebuildDefaults": "Reset",
+  "settings.rebuildDefaultsConfirm": "Confirm",
 
   // ── Settings → salary mode ─────────────────────────────────────────────
   "salaryMode.label": "Salary type",
@@ -115,10 +117,11 @@ const en: Messages = {
   "about.labelSeparator": ": ",
   "about.appAuthor": "Author",
   "about.openRepo": "Open GitHub repository",
-  "about.repoError": "Unable to open GitHub repository. Please try again later.",
+  "about.repoError": "Unable to open GitHub",
 
   // ── Onboarding ─────────────────────────────────────────────────────────
   "onboarding.ariaLabel": "First-Time Setup",
+  "onboarding.close": "Close setup",
   "onboarding.stepSalaryMode": "Salary Mode",
   "onboarding.stepWorkTime": "Work Hours",
   "onboarding.stepPreferences": "Preferences",
@@ -131,29 +134,31 @@ const en: Messages = {
   "preferences.theme": "Theme",
   "preferences.light": "Light",
   "preferences.dark": "Dark",
-  "preferences.autostart": "Launch at startup",
 
   // ── Title bar ──────────────────────────────────────────────────────────
   "titlebar.openSettings": "Open settings",
   "titlebar.settings": "Settings",
+  "titlebar.settingsWithUpdate": "Settings (Update {version} available)",
   "titlebar.toggleMini": "Toggle mini floating mode",
   "titlebar.miniMode": "Mini floating mode",
   "titlebar.switchToLight": "Switch to light mode",
   "titlebar.switchToDark": "Switch to dark mode",
   "titlebar.lightMode": "Light mode",
   "titlebar.darkMode": "Dark mode",
-  "titlebar.cancelTop": "Cancel always on top",
+  "titlebar.cancelTop": "Unpin window",
   "titlebar.alwaysOnTop": "Always on top",
-  "titlebar.cancelTopTitle": "Cancel top",
+  "titlebar.cancelTopTitle": "Unpin",
   "titlebar.alwaysOnTopTitle": "Always on top",
   "titlebar.minimize": "Minimize window",
   "titlebar.minimizeTitle": "Minimize",
   "titlebar.closeToTray": "Close to tray",
+  "titlebar.fixConfig": "Open settings to fix configuration",
 
   // ── Mini window ────────────────────────────────────────────────────────
   "mini.ariaLabel":
-    "Mini floating amount {amount}. Press Enter to restore full window. Right-click for transparency.",
+    "Mini floating amount {amount}. Press Enter to restore full window. Right-click for opacity and window menu.",
   "mini.restoreTitle": "Double-click to restore",
+  "mini.restoreWindow": "Restore window",
 
   // ── Mini opacity ──────────────────────────────────────────────────────
   "opacity.header": "Opacity",
@@ -164,6 +169,7 @@ const en: Messages = {
   "validation.monthlyPositive": "Monthly salary must be greater than 0",
   "validation.dailyPositive": "Daily wage must be greater than 0",
   "validation.hourlyPositive": "Hourly rate must be greater than 0",
+  "validation.salaryTooLarge": "Salary amount is too large",
   "validation.workDaysPositive": "Work days must be greater than 0",
   "validation.workDaysRange": "Work days cannot exceed 31",
   "validation.workdaysMinOne": "Select at least 1 workday",
@@ -182,17 +188,27 @@ const en: Messages = {
 
   // ── Updater ────────────────────────────────────────────────────────────
   "updater.newVersion": "New version available",
+  "updater.upToDate": "Up to date",
   "updater.downloading": "Downloading…",
+  "updater.downloadingPercent": "Downloading {percent}%",
   "updater.failed": "Update failed",
+  "updater.networkFailed": "Network error",
+  "updater.installFailed": "Install failed",
+  "updater.signatureFailed": "Signature check failed",
+  "updater.manifestFailed": "Invalid manifest",
+  "updater.permissionFailed": "Folder not writable",
+  "updater.retrySeparator": ". ",
   "updater.clickToDownload": "Click to download",
   "updater.retry": "Click to retry",
+  "updater.checkNow": "Check for updates",
+  "updater.checking": "Checking…",
 
   // ── Web Preview ────────────────────────────────────────────────────────
   "web.heroHeadline1": "See Your Pay",
   "web.heroHeadline2": "Tick Up Live",
   "web.heroLead": "A wage board that tracks today’s earnings.",
   "web.downloadWindows": "Download for Windows",
-  "web.downloadShort": "Desktop",
+  "web.downloadShort": "Windows",
   "web.featureRealtime": "Today’s Pay",
   "web.featureRealtimeDesc": "Ticks up as you work",
   "web.featureFocus": "Mini Window",

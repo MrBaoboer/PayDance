@@ -12,6 +12,19 @@ const alternateLocale = computed(() => (locale.value === "zh-CN" ? "en" : "zh-CN
 const alternateLocaleUrl = computed(() =>
   localeUrl(alternateLocale.value, import.meta.env.BASE_URL),
 );
+
+let prefetchedUrl = "";
+const prefetchAlternateLocale = () => {
+  if (typeof document === "undefined") return;
+  const href = alternateLocaleUrl.value;
+  if (!href || prefetchedUrl === href) return;
+  prefetchedUrl = href;
+  const link = document.createElement("link");
+  link.rel = "prefetch";
+  link.as = "document";
+  link.href = href;
+  document.head.appendChild(link);
+};
 </script>
 
 <template>
@@ -20,6 +33,8 @@ const alternateLocaleUrl = computed(() =>
     :href="alternateLocaleUrl"
     :hreflang="alternateLocale"
     :title="locale === 'zh-CN' ? 'English' : '中文'"
+    @focus="prefetchAlternateLocale"
+    @pointerenter="prefetchAlternateLocale"
   >
     <span class="lang-switcher__track">
       <span

@@ -88,15 +88,11 @@ describe("repository metadata", () => {
 
   it("keeps the upgrades that are blocked upstream pinned with a reason", () => {
     // TypeScript 7 breaks vue-tsc (ERR_PACKAGE_PATH_NOT_EXPORTED) and
-    // typescript-eslint refuses to load against it. @types/node must track the
-    // Node 24 LTS runtime that CI and local development both use.
+    // typescript-eslint refuses to load against it.
     expect(packageJson.devDependencies.typescript).toMatch(/^\^6\./);
-    expect(packageJson.devDependencies["@types/node"]).toMatch(/^\^24\./);
-    for (const name of ["typescript", '"@types/node"']) {
-      expect(collapsedDependabotSettings).toContain(
-        `dependency-name: ${name} update-types: - version-update:semver-major`,
-      );
-    }
+    expect(collapsedDependabotSettings).toContain(
+      `dependency-name: typescript update-types: - version-update:semver-major`,
+    );
   });
 
   it("keeps the updater's zip feature off because updates are bare signed EXEs", () => {

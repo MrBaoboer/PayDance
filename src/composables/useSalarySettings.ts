@@ -6,7 +6,6 @@
 import { ref } from "vue";
 import {
   resolveWindowPreferences,
-  sanitizeWindowPosition,
   type ThemeMode,
   type WindowPosition,
   type WindowSize,
@@ -16,7 +15,11 @@ import {
   validateSalaryConfig,
   type SalaryConfig,
 } from "../lib/salary";
-import { defaultCurrencySymbol, normalizeCurrencySymbol } from "../lib/currency";
+import {
+  defaultCurrencySymbol,
+  getDefaultCurrencySymbolForLocale,
+  normalizeCurrencySymbol,
+} from "../lib/currency";
 import {
   migrateSalaryConfig,
   recoverVersionedSalaryConfig,
@@ -24,7 +27,13 @@ import {
   settingsSchemaVersion,
 } from "../lib/settings-migration";
 import { settingsStoreFileName, settingsStoreKeys } from "../lib/settings-store";
+import {
+  purgeUnusableWindowPositions,
+  readPersistedSettingsRecord,
+  writePersistedSettingsPayload,
+} from "../lib/settings-store-io";
 import { createSettingsStore, type SettingsStoreAdapter } from "#settings-store";
+import type { Messages } from "../i18n/types";
 import { detectLocale, type Locale } from "./useI18n";
 
 export type AmountMode = "rolling" | "plain";
@@ -40,8 +49,6 @@ export type PersistedWindowState = {
 
 const serializeSalaryConfig = (config: SalaryConfig) =>
   JSON.stringify({ ...config, workdays: [...config.workdays] });
-
-import type { Messages } from "../i18n/types";
 
 type TFunc = (key: keyof Messages, params?: Record<string, string | number>) => string;
 
@@ -60,6 +67,7 @@ export function useSalarySettings(
   const locale = ref<Locale>("zh-CN");
   const hasCompletedOnboarding = ref(false);
   const isSettingsReady = ref(false);
+  const isSettingsReadOnly = ref(false);
   const settingsSaveError = ref("");
   const retryDelayMs = options.retryDelayMs ?? 250;
   let storePromise: Promise<SettingsStoreAdapter> | null = null;
@@ -75,48 +83,17 @@ export function useSalarySettings(
   };
 
   const resetToDefaults = () => {
+    const detectedLocale = detectLocale(undefined);
     config.value = {
       ...defaultSalaryConfig,
       workdays: [...defaultSalaryConfig.workdays],
     };
-    currencySymbol.value = defaultCurrencySymbol;
+    locale.value = detectedLocale;
+    currencySymbol.value = getDefaultCurrencySymbolForLocale(detectedLocale);
     alwaysOnTop.value = true;
     themeMode.value = "light";
     amountMode.value = "rolling";
-    locale.value = detectLocale(undefined);
     hasCompletedOnboarding.value = false;
-  };
-
-  const persistWindowPosition = async (
-    store: SettingsStoreAdapter,
-    key: string,
-    position: WindowPosition | undefined,
-  ) => {
-    const usablePosition = sanitizeWindowPosition(position);
-    if (usablePosition) {
-      await store.set(key, usablePosition);
-      return;
-    }
-
-    // Nothing worth keeping: also clears a value an older build poisoned with the
-    // minimize sentinel, so the settings file stops advertising a lost window.
-    await store.delete?.(key);
-  };
-
-  // Clears a stored position an older build poisoned with the Windows minimize sentinel.
-  // Doing it at load makes the repair deterministic: waiting for the next save would leave
-  // the bad value visible in salary-settings.json until the user happened to move the window.
-  const purgeUnusableWindowPosition = async (
-    store: SettingsStoreAdapter,
-    key: string,
-    savedPosition: unknown,
-  ) => {
-    if (savedPosition === undefined || sanitizeWindowPosition(savedPosition))
-      return false;
-
-    await store.delete?.(key);
-
-    return true;
   };
 
   const persistRecoveredConfig = async (
@@ -124,8 +101,10 @@ export function useSalarySettings(
     recoveredConfig: SalaryConfig,
   ) => {
     try {
-      await store.set(settingsStoreKeys.config, recoveredConfig);
-      await store.set(settingsStoreKeys.settingsVersion, settingsSchemaVersion);
+      await Promise.all([
+        store.set(settingsStoreKeys.config, recoveredConfig),
+        store.set(settingsStoreKeys.settingsVersion, settingsSchemaVersion),
+      ]);
       await store.save();
     } catch (error) {
       console.error("Failed to persist repaired settings", error);
@@ -136,26 +115,16 @@ export function useSalarySettings(
   const persistDefaultSettings = async () => {
     try {
       const store = await getStore();
-      const windowPreferences = resolveWindowPreferences({});
-      await store.set(settingsStoreKeys.config, config.value);
-      await store.set(settingsStoreKeys.currencySymbol, currencySymbol.value);
-      await store.set(settingsStoreKeys.alwaysOnTop, alwaysOnTop.value);
-      await store.set(settingsStoreKeys.themeMode, themeMode.value);
-      await store.set(settingsStoreKeys.amountMode, amountMode.value);
-      await store.set(settingsStoreKeys.locale, locale.value);
-      await store.set(settingsStoreKeys.isMiniMode, windowPreferences.isMiniMode);
-      await store.set(settingsStoreKeys.fullSize, windowPreferences.fullSize);
-      await store.set(settingsStoreKeys.miniSize, windowPreferences.miniSize);
-      await store.set(
-        settingsStoreKeys.miniOpacityPercent,
-        windowPreferences.miniOpacityPercent,
-      );
-      await store.set(
-        settingsStoreKeys.hasCompletedOnboarding,
-        hasCompletedOnboarding.value,
-      );
-      await store.set(settingsStoreKeys.settingsVersion, settingsSchemaVersion);
-      await store.save();
+      await writePersistedSettingsPayload(store, {
+        alwaysOnTop: alwaysOnTop.value,
+        amountMode: amountMode.value,
+        config: config.value,
+        currencySymbol: currencySymbol.value,
+        hasCompletedOnboarding: hasCompletedOnboarding.value,
+        locale: locale.value,
+        themeMode: themeMode.value,
+        windowState: resolveWindowPreferences({}),
+      });
       return true;
     } catch (error) {
       console.error("Failed to replace unreadable settings with defaults", error);
@@ -180,76 +149,51 @@ export function useSalarySettings(
 
   const readSettings = async () => {
     const store = await getStore();
-    const savedConfig = await store.get<Partial<SalaryConfig>>(settingsStoreKeys.config);
-    const savedCurrencySymbol = await store.get<string>(settingsStoreKeys.currencySymbol);
-    const savedTop = await store.get<boolean>(settingsStoreKeys.alwaysOnTop);
-    const savedTheme = await store.get<ThemeMode>(settingsStoreKeys.themeMode);
-    const savedAmountMode = await store.get<AmountMode>(settingsStoreKeys.amountMode);
-    const savedIsMiniMode = await store.get<boolean>(settingsStoreKeys.isMiniMode);
-    const savedFullSize = await store.get<WindowSize>(settingsStoreKeys.fullSize);
-    const savedMiniSize = await store.get<WindowSize>(settingsStoreKeys.miniSize);
-    const savedMiniOpacityPercent = await store.get<number>(
-      settingsStoreKeys.miniOpacityPercent,
-    );
-    const savedMainPosition = await store.get<WindowPosition>(
-      settingsStoreKeys.mainPosition,
-    );
-    const savedMiniPosition = await store.get<WindowPosition>(
-      settingsStoreKeys.miniPosition,
-    );
-    const savedSettingsVersion = await store.get<number>(
-      settingsStoreKeys.settingsVersion,
-    );
-    const savedHasCompletedOnboarding = await store.get<boolean>(
-      settingsStoreKeys.hasCompletedOnboarding,
-    );
+    const record = await readPersistedSettingsRecord(store);
 
     const recoveredConfig = recoverVersionedSalaryConfig({
-      config: savedConfig,
-      schemaVersion: savedSettingsVersion,
+      config: record.savedConfig,
+      schemaVersion: record.savedSettingsVersion,
     });
     config.value = recoveredConfig.config;
     hasCompletedOnboarding.value = resolveOnboardingState(
-      savedConfig,
-      savedHasCompletedOnboarding,
+      record.savedConfig,
+      record.savedHasCompletedOnboarding,
     );
     if (recoveredConfig.recoveryReason) {
       await persistRecoveredConfig(store, recoveredConfig.config);
     }
 
-    // A missing key normalizes back to the default symbol, so upgrading from a build without
-    // this setting keeps showing ¥ instead of silently dropping it.
-    currencySymbol.value = normalizeCurrencySymbol(savedCurrencySymbol);
+    locale.value = detectLocale(record.savedLocale);
 
-    if (typeof savedTop === "boolean") {
-      alwaysOnTop.value = savedTop;
+    // Existing installs without a stored currencySymbol keep ¥ so upgrades never silently
+    // change their currency; brand-new installs match the detected UI locale (zh-CN -> ¥, en -> $).
+    const isFreshInstall =
+      record.savedConfig === undefined &&
+      record.savedCurrencySymbol === undefined &&
+      record.savedHasCompletedOnboarding === undefined;
+    currencySymbol.value = isFreshInstall
+      ? getDefaultCurrencySymbolForLocale(locale.value)
+      : normalizeCurrencySymbol(record.savedCurrencySymbol);
+
+    if (typeof record.savedTop === "boolean") {
+      alwaysOnTop.value = record.savedTop;
     }
 
-    if (savedTheme === "dark" || savedTheme === "light") {
-      themeMode.value = savedTheme;
+    if (record.savedTheme === "dark" || record.savedTheme === "light") {
+      themeMode.value = record.savedTheme;
     }
 
-    if (savedAmountMode === "plain" || savedAmountMode === "rolling") {
-      amountMode.value = savedAmountMode;
+    if (record.savedAmountMode === "plain" || record.savedAmountMode === "rolling") {
+      amountMode.value = record.savedAmountMode;
     }
-
-    const savedLocale = await store.get<string>(settingsStoreKeys.locale);
-    locale.value = detectLocale(savedLocale);
 
     try {
-      const purged = [
-        await purgeUnusableWindowPosition(
-          store,
-          settingsStoreKeys.mainPosition,
-          savedMainPosition,
-        ),
-        await purgeUnusableWindowPosition(
-          store,
-          settingsStoreKeys.miniPosition,
-          savedMiniPosition,
-        ),
-      ].some(Boolean);
-
+      const purged = await purgeUnusableWindowPositions(
+        store,
+        record.savedMainPosition,
+        record.savedMiniPosition,
+      );
       if (purged) await store.save();
     } catch (error) {
       // A failed cleanup must not cost the user their settings; the value is inert anyway.
@@ -257,19 +201,21 @@ export function useSalarySettings(
     }
 
     return resolveWindowPreferences({
-      savedIsMiniMode,
-      savedFullSize,
-      savedMiniSize,
-      savedMiniOpacityPercent,
-      savedMainPosition,
-      savedMiniPosition,
-      savedSettingsVersion,
+      savedFullSize: record.savedFullSize,
+      savedIsMiniMode: record.savedIsMiniMode,
+      savedMainPosition: record.savedMainPosition,
+      savedMiniOpacityPercent: record.savedMiniOpacityPercent,
+      savedMiniPosition: record.savedMiniPosition,
+      savedMiniSize: record.savedMiniSize,
+      savedSettingsVersion: record.savedSettingsVersion,
     });
   };
 
   const loadSettings = async () => {
     try {
-      return await readSettings();
+      const preferences = await readSettings();
+      isSettingsReadOnly.value = false;
+      return preferences;
     } catch (firstError) {
       // Antivirus scans and sync clients lock the file for a moment; one retry absorbs that
       // instead of treating a transient lock as a corrupt store.
@@ -277,14 +223,17 @@ export function useSalarySettings(
       await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
 
       try {
-        return await readSettings();
+        const preferences = await readSettings();
+        isSettingsReadOnly.value = false;
+        return preferences;
       } catch (error) {
         console.error("Failed to load settings, falling back to defaults", error);
         resetToDefaults();
         const recovered = await recoverUnreadableStore();
-        // Not recovered means the original file is still on disk: skip onboarding so its
-        // first save cannot overwrite settings that may only be temporarily unreadable.
+        // Not recovered means the original file is still on disk: skip onboarding and block
+        // automatic saves so moving/resizing/quitting never overwrites a locked or unreadable file.
         hasCompletedOnboarding.value = !recovered;
+        isSettingsReadOnly.value = !recovered;
         settingsSaveError.value = recovered
           ? "settings.loadRecovered"
           : "settings.loadFailed";
@@ -295,49 +244,75 @@ export function useSalarySettings(
     }
   };
 
-  const saveSettings = async ({
-    isMiniMode,
-    fullSize,
-    miniSize,
-    miniOpacityPercent,
-    mainPosition,
-    miniPosition,
-  }: PersistedWindowState) => {
-    if (!isSettingsReady.value) return;
+  const retryLoadSettings = async () => {
+    // Drop the cached store handle so a fresh Tauri LazyStore re-reads from disk.
+    storePromise = null;
+    try {
+      const preferences = await readSettings();
+      isSettingsReadOnly.value = false;
+      settingsSaveError.value = "";
+      return preferences;
+    } catch (error) {
+      console.error("Retry reading settings failed", error);
+      settingsSaveError.value = "settings.loadFailed";
+      return undefined;
+    }
+  };
+
+  const rebuildSettingsWithDefaults = async () => {
+    // Refuse to overwrite an existing unreadable file if backing it up fails.
+    try {
+      const existingStore = await getStore();
+      await existingStore.backupUnreadable?.();
+    } catch (error) {
+      console.error("Failed to back up unreadable settings before rebuild", error);
+      settingsSaveError.value = "settings.backupFailed";
+      return false;
+    }
+
+    storePromise = null;
+    resetToDefaults();
+    const persisted = await persistDefaultSettings();
+    if (!persisted) {
+      settingsSaveError.value = "settings.saveFailed";
+      return false;
+    }
+
+    isSettingsReadOnly.value = false;
+    settingsSaveError.value = "";
+    return true;
+  };
+
+  const saveSettings = async (windowState: PersistedWindowState) => {
+    if (!isSettingsReady.value || isSettingsReadOnly.value) return;
 
     try {
       const store = await getStore();
-      const configIssues = validateSalaryConfig(config.value, getT());
+      const configSnapshot: SalaryConfig = {
+        ...config.value,
+        workdays: [...config.value.workdays],
+      };
+      const configIssues = validateSalaryConfig(configSnapshot, getT());
       const shouldPersistSalaryConfig = configIssues.length <= 0;
-      if (shouldPersistSalaryConfig) {
-        await store.set(settingsStoreKeys.config, config.value);
-      } else {
+      if (!shouldPersistSalaryConfig) {
         console.error("Skipped saving invalid salary settings", configIssues);
       }
 
-      await store.set(
-        settingsStoreKeys.currencySymbol,
-        normalizeCurrencySymbol(currencySymbol.value),
-      );
-      await store.set(settingsStoreKeys.alwaysOnTop, alwaysOnTop.value);
-      await store.set(settingsStoreKeys.fullSize, fullSize);
-      await store.set(settingsStoreKeys.isMiniMode, isMiniMode);
-      await store.set(settingsStoreKeys.themeMode, themeMode.value);
-      await store.set(settingsStoreKeys.amountMode, amountMode.value);
-      await store.set(settingsStoreKeys.locale, locale.value);
-      await store.set(settingsStoreKeys.miniSize, miniSize);
-      await store.set(settingsStoreKeys.miniOpacityPercent, miniOpacityPercent);
-      // Last gate before disk: never let a minimize sentinel or corrupt coordinate land in the
-      // settings file, and clear a value poisoned by an older build so it stops being visible.
-      await persistWindowPosition(store, settingsStoreKeys.mainPosition, mainPosition);
-      await persistWindowPosition(store, settingsStoreKeys.miniPosition, miniPosition);
-      await store.set(
-        settingsStoreKeys.hasCompletedOnboarding,
-        hasCompletedOnboarding.value,
-      );
-      await store.set(settingsStoreKeys.settingsVersion, settingsSchemaVersion);
-      await store.save();
-      settingsSaveError.value = "";
+      await writePersistedSettingsPayload(store, {
+        alwaysOnTop: alwaysOnTop.value,
+        amountMode: amountMode.value,
+        config: shouldPersistSalaryConfig ? configSnapshot : undefined,
+        currencySymbol: currencySymbol.value,
+        hasCompletedOnboarding: hasCompletedOnboarding.value,
+        locale: locale.value,
+        themeMode: themeMode.value,
+        windowState,
+      });
+
+      // Preserve one-time recovery notices (e.g. .bak created) until the user dismisses or restarts.
+      if (settingsSaveError.value === "settings.saveFailed") {
+        settingsSaveError.value = "";
+      }
 
       if (shouldPersistSalaryConfig) {
         const savedConfig = await store.get<Partial<SalaryConfig>>(
@@ -345,9 +320,9 @@ export function useSalarySettings(
         );
         const verifiedConfig = migrateSalaryConfig(savedConfig);
         if (
-          serializeSalaryConfig(verifiedConfig) !== serializeSalaryConfig(config.value)
+          serializeSalaryConfig(verifiedConfig) !== serializeSalaryConfig(configSnapshot)
         ) {
-          console.error("Saved salary settings did not match the in-memory config");
+          console.error("Saved salary settings did not match the persisted snapshot");
         }
       }
     } catch (error) {
@@ -362,9 +337,12 @@ export function useSalarySettings(
     config,
     currencySymbol,
     hasCompletedOnboarding,
+    isSettingsReadOnly,
     isSettingsReady,
     loadSettings,
     locale,
+    rebuildSettingsWithDefaults,
+    retryLoadSettings,
     saveSettings,
     settingsSaveError,
     themeMode,

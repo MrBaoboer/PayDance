@@ -5,6 +5,7 @@
 
 import { computed, type Ref } from "vue";
 import {
+  calculateSalaryRates,
   validateSalaryConfig,
   type SalaryConfig,
   type SalaryConfigIssue,
@@ -31,6 +32,7 @@ export function useDashboardModel(
   const dailyEarnText = computed(() =>
     formatYuan(snapshot.value.dailySalary, locale.value),
   );
+  const salaryRates = computed(() => calculateSalaryRates(config.value, t as ValidateT));
   const salaryModeLabel = computed(() => {
     if (config.value.salaryType === "daily") return t("salaryMode.dailyLong");
     if (config.value.salaryType === "hourly") return t("salaryMode.hourlyLong");
@@ -94,6 +96,7 @@ export function useDashboardModel(
     hasIssue,
     middleStat,
     salaryModeLabel,
+    salaryRates,
     statusText,
     workedTimeText,
   };

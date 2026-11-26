@@ -89,4 +89,43 @@ describe("Web Preview demo config", () => {
     expect(state[settingsStoreKeys.hasCompletedOnboarding]).toBe(true);
     expect(save).not.toHaveBeenCalled();
   });
+
+  it("syncs default currency symbol between Chinese and English pages unless customized", async () => {
+    const freshZh = createMemoryStore();
+    await expect(ensureWebPreviewDemoSettings(freshZh.store, "zh-CN")).resolves.toBe(
+      true,
+    );
+    expect(freshZh.state[settingsStoreKeys.currencySymbol]).toBe("¥");
+    expect(freshZh.state[settingsStoreKeys.currencySymbolCustomized]).toBeUndefined();
+
+    // Switching from Chinese page to English page updates default ¥ -> $.
+    await expect(ensureWebPreviewDemoSettings(freshZh.store, "en")).resolves.toBe(true);
+    expect(freshZh.state[settingsStoreKeys.currencySymbol]).toBe("$");
+
+    // Switching back from English page to Chinese page restores default $ -> ¥.
+    await expect(ensureWebPreviewDemoSettings(freshZh.store, "zh-CN")).resolves.toBe(
+      true,
+    );
+    expect(freshZh.state[settingsStoreKeys.currencySymbol]).toBe("¥");
+
+    // Non-default custom symbol (e.g. €) is preserved across locale changes.
+    const custom = createMemoryStore({
+      [settingsStoreKeys.currencySymbol]: "€",
+    });
+    await expect(ensureWebPreviewDemoSettings(custom.store, "en")).resolves.toBe(true);
+    expect(custom.state[settingsStoreKeys.currencySymbol]).toBe("€");
+    expect(custom.state[settingsStoreKeys.currencySymbolCustomized]).toBe(true);
+
+    // Explicitly customized $ on Chinese page is also preserved.
+    const explicitDollar = createMemoryStore({
+      [settingsStoreKeys.config]: createWebPreviewDemoConfig(),
+      [settingsStoreKeys.currencySymbol]: "$",
+      [settingsStoreKeys.currencySymbolCustomized]: true,
+      [settingsStoreKeys.hasCompletedOnboarding]: true,
+    });
+    await expect(
+      ensureWebPreviewDemoSettings(explicitDollar.store, "zh-CN"),
+    ).resolves.toBe(false);
+    expect(explicitDollar.state[settingsStoreKeys.currencySymbol]).toBe("$");
+  });
 });

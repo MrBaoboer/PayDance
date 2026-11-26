@@ -5,9 +5,11 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  calculateSalaryRates,
   calculateSalarySnapshot,
   createWorkSpans,
   defaultSalaryConfig,
+  maxSalaryAmount,
   validateSalaryConfig,
   type SalaryConfig,
 } from "./salary";
@@ -30,6 +32,7 @@ const vt = (key: string) => {
     "validation.lunchSameError": "午休起止时间不能相同",
     "validation.nightLunchOutside": "夜班午休需在工时内",
     "validation.lunchOutside": "午休需在工时内",
+    "validation.salaryTooLarge": "薪资金额过大",
   };
   return map[key] ?? key;
 };
@@ -95,6 +98,16 @@ describe("calculateSalarySnapshot", () => {
     expect(snapshot.status).toBe("rest-day");
     expect(snapshot.earnedToday).toBe(0);
     expect(snapshot.workMsToday).toBe(0);
+  });
+
+  it("calculates standard workday rates independently of whether today is a rest day", () => {
+    const rates = calculateSalaryRates(config);
+
+    expect(rates.workMsPerDay).toBe(8 * 3_600_000);
+    expect(rates.dailySalary).toBe(1000);
+    expect(rates.hourlyRate).toBe(125);
+    expect(rates.minuteRate).toBeCloseTo(125 / 60);
+    expect(rates.secondRate).toBeCloseTo(125 / 3600);
   });
 
   it("keeps earned amount at zero before work starts", () => {
@@ -562,5 +575,30 @@ describe("validateSalaryConfig bounds", () => {
     );
 
     expect(issues).toEqual([{ field: "workTime", message: "午休起止时间不能相同" }]);
+  });
+
+  it("rejects salary amounts above maxSalaryAmount in each mode", () => {
+    const overMax = maxSalaryAmount + 1;
+
+    expect(
+      validateSalaryConfig(
+        { ...defaultSalaryConfig, salaryType: "monthly", monthlySalary: overMax },
+        vt,
+      ),
+    ).toContainEqual({ field: "monthlySalary", message: "薪资金额过大" });
+
+    expect(
+      validateSalaryConfig(
+        { ...defaultSalaryConfig, salaryType: "daily", dailySalary: overMax },
+        vt,
+      ),
+    ).toContainEqual({ field: "dailySalary", message: "薪资金额过大" });
+
+    expect(
+      validateSalaryConfig(
+        { ...defaultSalaryConfig, salaryType: "hourly", hourlyRate: overMax },
+        vt,
+      ),
+    ).toContainEqual({ field: "hourlyRate", message: "薪资金额过大" });
   });
 });

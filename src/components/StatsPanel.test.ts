@@ -11,7 +11,7 @@ describe("stats panel", () => {
     expect(statsPanelSource).toContain("middleLabel: string");
     expect(statsPanelSource).toContain("middleValue: string");
     expect(statsPanelSource).toContain("{{ middleLabel }}");
-    expect(statsPanelSource).toContain("formatMetricSegments(middleValue)");
+    expect(statsPanelSource).toContain("formatMetricSegments(props.middleValue)");
     expect(statsPanelSource).not.toContain("{{ remainingTime }}");
   });
 

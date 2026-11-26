@@ -10,7 +10,13 @@ import type { SalaryStatus } from "../lib/salary";
 import WindowTitlebar from "./WindowTitlebar.vue";
 
 const mountTitlebar = (
-  props: { hasConfigIssues?: boolean; isNightWork?: boolean; status?: SalaryStatus } = {},
+  props: {
+    availableUpdateVersion?: string;
+    hasConfigIssues?: boolean;
+    isNightWork?: boolean;
+    showDesktopActions?: boolean;
+    status?: SalaryStatus;
+  } = {},
 ) =>
   mount(WindowTitlebar, {
     props: {
@@ -42,9 +48,28 @@ describe("WindowTitlebar status dot", () => {
     expect(dotClass(mountTitlebar({ isNightWork, status }))).toBe(expected);
   });
 
-  it("shows the invalid colour whenever the config has issues", () => {
-    expect(dotClass(mountTitlebar({ hasConfigIssues: true, status: "working" }))).toBe(
-      "status-dot--invalid",
+  it("shows the invalid colour whenever the config has issues and lets users jump to settings", async () => {
+    const wrapper = mountTitlebar({ hasConfigIssues: true, status: "working" });
+
+    expect(dotClass(wrapper)).toBe("status-dot--invalid");
+    await wrapper.get("button.status-chip").trigger("click");
+    expect(wrapper.emitted("toggleSettings")).toHaveLength(1);
+  });
+
+  it("shows a quiet update dot on the desktop settings button only when an update is available", () => {
+    const upToDate = mountTitlebar({ availableUpdateVersion: "" });
+    expect(upToDate.find(".settings-update-dot").exists()).toBe(false);
+
+    const hasUpdate = mountTitlebar({ availableUpdateVersion: "0.10.1" });
+    expect(hasUpdate.find(".settings-update-dot").exists()).toBe(true);
+    expect(hasUpdate.get(".icon-button--settings").attributes("title")).toContain(
+      "0.10.1",
     );
+
+    const webPreview = mountTitlebar({
+      availableUpdateVersion: "0.10.1",
+      showDesktopActions: false,
+    });
+    expect(webPreview.find(".settings-update-dot").exists()).toBe(false);
   });
 });

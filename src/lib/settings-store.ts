@@ -10,6 +10,7 @@ export const settingsStoreKeys = {
   amountMode: "amountMode",
   config: "config",
   currencySymbol: "currencySymbol",
+  currencySymbolCustomized: "currencySymbolCustomized",
   fullSize: "fullSize",
   hasCompletedOnboarding: "hasCompletedOnboarding",
   isMiniMode: "isMiniMode",

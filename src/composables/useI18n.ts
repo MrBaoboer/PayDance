@@ -3,7 +3,7 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
-import { computed, inject, provide, ref, type InjectionKey, type Ref } from "vue";
+import { computed, inject, provide, ref, watch, type InjectionKey, type Ref } from "vue";
 import { en, zhCN, type Messages } from "../i18n";
 
 // ---------------------------------------------------------------------------
@@ -97,6 +97,16 @@ export function provideI18n(
   const locale = savedLocale;
   const t = computed(() => createT(locale));
 
+  watch(
+    locale,
+    (next) => {
+      if (typeof document !== "undefined") {
+        document.documentElement.lang = next;
+      }
+    },
+    { immediate: true },
+  );
+
   const setLocale = (next: Locale) => {
     const detectedLocale = detectLocale(next);
     locale.value = detectedLocale;
@@ -114,7 +124,7 @@ export function provideI18n(
 // ---------------------------------------------------------------------------
 
 export function useI18n() {
-  const ctx = inject(I18N_KEY);
+  const ctx = inject(I18N_KEY, undefined);
   if (!ctx) {
     // Fallback: return a static zh-CN instance (for tests / edge cases)
     const zhLocale = ref<Locale>("zh-CN");

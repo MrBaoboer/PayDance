@@ -263,4 +263,182 @@ describe("useSalarySettings", () => {
     expect(storeMocks.delete).not.toHaveBeenCalled();
     expect(windowPreferences.mainPosition).toEqual({ x: 320, y: 200 });
   });
+
+  it("blocks subsequent automatic saves when unreadable settings could not be backed up", async () => {
+    storeMocks.get.mockRejectedValue(new Error("locked file"));
+
+    const { isSettingsReadOnly, loadSettings, saveSettings } =
+      await import("./useSalarySettings").then((module) =>
+        module.useSalarySettings(createMockStore, undefined, { retryDelayMs: 0 }),
+      );
+
+    await loadSettings();
+    expect(isSettingsReadOnly.value).toBe(true);
+
+    await saveSettings({
+      fullSize: fullWindowSize,
+      isMiniMode: false,
+      miniOpacityPercent: defaultMiniOpacityPercent,
+      miniSize: miniDefaultSize,
+    });
+
+    expect(storeMocks.set).not.toHaveBeenCalled();
+    expect(storeMocks.save).not.toHaveBeenCalled();
+  });
+
+  it("recovers from read-only fallback when retryLoadSettings succeeds", async () => {
+    storeMocks.get.mockRejectedValue(new Error("locked file"));
+
+    const {
+      config,
+      isSettingsReadOnly,
+      loadSettings,
+      retryLoadSettings,
+      settingsSaveError,
+    } = await import("./useSalarySettings").then((module) =>
+      module.useSalarySettings(createMockStore, undefined, { retryDelayMs: 0 }),
+    );
+
+    await loadSettings();
+    expect(isSettingsReadOnly.value).toBe(true);
+
+    storeMocks.get.mockImplementation(async (key: string) =>
+      key === "config" ? { ...defaultSalaryConfig, monthlySalary: 25_000 } : undefined,
+    );
+    const reloaded = await retryLoadSettings();
+
+    expect(reloaded).toBeDefined();
+    expect(isSettingsReadOnly.value).toBe(false);
+    expect(settingsSaveError.value).toBe("");
+    expect(config.value.monthlySalary).toBe(25_000);
+  });
+
+  it("preserves the one-time backup recovery notice across routine window saves", async () => {
+    storeMocks.get.mockRejectedValueOnce(new Error("corrupt"));
+    storeMocks.get.mockRejectedValueOnce(new Error("corrupt"));
+    storeMocks.get.mockResolvedValue(defaultSalaryConfig);
+    const backupUnreadable = vi.fn(async () => "C:/data/salary-settings.json.bak-1");
+    const createBackupStore = () => Promise.resolve({ ...storeMocks, backupUnreadable });
+
+    const { loadSettings, saveSettings, settingsSaveError } =
+      await import("./useSalarySettings").then((module) =>
+        module.useSalarySettings(createBackupStore, undefined, { retryDelayMs: 0 }),
+      );
+
+    await loadSettings();
+    expect(settingsSaveError.value).toBe("settings.loadRecovered");
+
+    await saveSettings({
+      fullSize: fullWindowSize,
+      isMiniMode: false,
+      miniOpacityPercent: defaultMiniOpacityPercent,
+      miniSize: miniDefaultSize,
+    });
+
+    expect(settingsSaveError.value).toBe("settings.loadRecovered");
+  });
+
+  it("uses locale-appropriate default currency on brand-new English installs while preserving ¥ on existing installs", async () => {
+    vi.stubGlobal("navigator", { language: "en-US" });
+    try {
+      storeMocks.get.mockResolvedValue(undefined);
+      const fresh = await import("./useSalarySettings").then((module) =>
+        module.useSalarySettings(createMockStore),
+      );
+      await fresh.loadSettings();
+      expect(fresh.locale.value).toBe("en");
+      expect(fresh.currencySymbol.value).toBe("$");
+
+      storeMocks.get.mockImplementation(async (key: string) =>
+        key === "config" ? { ...defaultSalaryConfig } : undefined,
+      );
+      const existing = await import("./useSalarySettings").then((module) =>
+        module.useSalarySettings(createMockStore),
+      );
+      await existing.loadSettings();
+      expect(existing.currencySymbol.value).toBe("¥");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("backs up an unreadable file when rebuildSettingsWithDefaults is invoked", async () => {
+    storeMocks.get.mockRejectedValue(new Error("locked"));
+    const backupUnreadable = vi.fn(async () => "C:/data/salary-settings.json.bak-2");
+    const createBackupStore = () => Promise.resolve({ ...storeMocks, backupUnreadable });
+
+    const { isSettingsReadOnly, loadSettings, rebuildSettingsWithDefaults } =
+      await import("./useSalarySettings").then((module) =>
+        module.useSalarySettings(createBackupStore, undefined, { retryDelayMs: 0 }),
+      );
+
+    await loadSettings();
+    backupUnreadable.mockClear();
+
+    // Simulate user choosing explicit rebuild from read-only fallback.
+    isSettingsReadOnly.value = true;
+    const rebuilt = await rebuildSettingsWithDefaults();
+
+    expect(rebuilt).toBe(true);
+    expect(backupUnreadable).toHaveBeenCalledOnce();
+    expect(isSettingsReadOnly.value).toBe(false);
+    expect(storeMocks.save).toHaveBeenCalled();
+  });
+
+  it("aborts rebuildSettingsWithDefaults without overwriting when backing up fails", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    storeMocks.get.mockRejectedValue(new Error("locked"));
+    const backupUnreadable = vi.fn(async () => {
+      throw new Error("permission denied");
+    });
+    const createBackupStore = () => Promise.resolve({ ...storeMocks, backupUnreadable });
+
+    const {
+      isSettingsReadOnly,
+      loadSettings,
+      rebuildSettingsWithDefaults,
+      settingsSaveError,
+    } = await import("./useSalarySettings").then((module) =>
+      module.useSalarySettings(createBackupStore, undefined, { retryDelayMs: 0 }),
+    );
+
+    await loadSettings();
+    storeMocks.set.mockClear();
+    storeMocks.save.mockClear();
+
+    const rebuilt = await rebuildSettingsWithDefaults();
+
+    expect(rebuilt).toBe(false);
+    expect(isSettingsReadOnly.value).toBe(true);
+    expect(settingsSaveError.value).toBe("settings.backupFailed");
+    expect(storeMocks.set).not.toHaveBeenCalled();
+    expect(storeMocks.save).not.toHaveBeenCalled();
+  });
+
+  it("verifies disk readback against the pre-write config snapshot even if config mutates mid-save", async () => {
+    storeMocks.get.mockResolvedValue(undefined);
+
+    const { config, loadSettings, saveSettings, settingsSaveError } =
+      await import("./useSalarySettings").then((module) =>
+        module.useSalarySettings(createMockStore),
+      );
+
+    await loadSettings();
+    const writtenConfig = { ...defaultSalaryConfig, monthlySalary: 15_000 };
+    config.value = { ...writtenConfig };
+    storeMocks.save.mockImplementationOnce(async () => {
+      // Simulate user editing the input while the async disk save is in flight.
+      config.value = { ...writtenConfig, monthlySalary: 16_000 };
+    });
+    storeMocks.get.mockResolvedValueOnce(writtenConfig);
+
+    await saveSettings({
+      fullSize: fullWindowSize,
+      isMiniMode: false,
+      miniOpacityPercent: defaultMiniOpacityPercent,
+      miniSize: miniDefaultSize,
+    });
+
+    expect(settingsSaveError.value).toBe("");
+  });
 });

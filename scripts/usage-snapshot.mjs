@@ -68,10 +68,82 @@ export function hasRowsForDate(csv, date) {
   return csv.split(/\r?\n/).some((line) => line.startsWith(`"${date}",`));
 }
 
+export function parseCsvRows(csv) {
+  return csv
+    .split(/\r?\n/)
+    .slice(1)
+    .filter(Boolean)
+    .map((line) => {
+      const match = /^"([^"]+)","([^"]+)","([^"]+)",(\d+)$/.exec(line.trim());
+      if (!match) return null;
+      return {
+        date: match[1],
+        tag: match[2],
+        asset: match[3],
+        count: Number(match[4]),
+      };
+    })
+    .filter(Boolean);
+}
+
+export function buildUsageTrendReport(csv) {
+  const rows = parseCsvRows(csv);
+  const byDate = new Map();
+  for (const row of rows) {
+    const bucket = byDate.get(row.date) ?? [];
+    bucket.push(row);
+    byDate.set(row.date, bucket);
+  }
+
+  const dates = [...byDate.keys()].sort();
+  return dates.map((date, index) => {
+    const totals = summarize(byDate.get(date));
+    const prev = index > 0 ? summarize(byDate.get(dates[index - 1])) : null;
+    const exeDelta = prev ? Math.max(0, totals.exe - prev.exe) : 0;
+    const launchDelta = prev ? Math.max(0, totals.latestJson - prev.latestJson) : 0;
+    const launchesPerInstall =
+      totals.exe > 0 ? Number((totals.latestJson / totals.exe).toFixed(2)) : 0;
+    return {
+      date,
+      exe: totals.exe,
+      exeDelta,
+      launchDelta,
+      launchesPerInstall,
+      latestJson: totals.latestJson,
+    };
+  });
+}
+
+function printReport(file) {
+  if (!existsSync(file)) {
+    console.log(`[usage-snapshot] No usage CSV found at ${file}`);
+    return;
+  }
+
+  const report = buildUsageTrendReport(readFileSync(file, "utf8"));
+  if (report.length === 0) {
+    console.log(`[usage-snapshot] Usage CSV at ${file} has no recorded snapshots.`);
+    return;
+  }
+
+  console.log("date        | installs (+delta) | launches (+delta) | launches/install");
+  console.log("------------|-------------------|-------------------|-----------------");
+  for (const entry of report) {
+    console.log(
+      `${entry.date}  | ${String(entry.exe).padStart(8)} (+${String(entry.exeDelta).padEnd(5)}) | ${String(entry.latestJson).padStart(8)} (+${String(entry.launchDelta).padEnd(5)}) | ${entry.launchesPerInstall.toFixed(2)}x`,
+    );
+  }
+}
+
 function main() {
-  const date = new Date().toISOString().slice(0, 10);
   const directory = resolveUsageDirectory();
   const file = join(directory, "downloads.csv");
+  if (process.argv.includes("--report")) {
+    printReport(file);
+    return;
+  }
+
+  const date = new Date().toISOString().slice(0, 10);
   mkdirSync(directory, { recursive: true });
 
   const existing = existsSync(file) ? readFileSync(file, "utf8") : "";

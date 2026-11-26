@@ -3,11 +3,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
-import { watch } from "vue";
+import { defineAsyncComponent, watch } from "vue";
 import { appName } from "../../lib/app-meta";
 import AppWindow from "../../components/AppWindow.vue";
-import WebPreviewMiniLayer from "./WebPreviewMiniLayer.vue";
 import { useWebPreviewState } from "../useWebPreviewState";
+
+const WebPreviewMiniLayer = defineAsyncComponent(
+  () => import("./WebPreviewMiniLayer.vue"),
+);
 
 const {
   activeView,
@@ -15,6 +18,7 @@ const {
   amountMode,
   autostartEnabled,
   autostartError,
+  closeOnboarding,
   completeWebOnboarding,
   config,
   currencySymbol,
@@ -35,6 +39,7 @@ const {
   openOnboarding,
   previewFrameClass,
   salaryModeLabel,
+  salaryRates,
   setMiniMode,
   setThemeMode,
   shellClass,
@@ -49,7 +54,9 @@ const {
   themeMode,
   toggleAlwaysOnTop,
   toggleMiniMode,
+  toggleMiniOpacityPanel,
   toggleTheme,
+  updateCurrencySymbol,
   updateMiniOpacityPercent,
   workedTimeText,
 } = useWebPreviewState();
@@ -64,7 +71,7 @@ watch(
   (value) => {
     if (isSettingsReady.value) emit("shellClassChange", value);
   },
-  { immediate: true },
+  { flush: "sync", immediate: true },
 );
 watch(
   isSettingsReady,
@@ -73,7 +80,7 @@ watch(
     emit("shellClassChange", shellClass.value);
     emit("themeReady");
   },
-  { immediate: true },
+  { flush: "sync", immediate: true },
 );
 </script>
 
@@ -93,12 +100,12 @@ watch(
         v-model:always-on-top="alwaysOnTop"
         v-model:amount-mode="amountMode"
         v-model:config="config"
-        v-model:currency-symbol="currencySymbol"
         v-model:show-salary-info="showSalaryInfo"
         v-model:show-settings="showSettings"
         :app-name="appName"
         :autostart-enabled="autostartEnabled"
         :autostart-error="autostartError"
+        :currency-symbol="currencySymbol"
         :daily-earn-text="dailyEarnText"
         :earned-text="earnedText"
         :first-config-issue="firstConfigIssue"
@@ -107,16 +114,18 @@ watch(
         :is-autostart-updating="isAutostartUpdating"
         :is-theme-switching="isThemeSwitching"
         :middle-stat="middleStat"
+        :onboarding-dismissible="true"
         :salary-mode-label="salaryModeLabel"
+        :salary-rates="salaryRates"
         :should-show-onboarding="shouldShowOnboarding"
         :show-desktop-features="false"
         :show-onboarding-action="true"
-        :update-status="{ kind: 'unavailable' }"
         :snapshot="snapshot"
         :status-text="statusText"
         :theme-mode="themeMode"
         :worked-time-text="workedTimeText"
         @close="showSettings = false"
+        @close-onboarding="closeOnboarding"
         @complete-onboarding="completeWebOnboarding"
         @drag-start="showWebMiniOpacityPanel = false"
         @minimize="showSettings = false"
@@ -127,6 +136,7 @@ watch(
         @toggle-settings="showSettings = !showSettings"
         @toggle-theme="toggleTheme"
         @update:autostart-enabled="autostartEnabled = $event"
+        @update:currency-symbol="updateCurrencySymbol"
         @update:theme-mode="setThemeMode"
       />
     </div>
@@ -145,6 +155,7 @@ watch(
       @drag-start="startWebMiniDrag"
       @opacity-menu="showMiniOpacityPanel"
       @restore="setMiniMode(false)"
+      @toggle-opacity-panel="toggleMiniOpacityPanel"
       @update-opacity="updateMiniOpacityPercent"
     />
   </div>

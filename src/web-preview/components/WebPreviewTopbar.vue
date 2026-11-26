@@ -24,6 +24,10 @@ defineProps<{
         :src="productLogoUrl"
         alt=""
         aria-hidden="true"
+        width="52"
+        height="52"
+        decoding="async"
+        fetchpriority="high"
       />
       <span>{{ appName }} {{ appEnglishName }}</span>
     </a>

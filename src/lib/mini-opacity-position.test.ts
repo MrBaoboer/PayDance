@@ -15,14 +15,14 @@ import {
 } from "./mini-opacity-position";
 
 describe("mini opacity panel positioning", () => {
-  it("keeps the opacity panel very small in logical pixels", () => {
-    expect(miniOpacityPanelLogicalSize).toEqual({ width: 108, height: 52 });
+  it("keeps the opacity panel compact in logical pixels including its shadow gutter", () => {
+    expect(miniOpacityPanelLogicalSize).toEqual({ width: 164, height: 90 });
   });
 
   it("scales the companion window size and gap for native physical placement", () => {
     expect(resolveMiniOpacityPanelPhysicalSize(1.25)).toEqual({
-      height: 65,
-      width: 135,
+      height: 113,
+      width: 205,
     });
     expect(resolveMiniOpacityPanelPhysicalGap(1.25)).toBe(10);
   });
@@ -111,9 +111,9 @@ describe("mini opacity panel positioning", () => {
     });
 
     expect(positions).toEqual([
-      { x: 295, y: 244 },
-      { x: 295, y: 244 },
-      { x: 295, y: 244 },
+      { x: 267, y: 244 },
+      { x: 267, y: 244 },
+      { x: 267, y: 244 },
     ]);
   });
 

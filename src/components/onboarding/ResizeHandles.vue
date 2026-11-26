@@ -5,6 +5,15 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 import { resizeHandles, type ResizeDirection } from "../../lib/resize-handles";
 
+withDefaults(
+  defineProps<{
+    size?: "default" | "compact";
+  }>(),
+  {
+    size: "default",
+  },
+);
+
 defineEmits<{
   resizeStart: [direction: ResizeDirection];
 }>();
@@ -15,18 +24,19 @@ defineEmits<{
     v-for="handle in resizeHandles"
     :key="handle.direction"
     class="resize-handle"
-    :class="handle.className"
+    :class="[handle.className, { 'resize-handle--compact': size === 'compact' }]"
     aria-hidden="true"
     tabindex="-1"
     type="button"
     @mousedown.left.stop.prevent="$emit('resizeStart', handle.direction)"
+    @pointerdown.stop
   />
 </template>
 
 <style scoped>
 .resize-handle {
   position: absolute;
-  z-index: 2;
+  z-index: 30;
   border: 0;
   background: transparent;
   padding: 0;
@@ -70,6 +80,28 @@ defineEmits<{
 .resize-handle--south-west {
   width: 16px;
   height: 16px;
+}
+
+.resize-handle--compact.resize-handle--north,
+.resize-handle--compact.resize-handle--south {
+  left: 8px;
+  right: 8px;
+  height: 5px;
+}
+
+.resize-handle--compact.resize-handle--east,
+.resize-handle--compact.resize-handle--west {
+  top: 8px;
+  bottom: 8px;
+  width: 5px;
+}
+
+.resize-handle--compact.resize-handle--north-east,
+.resize-handle--compact.resize-handle--north-west,
+.resize-handle--compact.resize-handle--south-east,
+.resize-handle--compact.resize-handle--south-west {
+  width: 10px;
+  height: 10px;
 }
 
 .resize-handle--north-east,

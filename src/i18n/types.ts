@@ -65,6 +65,10 @@ export interface Messages {
   "settings.unsavedHint": string;
   "settings.loadFailed": string;
   "settings.loadRecovered": string;
+  "settings.backupFailed": string;
+  "settings.retryLoad": string;
+  "settings.rebuildDefaults": string;
+  "settings.rebuildDefaultsConfirm": string;
 
   // ── Settings → salary mode ─────────────────────────────────────────────
   "salaryMode.label": string;
@@ -121,6 +125,7 @@ export interface Messages {
 
   // ── Onboarding ─────────────────────────────────────────────────────────
   "onboarding.ariaLabel": string;
+  "onboarding.close": string;
   "onboarding.stepSalaryMode": string;
   "onboarding.stepWorkTime": string;
   "onboarding.stepPreferences": string;
@@ -133,11 +138,11 @@ export interface Messages {
   "preferences.theme": string;
   "preferences.light": string;
   "preferences.dark": string;
-  "preferences.autostart": string;
 
   // ── Title bar ──────────────────────────────────────────────────────────
   "titlebar.openSettings": string;
   "titlebar.settings": string;
+  "titlebar.settingsWithUpdate": string;
   "titlebar.toggleMini": string;
   "titlebar.miniMode": string;
   "titlebar.switchToLight": string;
@@ -151,10 +156,12 @@ export interface Messages {
   "titlebar.minimize": string;
   "titlebar.minimizeTitle": string;
   "titlebar.closeToTray": string;
+  "titlebar.fixConfig": string;
 
   // ── Mini window ────────────────────────────────────────────────────────
   "mini.ariaLabel": string;
   "mini.restoreTitle": string;
+  "mini.restoreWindow": string;
 
   // ── Mini opacity ──────────────────────────────────────────────────────
   "opacity.header": string;
@@ -165,6 +172,7 @@ export interface Messages {
   "validation.monthlyPositive": string;
   "validation.dailyPositive": string;
   "validation.hourlyPositive": string;
+  "validation.salaryTooLarge": string;
   "validation.workDaysPositive": string;
   "validation.workDaysRange": string;
   "validation.workdaysMinOne": string;
@@ -183,10 +191,20 @@ export interface Messages {
 
   // ── Updater ────────────────────────────────────────────────────────────
   "updater.newVersion": string;
+  "updater.upToDate": string;
   "updater.downloading": string;
+  "updater.downloadingPercent": string;
   "updater.failed": string;
+  "updater.networkFailed": string;
+  "updater.installFailed": string;
+  "updater.signatureFailed": string;
+  "updater.manifestFailed": string;
+  "updater.permissionFailed": string;
+  "updater.retrySeparator": string;
   "updater.clickToDownload": string;
   "updater.retry": string;
+  "updater.checkNow": string;
+  "updater.checking": string;
 
   // ── Web Preview ────────────────────────────────────────────────────────
   "web.heroHeadline1": string;

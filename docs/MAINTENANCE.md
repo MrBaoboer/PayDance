@@ -37,9 +37,8 @@ CI 按改动文件裁剪 job（`scripts/ci-change-scope.mjs`），两个 gate �
 - Dependabot 配置在 `.github/dependabot.yml`：覆盖 npm、cargo、github-actions，每周一 09:00（Asia/Shanghai）检查，每个 ecosystem 一个分组，不开自动合并。它自己开的 PR 在 DCO 门禁里有豁免，前提是提交只落在依赖清单与 workflow 文件内，规则在 `scripts/check-dco.mjs`。
 - GitHub 公告库没收录的 RustSec 公告（多在 tauri / reqwest 这类传递依赖里，如 2026-09 的 rustls）不会产生 Dependabot 告警或 PR：在 `src-tauri` 下 `cargo update -p <crate> --precise <修复版本>`（不带 `--precise` 可能不升级），再 `npm run push:main`。确认不影响 Windows 构建的公告，在 `src-tauri/.cargo/audit.toml` 与 `src-tauri/deny.toml` 里都带理由忽略。
 - 公告库收录了的公告也可能迟迟没有 Dependabot 告警：2026-10 brace-expansion 的三条公告过了三天多仍无告警，`push:main` 的告警检查一路放行。npm 公告不要等 Dependabot PR，本地 `npm audit fix`（通常只改 `package-lock.json`）后 `npm run push:main`。
-- 故意不升的依赖写在两处并保持同步：`dependabot.yml` 的 `ignore`，以及 `scripts/repository-metadata.test.js` 里 "keeps the upgrades that are blocked upstream pinned with a reason"。当前两条：
+- 故意不升的依赖写在两处并保持同步：`dependabot.yml` 的 `ignore`，以及 `scripts/repository-metadata.test.js` 里 "keeps the upgrades that are blocked upstream pinned with a reason"。当前一条：
   - `typescript` 锁在 6.x：TS 7 是原生移植版，vue-tsc 解析不到 `tsc.js`，typescript-eslint 拒绝加载。
-  - `@types/node` 锁在 24.x，跟随运行时主版本。Node 26 转为 LTS 后，把 CI 各处 `node-version` 推到 26，放开这条封锁并删掉对应测试断言。
 - 新增或移除直接依赖时，同步更新 `legal/THIRD_PARTY_NOTICES.md` 及其英文版；`npm run check:notices` 双向核对，`verify:metadata` 与 `verify:fast` 都包含这一步。
 - 声明区间只是文档，决定安装结果的是 `package-lock.json`。调整 `^` 下限以锁定并验证过的版本为准；`@tauri-apps/*` 与 Rust 侧 crate 配套，下限过旧会让人误以为老 IPC 接口仍受支持。
 
@@ -50,8 +49,8 @@ CI 按改动文件裁剪 job（`scripts/ci-change-scope.mjs`），两个 gate �
 - `npm run verify:release` 调用本地的 cargo-audit 和 cargo-deny，版本必须与 CI 固定的一致，否则本地审计结论不作数：
 
   ```powershell
-  cargo install cargo-audit --version 0.22.2 --locked
-  cargo install cargo-deny --version 0.20.2 --locked
+  cargo install cargo-audit --version 0.23.0 --locked
+  cargo install cargo-deny --version 0.22.1 --locked
   ```
 
 - `npm run build:exe` 前会检查 `src-tauri/target/release/pay-dance.exe` 是否仍在运行；运行中会阻止构建覆盖，从托盘退出后重试。

@@ -37,13 +37,12 @@ describe("onboarding panel", () => {
     );
   });
 
-  it("lets first-run users choose whether to enable autostart", () => {
-    expect(onboardingPanelSource).toContain("autostartEnabled: boolean");
-    expect(onboardingPanelSource).toContain(
-      '"update:autostartEnabled": [value: boolean]',
-    );
-    expect(stepPreferencesSource).toContain("t('preferences.autostart')");
-    expect(stepPreferencesSource).toContain(':model-value="autostartEnabled"');
+  it("keeps onboarding focused by omitting autostart, live preview, and step fade transitions", () => {
+    expect(onboardingPanelSource).not.toContain("autostartEnabled");
+    expect(stepPreferencesSource).not.toContain("autostart");
+    expect(onboardingPanelSource).not.toContain("OnboardingPreview");
+    expect(onboardingPanelSource).not.toContain("<Transition");
+    expect(onboardingPanelSource).not.toContain("ResizeHandles");
   });
 
   it("keeps the work-time step airy by hiding lunch inputs until enabled", () => {

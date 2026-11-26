@@ -64,4 +64,46 @@ describe("useSalaryTicker", () => {
       calculateSalarySnapshotMock.mock.calls.length - initialCallCount,
     ).toBeLessThanOrEqual(10);
   });
+
+  it("keeps ticking continuously even when the document is hidden to preserve live accuracy", async () => {
+    Object.defineProperty(document, "visibilityState", {
+      configurable: true,
+      get: () => "hidden" as DocumentVisibilityState,
+    });
+
+    const { useSalaryTicker } = await import("./useSalaryTicker");
+    const { refreshNow, startTicker, stopTicker } = useSalaryTicker(
+      ref(defaultSalaryConfig),
+    );
+    const countBeforeStart = calculateSalarySnapshotMock.mock.calls.length;
+
+    startTicker();
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(calculateSalarySnapshotMock.mock.calls.length).toBeGreaterThan(
+      countBeforeStart + 1,
+    );
+
+    const countBeforeRefresh = calculateSalarySnapshotMock.mock.calls.length;
+    refreshNow();
+    expect(calculateSalarySnapshotMock.mock.calls.length).toBe(countBeforeRefresh + 1);
+
+    stopTicker();
+  });
+
+  it("re-attaches the config watcher cleanly after stopTicker and startTicker", async () => {
+    const { useSalaryTicker } = await import("./useSalaryTicker");
+    const config = ref({ ...defaultSalaryConfig });
+    const { startTicker, stopTicker } = useSalaryTicker(config);
+
+    startTicker();
+    stopTicker();
+    startTicker();
+
+    const beforeMutation = calculateSalarySnapshotMock.mock.calls.length;
+    config.value.monthlySalary = 12_345;
+    await Promise.resolve();
+
+    expect(calculateSalarySnapshotMock.mock.calls.length).toBeGreaterThan(beforeMutation);
+    stopTicker();
+  });
 });

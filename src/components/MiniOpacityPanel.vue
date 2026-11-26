@@ -7,6 +7,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { emitTo } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { detectLocale, useI18n } from "../composables/useI18n";
+import { miniPanelRestoreEventName } from "../lib/app-events";
 import {
   defaultMiniOpacityPercent,
   maxMiniOpacityPercent,
@@ -54,6 +55,11 @@ const hidePanel = () => {
   void appWindow.hide();
 };
 
+const restoreMainWindow = () => {
+  void emitTo("main", miniPanelRestoreEventName);
+  hidePanel();
+};
+
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === "Escape") {
     hidePanel();
@@ -88,31 +94,44 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section
-    class="mini-opacity-panel"
-    :class="panelClass"
-    :style="sliderStyle"
-    @contextmenu.prevent
-  >
-    <header class="mini-opacity-panel__meta">
-      <strong>{{ t("opacity.header") }}</strong>
-      <span>{{ opacityPercent }}%</span>
-    </header>
-    <input
-      :aria-label="t('opacity.ariaLabel')"
-      :aria-valuetext="`${t('opacity.ariaLabel')} ${opacityPercent}%`"
-      :max="maxMiniOpacityPercent"
-      :min="minMiniOpacityPercent"
-      :value="opacityPercent"
-      step="1"
-      type="range"
-      @change="updateOpacity($event, true)"
-      @input="updateOpacity"
-    />
-  </section>
+  <div class="mini-opacity-stage" :class="panelClass" @contextmenu.prevent>
+    <section class="mini-opacity-panel" :style="sliderStyle">
+      <header class="mini-opacity-panel__meta">
+        <strong>{{ t("opacity.header") }}</strong>
+        <span>{{ opacityPercent }}%</span>
+      </header>
+      <input
+        :aria-label="t('opacity.ariaLabel')"
+        :aria-valuetext="`${t('opacity.ariaLabel')} ${opacityPercent}%`"
+        :max="maxMiniOpacityPercent"
+        :min="minMiniOpacityPercent"
+        :value="opacityPercent"
+        step="1"
+        type="range"
+        @change="updateOpacity($event, true)"
+        @input="updateOpacity"
+      />
+      <div class="mini-opacity-panel__actions" role="group">
+        <button
+          class="mini-opacity-panel__action"
+          type="button"
+          @click="restoreMainWindow"
+        >
+          {{ t("mini.restoreWindow") }}
+        </button>
+      </div>
+    </section>
+  </div>
 </template>
 
 <style scoped>
+.mini-opacity-stage {
+  width: 100%;
+  height: 100%;
+  padding: 6px 8px 10px;
+  background: transparent;
+}
+
 .mini-opacity-panel {
   display: grid;
   width: 100%;
@@ -136,7 +155,7 @@ onBeforeUnmount(() => {
   --accent: rgb(217 119 6);
   --track: rgb(228 228 231 / 0.92);
   --thumb: rgb(250 250 251);
-  --shadow: 0 7px 16px rgb(15 23 42 / 0.13);
+  --shadow: 0 3px 10px -2px rgb(15 23 42 / 0.16);
 }
 
 .theme-dark {
@@ -147,7 +166,7 @@ onBeforeUnmount(() => {
   --accent: rgb(245 158 11);
   --track: rgb(63 63 70 / 0.92);
   --thumb: rgb(250 250 250);
-  --shadow: 0 8px 18px rgb(0 0 0 / 0.28);
+  --shadow: 0 4px 12px -2px rgb(0 0 0 / 0.42);
 }
 
 .mini-opacity-panel__meta {
@@ -212,5 +231,37 @@ input:focus-visible::-webkit-slider-thumb {
   box-shadow:
     0 0 0 2px color-mix(in srgb, var(--accent) 24%, transparent),
     0 1px 4px rgb(0 0 0 / 0.18);
+}
+
+.mini-opacity-panel__actions {
+  display: grid;
+  gap: 2px;
+  margin-top: 3px;
+  border-top: 1px solid var(--line);
+  padding-top: 4px;
+}
+
+.mini-opacity-panel__action {
+  display: block;
+  width: 100%;
+  height: 24px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  padding: 0 6px;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 24px;
+  text-align: center;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 140ms ease;
+}
+
+.mini-opacity-panel__action:hover {
+  background: color-mix(in srgb, var(--text) 8%, transparent);
 }
 </style>

@@ -10,6 +10,7 @@ import {
   miniMinSize,
   normalizeFullSize,
   normalizeMiniSize,
+  toDesktopHostSize,
   type WindowSize,
 } from "../lib/window-mode";
 
@@ -47,8 +48,10 @@ export function useWindowMode(
     if (isMiniMode.value) {
       const size = normalizeMiniSize(miniSize.value);
       miniSize.value = size;
-      await appWindow.setMinSize(new LogicalSize(miniMinSize.width, miniMinSize.height));
-      await appWindow.setSize(new LogicalSize(size.width, size.height));
+      const hostMin = toDesktopHostSize(miniMinSize, true);
+      const hostSize = toDesktopHostSize(size, true);
+      await appWindow.setMinSize(new LogicalSize(hostMin.width, hostMin.height));
+      await appWindow.setSize(new LogicalSize(hostSize.width, hostSize.height));
       await appWindow.setAlwaysOnTop(true);
       await applyTaskbarVisibility(true);
       return;
@@ -56,10 +59,10 @@ export function useWindowMode(
 
     const size = normalizeFullSize(fullSize.value);
     fullSize.value = size;
-    await appWindow.setMinSize(
-      new LogicalSize(fullWindowMinSize.width, fullWindowMinSize.height),
-    );
-    await appWindow.setSize(new LogicalSize(size.width, size.height));
+    const hostMin = toDesktopHostSize(fullWindowMinSize, false);
+    const hostSize = toDesktopHostSize(size, false);
+    await appWindow.setMinSize(new LogicalSize(hostMin.width, hostMin.height));
+    await appWindow.setSize(new LogicalSize(hostSize.width, hostSize.height));
     await appWindow.setAlwaysOnTop(alwaysOnTop.value);
     await applyTaskbarVisibility(false);
   };

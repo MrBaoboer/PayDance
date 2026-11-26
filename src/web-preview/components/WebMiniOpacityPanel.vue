@@ -4,6 +4,7 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 import { useI18n } from "../../composables/useI18n";
+import { maxMiniOpacityPercent, minMiniOpacityPercent } from "../../lib/window-mode";
 
 const { t } = useI18n();
 defineProps<{
@@ -14,6 +15,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
+  restore: [];
   updateOpacity: [value: number, options?: { commit?: boolean }];
 }>();
 
@@ -35,13 +37,18 @@ const readRangeValue = (event: Event) => Number((event.target as HTMLInputElemen
       <span class="sr-only">{{ t("web.opacityAriaLabel") }}</span>
       <input
         id="web-mini-opacity-range"
-        max="100"
-        min="10"
+        :max="maxMiniOpacityPercent"
+        :min="minMiniOpacityPercent"
         :value="miniOpacityPercent"
         type="range"
         @input="emit('updateOpacity', readRangeValue($event))"
         @change="emit('updateOpacity', readRangeValue($event), { commit: true })"
       />
     </label>
+    <div class="web-mini-opacity__actions">
+      <button class="web-mini-opacity__action" type="button" @click="emit('restore')">
+        {{ t("mini.restoreWindow") }}
+      </button>
+    </div>
   </section>
 </template>

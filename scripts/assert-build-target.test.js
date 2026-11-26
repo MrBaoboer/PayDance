@@ -59,4 +59,32 @@ describe("build target assertion", () => {
       rmSync(cwd, { recursive: true, force: true });
     }
   });
+
+  it("checks all code-split module entry scripts referenced by index.html", () => {
+    const cwd = join(tmpdir(), `paydance-target-split-${process.pid}-${Date.now()}`);
+    const assetsDir = join(cwd, "dist", "assets");
+    mkdirSync(assetsDir, { recursive: true });
+    writeFileSync(
+      join(cwd, "dist", "index.html"),
+      [
+        '<script type="module" src="/assets/shared-abc123.js"></script>',
+        '<script type="module" src="/assets/main-def456.js"></script>',
+      ].join("\n"),
+      "utf8",
+    );
+    writeFileSync(join(assetsDir, "shared-abc123.js"), "export const x = 1;", "utf8");
+    writeFileSync(join(assetsDir, "main-def456.js"), "PayDance Web Preview", "utf8");
+
+    try {
+      expect(
+        execFileSync("node", [scriptPath, "web"], {
+          cwd,
+          encoding: "utf8",
+          stdio: "pipe",
+        }),
+      ).toContain("web build entry includes web runtime");
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  });
 });

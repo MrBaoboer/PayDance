@@ -3,17 +3,23 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
-import { computed } from "vue";
+import { computed, useId } from "vue";
 import { Banknote, CircleDollarSign, Clock3, TimerReset, X } from "@lucide/vue";
 import type { SalarySnapshot } from "../lib/salary";
+import { formatYuan } from "../lib/money-format";
 import { useCurrency } from "../composables/useCurrency";
 import { useI18n } from "../composables/useI18n";
 
-const { t } = useI18n();
+const { locale, t } = useI18n();
 const { currencySymbol } = useCurrency();
+const titleId = `salary-info-title-${useId()}`;
 
 const props = defineProps<{
   modeLabel: string;
+  rates?: Pick<
+    SalarySnapshot,
+    "dailySalary" | "hourlyRate" | "minuteRate" | "secondRate"
+  >;
   snapshot: Pick<
     SalarySnapshot,
     "dailySalary" | "hourlyRate" | "minuteRate" | "secondRate"
@@ -25,44 +31,64 @@ defineEmits<{
   dragStart: [event: MouseEvent];
 }>();
 
-const salaryItems = computed(() => [
-  {
-    icon: CircleDollarSign,
-    label: t.value("salaryInfo.dailyRate"),
-    value: props.snapshot.dailySalary.toFixed(2),
-  },
-  {
-    icon: Banknote,
-    label: t.value("salaryInfo.hourlyRate"),
-    value: props.snapshot.hourlyRate.toFixed(2),
-  },
-  {
-    icon: Clock3,
-    label: t.value("salaryInfo.minuteRate"),
-    value: props.snapshot.minuteRate.toFixed(2),
-  },
-  {
-    icon: TimerReset,
-    label: t.value("salaryInfo.secondRate"),
-    value: props.snapshot.secondRate.toFixed(4),
-  },
-]);
+const effectiveRates = computed(() => props.rates ?? props.snapshot);
+
+const resolveMoneyScale = (value: string) => {
+  const totalChars = [...currencySymbol.value].length + [...value].length;
+  return Math.max(0.72, Math.min(1, 11 / Math.max(11, totalChars))).toFixed(4);
+};
+
+const salaryItems = computed(() => {
+  const items = [
+    {
+      icon: CircleDollarSign,
+      label: t.value("salaryInfo.dailyRate"),
+      value: formatYuan(effectiveRates.value.dailySalary, locale.value, 2),
+    },
+    {
+      icon: Banknote,
+      label: t.value("salaryInfo.hourlyRate"),
+      value: formatYuan(effectiveRates.value.hourlyRate, locale.value, 2),
+    },
+    {
+      icon: Clock3,
+      label: t.value("salaryInfo.minuteRate"),
+      value: formatYuan(effectiveRates.value.minuteRate, locale.value, 2),
+    },
+    {
+      icon: TimerReset,
+      label: t.value("salaryInfo.secondRate"),
+      value: formatYuan(effectiveRates.value.secondRate, locale.value, 4),
+    },
+  ];
+  return items.map((item) => ({
+    ...item,
+    style: { "--salary-info-scale": resolveMoneyScale(item.value) },
+  }));
+});
 </script>
 
 <template>
   <!-- eslint-disable vuejs-accessibility/no-static-element-interactions -->
-  <section class="settings-sheet salary-info-sheet" :aria-label="t('salaryInfo.title')">
+  <section
+    class="settings-sheet salary-info-sheet"
+    role="dialog"
+    aria-modal="true"
+    :aria-labelledby="titleId"
+  >
     <header
       class="salary-info-sheet__header"
       @mousedown.left="$emit('dragStart', $event)"
     >
       <div>
-        <strong>{{ t("salaryInfo.title") }}</strong>
+        <h2 :id="titleId">{{ t("salaryInfo.title") }}</h2>
         <span>{{ modeLabel }}{{ t("salaryInfo.subtitleSuffix") }}</span>
       </div>
       <button
         class="sheet-close-button"
+        :aria-label="t('salaryInfo.close')"
         :title="t('salaryInfo.close')"
+        type="button"
         @click="$emit('close')"
         @mousedown.left.stop
       >
@@ -73,7 +99,7 @@ const salaryItems = computed(() => [
       <article v-for="item in salaryItems" :key="item.label" class="salary-info-card">
         <component :is="item.icon" :size="24" />
         <span class="salary-info-card__label">{{ item.label }}</span>
-        <strong class="salary-info-money">
+        <strong class="salary-info-money" :style="item.style">
           <span
             v-if="currencySymbol"
             class="salary-info-money__symbol"
@@ -116,7 +142,9 @@ const salaryItems = computed(() => [
   text-align: left;
 }
 
+.salary-info-sheet__header h2,
 .salary-info-sheet__header strong {
+  margin: 0;
   color: var(--text);
   font-size: var(--ui-font-lg);
   font-weight: 750;
@@ -165,7 +193,7 @@ const salaryItems = computed(() => [
   align-items: baseline;
   color: var(--text);
   font-family: var(--font-dashboard);
-  font-size: var(--ui-font-md);
+  font-size: calc(var(--ui-font-md) * var(--salary-info-scale, 1));
   font-weight: 780;
   text-overflow: ellipsis;
   white-space: nowrap;

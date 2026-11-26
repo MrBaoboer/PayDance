@@ -10,9 +10,10 @@ import { ref } from "vue";
 import { fullWindowSize } from "../lib/window-mode";
 import { useAppShell } from "./useAppShell";
 
-const createShell = (initialMiniMode = false) => {
+const createShell = (initialMiniMode = false, hasCompletedOnboardingInitial = true) => {
   const events: string[] = [];
   const isMiniMode = ref(initialMiniMode);
+  const hasCompletedOnboarding = ref(hasCompletedOnboardingInitial);
   const captureWindowPosition = vi.fn(async () => {
     events.push(`capture:${isMiniMode.value ? "mini" : "main"}`);
   });
@@ -40,7 +41,7 @@ const createShell = (initialMiniMode = false) => {
     applyWindowMode,
     captureWindowPosition,
     fullSize,
-    hasCompletedOnboarding: ref(true),
+    hasCompletedOnboarding,
     isMiniMode,
     isOpacityPanelWindow: false,
     isSettingsReady: ref(true),
@@ -98,5 +99,14 @@ describe("useAppShell window mode transitions", () => {
     }
 
     expect(fullSize.value).toEqual(fullWindowSize);
+  });
+
+  it("does not stack settings behind an unfinished onboarding flow", async () => {
+    const { shell } = createShell(false, false);
+
+    await shell.openSettings();
+
+    expect(shell.showSettings.value).toBe(false);
+    expect(shell.shouldShowOnboarding.value).toBe(true);
   });
 });

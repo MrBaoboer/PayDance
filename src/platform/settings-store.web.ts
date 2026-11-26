@@ -4,14 +4,9 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 import type { ThemeMode } from "../lib/window-mode";
+import type { SettingsStoreAdapter } from "./types";
 
-export type SettingsStoreAdapter = {
-  backupUnreadable?: () => Promise<string | undefined>;
-  delete?: (key: string) => Promise<void>;
-  get: <Value>(key: string) => Promise<Value | undefined>;
-  save: () => Promise<void>;
-  set: (key: string, value: unknown) => Promise<void>;
-};
+export type { SettingsStoreAdapter };
 
 export const browserSettingsStorageKey = "paydance-web-preview-settings";
 

@@ -14,8 +14,10 @@ describe("mini window", () => {
     expect(miniWindowSource).not.toContain("mini-amount");
   });
 
-  it("removes the decorative outer shadow without changing the capsule surface", () => {
-    expect(miniWindowSource).toContain("box-shadow: none");
+  it("uses a restrained desktop shadow token without the legacy heavy glow", () => {
+    expect(miniWindowSource).toContain("box-shadow: var(--mini-window-shadow, none)");
+    expect(miniWindowSource).toContain("<ResizeHandles");
+    expect(miniWindowSource).toContain('size="compact"');
     expect(miniWindowSource).not.toContain("0 16px 42px");
   });
 
@@ -24,6 +26,12 @@ describe("mini window", () => {
     expect(miniWindowSource).toContain("--mini-panel-opacity");
     expect(miniWindowSource).toContain("--mini-panel-rgb");
     expect(miniWindowSource).not.toMatch(/\n\s*opacity:/);
+  });
+
+  it("supports a frameless 0% pure-text floating mode with hover outline", () => {
+    expect(miniWindowSource).toContain("is-transparent");
+    expect(miniWindowSource).toContain("--mini-transparent-text-shadow");
+    expect(miniWindowSource).toContain("--mini-transparent-hover-border");
   });
 
   it("opens the mini opacity panel from a custom right click gesture", () => {

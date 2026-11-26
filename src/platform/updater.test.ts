@@ -38,6 +38,28 @@ describe("updater error classification", () => {
     });
   });
 
+  it("classifies plain-string Tauri invoke errors including permission failures", () => {
+    expect(classifyUpdateError("signature verification failed", true)).toEqual({
+      kind: "error",
+      message: "Update signature verification failed",
+      reason: "signature-verification",
+    });
+    expect(
+      classifyUpdateError("Install directory is not writable: access denied", true),
+    ).toEqual({
+      kind: "error",
+      message: "Install directory is not writable: access denied",
+      reason: "permission",
+    });
+    expect(classifyUpdateError("Failed to start PowerShell update helper", true)).toEqual(
+      {
+        kind: "error",
+        message: "Failed to start PowerShell update helper",
+        reason: "install-failed",
+      },
+    );
+  });
+
   it("uses the PayDance portable updater instead of executing the exe as an installer", () => {
     expect(updaterSource).toContain(
       'invoke<PortableUpdateResult>("install_portable_update")',

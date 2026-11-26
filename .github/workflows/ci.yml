@@ -41,7 +41,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version: 26
 
       - name: Detect change scope
         id: scope
@@ -76,7 +76,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version: 26
 
       - name: Check DCO sign-off
         env:
@@ -98,7 +98,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version: 26
           cache: npm
 
       - name: Install frontend dependencies
@@ -127,7 +127,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version: 26
           cache: npm
 
       - name: Install frontend dependencies
@@ -160,7 +160,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version: 26
           cache: npm
 
       - name: Install frontend dependencies
@@ -193,7 +193,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
+        uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable
 
       - name: Cache Rust build
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
@@ -232,7 +232,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version: 26
           cache: npm
 
       # npm 与 cargo 审计按各自清单是否变化裁剪，
@@ -267,9 +267,9 @@ jobs:
       - name: Install cargo-audit (pre-built)
         if: "!cancelled() && needs.changes.outputs.requires_cargo_audit == 'true'"
         run: |
-          version="0.22.2"
+          version="0.23.0"
           url="https://github.com/rustsec/rustsec/releases/download/cargo-audit/v${version}/cargo-audit-x86_64-unknown-linux-gnu-v${version}.tgz"
-          expected_sha="ab28a1bdb54db4d5d8ad5981cf1f959410370b3d28250dbd35f6a44248620e39"
+          expected_sha="b77993532b253fcbf550996d7716465ec3d734d4e74e7f87bfb65a19add0fb59"
           curl -fsSL "$url" -o cargo-audit.tgz
           echo "${expected_sha}  cargo-audit.tgz" | sha256sum -c -
           tar -xzf cargo-audit.tgz
@@ -283,9 +283,9 @@ jobs:
       - name: Install cargo-deny (pre-built)
         if: "!cancelled() && needs.changes.outputs.requires_cargo_audit == 'true'"
         run: |
-          version="0.20.2"
+          version="0.22.1"
           url="https://github.com/EmbarkStudios/cargo-deny/releases/download/${version}/cargo-deny-${version}-x86_64-unknown-linux-musl.tar.gz"
-          expected_sha="9f12ed4c49936e09b48bf862b595cde2fe64fcbd9d74dfacac6131ca824c8d5f"
+          expected_sha="13f7e825e9cb811c2f8de63f29b0f45851dfb53004029f0f2501af524728364d"
           curl -fsSL "$url" -o cargo-deny.tar.gz
           echo "${expected_sha}  cargo-deny.tar.gz" | sha256sum -c -
           tar -xzf cargo-deny.tar.gz

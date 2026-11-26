@@ -3,6 +3,11 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
+import type { Locale } from "../composables/useI18n";
+import {
+  getDefaultCurrencySymbolForLocale,
+  isLocaleDefaultCurrencySymbol,
+} from "../lib/currency";
 import { defaultSalaryConfig, type SalaryConfig } from "../lib/salary";
 import { settingsStoreKeys } from "../lib/settings-store";
 import type { SettingsStoreAdapter } from "../platform/settings-store.web";
@@ -20,17 +25,45 @@ export const createWebPreviewDemoConfig = (): SalaryConfig => ({
 
 export async function ensureWebPreviewDemoSettings(
   store: SettingsStoreAdapter,
+  locale?: Locale,
 ): Promise<boolean> {
-  const savedConfig = await store.get<Partial<SalaryConfig>>(settingsStoreKeys.config);
-  const hasCompletedOnboarding = await store.get<boolean>(
-    settingsStoreKeys.hasCompletedOnboarding,
-  );
+  const [
+    savedConfig,
+    savedCurrencySymbol,
+    savedCurrencyCustomized,
+    hasCompletedOnboarding,
+  ] = await Promise.all([
+    store.get<Partial<SalaryConfig>>(settingsStoreKeys.config),
+    store.get<string>(settingsStoreKeys.currencySymbol),
+    store.get<boolean>(settingsStoreKeys.currencySymbolCustomized),
+    store.get<boolean>(settingsStoreKeys.hasCompletedOnboarding),
+  ]);
   let changed = false;
 
   if (savedConfig === undefined) {
     await store.set(settingsStoreKeys.config, createWebPreviewDemoConfig());
     changed = true;
   }
+
+  // Keep the demo currency symbol synced with the active page locale (zh-CN -> ¥, en -> $)
+  // unless the visitor explicitly customized it. Preserves existing non-default custom symbols
+  // saved before the customized flag existed.
+  if (locale && savedCurrencyCustomized !== true) {
+    const localeDefault = getDefaultCurrencySymbolForLocale(locale);
+    if (
+      savedCurrencySymbol === undefined ||
+      isLocaleDefaultCurrencySymbol(savedCurrencySymbol)
+    ) {
+      if (savedCurrencySymbol !== localeDefault) {
+        await store.set(settingsStoreKeys.currencySymbol, localeDefault);
+        changed = true;
+      }
+    } else {
+      await store.set(settingsStoreKeys.currencySymbolCustomized, true);
+      changed = true;
+    }
+  }
+
   if (hasCompletedOnboarding !== true) {
     await store.set(settingsStoreKeys.hasCompletedOnboarding, true);
     changed = true;

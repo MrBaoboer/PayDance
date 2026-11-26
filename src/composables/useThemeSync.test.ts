@@ -58,4 +58,62 @@ describe("useThemeSync", () => {
     expect(setTheme).toHaveBeenCalledWith("light");
     expect(saveStateNow).not.toHaveBeenCalled();
   });
+
+  it("freezes document transitions and waits two paint frames before native theme sync", async () => {
+    const rafCallbacks: FrameRequestCallback[] = [];
+    const classes = new Set<string>();
+    const documentStub = {
+      documentElement: {
+        classList: {
+          toggle: (name: string, force?: boolean) => {
+            if (force) classes.add(name);
+            else classes.delete(name);
+          },
+        },
+        style: { colorScheme: "" },
+      },
+    };
+    vi.stubGlobal("document", documentStub);
+    vi.stubGlobal("window", {
+      requestAnimationFrame: (callback: FrameRequestCallback) => {
+        rafCallbacks.push(callback);
+        return rafCallbacks.length;
+      },
+    });
+
+    const themeMode = ref<ThemeMode>("light");
+    const setTheme = vi.fn(async () => {});
+    const saveStateNow = vi.fn(async () => {});
+    const { applyThemeMode, isThemeSwitching } = useThemeSync(
+      { setTheme },
+      themeMode,
+      saveStateNow,
+    );
+
+    const flushFrames = async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+    };
+
+    const pending = applyThemeMode("dark");
+    expect(classes.has("is-theme-switching")).toBe(true);
+    expect(documentStub.documentElement.style.colorScheme).toBe("dark");
+    expect(setTheme).not.toHaveBeenCalled();
+
+    // First frame runs before paint; native setTheme must wait for the second frame.
+    rafCallbacks.shift()?.(0);
+    await flushFrames();
+    expect(setTheme).not.toHaveBeenCalled();
+
+    rafCallbacks.shift()?.(16);
+    await flushFrames();
+    expect(setTheme).toHaveBeenCalledWith("dark");
+
+    rafCallbacks.shift()?.(32);
+    await pending;
+
+    expect(classes.has("is-theme-switching")).toBe(false);
+    expect(isThemeSwitching.value).toBe(false);
+  });
 });

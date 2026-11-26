@@ -206,6 +206,10 @@
   text-decoration: none;
 }
 
+.web-preview__action:active {
+  transform: scale(0.985);
+}
+
 .web-preview__action svg {
   display: block;
   flex: 0 0 auto;

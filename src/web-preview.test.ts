@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 import appSource from "./App.vue?raw";
 import webPreviewAppSource from "./WebPreviewApp.vue?raw";
 import webPreviewFeatureStripSource from "./web-preview/WebPreviewFeatureStrip.vue?raw";
-import gitHubMarkSource from "./web-preview/components/GitHubMark.vue?raw";
+import gitHubMarkSource from "./components/icons/GitHubMark.vue?raw";
 import languageSwitcherSource from "./web-preview/components/LanguageSwitcher.vue?raw";
 import webMiniOpacityPanelSource from "./web-preview/components/WebMiniOpacityPanel.vue?raw";
 import webPreviewActionsSource from "./web-preview/components/WebPreviewActions.vue?raw";
@@ -360,7 +360,7 @@ describe("PayDance Web Preview", () => {
     expect(enLocaleSource).toContain(
       '"web.heroLead": "A wage board that tracks today’s earnings."',
     );
-    expect(enLocaleSource).toContain('"web.downloadShort": "Desktop"');
+    expect(enLocaleSource).toContain('"web.downloadShort": "Windows"');
     expect(enLocaleSource).toContain('"web.featureRealtime": "Today’s Pay"');
     expect(enLocaleSource).toContain('"web.featureRealtimeDesc": "Ticks up as you work"');
     expect(enLocaleSource).toContain('"web.featureFocus": "Mini Window"');
@@ -376,10 +376,10 @@ describe("PayDance Web Preview", () => {
       '"web.heroLead": "具象化你的劳动价值，专注工作，也看见回报"',
     );
     expect(zhLocaleSource).toContain('"web.downloadShort": "下载电脑版"');
-    expect(zhLocaleSource).toContain('"web.featureRealtime": "毫秒级更新"');
-    expect(zhLocaleSource).toContain('"web.featureRealtimeDesc": "今日收入实时跳动"');
-    expect(zhLocaleSource).toContain('"web.featureFocus": "安心专注"');
-    expect(zhLocaleSource).toContain('"web.featureFocusDesc": "轻量窗口，静默运行"');
+    expect(zhLocaleSource).toContain('"web.featureRealtime": "实时跳动"');
+    expect(zhLocaleSource).toContain('"web.featureRealtimeDesc": "今日收入每秒更新"');
+    expect(zhLocaleSource).toContain('"web.featureFocus": "轻量窗口"');
+    expect(zhLocaleSource).toContain('"web.featureFocusDesc": "安心专注，静默运行"');
     expect(zhLocaleSource).toContain('"web.featurePrivacy": "隐私优先"');
     expect(zhLocaleSource).toContain('"web.featurePrivacyDesc": "所有数据本地处理"');
     expect(htmlSource).toContain("具象化你的劳动价值，专注工作，也看见回报");
@@ -622,7 +622,7 @@ describe("PayDance Web Preview", () => {
     expect(demoConfigSource).toContain("workdays: [0, 1, 2, 3, 4, 5, 6]");
     expect(demoConfigSource).toContain("settingsStoreKeys.hasCompletedOnboarding");
     expect(webPreviewStateSource).toContain(
-      "await ensureWebPreviewDemoSettings(previewStore)",
+      "await ensureWebPreviewDemoSettings(previewStore, locale.value)",
     );
     expect(webPreviewStateSource).toContain("openOnboarding");
     expect(webPreviewStateSource).toContain("completeWebOnboarding");

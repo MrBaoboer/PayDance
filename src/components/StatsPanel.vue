@@ -18,7 +18,7 @@ const props = defineProps<{
 }>();
 
 type MetricSegment = {
-  kind: "number" | "plain" | "separator" | "symbol" | "unit";
+  kind: "number" | "plain" | "punctuation" | "separator" | "symbol" | "unit";
   text: string;
 };
 
@@ -29,9 +29,13 @@ const formatMetricSegments = (value: string): MetricSegment[] => {
     if (text === ":") return { kind: "separator", text };
     if (/^\d/.test(text)) return { kind: "number", text };
     if (/^[a-zA-Z%]+$/.test(text)) return { kind: "unit", text };
-    return { kind: "plain", text };
+    if (/^\s+$/.test(text)) return { kind: "plain", text };
+    return { kind: "punctuation", text };
   });
 };
+
+const workedTimeSegments = computed(() => formatMetricSegments(props.workedTime));
+const middleValueSegments = computed(() => formatMetricSegments(props.middleValue));
 
 // The symbol is prepended as its own segment instead of being matched out of the string:
 // a multi-character symbol such as "HK$" would otherwise be split across a unit and a plain
@@ -51,7 +55,7 @@ const expectedEarnSegments = computed<MetricSegment[]>(() => [
         <span class="stat-item__label">{{ t("stats.worked") }}</span>
         <strong class="stat-item__value">
           <span
-            v-for="(segment, index) in formatMetricSegments(workedTime)"
+            v-for="(segment, index) in workedTimeSegments"
             :key="`worked-${index}`"
             :class="`stat-value__${segment.kind}`"
             v-text="segment.text"
@@ -62,7 +66,7 @@ const expectedEarnSegments = computed<MetricSegment[]>(() => [
         <span class="stat-item__label">{{ middleLabel }}</span>
         <strong class="stat-item__value">
           <span
-            v-for="(segment, index) in formatMetricSegments(middleValue)"
+            v-for="(segment, index) in middleValueSegments"
             :key="`middle-${index}`"
             :class="`stat-value__${segment.kind}`"
             v-text="segment.text"
@@ -182,5 +186,12 @@ const expectedEarnSegments = computed<MetricSegment[]>(() => [
 .stat-value__plain {
   width: 0.44em;
   overflow: hidden;
+}
+
+.stat-value__punctuation {
+  color: inherit;
+  font-size: 1.1em;
+  font-weight: 760;
+  line-height: 1;
 }
 </style>

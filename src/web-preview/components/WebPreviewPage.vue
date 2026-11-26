@@ -4,7 +4,6 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-import productLogoUrl from "../../../src-tauri/icons/icon.png";
 import { provideI18n } from "../../composables/useI18n";
 import {
   appCopyright,
@@ -23,6 +22,7 @@ import WebPreviewShowcase from "./WebPreviewShowcase.vue";
 import WebPreviewTopbar from "./WebPreviewTopbar.vue";
 
 const baseUrl = import.meta.env.BASE_URL;
+const productLogoUrl = `${baseUrl}favicon.png`;
 const initialLocale = ref(resolveWebLocale(window.location.pathname, baseUrl));
 const { locale } = provideI18n(initialLocale);
 

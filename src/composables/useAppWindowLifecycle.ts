@@ -4,8 +4,9 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 import type { Ref } from "vue";
-import { windowShownEventName } from "../lib/app-events";
+import { miniPanelRestoreEventName, windowShownEventName } from "../lib/app-events";
 import {
+  fromDesktopHostSize,
   normalizeFullSize,
   normalizeMiniOpacityPercent,
   normalizeMiniSize,
@@ -32,14 +33,20 @@ export function useAppWindowLifecycle(
   {
     ensureWindowOnScreen = async () => false,
     fullSize,
+    hideMiniOpacityPanel = async () => undefined,
     isMiniMode,
     isSettingsReady,
     miniSize,
+    onRestoreFromMini = async () => undefined,
+    onWindowShown = () => undefined,
     reapplyTaskbarVisibility = async () => undefined,
     saveStateNow,
     updateMiniOpacityPercent,
   }: {
     ensureWindowOnScreen?: () => Promise<boolean>;
+    hideMiniOpacityPanel?: () => Promise<void>;
+    onRestoreFromMini?: () => Promise<void> | void;
+    onWindowShown?: () => void;
     reapplyTaskbarVisibility?: () => Promise<void>;
     fullSize: Ref<WindowSize>;
     isMiniMode: Ref<boolean>;
@@ -64,13 +71,14 @@ export function useAppWindowLifecycle(
   const persistWindowSize = async () => {
     if (await isWindowMinimized()) return;
 
-    const size = { width: window.innerWidth, height: window.innerHeight };
-    if (size.width <= 0 || size.height <= 0) return;
+    const hostSize = { width: window.innerWidth, height: window.innerHeight };
+    if (hostSize.width <= 0 || hostSize.height <= 0) return;
 
+    const contentSize = fromDesktopHostSize(hostSize, isMiniMode.value);
     if (isMiniMode.value) {
-      miniSize.value = normalizeMiniSize(size);
+      miniSize.value = normalizeMiniSize(contentSize);
     } else {
-      fullSize.value = normalizeFullSize(size);
+      fullSize.value = normalizeFullSize(contentSize);
     }
 
     await saveStateNow();
@@ -82,6 +90,7 @@ export function useAppWindowLifecycle(
     unlisteners.push(
       await appWindow.onCloseRequested(async (event) => {
         event.preventDefault();
+        await hideMiniOpacityPanel();
         await appWindow.hide();
       }),
     );
@@ -97,11 +106,18 @@ export function useAppWindowLifecycle(
       ),
     );
 
+    unlisteners.push(
+      await appWindow.listen(miniPanelRestoreEventName, () => {
+        void onRestoreFromMini();
+      }),
+    );
+
     // The Rust side shows the window from the tray, a tray click, or a second launch. Any of
     // those can surface a window that a full-screen app left minimized and parked offscreen,
     // so re-check reachability every time instead of only at startup.
     unlisteners.push(
       await appWindow.listen(windowShownEventName, () => {
+        onWindowShown();
         // Showing the window again re-adds the taskbar button Windows dropped for mini mode.
         void reapplyTaskbarVisibility();
         void ensureWindowOnScreen().then((moved) => {

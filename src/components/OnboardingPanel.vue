@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
-import { computed, ref } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import { Check, ChevronLeft, ChevronRight } from "@lucide/vue";
 import {
   validateSalaryConfig,
@@ -11,37 +11,37 @@ import {
   type SalaryConfigIssue,
 } from "../lib/salary";
 import { getOnboardingStepIssues } from "../lib/onboarding-validation";
-import type { ResizeDirection } from "../lib/resize-handles";
 import { useI18n } from "../composables/useI18n";
-import ResizeHandles from "./onboarding/ResizeHandles.vue";
+import OnboardingHeader from "./onboarding/OnboardingHeader.vue";
 import StepPreferences from "./onboarding/StepPreferences.vue";
 import StepSalaryMode from "./onboarding/StepSalaryMode.vue";
 import StepWorkTime from "./onboarding/StepWorkTime.vue";
 
 const props = withDefaults(
   defineProps<{
-    autostartEnabled: boolean;
     config: SalaryConfig;
-    showDesktopFeatures?: boolean;
+    currencySymbol?: string;
+    dismissible?: boolean;
     themeMode: "light" | "dark";
   }>(),
   {
-    showDesktopFeatures: true,
+    currencySymbol: undefined,
+    dismissible: false,
   },
 );
 
 const emit = defineEmits<{
+  close: [];
   complete: [];
   dragStart: [event: MouseEvent];
-  resizeStart: [direction: ResizeDirection];
-  "update:autostartEnabled": [value: boolean];
   "update:config": [config: SalaryConfig];
+  "update:currencySymbol": [symbol: string];
   "update:themeMode": [mode: "light" | "dark"];
 }>();
 
 const { t } = useI18n();
-
 const step = ref(0);
+const bodyRef = ref<HTMLElement | null>(null);
 
 const stepTitles = computed(() => [
   t.value("onboarding.stepPreferences"),
@@ -55,6 +55,28 @@ const currentStepIssues = computed(() =>
 const firstIssue = computed(() => currentStepIssues.value[0]?.message ?? "");
 const isLastStep = computed(() => step.value === stepTitles.value.length - 1);
 const canContinue = computed(() => currentStepIssues.value.length === 0);
+
+watch(
+  () => props.config.enableLunchBreak,
+  (enabled) => {
+    if (!enabled || !isLastStep.value) {
+      return;
+    }
+
+    void nextTick(() => {
+      const body = bodyRef.value;
+      if (body && typeof body.scrollTo === "function") {
+        const prefersReducedMotion =
+          typeof window !== "undefined" &&
+          window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+        body.scrollTo({
+          top: body.scrollHeight,
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+        });
+      }
+    });
+  },
+);
 
 const hasIssue = (field: SalaryConfigIssue["field"]) =>
   issues.value.some((issue) => issue.field === field);
@@ -76,36 +98,35 @@ const goBack = () => {
 <template>
   <!-- eslint-disable vuejs-accessibility/no-static-element-interactions -->
   <div class="onboarding-overlay" @mousedown.left.self="emit('dragStart', $event)">
-    <ResizeHandles @resize-start="emit('resizeStart', $event)" />
-    <section class="onboarding-panel" :aria-label="t('onboarding.ariaLabel')">
-      <header class="onboarding-header">
-        <div>
-          <strong>{{ stepTitles[step] }}</strong>
-        </div>
-        <div class="step-dots" aria-hidden="true">
-          <span
-            v-for="(_, index) in stepTitles"
-            :key="index"
-            :class="{ 'is-active': index === step, 'is-done': index < step }"
-          />
-        </div>
-      </header>
+    <section
+      class="onboarding-panel"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="t('onboarding.ariaLabel')"
+    >
+      <OnboardingHeader
+        :dismissible="dismissible"
+        :step="step"
+        :step-count="stepTitles.length"
+        :title="stepTitles[step]"
+        @close="emit('close')"
+        @drag-start="emit('dragStart', $event)"
+      />
 
-      <div class="onboarding-body">
+      <div ref="bodyRef" class="onboarding-body">
         <StepPreferences
           v-if="step === 0"
-          :autostart-enabled="autostartEnabled"
-          :show-desktop-features="showDesktopFeatures"
           :theme-mode="themeMode"
-          @update:autostart-enabled="emit('update:autostartEnabled', $event)"
           @update:theme-mode="emit('update:themeMode', $event)"
         />
 
         <StepSalaryMode
           v-else-if="step === 1"
           :config="config"
+          :currency-symbol="currencySymbol"
           :has-issue="hasIssue"
           @update:config="emit('update:config', $event)"
+          @update:currency-symbol="emit('update:currencySymbol', $event)"
         />
 
         <StepWorkTime
@@ -153,8 +174,8 @@ const goBack = () => {
   place-items: center;
   border-radius: inherit;
   background: var(--onboarding-overlay, rgb(0 0 0 / 0.22));
-  backdrop-filter: blur(12px) saturate(1.12);
-  padding: clamp(18px, 4cqw, 24px);
+  backdrop-filter: blur(10px) saturate(1.08);
+  padding: clamp(14px, 3.4cqw, 20px);
   z-index: 20;
   cursor: move;
 }
@@ -172,56 +193,14 @@ const goBack = () => {
   background: var(--onboarding-panel, var(--panel));
   box-shadow: var(--shadow);
   color: var(--text);
-  backdrop-filter: blur(30px) saturate(1.08);
   cursor: default;
   z-index: 1;
-}
-
-.onboarding-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ui-gap-md, 16px);
-  border-bottom: 1px solid var(--line);
-  padding: clamp(16px, 3.8cqw, 20px);
-}
-
-.onboarding-header div:first-child {
-  min-width: 0;
-}
-
-.onboarding-header strong {
-  display: block;
-  overflow: hidden;
-  font-size: var(--ui-font-lg, 17px);
-  font-weight: 760;
-  line-height: 1.15;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.step-dots {
-  display: flex;
-  flex: 0 0 auto;
-  gap: var(--ui-gap-xs, 6px);
-  align-items: center;
-}
-
-.step-dots span {
-  width: clamp(6px, 1.5cqw, 8px);
-  height: clamp(6px, 1.5cqw, 8px);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--muted) 34%, transparent);
-}
-
-.step-dots span.is-active,
-.step-dots span.is-done {
-  background: var(--income-accent);
 }
 
 .onboarding-body {
   min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: clamp(20px, 4.4cqw, 24px);
 }
 
@@ -258,6 +237,10 @@ const goBack = () => {
   font-size: var(--ui-font-sm, 14px);
   font-weight: 750;
   font-variant-numeric: tabular-nums;
+  transition:
+    opacity 140ms ease,
+    background-color 140ms ease,
+    transform 120ms ease;
 }
 
 .primary-button {
@@ -265,9 +248,23 @@ const goBack = () => {
   color: var(--panel);
 }
 
+.primary-button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
 .secondary-button {
   background: var(--panel-soft);
   color: var(--muted);
+}
+
+.secondary-button:hover:not(:disabled) {
+  background: var(--subtle);
+  color: var(--text);
+}
+
+.primary-button:active:not(:disabled),
+.secondary-button:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .primary-button:disabled,

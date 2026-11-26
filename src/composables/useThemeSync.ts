@@ -10,10 +10,30 @@ type ThemeWindow = {
   setTheme: (theme: ThemeMode) => Promise<void>;
 };
 
-const waitForThemePaint = () =>
+const themeSwitchingClass = "is-theme-switching";
+
+const waitForNextFrame = () =>
   new Promise<void>((resolve) => {
     window.requestAnimationFrame(() => resolve());
   });
+
+// A single rAF runs *before* the browser paints the upcoming frame; waiting two frames
+// guarantees the new palette has actually committed to the compositor before native
+// DWM / WebView2 theme sync runs.
+const waitForThemePaint = async () => {
+  await waitForNextFrame();
+  await waitForNextFrame();
+};
+
+const setDocumentThemeSwitching = (switching: boolean) => {
+  if (typeof document === "undefined") return;
+  document.documentElement.classList.toggle(themeSwitchingClass, switching);
+};
+
+const syncDocumentColorScheme = (mode: ThemeMode) => {
+  if (typeof document === "undefined") return;
+  document.documentElement.style.colorScheme = mode;
+};
 
 export function useThemeSync(
   appWindow: ThemeWindow,
@@ -27,8 +47,10 @@ export function useThemeSync(
     const { persist = true } = options;
     const token = ++themeApplyToken;
     isThemeSwitching.value = true;
+    setDocumentThemeSwitching(true);
 
     try {
+      syncDocumentColorScheme(mode);
       themeMode.value = mode;
       await waitForThemePaint();
       if (token !== themeApplyToken) return;
@@ -36,11 +58,20 @@ export function useThemeSync(
       await appWindow.setTheme(mode);
       if (token !== themeApplyToken) return;
 
+      await waitForNextFrame();
+      if (token !== themeApplyToken) return;
+
+      // Release the atomic paint freeze as soon as web + native surfaces settle; do not
+      // hold interactive theme toggles behind disk persistence.
+      setDocumentThemeSwitching(false);
+      isThemeSwitching.value = false;
+
       if (persist) {
         await saveStateNow();
       }
     } finally {
       if (token === themeApplyToken) {
+        setDocumentThemeSwitching(false);
         isThemeSwitching.value = false;
       }
     }

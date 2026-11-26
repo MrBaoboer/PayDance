@@ -10,20 +10,27 @@
 // Web Preview: returns no-op stubs (no update checking in browser)
 // ---------------------------------------------------------------------------
 
-export type UpdaterStatus =
-  | { kind: "upToDate" }
-  | { kind: "updateAvailable"; version: string; notes?: string }
-  | { kind: "downloading" }
-  | {
-      kind: "error";
-      message: string;
-      reason?: "manifest-invalid" | "network" | "signature-verification";
-    }
-  | { kind: "unavailable"; reason?: "dev-config" | "web" }
-  | { kind: "ready"; version: string };
+import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import type { UpdateDownloadProgress, UpdaterStatus } from "./types";
 
-const errorMessageFrom = (error: unknown) =>
-  error instanceof Error ? error.message : "Unknown update error";
+export type { UpdateDownloadProgress, UpdaterStatus };
+
+const errorMessageFrom = (error: unknown) => {
+  // Tauri command rejections arrive as plain strings rather than Error instances.
+  if (typeof error === "string" && error.trim()) return error.trim();
+  if (error instanceof Error && error.message) return error.message;
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { message?: unknown }).message === "string" &&
+    (error as { message: string }).message.trim()
+  ) {
+    return (error as { message: string }).message.trim();
+  }
+  return "Unknown update error";
+};
 
 type PortableUpdateResult = { kind: "upToDate" } | { kind: "ready"; version: string };
 
@@ -64,6 +71,34 @@ export function classifyUpdateError(
     };
   }
 
+  if (
+    normalizedMessage.includes("not writable") ||
+    normalizedMessage.includes("update probe") ||
+    normalizedMessage.includes("access is denied") ||
+    normalizedMessage.includes("permission")
+  ) {
+    return {
+      kind: "error",
+      message,
+      reason: "permission",
+    };
+  }
+
+  if (
+    normalizedMessage.includes("not a windows executable") ||
+    normalizedMessage.includes("stage update") ||
+    normalizedMessage.includes("update helper") ||
+    normalizedMessage.includes("powershell") ||
+    normalizedMessage.includes("already in progress") ||
+    normalizedMessage.includes("locate app")
+  ) {
+    return {
+      kind: "error",
+      message,
+      reason: "install-failed",
+    };
+  }
+
   return { kind: "error", message, reason: "network" };
 }
 
@@ -84,12 +119,29 @@ export async function checkForUpdate(): Promise<UpdaterStatus> {
   }
 }
 
-export async function downloadAndInstall(): Promise<UpdaterStatus> {
+export async function downloadAndInstall(
+  onProgress?: (progress: UpdateDownloadProgress) => void,
+): Promise<UpdaterStatus> {
+  let unlistenProgress: (() => void) | undefined;
+
   try {
-    const { invoke } = await import("@tauri-apps/api/core");
+    if (onProgress) {
+      try {
+        unlistenProgress = await getCurrentWindow().listen<UpdateDownloadProgress>(
+          "portable-update-progress",
+          (event) => {
+            onProgress(event.payload);
+          },
+        );
+      } catch {
+        // Progress reporting is optional; never block the update itself.
+      }
+    }
     return await invoke<PortableUpdateResult>("install_portable_update");
   } catch (error) {
     console.error("Update download failed:", error);
     return classifyUpdateError(error, import.meta.env.PROD);
+  } finally {
+    unlistenProgress?.();
   }
 }

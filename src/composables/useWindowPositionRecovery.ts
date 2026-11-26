@@ -10,6 +10,7 @@ import {
   isWindowPositionVisible,
   resolveVisibleWindowPosition,
   sanitizeWindowPosition,
+  toDesktopHostSize,
   type WindowPosition,
   type WindowSize,
   type WindowWorkArea,
@@ -118,6 +119,12 @@ export function useWindowPositionRecovery({
     await appWindow.setPosition(new PhysicalPosition(position.x, position.y));
   };
 
+  const activeHostSize = () =>
+    toDesktopHostSize(
+      isMiniMode.value ? miniSize.value : fullSize.value,
+      isMiniMode.value,
+    );
+
   const restoreWindowPosition = async (
     savedPosition: WindowPosition | undefined = readWindowPosition(),
   ) => {
@@ -126,7 +133,7 @@ export function useWindowPositionRecovery({
     const visiblePosition = resolveVisibleWindowPosition({
       fallbackPosition: fallbackMainPosition,
       position: savedPosition,
-      size: isMiniMode.value ? miniSize.value : fullSize.value,
+      size: activeHostSize(),
       workAreas: await readMonitorWorkAreas(),
     });
 
@@ -146,7 +153,7 @@ export function useWindowPositionRecovery({
       // A window that cannot be unminimized is still worth repositioning.
     }
 
-    const size = isMiniMode.value ? miniSize.value : fullSize.value;
+    const size = activeHostSize();
     const workAreas = await readMonitorWorkAreas();
     const currentPosition = sanitizeWindowPosition(
       await appWindow.outerPosition().catch(() => undefined),

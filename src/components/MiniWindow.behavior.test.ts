@@ -76,4 +76,27 @@ describe("MiniWindow behavior", () => {
 
     expect(wrapper.emitted("restore")).toHaveLength(2);
   });
+
+  it("applies the pure-text transparent state only at 0% opacity", async () => {
+    const wrapper = mount(MiniWindow, {
+      props: {
+        amount: "330.29",
+        amountMode: "plain",
+        opacityPercent: 0,
+      },
+      global: {
+        stubs: {
+          RollingAmount: {
+            props: ["value"],
+            template: "<span>{{ value }}</span>",
+          },
+        },
+      },
+    });
+
+    expect(wrapper.get(".mini-window").classes()).toContain("is-transparent");
+
+    await wrapper.setProps({ opacityPercent: 1 });
+    expect(wrapper.get(".mini-window").classes()).not.toContain("is-transparent");
+  });
 });

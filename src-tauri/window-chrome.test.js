@@ -52,23 +52,27 @@ describe("desktop window chrome", () => {
     expect(trayRs).toContain("show_window(&window)");
   });
 
-  it("names the first tray action as opening the main window", () => {
+  it("names the first tray action as opening the main window and labels pin/mini cleanly", () => {
     expect(trayRs).toContain("打开主界面");
+    expect(trayRs).toContain("迷你悬浮模式");
+    expect(trayRs).toContain("窗口置顶");
+    expect(trayRs).not.toContain("切换迷你模式");
+    expect(trayRs).not.toContain("切换置顶");
     expect(trayRs).toContain('.text("show"');
   });
 
-  it("hides immediately and delegates process exit when the tray quit action is selected", () => {
+  it("hides immediately and delegates process exit with a safety fallback when tray quit is selected", () => {
     const quitBranch = trayRs.slice(
       trayRs.indexOf("TrayAction::Quit => {"),
       trayRs.indexOf("\n        }\n    }\n}", trayRs.indexOf("TrayAction::Quit => {")),
     );
 
+    expect(quitBranch).toContain("hide_mini_opacity_window");
     expect(quitBranch).toContain("window.hide()");
     expect(quitBranch).toContain('window.emit("before-app-exit", ())');
-    expect(quitBranch).not.toContain("std::thread::sleep");
-    expect(quitBranch).not.toContain("Duration::from_secs");
-    expect(quitBranch).not.toContain("std::thread::spawn");
-    expect(quitBranch).not.toContain("handle.exit(0)");
+    expect(quitBranch).toContain("schedule_quit_fallback");
+    expect(trayRs).toContain('CheckMenuItemBuilder::with_id("toggle_mini"');
+    expect(trayRs).toContain('CheckMenuItemBuilder::with_id("toggle_top"');
   });
 
   it("exits instead of leaving a live process behind an unresponsive tray", () => {
@@ -114,13 +118,16 @@ describe("desktop window chrome", () => {
     expect(defaultCapability.permissions).toContain("core:window:allow-set-skip-taskbar");
   });
 
-  it("keeps the mini opacity companion window compact", () => {
+  it("keeps the main and mini opacity companion windows sized with shadow gutters", () => {
+    const mainWindow = tauriConfig.app.windows.find((window) => window.label === "main");
     const opacityWindow = tauriConfig.app.windows.find(
       (window) => window.label === "mini-opacity",
     );
 
-    expect(opacityWindow.width).toBe(108);
-    expect(opacityWindow.height).toBe(52);
+    expect(mainWindow.width).toBe(512);
+    expect(mainWindow.height).toBe(490);
+    expect(opacityWindow.width).toBe(164);
+    expect(opacityWindow.height).toBe(90);
   });
 
   it("keeps native geometry and store permissions on the main window only", () => {
@@ -137,7 +144,7 @@ describe("desktop window chrome", () => {
     );
   });
 
-  it("allows the renamed GitHub repository to open from the desktop app", () => {
+  it("allows only the canonical GitHub repository to open from the desktop app", () => {
     const openUrlPermission = defaultCapability.permissions.find(
       (permission) => permission.identifier === "opener:allow-open-url",
     );
@@ -153,13 +160,23 @@ describe("desktop window chrome", () => {
     expect(desktopCapability.permissions).toContain("process:allow-restart");
   });
 
-  it("uses a portable updater command for in-place exe replacement", () => {
+  it("uses a portable updater command for atomic in-place exe replacement", () => {
     expect(libRs).toContain("install_portable_update");
     expect(portableUpdateRs).toContain("tauri_plugin_updater::UpdaterExt");
-    expect(portableUpdateRs).toContain(".download(|_, _| {}, || {})");
+    expect(portableUpdateRs).toContain("UPDATE_PROGRESS_EVENT");
+    expect(portableUpdateRs).toContain("resolve_powershell_path");
+    expect(portableUpdateRs).toContain("UPDATE_IN_PROGRESS");
+    expect(portableUpdateRs).toContain("cleanup_stale_update_artifacts");
+    expect(libRs).toContain("portable_update::cleanup_stale_update_artifacts()");
     expect(portableUpdateRs).toContain("apply-update.ps1");
     expect(portableUpdateRs).toContain(
-      "Copy-Item -LiteralPath $Source -Destination $Destination -Force",
+      "Move-Item -LiteralPath $Source -Destination $Destination -Force",
+    );
+    expect(portableUpdateRs).toContain(
+      "Move-Item -LiteralPath $Backup -Destination $Destination -Force",
+    );
+    expect(portableUpdateRs.indexOf("probe_install_dir(install_dir)?")).toBeLessThan(
+      portableUpdateRs.indexOf("update\n        .download("),
     );
     expect(defaultCapability.permissions).toContain("updater:allow-check");
     expect(defaultCapability.permissions).not.toContain(

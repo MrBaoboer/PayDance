@@ -56,11 +56,14 @@ const zhCN: Messages = {
   "settings.language": "语言",
   "settings.onboarding": "首次启动向导",
   "settings.openOnboarding": "打开首次启动向导",
-  "settings.saveFailed": "设置未能保存，请重试。",
+  "settings.saveFailed": "设置保存失败，请重试",
   "settings.unsavedHint": "更改未保存，修正后自动保存。",
-  "settings.loadFailed":
-    "设置文件无法读取，当前使用默认值。若反复出现，请删除 salary-settings.json 后重新打开应用。",
-  "settings.loadRecovered": "设置文件已损坏，已备份为 .bak 文件并恢复默认值。",
+  "settings.loadFailed": "设置读取失败，已暂停保存",
+  "settings.loadRecovered": "原设置已备份 (.bak) 并恢复默认",
+  "settings.backupFailed": "备份失败，已取消重置",
+  "settings.retryLoad": "重试",
+  "settings.rebuildDefaults": "重置默认",
+  "settings.rebuildDefaultsConfirm": "确认重置",
 
   // ── Settings → salary mode ─────────────────────────────────────────────
   "salaryMode.label": "薪资输入方式",
@@ -113,10 +116,11 @@ const zhCN: Messages = {
   "about.labelSeparator": "：",
   "about.appAuthor": "作者",
   "about.openRepo": "打开 GitHub 仓库",
-  "about.repoError": "无法打开 GitHub 仓库，请稍后重试。",
+  "about.repoError": "无法打开 GitHub",
 
   // ── Onboarding ─────────────────────────────────────────────────────────
   "onboarding.ariaLabel": "首次配置",
+  "onboarding.close": "关闭向导",
   "onboarding.stepSalaryMode": "薪资模式",
   "onboarding.stepWorkTime": "工作时间",
   "onboarding.stepPreferences": "使用偏好",
@@ -129,11 +133,11 @@ const zhCN: Messages = {
   "preferences.theme": "主题",
   "preferences.light": "浅色",
   "preferences.dark": "深色",
-  "preferences.autostart": "开机自动启动",
 
   // ── Title bar ──────────────────────────────────────────────────────────
   "titlebar.openSettings": "打开设置",
   "titlebar.settings": "设置",
+  "titlebar.settingsWithUpdate": "设置（发现新版本 {version}）",
   "titlebar.toggleMini": "切换迷你悬浮模式",
   "titlebar.miniMode": "迷你悬浮模式",
   "titlebar.switchToLight": "切换到浅色模式",
@@ -147,10 +151,13 @@ const zhCN: Messages = {
   "titlebar.minimize": "最小化窗口",
   "titlebar.minimizeTitle": "最小化",
   "titlebar.closeToTray": "关闭到托盘",
+  "titlebar.fixConfig": "点击打开设置修正配置",
 
   // ── Mini window ────────────────────────────────────────────────────────
-  "mini.ariaLabel": "迷你悬浮金额 {amount}，按 Enter 恢复完整窗口，右键调整透明度",
+  "mini.ariaLabel":
+    "迷你悬浮金额 {amount}，按 Enter 恢复完整窗口，右键打开透明度与窗口菜单",
   "mini.restoreTitle": "双击恢复完整窗口",
+  "mini.restoreWindow": "恢复主窗口",
 
   // ── Mini opacity ──────────────────────────────────────────────────────
   "opacity.header": "透明度",
@@ -161,6 +168,7 @@ const zhCN: Messages = {
   "validation.monthlyPositive": "月薪需大于 0",
   "validation.dailyPositive": "日薪需大于 0",
   "validation.hourlyPositive": "时薪需大于 0",
+  "validation.salaryTooLarge": "薪资金额超出上限",
   "validation.workDaysPositive": "工作天数需大于 0",
   "validation.workDaysRange": "工作天数不能超过 31",
   "validation.workdaysMinOne": "至少选 1 天",
@@ -179,10 +187,20 @@ const zhCN: Messages = {
 
   // ── Updater ────────────────────────────────────────────────────────────
   "updater.newVersion": "发现新版本",
+  "updater.upToDate": "已是最新版本",
   "updater.downloading": "下载中…",
+  "updater.downloadingPercent": "下载中 {percent}%",
   "updater.failed": "更新失败",
+  "updater.networkFailed": "网络异常",
+  "updater.installFailed": "更新安装失败",
+  "updater.signatureFailed": "签名校验失败",
+  "updater.manifestFailed": "更新清单异常",
+  "updater.permissionFailed": "目录不可写",
+  "updater.retrySeparator": "，",
   "updater.clickToDownload": "点击下载",
   "updater.retry": "点击重试",
+  "updater.checkNow": "检查更新",
+  "updater.checking": "检查中…",
 
   // ── Web Preview ────────────────────────────────────────────────────────
   "web.heroHeadline1": "看见每一秒的",
@@ -190,10 +208,10 @@ const zhCN: Messages = {
   "web.heroLead": "具象化你的劳动价值，专注工作，也看见回报",
   "web.downloadWindows": "下载 Windows 版",
   "web.downloadShort": "下载电脑版",
-  "web.featureRealtime": "毫秒级更新",
-  "web.featureRealtimeDesc": "今日收入实时跳动",
-  "web.featureFocus": "安心专注",
-  "web.featureFocusDesc": "轻量窗口，静默运行",
+  "web.featureRealtime": "实时跳动",
+  "web.featureRealtimeDesc": "今日收入每秒更新",
+  "web.featureFocus": "轻量窗口",
+  "web.featureFocusDesc": "安心专注，静默运行",
   "web.featurePrivacy": "隐私优先",
   "web.featurePrivacyDesc": "所有数据本地处理",
   "web.featureAriaLabel": "产品核心优势",

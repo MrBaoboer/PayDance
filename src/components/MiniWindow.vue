@@ -5,17 +5,29 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 import { computed } from "vue";
 import RollingAmount from "./RollingAmount.vue";
-import { maxMiniOpacityPercent, normalizeMiniOpacityPercent } from "../lib/window-mode";
+import ResizeHandles from "./onboarding/ResizeHandles.vue";
+import {
+  maxMiniOpacityPercent,
+  minMiniOpacityPercent,
+  normalizeMiniOpacityPercent,
+} from "../lib/window-mode";
 import type { MiniOpacityPanelAnchor } from "../lib/mini-opacity-position";
+import type { ResizeDirection } from "../lib/resize-handles";
 import { useI18n } from "../composables/useI18n";
 import { useCurrency } from "../composables/useCurrency";
 import { withCurrencySymbol } from "../lib/currency";
 
-const props = defineProps<{
-  amount: string;
-  amountMode: "rolling" | "plain";
-  opacityPercent: number;
-}>();
+const props = withDefaults(
+  defineProps<{
+    amount: string;
+    amountMode: "rolling" | "plain";
+    opacityPercent: number;
+    resizable?: boolean;
+  }>(),
+  {
+    resizable: false,
+  },
+);
 
 const { t } = useI18n();
 const { currencySymbol } = useCurrency();
@@ -32,6 +44,7 @@ const emit = defineEmits<{
   restore: [];
   dragStart: [event: PointerEvent];
   opacityMenu: [anchor: MiniOpacityPanelAnchor];
+  resizeStart: [direction: ResizeDirection];
 }>();
 
 const normalizedOpacity = computed(() =>
@@ -41,6 +54,7 @@ const panelStyle = computed(() => ({
   "--mini-panel-opacity": String(normalizedOpacity.value / 100),
 }));
 const isOpaque = computed(() => normalizedOpacity.value >= maxMiniOpacityPercent);
+const isTransparent = computed(() => normalizedOpacity.value <= minMiniOpacityPercent);
 
 const resolveOpacityPanelAnchor = (
   event: MouseEvent,
@@ -72,7 +86,7 @@ const handleOpacityMenu = (event: MouseEvent) => {
 <template>
   <div
     class="mini-window"
-    :class="{ 'is-opaque': isOpaque }"
+    :class="{ 'is-opaque': isOpaque, 'is-transparent': isTransparent }"
     :style="panelStyle"
     role="button"
     tabindex="0"
@@ -83,6 +97,11 @@ const handleOpacityMenu = (event: MouseEvent) => {
     @keydown.enter.prevent="$emit('restore')"
     @keydown.space.prevent="$emit('restore')"
   >
+    <ResizeHandles
+      v-if="resizable"
+      size="compact"
+      @resize-start="emit('resizeStart', $event)"
+    />
     <span class="sr-only">{{ miniAccessibleName }}</span>
     <RollingAmount aria-hidden="true" :mode="amountMode" :value="amount" variant="mini" />
   </div>
@@ -90,6 +109,7 @@ const handleOpacityMenu = (event: MouseEvent) => {
 
 <style scoped>
 .mini-window {
+  position: relative;
   display: grid;
   width: 100%;
   height: 100%;
@@ -97,7 +117,7 @@ const handleOpacityMenu = (event: MouseEvent) => {
   border: 1px solid var(--border);
   border-radius: 14px;
   background: rgb(var(--mini-panel-rgb, 255 255 255) / var(--mini-panel-opacity, 0.85));
-  box-shadow: none;
+  box-shadow: var(--mini-window-shadow, none);
   color: var(--text);
   backdrop-filter: blur(30px);
   padding: 0 12px;
@@ -109,5 +129,25 @@ const handleOpacityMenu = (event: MouseEvent) => {
 
 .mini-window.is-opaque {
   backdrop-filter: none;
+}
+
+.mini-window.is-transparent {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+.mini-window.is-transparent :deep(.rolling-amount) {
+  filter: var(--mini-transparent-text-shadow);
+}
+
+.mini-window.is-transparent:hover,
+.mini-window.is-transparent:focus-visible {
+  border-color: var(--mini-transparent-hover-border);
+  background: var(--mini-transparent-hover-bg);
 }
 </style>

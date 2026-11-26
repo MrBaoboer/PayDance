@@ -22,6 +22,7 @@ const appShellSource = readFileSync(
   new URL("./styles/app-shell.css", import.meta.url),
   "utf8",
 );
+const styleCssSource = readFileSync(new URL("./style.css", import.meta.url), "utf8");
 
 describe("main dashboard shell", () => {
   it("keeps App.vue as a runtime selector under the 300-line architecture budget", () => {
@@ -108,8 +109,16 @@ describe("main dashboard shell", () => {
     expect(desktopAppSource).not.toContain("let themeApplyToken = 0");
   });
 
-  it("keeps theme switching as a logic guard without freezing the whole UI", () => {
-    expect(desktopAppSource).not.toContain("transition: none !important");
+  it("freezes transitions atomically during theme switching without a flashing veil", () => {
+    expect(themeSyncSource).toContain("is-theme-switching");
+    expect(themeSyncSource).toContain("waitForThemePaint");
+    expect(themeSyncSource).toContain(
+      "document.documentElement.style.colorScheme = mode",
+    );
+    expect(styleCssSource).toContain("html.is-theme-switching *");
+    expect(styleCssSource).toContain("transition: none !important");
+    expect(appShellSource).not.toContain(".app-shell.is-theme-syncing::before");
+    expect(appShellSource).not.toContain("opacity: 0.9");
   });
 
   it("uses flat dark-theme hover and dashboard tokens", () => {
@@ -122,16 +131,19 @@ describe("main dashboard shell", () => {
     expect(appShellSource).toContain("box-shadow: none");
   });
 
-  it("removes the full-window outer gutter while giving theme switches a synced shell surface", () => {
+  it("wraps the desktop shell in a transparent elevation stage without leaking shadows into the inner window", () => {
+    expect(desktopAppSource).toContain('class="desktop-stage"');
     expect(desktopAppSource).toContain("app-shell h-full w-full select-none p-0");
     expect(desktopAppSource).not.toContain("bg-transparent p-2");
+    expect(appThemeSource).toContain("--window-shadow:");
+    expect(appThemeSource).toContain("--mini-window-shadow:");
+    expect(appShellSource).toContain(".desktop-stage {");
+    expect(appShellSource).toContain("box-shadow: var(--window-shadow)");
     expect(appShellSource).toContain("border: 0;");
     expect(appShellSource).toContain(".app-window");
     expect(appShellSource).toContain("border-radius: inherit");
     expect(appShellSource).toContain("background: transparent");
     expect(desktopAppSource).toContain("'is-theme-syncing': isThemeSwitching");
-    expect(appShellSource).toContain(".app-shell.is-theme-syncing::before");
-    expect(appShellSource).not.toContain("opacity: 0.9");
   });
 
   it("keeps shell radius ownership in one layer to avoid dark-mode corner halos", () => {
@@ -173,10 +185,15 @@ describe("main dashboard shell", () => {
     expect(desktopAppSource).not.toContain(".theme-dark {");
   });
 
-  it("passes autostart preferences into the first-run guide", () => {
+  it("keeps autostart in desktop settings and omits it from the first-run guide", () => {
+    const onboardingBlock = appWindowSource.slice(
+      appWindowSource.indexOf("<OnboardingPanel"),
+    );
+
     expect(appWindowSource).toContain(':autostart-enabled="autostartEnabled"');
     expect(desktopAppSource).toContain(
-      '@update:autostart-enabled="updateAutostartEnabled"',
+      '@update:autostart-enabled="autostart.updateAutostartEnabled"',
     );
+    expect(onboardingBlock).not.toContain("autostart");
   });
 });

@@ -40,6 +40,7 @@ pub fn run() {
         ])
         .on_window_event(exit_when_main_window_destroyed)
         .setup(|app| {
+            portable_update::cleanup_stale_update_artifacts();
             tray::setup(app)?;
             Ok(())
         })

@@ -71,8 +71,7 @@ describe("build boundary assertion", () => {
 
       withDistFixture(
         {
-          [`index-${target}.js`]:
-            `${marker} verify:release @tauri-apps/plugin-updater`,
+          [`index-${target}.js`]: `${marker} verify:release @tauri-apps/plugin-updater`,
         },
         (cwd) => {
           expect(() =>

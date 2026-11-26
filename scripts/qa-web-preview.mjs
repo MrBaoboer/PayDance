@@ -186,7 +186,13 @@ const readThemePaint = (page) =>
       languageBackground: read(".lang-switcher", "backgroundColor"),
       rootBackground: read(".web-preview", "backgroundImage"),
       rootColor: read(".web-preview", "color"),
-      themeClass: document.querySelector(".web-preview")?.className ?? null,
+      // `is-theme-booting` intentionally disables transitions for the first animation frame only.
+      themeClass:
+        document
+          .querySelector(".web-preview")
+          ?.className.split(/\s+/)
+          .filter((name) => name && name !== "is-theme-booting")
+          .join(" ") ?? null,
     };
   });
 
@@ -419,7 +425,7 @@ const assertDom = async (page, viewportName, locale) => {
   const downloadName = viewportName.includes("mobile")
     ? locale === "zh-CN"
       ? /^下载电脑版$/
-      : /^Desktop$/
+      : /^Windows$/
     : expectedText.downloadName;
   const downloadVisible = await page
     .getByRole("link", { name: downloadName })
@@ -964,6 +970,15 @@ const assertLanguageSwitchFlow = async (browser, consoleFindings, pageErrors) =>
         `language-switch/mobile: initial locale mismatch "${initialLocale}"`,
       );
     }
+    const initialCurrency = await page
+      .locator(".rolling-amount__currency")
+      .first()
+      .textContent();
+    if (initialCurrency !== "¥") {
+      throw new Error(
+        `language-switch/mobile: expected ¥ on zh-CN page, got "${initialCurrency}"`,
+      );
+    }
 
     await Promise.all([
       page.waitForURL(localeUrls.en, { timeout: 10_000 }),
@@ -978,6 +993,15 @@ const assertLanguageSwitchFlow = async (browser, consoleFindings, pageErrors) =>
     if (switchedLocale !== "en") {
       throw new Error(
         `language-switch/mobile: switched locale mismatch "${switchedLocale}"`,
+      );
+    }
+    const switchedCurrency = await page
+      .locator(".rolling-amount__currency")
+      .first()
+      .textContent();
+    if (switchedCurrency !== "$") {
+      throw new Error(
+        `language-switch/mobile: expected $ after switching to /en/, got "${switchedCurrency}"`,
       );
     }
 

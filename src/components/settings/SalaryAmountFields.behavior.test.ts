@@ -79,4 +79,25 @@ describe("SalaryAmountFields", () => {
     };
     expect(Number.isNaN(emitted.monthlySalary)).toBe(true);
   });
+
+  it("caps monthly work days input at 31", () => {
+    const wrapper = mountSalaryAmountFields();
+    const inputs = wrapper.findAll('input[type="number"]');
+
+    expect(inputs[1]?.attributes("max")).toBe("31");
+  });
+
+  it("keeps daily and hourly inputs at half-width grid cells instead of stretching full width", () => {
+    const dailyWrapper = mountSalaryAmountFields({
+      ...defaultSalaryConfig,
+      salaryType: "daily",
+    });
+    const hourlyWrapper = mountSalaryAmountFields({
+      ...defaultSalaryConfig,
+      salaryType: "hourly",
+    });
+
+    expect(dailyWrapper.find(".field--full").exists()).toBe(false);
+    expect(hourlyWrapper.find(".field--full").exists()).toBe(false);
+  });
 });

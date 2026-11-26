@@ -3,21 +3,15 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
-export type SettingsStoreAdapter = {
-  // Moves an unreadable settings file aside and starts over with an empty store.
-  // Resolves the backup path, or undefined when there was nothing to back up.
-  backupUnreadable?: () => Promise<string | undefined>;
-  delete?: (key: string) => Promise<void>;
-  get: <Value>(key: string) => Promise<Value | undefined>;
-  save: () => Promise<void>;
-  set: (key: string, value: unknown) => Promise<void>;
-};
+import { invoke } from "@tauri-apps/api/core";
+import type { SettingsStoreAdapter } from "./types";
+
+export type { SettingsStoreAdapter };
 
 export const createSettingsStore = async (
   fileName: string,
 ): Promise<SettingsStoreAdapter> => {
   const { LazyStore } = await import("@tauri-apps/plugin-store");
-  const { invoke } = await import("@tauri-apps/api/core");
   let store = new LazyStore(fileName);
 
   return {

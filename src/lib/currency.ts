@@ -8,6 +8,15 @@
 // (₺, ₫, R$, CHF…) and lets "no symbol at all" be an ordinary value rather than a special case.
 
 export const defaultCurrencySymbol = "¥";
+export const englishDefaultCurrencySymbol = "$";
+
+export function getDefaultCurrencySymbolForLocale(locale?: string): string {
+  return locale === "en" ? englishDefaultCurrencySymbol : defaultCurrencySymbol;
+}
+
+export function isLocaleDefaultCurrencySymbol(value: unknown): boolean {
+  return value === defaultCurrencySymbol || value === englishDefaultCurrencySymbol;
+}
 
 // Wide enough for "HK$" and "CHF", short enough that the mini window (148px minimum width)
 // still has room for the digits that are the entire point of the product.

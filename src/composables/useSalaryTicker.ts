@@ -3,7 +3,7 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
-import { ref, type Ref } from "vue";
+import { shallowRef, watch, type Ref } from "vue";
 import {
   calculateSalarySnapshot,
   type SalaryConfig,
@@ -56,39 +56,68 @@ export function useSalaryTicker(
   config: Ref<SalaryConfig>,
   t: ValidateT = fallbackValidateT,
 ) {
-  const snapshot = ref<SalarySnapshot>(
+  // shallowRef avoids wrapping every newly created snapshot object in a deep reactive proxy.
+  const snapshot = shallowRef<SalarySnapshot>(
     calculateSalarySnapshot(new Date(), config.value, t),
   );
 
   let timerId = 0;
   let isRunning = false;
+  let clock = createMonotonicWallClock();
+  let stopConfigWatch: (() => void) | null = null;
+
+  const ensureConfigWatch = () => {
+    stopConfigWatch ??= watch(
+      config,
+      () => {
+        refreshNow();
+      },
+      { deep: true },
+    );
+  };
+
+  const tick = () => {
+    if (!isRunning) return;
+
+    window.clearTimeout(timerId);
+
+    const now = clock.now({
+      monotonicMs: performance.now(),
+      wallTimeMs: Date.now(),
+    });
+    snapshot.value = calculateSalarySnapshot(now, config.value, t);
+    timerId = window.setTimeout(tick, resolveNextTickDelay(snapshot.value));
+  };
+
+  const refreshNow = () => {
+    if (isRunning) {
+      tick();
+      return;
+    }
+
+    snapshot.value = calculateSalarySnapshot(new Date(), config.value, t);
+  };
+
+  ensureConfigWatch();
 
   const startTicker = () => {
     if (isRunning) return;
 
-    const clock = createMonotonicWallClock();
+    ensureConfigWatch();
+    clock = createMonotonicWallClock();
     isRunning = true;
-
-    const tick = () => {
-      if (!isRunning) return;
-
-      const now = clock.now({
-        monotonicMs: performance.now(),
-        wallTimeMs: Date.now(),
-      });
-      snapshot.value = calculateSalarySnapshot(now, config.value, t);
-      timerId = window.setTimeout(tick, resolveNextTickDelay(snapshot.value));
-    };
-
     tick();
   };
 
   const stopTicker = () => {
     isRunning = false;
     window.clearTimeout(timerId);
+    stopConfigWatch?.();
+    stopConfigWatch = null;
   };
 
   return {
+    refreshNow,
     snapshot,
     startTicker,
     stopTicker,

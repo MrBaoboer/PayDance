@@ -11,16 +11,11 @@ import { useI18n } from "../composables/useI18n";
 import { useSalarySettings } from "../composables/useSalarySettings";
 import { useSalaryTicker } from "../composables/useSalaryTicker";
 import { useThemeSync } from "../composables/useThemeSync";
+import { useWindowPreferenceRefs } from "../composables/useWindowPreferenceRefs";
 import { useWindowStatePersistence } from "../composables/useWindowStatePersistence";
-import {
-  defaultMiniOpacityPercent,
-  fullWindowSize,
-  miniDefaultSize,
-  normalizeMiniOpacityPercent,
-  resolveWindowPreferences,
-  type WindowPosition,
-  type WindowSize,
-} from "../lib/window-mode";
+import { getDefaultCurrencySymbolForLocale } from "../lib/currency";
+import { settingsStoreKeys } from "../lib/settings-store";
+import { normalizeMiniOpacityPercent } from "../lib/window-mode";
 import {
   createBrowserSettingsStore,
   readBrowserThemeMode,
@@ -47,33 +42,44 @@ export function useWebPreviewState() {
     hasCompletedOnboarding,
     isSettingsReady,
     loadSettings,
+    locale: settingsLocale,
     saveSettings,
     themeMode,
-  } = useSalarySettings(() => Promise.resolve(previewStore));
+  } = useSalarySettings(
+    () => Promise.resolve(previewStore),
+    () => t.value,
+  );
   themeMode.value = readBrowserThemeMode();
   provideCurrency(currencySymbol);
 
   const { locale, t } = useI18n();
+  settingsLocale.value = locale.value;
+  currencySymbol.value = getDefaultCurrencySymbolForLocale(locale.value);
 
-  const isMiniMode = ref(false);
+  const isCurrencySymbolCustomized = ref(false);
+  const {
+    applyLoadedWindowPreferences,
+    defaultWindowPreferences,
+    fullSize,
+    isMiniMode,
+    mainPosition,
+    miniOpacityPercent,
+    miniPosition: persistedMiniPosition,
+    miniSize,
+  } = useWindowPreferenceRefs();
   const autostartEnabled = ref(false);
   const autostartError = ref("");
   const isAutostartUpdating = ref(false);
-  const fullSize = ref<WindowSize>({ ...fullWindowSize });
-  const miniSize = ref<WindowSize>({ ...miniDefaultSize });
-  const miniOpacityPercent = ref(defaultMiniOpacityPercent);
-  const mainPosition = ref<WindowPosition | undefined>(undefined);
-  const persistedMiniPosition = ref<WindowPosition | undefined>(undefined);
   const showWebMiniOpacityPanel = ref(false);
   const miniPosition = ref({ x: 0, y: 0 });
   let clearMiniDrag: (() => void) | null = null;
 
   const getMiniStageWidth = () => miniSize.value.width + miniStagePaddingX * 2;
 
-  const { snapshot, startTicker, stopTicker } = useSalaryTicker(config);
+  const { snapshot, startTicker, stopTicker } = useSalaryTicker(config, t.value);
   const { clearSaveStateTimer, loadWindowPreferences, saveStateNow, scheduleSaveState } =
     useWindowStatePersistence({
-      defaultWindowPreferences: resolveWindowPreferences({}),
+      defaultWindowPreferences,
       fullSize,
       isMiniMode,
       isSettingsReady,
@@ -124,6 +130,10 @@ export function useWebPreviewState() {
     isOnboardingOpen.value = true;
   };
 
+  const closeOnboarding = () => {
+    isOnboardingOpen.value = false;
+  };
+
   const completeWebOnboarding = async () => {
     await completeAppOnboarding();
     isOnboardingOpen.value = false;
@@ -136,6 +146,7 @@ export function useWebPreviewState() {
     hasIssue,
     middleStat,
     salaryModeLabel,
+    salaryRates,
     statusText,
     workedTimeText,
   } = useDashboardModel(config, snapshot, t.value, locale);
@@ -158,6 +169,13 @@ export function useWebPreviewState() {
     "--mini-stage-height": `${miniStageHeight}px`,
     "--mini-stage-width": `${getMiniStageWidth()}px`,
   }));
+
+  const updateCurrencySymbol = (symbol: string) => {
+    currencySymbol.value = symbol;
+    isCurrencySymbolCustomized.value = true;
+    void previewStore.set(settingsStoreKeys.currencySymbolCustomized, true);
+    scheduleSaveState();
+  };
 
   const updateMiniOpacityPercent = (
     value: number,
@@ -214,18 +232,31 @@ export function useWebPreviewState() {
     const handleEnd = () => {
       window.removeEventListener("pointermove", handleMove);
       window.removeEventListener("pointerup", handleEnd);
+      window.removeEventListener("pointercancel", handleEnd);
       clearMiniDrag = null;
     };
 
     clearMiniDrag = handleEnd;
     window.addEventListener("pointermove", handleMove);
     window.addEventListener("pointerup", handleEnd);
+    window.addEventListener("pointercancel", handleEnd);
   };
 
   const showMiniOpacityPanel = () => {
     showWebMiniOpacityPanel.value = true;
   };
 
+  const toggleMiniOpacityPanel = () => {
+    showWebMiniOpacityPanel.value = !showWebMiniOpacityPanel.value;
+  };
+
+  watch(locale, (next) => {
+    settingsLocale.value = next;
+    if (!isCurrencySymbolCustomized.value) {
+      currencySymbol.value = getDefaultCurrencySymbolForLocale(next);
+    }
+    scheduleSaveState();
+  });
   watch(config, scheduleSaveState, { deep: true });
   watch([amountMode, currencySymbol], scheduleSaveState);
   watch(isMiniMode, (value) => {
@@ -237,12 +268,18 @@ export function useWebPreviewState() {
   });
 
   onMounted(async () => {
-    await ensureWebPreviewDemoSettings(previewStore);
-    const windowPreferences = await loadWindowPreferences();
+    await ensureWebPreviewDemoSettings(previewStore, locale.value);
+    const [windowPreferences, customized] = await Promise.all([
+      loadWindowPreferences(),
+      previewStore.get<boolean>(settingsStoreKeys.currencySymbolCustomized),
+    ]);
+    isCurrencySymbolCustomized.value = customized === true;
+    settingsLocale.value = locale.value;
+    if (!isCurrencySymbolCustomized.value) {
+      currencySymbol.value = getDefaultCurrencySymbolForLocale(locale.value);
+    }
     isMiniMode.value = false;
-    fullSize.value = windowPreferences.fullSize;
-    miniSize.value = windowPreferences.miniSize;
-    miniOpacityPercent.value = windowPreferences.miniOpacityPercent;
+    applyLoadedWindowPreferences(windowPreferences, { restoreMiniMode: false });
     if (isMiniMode.value) resetMiniPosition();
     startTicker();
   });
@@ -259,6 +296,7 @@ export function useWebPreviewState() {
     amountMode,
     autostartEnabled,
     autostartError,
+    closeOnboarding,
     completeWebOnboarding,
     config,
     currencySymbol,
@@ -279,6 +317,7 @@ export function useWebPreviewState() {
     openOnboarding,
     previewFrameClass,
     salaryModeLabel,
+    salaryRates,
     setMiniMode,
     setThemeMode,
     shellClass,
@@ -293,7 +332,9 @@ export function useWebPreviewState() {
     themeMode,
     toggleAlwaysOnTop,
     toggleMiniMode,
+    toggleMiniOpacityPanel,
     toggleTheme,
+    updateCurrencySymbol,
     updateMiniOpacityPercent,
     workedTimeText,
   };

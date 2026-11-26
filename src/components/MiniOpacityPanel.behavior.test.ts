@@ -56,22 +56,22 @@ describe("MiniOpacityPanel behavior", () => {
     expect(wrapper.text()).toContain("63%");
 
     const slider = wrapper.get('input[type="range"]');
-    expect(slider.attributes("min")).toBe("10");
+    expect(slider.attributes("min")).toBe("0");
     expect(slider.attributes("max")).toBe("100");
     expect(slider.attributes("aria-label")).toBe("迷你悬浮透明度");
     expect(slider.attributes("aria-valuetext")).toBe("迷你悬浮透明度 63%");
 
-    (slider.element as HTMLInputElement).value = "42";
+    (slider.element as HTMLInputElement).value = "0";
     await slider.trigger("input");
     expect(tauriMocks.emitTo).toHaveBeenLastCalledWith("main", "mini-opacity-change", {
       commit: false,
-      value: 42,
+      value: 0,
     });
 
     await slider.trigger("change");
     expect(tauriMocks.emitTo).toHaveBeenLastCalledWith("main", "mini-opacity-change", {
       commit: true,
-      value: 42,
+      value: 0,
     });
   });
 
@@ -99,5 +99,18 @@ describe("MiniOpacityPanel behavior", () => {
     expect(wrapper.get('input[type="range"]').attributes("aria-label")).toBe(
       "迷你悬浮透明度",
     );
+  });
+
+  it("emits restore action and hides the panel without a reset-position button", async () => {
+    const wrapper = mount(MiniOpacityPanel);
+    await nextTick();
+
+    const buttons = wrapper.findAll(".mini-opacity-panel__action");
+    expect(buttons).toHaveLength(1);
+    expect(wrapper.text()).not.toContain("重置位置");
+
+    await buttons[0].trigger("click");
+    expect(tauriMocks.emitTo).toHaveBeenCalledWith("main", "mini-panel-restore");
+    expect(tauriMocks.hide).toHaveBeenCalledTimes(1);
   });
 });

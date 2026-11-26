@@ -5,7 +5,6 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 import { computed } from "vue";
 import SegmentedControl from "../ui/SegmentedControl.vue";
-import SwitchRow from "../ui/SwitchRow.vue";
 import {
   useI18n,
   supportedLocales,
@@ -17,19 +16,11 @@ const { locale, setLocale, t } = useI18n();
 
 type ThemeMode = "light" | "dark";
 
-withDefaults(
-  defineProps<{
-    autostartEnabled: boolean;
-    showDesktopFeatures?: boolean;
-    themeMode: ThemeMode;
-  }>(),
-  {
-    showDesktopFeatures: true,
-  },
-);
+defineProps<{
+  themeMode: ThemeMode;
+}>();
 
 const emit = defineEmits<{
-  "update:autostartEnabled": [value: boolean];
   "update:themeMode": [mode: ThemeMode];
 }>();
 
@@ -74,14 +65,6 @@ const updateThemeMode = (value: string) => {
       :model-value="themeMode"
       :options="themeOptions"
       @update:model-value="updateThemeMode"
-    />
-
-    <SwitchRow
-      v-if="showDesktopFeatures"
-      :label="t('preferences.autostart')"
-      panel
-      :model-value="autostartEnabled"
-      @update:model-value="emit('update:autostartEnabled', $event)"
     />
   </section>
 </template>

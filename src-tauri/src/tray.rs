@@ -3,20 +3,37 @@
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
-use std::sync::Mutex;
+use std::{sync::Mutex, time::Duration};
 use tauri::{
     App, AppHandle, Emitter, Listener, Manager, WebviewWindow, Window, WindowEvent,
-    menu::MenuBuilder,
+    menu::{CheckMenuItemBuilder, MenuBuilder},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
 };
 
 const TRAY_OPEN_SETTINGS_EVENT: &str = "tray-open-settings";
 const TRAY_TOGGLE_ALWAYS_ON_TOP_EVENT: &str = "tray-toggle-always-on-top";
 const TRAY_TOGGLE_MINI_MODE_EVENT: &str = "tray-toggle-mini-mode";
+const TRAY_STATE_CHANGED_EVENT: &str = "tray-state-changed";
 const WINDOW_SHOWN_EVENT: &str = "window-shown";
+const QUIT_FALLBACK_TIMEOUT: Duration = Duration::from_millis(2_500);
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+struct TrayMenuState {
+    use_en: bool,
+    is_mini_mode: bool,
+    always_on_top: bool,
+}
+
+#[derive(Debug, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct TrayStatePayload {
+    is_mini_mode: Option<bool>,
+    always_on_top: Option<bool>,
+}
 
 struct TrayState {
     handle: Mutex<Option<tauri::tray::TrayIcon>>,
+    menu_state: Mutex<TrayMenuState>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -60,8 +77,8 @@ fn tray_menu_labels(use_en: bool) -> TrayMenuLabels {
         TrayMenuLabels {
             show: "打开主界面",
             settings: "打开设置",
-            toggle_mini: "切换迷你模式",
-            toggle_top: "切换置顶",
+            toggle_mini: "迷你悬浮模式",
+            toggle_top: "窗口置顶",
             quit: "退出",
         }
     }
@@ -77,17 +94,60 @@ fn tray_tooltip(use_en: bool) -> &'static str {
 
 fn build_tray_menu(
     app: &AppHandle,
-    use_en: bool,
+    state: TrayMenuState,
 ) -> Result<tauri::menu::Menu<tauri::Wry>, tauri::Error> {
-    let labels = tray_menu_labels(use_en);
+    let labels = tray_menu_labels(state.use_en);
+    let mini_item = CheckMenuItemBuilder::with_id("toggle_mini", labels.toggle_mini)
+        .checked(state.is_mini_mode)
+        .build(app)?;
+    let top_item = CheckMenuItemBuilder::with_id("toggle_top", labels.toggle_top)
+        .checked(state.always_on_top)
+        .build(app)?;
+
     MenuBuilder::new(app)
         .text("show", labels.show)
         .text("settings", labels.settings)
-        .text("toggle_mini", labels.toggle_mini)
         .separator()
-        .text("toggle_top", labels.toggle_top)
+        .item(&mini_item)
+        .item(&top_item)
+        .separator()
         .text("quit", labels.quit)
         .build()
+}
+
+fn apply_tray_menu_state(app: &AppHandle, update: impl FnOnce(&mut TrayMenuState)) {
+    let tray_state = app.state::<TrayState>();
+    let next_state = {
+        let Ok(mut state_guard) = tray_state.menu_state.lock() else {
+            return;
+        };
+        update(&mut state_guard);
+        *state_guard
+    };
+
+    if let Ok(handle_guard) = tray_state.handle.lock()
+        && let Some(tray) = handle_guard.as_ref()
+        && let Ok(menu) = build_tray_menu(app, next_state)
+    {
+        let _ = tray.set_menu(Some(menu));
+        let _ = tray.set_tooltip(Some(tray_tooltip(next_state.use_en)));
+    }
+}
+
+fn hide_mini_opacity_window(app: &AppHandle) {
+    if let Some(opacity_window) = app.get_webview_window("mini-opacity") {
+        let _ = opacity_window.hide();
+    }
+}
+
+// The frontend normally flushes debounced settings and calls plugin-process::exit(0) within a
+// few milliseconds. If the webview froze or was not ready yet when Quit was clicked, this
+// fallback guarantees the process still exits instead of staying stranded behind a hidden window.
+fn schedule_quit_fallback(app: AppHandle) {
+    std::thread::spawn(move || {
+        std::thread::sleep(QUIT_FALLBACK_TIMEOUT);
+        app.exit(0);
+    });
 }
 
 // Every tray action, the tray click handler and the single-instance callback resolve the
@@ -135,14 +195,17 @@ fn dispatch_tray_action(window: &WebviewWindow, action: TrayAction) {
             let _ = window.emit(TRAY_TOGGLE_ALWAYS_ON_TOP_EVENT, ());
         }
         TrayAction::Quit => {
+            hide_mini_opacity_window(window.app_handle());
             let _ = window.hide();
             let _ = window.emit("before-app-exit", ());
+            schedule_quit_fallback(window.app_handle().clone());
         }
     }
 }
 
 pub(crate) fn setup(app: &mut App) -> Result<(), tauri::Error> {
-    let menu = build_tray_menu(app.handle(), false)?;
+    let initial_state = TrayMenuState::default();
+    let menu = build_tray_menu(app.handle(), initial_state)?;
     let icon = app
         .default_window_icon()
         .cloned()
@@ -150,7 +213,7 @@ pub(crate) fn setup(app: &mut App) -> Result<(), tauri::Error> {
 
     let tray = TrayIconBuilder::with_id("pay-dance-tray")
         .icon(icon)
-        .tooltip(tray_tooltip(false))
+        .tooltip(tray_tooltip(initial_state.use_en))
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_tray_icon_event(|tray, event| {
@@ -181,23 +244,35 @@ pub(crate) fn setup(app: &mut App) -> Result<(), tauri::Error> {
 
     app.manage(TrayState {
         handle: Mutex::new(Some(tray)),
+        menu_state: Mutex::new(initial_state),
     });
 
-    let handle = app.handle().clone();
+    let locale_handle = app.handle().clone();
+    let state_handle = app.handle().clone();
     if let Some(window) = app.get_webview_window("main") {
-        let _id = window.listen("locale-changed", move |event| {
+        let _locale_id = window.listen("locale-changed", move |event| {
             // The payload is a JSON-encoded locale string. A substring match would start
             // misfiring the moment a locale like "en-GB" or "sv" is added.
             let use_en = serde_json::from_str::<String>(event.payload())
                 .map(|locale| locale == "en")
                 .unwrap_or(false);
-            if let Ok(guard) = handle.state::<TrayState>().handle.lock()
-                && let Some(tray) = guard.as_ref()
-                && let Ok(menu) = build_tray_menu(&handle, use_en)
-            {
-                let _ = tray.set_menu(Some(menu));
-                let _ = tray.set_tooltip(Some(tray_tooltip(use_en)));
-            }
+            apply_tray_menu_state(&locale_handle, |state| {
+                state.use_en = use_en;
+            });
+        });
+
+        let _state_id = window.listen(TRAY_STATE_CHANGED_EVENT, move |event| {
+            let Ok(payload) = serde_json::from_str::<TrayStatePayload>(event.payload()) else {
+                return;
+            };
+            apply_tray_menu_state(&state_handle, |state| {
+                if let Some(is_mini_mode) = payload.is_mini_mode {
+                    state.is_mini_mode = is_mini_mode;
+                }
+                if let Some(always_on_top) = payload.always_on_top {
+                    state.always_on_top = always_on_top;
+                }
+            });
         });
     }
 
@@ -230,7 +305,11 @@ mod tests {
     #[test]
     fn localizes_menu_labels_and_tooltips() {
         assert_eq!(tray_menu_labels(false).show, "打开主界面");
+        assert_eq!(tray_menu_labels(false).toggle_mini, "迷你悬浮模式");
+        assert_eq!(tray_menu_labels(false).toggle_top, "窗口置顶");
         assert_eq!(tray_menu_labels(true).show, "Open");
+        assert_eq!(tray_menu_labels(true).toggle_mini, "Mini Mode");
+        assert_eq!(tray_menu_labels(true).toggle_top, "Always on Top");
         assert_eq!(tray_tooltip(false), "薪跳 · 桌面实时工资看板");
         assert_eq!(
             tray_tooltip(true),

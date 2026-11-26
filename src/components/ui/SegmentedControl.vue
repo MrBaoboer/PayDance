@@ -3,12 +3,14 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 //
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
+import { nextTick, ref } from "vue";
+
 type SegmentOption = {
   label: string;
   value: string;
 };
 
-defineProps<{
+const props = defineProps<{
   columns?: 2 | 3;
   density?: "settings" | "onboarding";
   invalid?: boolean;
@@ -20,6 +22,41 @@ defineProps<{
 const emit = defineEmits<{
   "update:modelValue": [value: string];
 }>();
+
+const buttonRefs = ref<HTMLButtonElement[]>([]);
+
+const isTabbable = (value: string, index: number) => {
+  if (props.modelValue === value) return true;
+  return (
+    !props.options.some((option) => option.value === props.modelValue) && index === 0
+  );
+};
+
+const onRadioKeydown = async (index: number, event: KeyboardEvent) => {
+  const total = props.options.length;
+  if (total <= 1) return;
+
+  let nextIndex: number;
+  if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+    nextIndex = (index + 1) % total;
+  } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+    nextIndex = (index - 1 + total) % total;
+  } else if (event.key === "Home") {
+    nextIndex = 0;
+  } else if (event.key === "End") {
+    nextIndex = total - 1;
+  } else {
+    return;
+  }
+
+  event.preventDefault();
+  const nextOption = props.options[nextIndex];
+  if (!nextOption) return;
+
+  emit("update:modelValue", nextOption.value);
+  await nextTick();
+  buttonRefs.value[nextIndex]?.focus();
+};
 </script>
 
 <template>
@@ -34,13 +71,16 @@ const emit = defineEmits<{
     :aria-label="label"
   >
     <button
-      v-for="option in options"
+      v-for="(option, index) in options"
       :key="option.value"
+      ref="buttonRefs"
       :aria-checked="modelValue === option.value"
       :class="{ 'is-active': modelValue === option.value }"
+      :tabindex="isTabbable(option.value, index) ? 0 : -1"
       role="radio"
       type="button"
       @click="emit('update:modelValue', option.value)"
+      @keydown="onRadioKeydown(index, $event)"
     >
       {{ option.label }}
     </button>

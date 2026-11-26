@@ -48,6 +48,15 @@
   );
   --progress-rest-dot-shadow: 0 0 0 1px rgb(127 127 127 / 0.16);
   --shadow: 0 24px 70px rgb(15 23 42 / 0.18);
+  --window-shadow:
+    0 0 0 1px rgb(15 23 42 / 0.08), 0 2px 6px -1px rgb(15 23 42 / 0.07),
+    0 8px 18px -4px rgb(15 23 42 / 0.12);
+  --mini-window-shadow:
+    0 0 0 1px rgb(15 23 42 / 0.09), 0 2px 5px -1px rgb(15 23 42 / 0.12);
+  --mini-transparent-text-shadow: drop-shadow(0 0 1.5px rgb(255 255 255 / 0.75))
+    drop-shadow(0 1px 4px rgb(255 255 255 / 0.45));
+  --mini-transparent-hover-bg: rgb(255 255 255 / 0.14);
+  --mini-transparent-hover-border: rgb(24 24 27 / 0.14);
 }
 
 .theme-dark {
@@ -109,4 +118,13 @@
   --progress-rest-dot-shadow:
     0 0 0 1px rgb(255 255 255 / 0.1), 0 6px 14px rgb(0 0 0 / 0.28);
   --shadow: 0 26px 80px rgb(0 0 0 / 0.38);
+  --window-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.1), 0 2px 6px -1px rgb(0 0 0 / 0.36),
+    0 8px 18px -4px rgb(0 0 0 / 0.48);
+  --mini-window-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.13), 0 2px 6px -1px rgb(0 0 0 / 0.38);
+  --mini-transparent-text-shadow: drop-shadow(0 1px 2px rgb(0 0 0 / 0.56))
+    drop-shadow(0 0 5px rgb(0 0 0 / 0.34));
+  --mini-transparent-hover-bg: rgb(0 0 0 / 0.18);
+  --mini-transparent-hover-border: rgb(255 255 255 / 0.18);
 }

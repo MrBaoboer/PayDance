@@ -4,7 +4,7 @@
 // Additional terms: see /legal/ADDITIONAL_TERMS.md
 
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -21,7 +21,7 @@ const expectedVueHeader = [
 const trackedFiles = () =>
   execFileSync("git", ["ls-files"], { cwd: repoRoot, encoding: "utf8" })
     .split(/\r?\n/)
-    .filter(Boolean);
+    .filter((file) => Boolean(file) && existsSync(resolve(repoRoot, file)));
 
 const readRoot = (path) =>
   readFileSync(resolve(repoRoot, path), "utf8").replace(/\r\n/g, "\n");

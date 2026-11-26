@@ -40,6 +40,14 @@ input {
   font: inherit;
 }
 
+button,
+a,
+[role="button"],
+input,
+label {
+  touch-action: manipulation;
+}
+
 :where(button, [role="button"]):focus-visible {
   outline: 2px solid var(--focus-outline, var(--income-accent));
   outline-offset: 3px;
@@ -59,6 +67,14 @@ input {
 :where(input:is([type="checkbox"], [type="radio"])):focus-visible {
   outline: 2px solid var(--focus-outline, var(--income-accent));
   outline-offset: 2px;
+}
+
+/* Freeze CSS transitions for the single compositor frame during a theme flip so shell,
+   dashboard cards, text, and icons change atomically without mismatched cross-fades. */
+html.is-theme-switching *,
+html.is-theme-switching *::before,
+html.is-theme-switching *::after {
+  transition: none !important;
 }
 
 /* The main window is always-on-top and permanently visible, so an infinite decorative

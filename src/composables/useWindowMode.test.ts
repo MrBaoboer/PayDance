@@ -5,7 +5,7 @@
 
 import { ref } from "vue";
 import { describe, expect, it } from "vitest";
-import { fullWindowSize, miniDefaultSize } from "../lib/window-mode";
+import { fullWindowSize, miniDefaultSize, toDesktopHostSize } from "../lib/window-mode";
 import { useWindowMode } from "./useWindowMode";
 
 const createManagedWindow = ({
@@ -101,7 +101,9 @@ describe("useWindowMode", () => {
 
     await applyWindowMode();
 
-    expect(lastCall(managedWindow.sizeCalls)).toEqual({ width: 720, height: 540 });
+    expect(lastCall(managedWindow.sizeCalls)).toEqual(
+      toDesktopHostSize({ width: 720, height: 540 }, false),
+    );
     expect(lastCall(managedWindow.alwaysOnTopCalls)).toBe(true);
   });
 
@@ -169,7 +171,9 @@ describe("useWindowMode", () => {
     );
 
     await expect(applyWindowMode()).resolves.toBeUndefined();
-    expect(lastCall(managedWindow.sizeCalls)).toEqual(miniDefaultSize);
+    expect(lastCall(managedWindow.sizeCalls)).toEqual(
+      toDesktopHostSize(miniDefaultSize, true),
+    );
   });
 
   it("keeps the native mini window topmost after changing the saved full-window preference", async () => {

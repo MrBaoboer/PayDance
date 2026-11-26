@@ -15,6 +15,7 @@ import type { Messages } from "../../i18n/types";
 const salaryTypes: SalaryType[] = ["monthly", "daily", "hourly"];
 
 export const maxWorkDaysPerMonth = 31;
+export const maxSalaryAmount = 100_000_000;
 
 const hasPositiveNumber = (value: number) => Number.isFinite(value) && value > 0;
 
@@ -47,14 +48,20 @@ export function validateSalaryConfig(
 
   if (salaryType === "monthly" && !hasPositiveNumber(config.monthlySalary)) {
     issues.push({ field: "monthlySalary", message: t("validation.monthlyPositive") });
+  } else if (salaryType === "monthly" && config.monthlySalary > maxSalaryAmount) {
+    issues.push({ field: "monthlySalary", message: t("validation.salaryTooLarge") });
   }
 
   if (salaryType === "daily" && !hasPositiveNumber(config.dailySalary)) {
     issues.push({ field: "dailySalary", message: t("validation.dailyPositive") });
+  } else if (salaryType === "daily" && config.dailySalary > maxSalaryAmount) {
+    issues.push({ field: "dailySalary", message: t("validation.salaryTooLarge") });
   }
 
   if (salaryType === "hourly" && !hasPositiveNumber(config.hourlyRate)) {
     issues.push({ field: "hourlyRate", message: t("validation.hourlyPositive") });
+  } else if (salaryType === "hourly" && config.hourlyRate > maxSalaryAmount) {
+    issues.push({ field: "hourlyRate", message: t("validation.salaryTooLarge") });
   }
 
   if (salaryType === "monthly" && !hasPositiveNumber(config.workDaysPerMonth)) {

@@ -27,20 +27,23 @@ if (!Object.hasOwn(targets, target)) {
 const distDir = resolve(process.cwd(), "dist");
 const htmlPath = resolve(distDir, "index.html");
 const html = readFileSync(htmlPath, "utf8");
-const scriptMatch = html.match(/<script\b[^>]*\bsrc="([^"]*\/assets\/[^"]+\.js)"/);
+const scriptMatches = [
+  ...html.matchAll(/<script\b[^>]*\bsrc="([^"]*\/assets\/[^"]+\.js)"/g),
+];
 
-if (!scriptMatch) {
+if (scriptMatches.length === 0) {
   throw new Error("Could not find the built module entry in dist/index.html");
 }
 
-const entryFile = basename(scriptMatch[1]);
-const entryPath = resolve(distDir, "assets", entryFile);
-
-if (!existsSync(entryPath)) {
-  throw new Error(`Built entry script is missing: ${entryPath}`);
-}
-
-const entrySource = readFileSync(entryPath, "utf8");
+const entrySources = scriptMatches.map((match) => {
+  const entryFile = basename(match[1]);
+  const entryPath = resolve(distDir, "assets", entryFile);
+  if (!existsSync(entryPath)) {
+    throw new Error(`Built entry script is missing: ${entryPath}`);
+  }
+  return readFileSync(entryPath, "utf8");
+});
+const entrySource = entrySources.join("\n");
 const { expected, marker, unexpected } = targets[target];
 const unexpectedPattern = new RegExp(`${unexpected}-[\\w-]+\\.js`);
 

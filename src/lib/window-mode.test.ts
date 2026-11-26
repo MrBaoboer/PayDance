@@ -45,15 +45,16 @@ describe("window mode preferences", () => {
     expect(normalizeFullSize({ width: 80, height: 20 })).toEqual(fullWindowMinSize);
   });
 
-  it("uses a calm translucent mini opacity by default", () => {
-    expect(minMiniOpacityPercent).toBe(10);
+  it("uses a calm translucent mini opacity by default and allows 0% pure-text mode", () => {
+    expect(minMiniOpacityPercent).toBe(0);
     expect(maxMiniOpacityPercent).toBe(100);
     expect(defaultMiniOpacityPercent).toBe(85);
   });
 
   it("clamps mini window opacity to the supported range", () => {
     expect(normalizeMiniOpacityPercent(undefined)).toBe(defaultMiniOpacityPercent);
-    expect(normalizeMiniOpacityPercent(4)).toBe(10);
+    expect(normalizeMiniOpacityPercent(-5)).toBe(0);
+    expect(normalizeMiniOpacityPercent(0)).toBe(0);
     expect(normalizeMiniOpacityPercent(108)).toBe(100);
     expect(normalizeMiniOpacityPercent(73.4)).toBe(73);
   });
@@ -94,14 +95,14 @@ describe("window mode preferences", () => {
       resolveWindowPreferences({
         savedIsMiniMode: true,
         savedMiniSize: { width: 210, height: 58 },
-        savedMiniOpacityPercent: 7,
+        savedMiniOpacityPercent: -4,
         savedSettingsVersion: currentSettingsSchemaVersion + 1,
       }),
     ).toEqual({
       isMiniMode: true,
       miniSize: { width: 210, height: 58 },
       fullSize: { width: 480, height: 460 },
-      miniOpacityPercent: 10,
+      miniOpacityPercent: 0,
     });
   });
 

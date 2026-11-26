@@ -6,13 +6,16 @@
 import { computed } from "vue";
 import { Minus, Moon, Pin, Settings2, Shrink, Sun, X } from "@lucide/vue";
 import { useI18n } from "../composables/useI18n";
+import { useUpdaterContext } from "../composables/useUpdaterContext";
 import type { SalaryStatus } from "../lib/salary";
 
 const { t } = useI18n();
+const updaterContext = useUpdaterContext();
 
 const props = withDefaults(
   defineProps<{
     alwaysOnTop: boolean;
+    availableUpdateVersion?: string;
     hasConfigIssues: boolean;
     isNightWork?: boolean;
     showDesktopActions?: boolean;
@@ -21,15 +24,44 @@ const props = withDefaults(
     themeMode: "light" | "dark";
   }>(),
   {
+    availableUpdateVersion: undefined,
     isNightWork: false,
     showDesktopActions: true,
     status: "rest-day",
   },
 );
 
+const resolvedUpdateVersion = computed(() => {
+  if (props.availableUpdateVersion !== undefined) {
+    return props.availableUpdateVersion;
+  }
+  const status = updaterContext.updateStatus.value;
+  return status.kind === "updateAvailable" ? status.version : "";
+});
+
+const hasAvailableUpdate = computed(
+  () => props.showDesktopActions && Boolean(resolvedUpdateVersion.value),
+);
+
+const settingsButtonLabel = computed(() =>
+  hasAvailableUpdate.value
+    ? t.value("titlebar.settingsWithUpdate", { version: resolvedUpdateVersion.value })
+    : t.value("titlebar.openSettings"),
+);
+
+const settingsButtonTitle = computed(() =>
+  hasAvailableUpdate.value
+    ? t.value("titlebar.settingsWithUpdate", { version: resolvedUpdateVersion.value })
+    : t.value("titlebar.settings"),
+);
+
+const isInvalidConfig = computed(
+  () => props.hasConfigIssues || props.status === "invalid-config",
+);
+
 // One colour per status so the dot alone tells the state; orange stays reserved for income.
 const statusDotClass = computed(() => {
-  if (props.hasConfigIssues || props.status === "invalid-config") {
+  if (isInvalidConfig.value) {
     return "status-dot--invalid";
   }
   if (props.status === "working") {
@@ -45,6 +77,7 @@ defineEmits<{
   close: [];
   dragStart: [event: MouseEvent];
   minimize: [];
+  prefetchSettings: [];
   toggleAlwaysOnTop: [];
   toggleMiniMode: [];
   toggleSettings: [];
@@ -55,20 +88,34 @@ defineEmits<{
 <template>
   <!-- eslint-disable vuejs-accessibility/no-static-element-interactions -->
   <header class="titlebar" @mousedown.left="$emit('dragStart', $event)">
-    <div class="status-chip">
+    <button
+      v-if="isInvalidConfig"
+      class="status-chip status-chip--actionable"
+      :title="t('titlebar.fixConfig')"
+      type="button"
+      @click="$emit('toggleSettings')"
+      @pointerenter="$emit('prefetchSettings')"
+    >
+      <span class="status-dot" :class="statusDotClass" />
+      <span>{{ statusText }}</span>
+    </button>
+    <div v-else class="status-chip">
       <span class="status-dot" :class="statusDotClass" />
       <span>{{ statusText }}</span>
     </div>
 
     <div class="window-actions">
       <button
-        class="icon-button"
-        :aria-label="t('titlebar.openSettings')"
-        :title="t('titlebar.settings')"
+        class="icon-button icon-button--settings"
+        :aria-label="settingsButtonLabel"
+        :title="settingsButtonTitle"
         type="button"
         @click="$emit('toggleSettings')"
+        @focus="$emit('prefetchSettings')"
+        @pointerenter="$emit('prefetchSettings')"
       >
         <Settings2 :size="16" />
+        <span v-if="hasAvailableUpdate" class="settings-update-dot" aria-hidden="true" />
       </button>
       <button
         class="icon-button"
@@ -149,6 +196,21 @@ defineEmits<{
   line-height: 1;
 }
 
+.status-chip--actionable {
+  border: 0;
+  border-radius: var(--ui-radius-sm, 9px);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease;
+}
+
+.status-chip--actionable:hover {
+  background: rgb(239 68 68 / 0.1);
+  color: var(--danger);
+}
+
 .status-dot {
   flex: 0 0 auto;
   width: clamp(7px, 1.7cqw, 9px);
@@ -201,6 +263,7 @@ defineEmits<{
 }
 
 .icon-button {
+  position: relative;
   display: grid;
   width: clamp(30px, 7.2cqw, 36px);
   height: clamp(30px, 7.2cqw, 36px);
@@ -208,9 +271,9 @@ defineEmits<{
   border-radius: var(--ui-radius-sm, 9px);
   color: var(--muted);
   transition:
-    background-color 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
+    background-color 140ms ease,
+    color 140ms ease,
+    transform 120ms ease;
 }
 
 .icon-button:hover {
@@ -219,12 +282,25 @@ defineEmits<{
 }
 
 .icon-button:active {
-  transform: scale(0.96);
+  transform: scale(0.95);
 }
 
 .icon-button.danger:hover {
   background: rgb(239 68 68 / 0.12);
   color: var(--danger);
+}
+
+/* Quiet passive dot for available desktop updates: zero popups, zero animation overhead. */
+.settings-update-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--income-accent);
+  box-shadow: 0 0 0 1.5px var(--panel);
+  pointer-events: none;
 }
 
 .pin-icon--filled {

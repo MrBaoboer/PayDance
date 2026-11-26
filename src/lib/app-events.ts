@@ -9,6 +9,8 @@ export const trayEventNames = {
   toggleMiniMode: "tray-toggle-mini-mode",
 } as const;
 
+export const trayStateChangedEventName = "tray-state-changed";
+
 // Emitted by the Rust side every time the window is shown from the tray or a second launch.
 export const windowShownEventName = "window-shown";
 
@@ -16,3 +18,5 @@ export const windowShownEventName = "window-shown";
 // so the frontend has to announce the language on every change — including the one that
 // happens at startup when the saved (or auto-detected) locale is restored.
 export const localeChangedEventName = "locale-changed";
+
+export const miniPanelRestoreEventName = "mini-panel-restore";

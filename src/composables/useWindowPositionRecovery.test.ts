@@ -82,9 +82,9 @@ describe("useWindowPositionRecovery", () => {
 
     const restoredPosition = appWindow.setPosition.mock.calls[0]?.[0];
     expect(restoredPosition).toBeInstanceOf(PhysicalPosition);
-    expect(restoredPosition).toMatchObject({ x: 1_728, y: 970 });
+    expect(restoredPosition).toMatchObject({ x: 1_716, y: 958 });
     expect(mainPosition.value).toEqual({ x: 120, y: 160 });
-    expect(miniPosition.value).toEqual({ x: 1_728, y: 970 });
+    expect(miniPosition.value).toEqual({ x: 1_716, y: 958 });
   });
 
   it("captures the outgoing mode position before a mode transition", async () => {

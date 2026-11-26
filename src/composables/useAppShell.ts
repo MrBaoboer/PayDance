@@ -21,9 +21,11 @@ export function useAppShell({
   captureWindowPosition = async () => undefined,
   fullSize,
   hasCompletedOnboarding,
+  hideMiniOpacityPanel = async () => undefined,
   isMiniMode,
   isOpacityPanelWindow,
   isSettingsReady,
+  readCurrentFullSize,
   readWindowPosition = () => undefined,
   restoreWindowPosition = async () => undefined,
   saveStateNow,
@@ -38,9 +40,11 @@ export function useAppShell({
   captureWindowPosition?: () => Promise<unknown>;
   fullSize: Ref<WindowSize>;
   hasCompletedOnboarding: Ref<boolean>;
+  hideMiniOpacityPanel?: () => Promise<void>;
   isMiniMode: Ref<boolean>;
   isOpacityPanelWindow: boolean;
   isSettingsReady: Ref<boolean>;
+  readCurrentFullSize?: () => WindowSize;
   readWindowPosition?: (miniMode: boolean) => WindowPosition | undefined;
   restoreWindowPosition?: (position: WindowPosition) => Promise<void>;
   saveStateNow: () => Promise<void>;
@@ -66,6 +70,7 @@ export function useAppShell({
   );
 
   const getCurrentWindowSize = () =>
+    readCurrentFullSize?.() ??
     normalizeFullSize({
       height: window.innerHeight,
       width: window.innerWidth,
@@ -88,6 +93,8 @@ export function useAppShell({
     if (value) {
       showSettings.value = false;
       showSalaryInfo.value = false;
+    } else {
+      await hideMiniOpacityPanel().catch(() => undefined);
     }
     await applyWindowMode();
     if (destinationPosition) {
@@ -103,6 +110,15 @@ export function useAppShell({
   const toggleMiniMode = () => setMiniMode(!isMiniMode.value);
 
   const openSettings = async () => {
+    if (!hasCompletedOnboarding.value) {
+      if (isMiniMode.value) {
+        await applyMiniMode(false);
+      }
+      await appWindow.show();
+      await appWindow.setFocus();
+      return;
+    }
+
     showSettings.value = true;
     showSalaryInfo.value = false;
     if (isMiniMode.value) {

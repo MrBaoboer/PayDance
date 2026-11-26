@@ -26,9 +26,16 @@ export type MiniOpacityPanelAnchor = {
   targetRect: MiniOpacityRect;
 };
 
+export const miniOpacityPanelShadowInset = {
+  top: 6,
+  right: 8,
+  bottom: 10,
+  left: 8,
+} as const;
+
 export const miniOpacityPanelLogicalSize: MiniOpacitySize = {
-  height: 52,
-  width: 108,
+  height: 90,
+  width: 164,
 };
 
 const defaultPanelGap = 8;

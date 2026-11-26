@@ -9,6 +9,7 @@ import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import type { Ref } from "vue";
 import {
   miniOpacityPanelLogicalSize,
+  miniOpacityPanelShadowInset,
   resolveMiniOpacityPanelAnchorRect,
   resolveMiniOpacityPanelPhysicalGap,
   resolveMiniOpacityPanelPhysicalSize,
@@ -18,7 +19,7 @@ import {
   type MiniOpacityPanelAnchor,
   type MiniOpacityRect,
 } from "../lib/mini-opacity-position";
-import type { ThemeMode } from "../lib/window-mode";
+import { miniWindowShadowInset, type ThemeMode } from "../lib/window-mode";
 import type { Locale } from "./useI18n";
 
 type MiniOpacityHostWindow = {
@@ -78,22 +79,30 @@ export function useMiniOpacityPanel(
       opacityWindow.outerPosition(),
     ]);
     const scaleFactor = monitor?.scaleFactor ?? window.devicePixelRatio ?? 1;
+    const miniLeft = Math.round(miniWindowShadowInset.left * scaleFactor);
+    const miniRight = Math.round(miniWindowShadowInset.right * scaleFactor);
+    const miniTop = Math.round(miniWindowShadowInset.top * scaleFactor);
+    const miniBottom = Math.round(miniWindowShadowInset.bottom * scaleFactor);
+    const panelLeft = Math.round(miniOpacityPanelShadowInset.left * scaleFactor);
+    const panelRight = Math.round(miniOpacityPanelShadowInset.right * scaleFactor);
+    const panelTop = Math.round(miniOpacityPanelShadowInset.top * scaleFactor);
+    const panelBottom = Math.round(miniOpacityPanelShadowInset.bottom * scaleFactor);
 
     return resolveMiniOpacityPanelWindowPosition({
       anchorRect: {
-        height: miniSize.height,
-        width: miniSize.width,
-        x: miniPosition.x,
-        y: miniPosition.y,
+        height: Math.max(1, miniSize.height - miniTop - miniBottom),
+        width: Math.max(1, miniSize.width - miniLeft - miniRight),
+        x: miniPosition.x + miniLeft,
+        y: miniPosition.y + miniTop,
       },
       gap: resolveMiniOpacityPanelPhysicalGap(scaleFactor),
       panelInnerOffset: {
-        x: panelInnerPosition.x - panelOuterPosition.x,
-        y: panelInnerPosition.y - panelOuterPosition.y,
+        x: panelInnerPosition.x - panelOuterPosition.x + panelLeft,
+        y: panelInnerPosition.y - panelOuterPosition.y + panelTop,
       },
       panelSize: {
-        height: panelInnerSize.height,
-        width: panelInnerSize.width,
+        height: Math.max(1, panelInnerSize.height - panelTop - panelBottom),
+        width: Math.max(1, panelInnerSize.width - panelLeft - panelRight),
       },
       workArea: monitor
         ? {
@@ -131,7 +140,15 @@ export function useMiniOpacityPanel(
     await opacityWindow.setFocus();
   };
 
+  const hideMiniOpacityPanel = async () => {
+    const opacityWindow = await WebviewWindow.getByLabel("mini-opacity");
+    if (!opacityWindow) return;
+
+    await opacityWindow.hide().catch(() => undefined);
+  };
+
   return {
+    hideMiniOpacityPanel,
     resolveMiniOpacityPanelPlacement,
     showMiniOpacityPanel,
   };

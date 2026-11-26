@@ -29,6 +29,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   openSalaryInfo: [];
+  prefetchSalaryInfo: [];
   setMiniMode: [value: boolean];
 }>();
 
@@ -82,6 +83,8 @@ const amountAccessibleName = computed(() =>
         class="salary-info-button salary-info-button--quiet"
         type="button"
         @click="emit('openSalaryInfo')"
+        @focus="emit('prefetchSalaryInfo')"
+        @pointerenter="emit('prefetchSalaryInfo')"
       >
         {{ t("dashboard.salaryInfo") }}
       </button>

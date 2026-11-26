@@ -32,8 +32,39 @@ export const fullWindowSize: WindowSize = { width: 480, height: 460 };
 export const fullWindowMinSize: WindowSize = { width: 430, height: 410 };
 export const miniDefaultSize: WindowSize = { width: 176, height: 54 };
 export const miniMinSize: WindowSize = { width: 148, height: 44 };
-export const miniResizeEdgeSize = 10;
-export const minMiniOpacityPercent = 10;
+export const desktopWindowShadowInset = {
+  top: 10,
+  right: 16,
+  bottom: 20,
+  left: 16,
+} as const;
+export const miniWindowShadowInset = {
+  top: 4,
+  right: 6,
+  bottom: 8,
+  left: 6,
+} as const;
+
+export const toDesktopHostSize = (size: WindowSize, isMiniMode: boolean): WindowSize => {
+  const inset = isMiniMode ? miniWindowShadowInset : desktopWindowShadowInset;
+  return {
+    width: size.width + inset.left + inset.right,
+    height: size.height + inset.top + inset.bottom,
+  };
+};
+
+export const fromDesktopHostSize = (
+  size: WindowSize,
+  isMiniMode: boolean,
+): WindowSize => {
+  const inset = isMiniMode ? miniWindowShadowInset : desktopWindowShadowInset;
+  return {
+    width: size.width - inset.left - inset.right,
+    height: size.height - inset.top - inset.bottom,
+  };
+};
+export const miniResizeEdgeSize = 5;
+export const minMiniOpacityPercent = 0;
 export const maxMiniOpacityPercent = 100;
 export const defaultMiniOpacityPercent = 85;
 

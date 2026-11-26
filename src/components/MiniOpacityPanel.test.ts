@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import miniOpacityPanelSource from "./MiniOpacityPanel.vue?raw";
 
 describe("mini opacity panel", () => {
-  it("uses a compact slider from 10 to 100 percent", () => {
+  it("uses a compact slider from 0 to 100 percent", () => {
     expect(miniOpacityPanelSource).toContain('type="range"');
     expect(miniOpacityPanelSource).toContain(':min="minMiniOpacityPercent"');
     expect(miniOpacityPanelSource).toContain(':max="maxMiniOpacityPercent"');
