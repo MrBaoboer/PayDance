@@ -10,6 +10,8 @@
 
 - **Release 只保留一个 EXE**：此前每个 Release 同时上传带版本号和固定名两份内容相同的 EXE 与 `.sha256`，页面上看起来是重复文件。现在只保留带版本号的 `pay-dance-v<版本>-windows-x64.exe`。官网下载按钮与 README 改走 `paydance.vercel.app/download/windows`：它先从 GitHub 拿到最新 tag 再跳到对应文件，发版窗口内不会 404，也不再每次发版手改；`latest.json` 的下载地址钉在对应 tag；Post-Release Smoke 会拒绝带第二个 `.exe` 的 Release，并核对跳转端点指向本次版本。v0.9.10 与 v0.9.9 页面上的固定名副本已移除。
 
+- **透明度面板圆角修复**：打开迷你窗口的透明度面板时，圆角外侧保持透明。
+
 ## 已发布
 ### v0.9.10
 

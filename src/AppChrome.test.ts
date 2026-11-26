@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import desktopAppSource from "./DesktopApp.vue?raw";
 import appWindowSource from "./components/AppWindow.vue?raw";
+import opacityPanelComponentSource from "./components/MiniOpacityPanel.vue?raw";
 import miniOpacityPanelSource from "./composables/useMiniOpacityPanel.ts?raw";
 import windowPositionRecoverySource from "./composables/useWindowPositionRecovery.ts?raw";
 import windowLifecycleSource from "./composables/useAppWindowLifecycle.ts?raw";
@@ -69,6 +70,14 @@ describe("app chrome", () => {
     expect(windowStatePersistenceSource).toContain(
       "miniOpacityPercent: miniOpacityPercent.value",
     );
+  });
+
+  it("leaves the opacity panel corners transparent in its tightly sized WebView", () => {
+    const panelStyle = opacityPanelComponentSource
+      .split(".mini-opacity-panel {")[1]
+      .split("}")[0];
+    expect(panelStyle).toContain("border-radius:");
+    expect(panelStyle).not.toContain("box-shadow:");
   });
 
   it("keeps a final app-level fallback around settings loading", () => {
