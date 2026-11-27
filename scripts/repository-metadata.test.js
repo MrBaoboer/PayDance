@@ -20,6 +20,7 @@ const dependabotSettings = dependabotConfig
 // a RegExp from these names would reintroduce js/incomplete-sanitization.
 const collapsedDependabotSettings = dependabotSettings.replace(/\s+/g, " ");
 const siteWindowsDownloadUrl = "https://paydance.vercel.app/download/windows";
+const siteDownloadsBadgeUrl = "https://paydance.vercel.app/badge/downloads";
 const legacyAdditionalTermsReference = `see /${["ADDITIONAL_TERMS", "md"].join(".")}`;
 const binaryExtensions = new Set([".ico", ".png", ".woff2"]);
 const existsInWorktree = (path) => existsSync(resolve(repoRoot, path));
@@ -105,10 +106,12 @@ describe("repository metadata", () => {
   });
 
   // 中英文 README 的下载直链走官网跳转端点，它总是解析到最新 tag 的 EXE，发版窗口内也不会 404。
-  it("keeps README desktop download links on the site download endpoint", () => {
+  it("keeps README desktop download links and downloads badge on site endpoints", () => {
     for (const path of ["README.md", "docs/README_EN.md"]) {
       const readme = read(path);
       expect(readme).toContain(siteWindowsDownloadUrl);
+      expect(readme).toContain(siteDownloadsBadgeUrl);
+      expect(readme).not.toContain("img.shields.io/github/downloads/");
       expect(readme).not.toContain("releases/latest/download/");
       expect(readme).not.toContain("releases/download/v0.7.16/pay-dance.exe");
       expect(readme).not.toContain("mrbaoboer.github.io/PayDance/pay-dance.exe");

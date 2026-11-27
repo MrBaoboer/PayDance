@@ -39,6 +39,19 @@
           "value": "default-src 'self'; script-src 'self' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
         }
       ]
+    },
+    {
+      "source": "/badge/(.*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "cross-origin"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "script-src 'none';"
+        }
+      ]
     }
   ],
   "installCommand": "npm ci",
@@ -69,6 +82,10 @@
     {
       "source": "/download/windows",
       "destination": "/api/download-windows"
+    },
+    {
+      "source": "/badge/downloads",
+      "destination": "/api/downloads-badge"
     }
   ]
 }

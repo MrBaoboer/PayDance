@@ -19,7 +19,7 @@
 
 <p align="center">
   <a href="https://github.com/MrBaoboer/PayDance/releases/latest"><img alt="最新版本" src="https://img.shields.io/github/v/release/MrBaoboer/PayDance?style=flat&label=release&labelColor=1F2328&color=F59E0B"></a>
-  <a href="https://github.com/MrBaoboer/PayDance/releases"><img alt="下载量" src="https://img.shields.io/github/downloads/MrBaoboer/PayDance/total?style=flat&label=downloads&labelColor=1F2328&color=3D444D"></a>
+  <a href="https://github.com/MrBaoboer/PayDance/releases"><img alt="下载量" src="https://paydance.vercel.app/badge/downloads"></a>
   <a href="LICENSE"><img alt="许可" src="https://img.shields.io/badge/license-AGPL--3.0--only-3D444D?style=flat&labelColor=1F2328"></a>
 </p>
 
@@ -39,7 +39,7 @@
 
 - **实时金额**：今日入账持续更新，精确到小数点后 2 位。
 - **常见工作制**：月薪/日薪/时薪自动换算，支持每周工作日、午休剔除、跨零点夜班。
-- **迷你悬浮窗**：只显示金额，可拖拽、可置顶，透明度 10%–100% 可调；双击即可恢复主窗口。
+- **迷你悬浮窗**：只显示金额，可拖拽、可置顶，透明度 0%–100% 可调；双击即可恢复主窗口。
 - **本地优先**：不需要账号，薪资配置只保存在你自己的电脑上。
 - **中英双语**：界面、托盘、校验提示完整覆盖简体中文与 English。
 - **Windows 桌面能力**：支持亮暗主题、托盘常驻、开机自启动、后台更新。

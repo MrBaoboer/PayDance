@@ -19,7 +19,7 @@
 
 <p align="center">
   <a href="https://github.com/MrBaoboer/PayDance/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/MrBaoboer/PayDance?style=flat&label=release&labelColor=1F2328&color=F59E0B"></a>
-  <a href="https://github.com/MrBaoboer/PayDance/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/MrBaoboer/PayDance/total?style=flat&label=downloads&labelColor=1F2328&color=3D444D"></a>
+  <a href="https://github.com/MrBaoboer/PayDance/releases"><img alt="Downloads" src="https://paydance.vercel.app/badge/downloads"></a>
   <a href="../LICENSE"><img alt="License" src="https://img.shields.io/badge/license-AGPL--3.0--only-3D444D?style=flat&labelColor=1F2328"></a>
 </p>
 
@@ -39,7 +39,7 @@ The main window shows today's earnings, work progress, time remaining, and daily
 
 - **Live earnings**: Today's amount updates continuously and is shown to two decimal places.
 - **Common pay schedules**: Supports monthly, daily, and hourly pay, configurable workdays, lunch-break exclusion, and overnight shifts.
-- **Mini window**: Shows only the amount, stays draggable and always on top, and supports 10%–100% opacity. Double-click it to restore the main window.
+- **Mini window**: Shows only the amount, stays draggable and always on top, and supports 0%–100% opacity. Double-click it to restore the main window.
 - **Local-first**: No account required; your salary settings stay on your own machine.
 - **Bilingual UI**: The interface, tray menu, and validation messages support Simplified Chinese and English.
 - **Windows integration**: Includes light and dark themes, a system tray, auto-start, and background updates.
